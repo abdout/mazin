@@ -180,5 +180,98 @@
     "maxLength": "Must not exceed {max} characters",
     "invalidNumber": "Must be a valid number",
     "positiveNumber": "Must be a positive number"
+  },
+  "marketing": {
+    "hero": {
+      "title": "Fast & Reliable Customs Clearance in Port Sudan",
+      "subtitle": "Streamline your import and export operations with our integrated digital services, real-time tracking, and expert team",
+      "cta": "Get Started",
+      "contact": "Contact Us"
+    },
+    "stats": {
+      "years": "Years of Experience",
+      "yearsValue": "15+",
+      "shipments": "Shipments Completed",
+      "shipmentsValue": "5,000+",
+      "clients": "Satisfied Clients",
+      "clientsValue": "200+",
+      "clearanceTime": "Clearance Time",
+      "clearanceTimeValue": "48 Hours"
+    },
+    "services": {
+      "title": "Our Services",
+      "subtitle": "Comprehensive solutions for all your shipping and customs needs",
+      "import": {
+        "title": "Import Clearance",
+        "description": "Complete customs procedures, duty calculations, and goods delivery"
+      },
+      "export": {
+        "title": "Export Clearance",
+        "description": "Licenses and certificates issuance for your export goods"
+      },
+      "warehouse": {
+        "title": "Warehousing",
+        "description": "Secure storage facilities with full inventory management"
+      },
+      "transport": {
+        "title": "Transportation",
+        "description": "Container and cargo delivery to final destination"
+      }
+    },
+    "process": {
+      "title": "How It Works",
+      "subtitle": "Simple steps to complete your customs clearance",
+      "step1": {
+        "title": "Submit Request",
+        "description": "Send your shipment details and documents via the platform"
+      },
+      "step2": {
+        "title": "Document Processing",
+        "description": "We review and prepare all required paperwork"
+      },
+      "step3": {
+        "title": "Customs Clearance",
+        "description": "We handle all official procedures until clearance"
+      },
+      "step4": {
+        "title": "Delivery",
+        "description": "Your goods delivered ready at the specified location"
+      }
+    },
+    "features": {
+      "title": "Platform Features",
+      "subtitle": "Modern technology to manage your operations efficiently",
+      "tracking": {
+        "title": "Real-time Tracking",
+        "description": "Monitor your shipments status moment by moment"
+      },
+      "invoicing": {
+        "title": "Multi-currency Invoicing",
+        "description": "Invoices in SDG, USD, and SAR currencies"
+      },
+      "documents": {
+        "title": "Document Management",
+        "description": "Upload and organize all documents electronically"
+      },
+      "access": {
+        "title": "Role-based Access",
+        "description": "Manage your team with different roles and access levels"
+      }
+    },
+    "cta": {
+      "title": "Ready to streamline your operations?",
+      "subtitle": "Join hundreds of clients who trust Mazin to manage their shipments",
+      "button": "Start Free"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Our team is ready to answer your questions",
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "message": "Your Message",
+      "submit": "Send",
+      "success": "Your message was sent successfully! We will contact you soon"
+    }
   }
 }

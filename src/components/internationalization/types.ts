@@ -184,4 +184,61 @@ export interface Dictionary {
     invalidNumber: string
     positiveNumber: string
   }
+  marketing: {
+    hero: {
+      title: string
+      subtitle: string
+      cta: string
+      contact: string
+    }
+    stats: {
+      years: string
+      yearsValue: string
+      shipments: string
+      shipmentsValue: string
+      clients: string
+      clientsValue: string
+      clearanceTime: string
+      clearanceTimeValue: string
+    }
+    services: {
+      title: string
+      subtitle: string
+      import: { title: string; description: string }
+      export: { title: string; description: string }
+      warehouse: { title: string; description: string }
+      transport: { title: string; description: string }
+    }
+    process: {
+      title: string
+      subtitle: string
+      step1: { title: string; description: string }
+      step2: { title: string; description: string }
+      step3: { title: string; description: string }
+      step4: { title: string; description: string }
+    }
+    features: {
+      title: string
+      subtitle: string
+      tracking: { title: string; description: string }
+      invoicing: { title: string; description: string }
+      documents: { title: string; description: string }
+      access: { title: string; description: string }
+    }
+    cta: {
+      title: string
+      subtitle: string
+      button: string
+    }
+    contact: {
+      title: string
+      subtitle: string
+      name: string
+      email: string
+      phone: string
+      message: string
+      submit: string
+      success: string
+    }
+  }
 }
