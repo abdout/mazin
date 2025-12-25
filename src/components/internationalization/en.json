@@ -1,0 +1,184 @@
+{
+  "common": {
+    "appName": "Mazin",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None",
+    "required": "Required",
+    "optional": "Optional",
+    "success": "Success",
+    "error": "Error occurred",
+    "warning": "Warning"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "shipments": "Shipments",
+    "customs": "Customs",
+    "invoices": "Invoices",
+    "settings": "Settings",
+    "users": "Users",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "loginButton": "Sign In",
+    "invalidCredentials": "Invalid credentials",
+    "welcomeBack": "Welcome back"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalShipments": "Total Shipments",
+    "inTransit": "In Transit",
+    "pendingCustoms": "Pending Customs",
+    "unpaidInvoices": "Unpaid Invoices",
+    "recentShipments": "Recent Shipments",
+    "quickActions": "Quick Actions",
+    "newShipment": "New Shipment",
+    "newDeclaration": "New Declaration",
+    "newInvoice": "New Invoice"
+  },
+  "shipments": {
+    "title": "Shipments",
+    "newShipment": "New Shipment",
+    "editShipment": "Edit Shipment",
+    "shipmentDetails": "Shipment Details",
+    "shipmentNumber": "Shipment Number",
+    "type": "Type",
+    "status": "Status",
+    "description": "Description",
+    "weight": "Weight",
+    "quantity": "Quantity",
+    "containerNumber": "Container Number",
+    "vesselName": "Vessel Name",
+    "consignor": "Consignor",
+    "consignee": "Consignee",
+    "arrivalDate": "Arrival Date",
+    "departureDate": "Departure Date",
+    "types": {
+      "IMPORT": "Import",
+      "EXPORT": "Export"
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "IN_TRANSIT": "In Transit",
+      "ARRIVED": "Arrived",
+      "CLEARED": "Cleared",
+      "DELIVERED": "Delivered"
+    },
+    "createSuccess": "Shipment created successfully",
+    "updateSuccess": "Shipment updated successfully",
+    "deleteSuccess": "Shipment deleted successfully"
+  },
+  "customs": {
+    "title": "Customs Declarations",
+    "newDeclaration": "New Declaration",
+    "editDeclaration": "Edit Declaration",
+    "declarationDetails": "Declaration Details",
+    "declarationNumber": "Declaration Number",
+    "hsCode": "HS Code",
+    "dutyAmount": "Duty Amount",
+    "taxAmount": "Tax Amount",
+    "currency": "Currency",
+    "documents": "Documents",
+    "uploadDocument": "Upload Document",
+    "approve": "Approve",
+    "reject": "Reject",
+    "submit": "Submit",
+    "statuses": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "UNDER_REVIEW": "Under Review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "documentTypes": {
+      "BILL_OF_LADING": "Bill of Lading",
+      "COMMERCIAL_INVOICE": "Commercial Invoice",
+      "PACKING_LIST": "Packing List",
+      "CERTIFICATE_OF_ORIGIN": "Certificate of Origin",
+      "INSURANCE_CERTIFICATE": "Insurance Certificate",
+      "OTHER": "Other"
+    }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "newInvoice": "New Invoice",
+    "editInvoice": "Edit Invoice",
+    "invoiceDetails": "Invoice Details",
+    "invoiceNumber": "Invoice Number",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "total": "Total",
+    "dueDate": "Due Date",
+    "paidAt": "Paid At",
+    "lineItems": "Line Items",
+    "addItem": "Add Item",
+    "itemDescription": "Item Description",
+    "unitPrice": "Unit Price",
+    "downloadPdf": "Download PDF",
+    "markAsPaid": "Mark as Paid",
+    "markAsSent": "Mark as Sent",
+    "statuses": {
+      "DRAFT": "Draft",
+      "SENT": "Sent",
+      "PAID": "Paid",
+      "OVERDUE": "Overdue",
+      "CANCELLED": "Cancelled"
+    },
+    "currencies": {
+      "SDG": "Sudanese Pound",
+      "USD": "US Dollar",
+      "SAR": "Saudi Riyal"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "language": "Language",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password"
+  },
+  "users": {
+    "title": "Users",
+    "newUser": "New User",
+    "editUser": "Edit User",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "roles": {
+      "ADMIN": "Admin",
+      "MANAGER": "Manager",
+      "CLERK": "Clerk",
+      "VIEWER": "Viewer"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must not exceed {max} characters",
+    "invalidNumber": "Must be a valid number",
+    "positiveNumber": "Must be a positive number"
+  }
+}

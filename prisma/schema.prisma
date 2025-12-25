@@ -1,0 +1,272 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// Authentication Models
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  password      String?
+  image         String?
+  role          UserRole  @default(CLERK)
+
+  accounts Account[]
+  sessions Session[]
+
+  shipments    Shipment[]
+  invoices     Invoice[]
+  declarations CustomsDeclaration[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("verification_tokens")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  CLERK
+  VIEWER
+}
+
+// ============================================
+// Shipment Models
+// ============================================
+
+model Shipment {
+  id             String         @id @default(cuid())
+  shipmentNumber String         @unique
+  type           ShipmentType
+  status         ShipmentStatus @default(PENDING)
+
+  // Cargo details
+  description     String
+  weight          Decimal?       @db.Decimal(10, 2)
+  quantity        Int?
+  containerNumber String?
+  vesselName      String?
+
+  // Parties
+  consignor String // Shipper
+  consignee String // Receiver
+
+  // Dates
+  arrivalDate   DateTime?
+  departureDate DateTime?
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  declarations CustomsDeclaration[]
+  invoices     Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shipmentNumber])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("shipments")
+}
+
+enum ShipmentType {
+  IMPORT
+  EXPORT
+}
+
+enum ShipmentStatus {
+  PENDING
+  IN_TRANSIT
+  ARRIVED
+  CLEARED
+  DELIVERED
+}
+
+// ============================================
+// Customs Models
+// ============================================
+
+model CustomsDeclaration {
+  id            String            @id @default(cuid())
+  declarationNo String            @unique
+  status        DeclarationStatus @default(DRAFT)
+
+  hsCode     String?
+  dutyAmount Decimal? @db.Decimal(15, 2)
+  taxAmount  Decimal? @db.Decimal(15, 2)
+  currency   String   @default("SDG")
+  notes      String?
+
+  // Relations
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  documents Document[]
+
+  approvedAt DateTime?
+  approvedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([declarationNo])
+  @@index([status])
+  @@index([shipmentId])
+  @@map("customs_declarations")
+}
+
+enum DeclarationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model Document {
+  id       String       @id @default(cuid())
+  fileName String
+  fileUrl  String
+  fileType DocumentType
+  fileSize Int?
+
+  declarationId String
+  declaration   CustomsDeclaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  BILL_OF_LADING
+  COMMERCIAL_INVOICE
+  PACKING_LIST
+  CERTIFICATE_OF_ORIGIN
+  INSURANCE_CERTIFICATE
+  OTHER
+}
+
+// ============================================
+// Invoice Models
+// ============================================
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  status        InvoiceStatus @default(DRAFT)
+
+  currency String  @default("SDG")
+  subtotal Decimal @db.Decimal(15, 2)
+  tax      Decimal @default(0) @db.Decimal(15, 2)
+  total    Decimal @db.Decimal(15, 2)
+
+  dueDate DateTime?
+  paidAt  DateTime?
+  notes   String?
+
+  // Relations
+  shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  items InvoiceItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([userId])
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(15, 2)
+  total       Decimal @db.Decimal(15, 2)
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("invoice_items")
+}

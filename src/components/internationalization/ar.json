@@ -1,0 +1,184 @@
+{
+  "common": {
+    "appName": "مازن",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "search": "بحث",
+    "filter": "تصفية",
+    "loading": "جاري التحميل...",
+    "noResults": "لا توجد نتائج",
+    "actions": "إجراءات",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "yes": "نعم",
+    "no": "لا",
+    "all": "الكل",
+    "none": "لا شيء",
+    "required": "مطلوب",
+    "optional": "اختياري",
+    "success": "تم بنجاح",
+    "error": "حدث خطأ",
+    "warning": "تحذير"
+  },
+  "navigation": {
+    "dashboard": "لوحة التحكم",
+    "shipments": "الشحنات",
+    "customs": "الجمارك",
+    "invoices": "الفواتير",
+    "settings": "الإعدادات",
+    "users": "المستخدمين",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "loginButton": "دخول",
+    "invalidCredentials": "بيانات الدخول غير صحيحة",
+    "welcomeBack": "مرحباً بعودتك"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "totalShipments": "إجمالي الشحنات",
+    "inTransit": "قيد النقل",
+    "pendingCustoms": "جمارك معلقة",
+    "unpaidInvoices": "فواتير غير مدفوعة",
+    "recentShipments": "أحدث الشحنات",
+    "quickActions": "إجراءات سريعة",
+    "newShipment": "شحنة جديدة",
+    "newDeclaration": "بيان جمركي جديد",
+    "newInvoice": "فاتورة جديدة"
+  },
+  "shipments": {
+    "title": "الشحنات",
+    "newShipment": "شحنة جديدة",
+    "editShipment": "تعديل الشحنة",
+    "shipmentDetails": "تفاصيل الشحنة",
+    "shipmentNumber": "رقم الشحنة",
+    "type": "النوع",
+    "status": "الحالة",
+    "description": "الوصف",
+    "weight": "الوزن",
+    "quantity": "الكمية",
+    "containerNumber": "رقم الحاوية",
+    "vesselName": "اسم السفينة",
+    "consignor": "الشاحن",
+    "consignee": "المرسل إليه",
+    "arrivalDate": "تاريخ الوصول",
+    "departureDate": "تاريخ المغادرة",
+    "types": {
+      "IMPORT": "استيراد",
+      "EXPORT": "تصدير"
+    },
+    "statuses": {
+      "PENDING": "معلق",
+      "IN_TRANSIT": "قيد النقل",
+      "ARRIVED": "وصل",
+      "CLEARED": "تم التخليص",
+      "DELIVERED": "تم التسليم"
+    },
+    "createSuccess": "تم إنشاء الشحنة بنجاح",
+    "updateSuccess": "تم تحديث الشحنة بنجاح",
+    "deleteSuccess": "تم حذف الشحنة بنجاح"
+  },
+  "customs": {
+    "title": "البيانات الجمركية",
+    "newDeclaration": "بيان جمركي جديد",
+    "editDeclaration": "تعديل البيان",
+    "declarationDetails": "تفاصيل البيان",
+    "declarationNumber": "رقم البيان",
+    "hsCode": "رمز النظام المنسق",
+    "dutyAmount": "مبلغ الرسوم",
+    "taxAmount": "مبلغ الضريبة",
+    "currency": "العملة",
+    "documents": "المستندات",
+    "uploadDocument": "رفع مستند",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "submit": "تقديم",
+    "statuses": {
+      "DRAFT": "مسودة",
+      "SUBMITTED": "مقدم",
+      "UNDER_REVIEW": "قيد المراجعة",
+      "APPROVED": "موافق عليه",
+      "REJECTED": "مرفوض"
+    },
+    "documentTypes": {
+      "BILL_OF_LADING": "بوليصة الشحن",
+      "COMMERCIAL_INVOICE": "الفاتورة التجارية",
+      "PACKING_LIST": "قائمة التعبئة",
+      "CERTIFICATE_OF_ORIGIN": "شهادة المنشأ",
+      "INSURANCE_CERTIFICATE": "شهادة التأمين",
+      "OTHER": "أخرى"
+    }
+  },
+  "invoices": {
+    "title": "الفواتير",
+    "newInvoice": "فاتورة جديدة",
+    "editInvoice": "تعديل الفاتورة",
+    "invoiceDetails": "تفاصيل الفاتورة",
+    "invoiceNumber": "رقم الفاتورة",
+    "subtotal": "المجموع الفرعي",
+    "tax": "الضريبة",
+    "total": "الإجمالي",
+    "dueDate": "تاريخ الاستحقاق",
+    "paidAt": "تاريخ الدفع",
+    "lineItems": "بنود الفاتورة",
+    "addItem": "إضافة بند",
+    "itemDescription": "وصف البند",
+    "unitPrice": "سعر الوحدة",
+    "downloadPdf": "تحميل PDF",
+    "markAsPaid": "تحديد كمدفوعة",
+    "markAsSent": "تحديد كمرسلة",
+    "statuses": {
+      "DRAFT": "مسودة",
+      "SENT": "مرسلة",
+      "PAID": "مدفوعة",
+      "OVERDUE": "متأخرة",
+      "CANCELLED": "ملغاة"
+    },
+    "currencies": {
+      "SDG": "جنيه سوداني",
+      "USD": "دولار أمريكي",
+      "SAR": "ريال سعودي"
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "language": "اللغة",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور"
+  },
+  "users": {
+    "title": "المستخدمين",
+    "newUser": "مستخدم جديد",
+    "editUser": "تعديل المستخدم",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "role": "الدور",
+    "roles": {
+      "ADMIN": "مدير",
+      "MANAGER": "مشرف",
+      "CLERK": "موظف",
+      "VIEWER": "مشاهد"
+    }
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "invalidEmail": "البريد الإلكتروني غير صالح",
+    "minLength": "يجب أن يكون على الأقل {min} أحرف",
+    "maxLength": "يجب ألا يتجاوز {max} حرف",
+    "invalidNumber": "يجب أن يكون رقماً صالحاً",
+    "positiveNumber": "يجب أن يكون رقماً موجباً"
+  }
+}

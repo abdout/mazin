@@ -1,0 +1,441 @@
+/**
+ * Comprehensive RTL (Right-to-Left) Support
+ *
+ * This file provides advanced RTL layout patterns, utilities, and optimizations
+ * for Arabic and other RTL languages.
+ */
+
+@layer utilities {
+  /* RTL Layout Utilities */
+  .rtl\:flex-row-reverse {
+    flex-direction: row-reverse;
+  }
+
+  .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+
+  .rtl\:space-y-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 1;
+  }
+
+  /* RTL Margin and Padding */
+  .rtl\:ml-auto {
+    margin-left: auto;
+  }
+
+  .rtl\:mr-auto {
+    margin-right: auto;
+  }
+
+  .rtl\:ml-0 {
+    margin-left: 0;
+  }
+
+  .rtl\:mr-0 {
+    margin-right: 0;
+  }
+
+  .rtl\:pl-0 {
+    padding-left: 0;
+  }
+
+  .rtl\:pr-0 {
+    padding-right: 0;
+  }
+
+  /* RTL Text Alignment */
+  .rtl\:text-right {
+    text-align: right;
+  }
+
+  .rtl\:text-left {
+    text-align: left;
+  }
+
+  /* RTL Positioning */
+  .rtl\:left-auto {
+    left: auto;
+  }
+
+  .rtl\:right-auto {
+    right: auto;
+  }
+
+  .rtl\:left-0 {
+    left: 0;
+  }
+
+  .rtl\:right-0 {
+    right: 0;
+  }
+
+  /* RTL Transform */
+  .rtl\:scale-x-flip {
+    --tw-scale-x: -1;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+
+  /* RTL Border Radius */
+  .rtl\:rounded-l-none {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .rtl\:rounded-r-none {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .rtl\:rounded-tl-none {
+    border-top-left-radius: 0;
+  }
+
+  .rtl\:rounded-tr-none {
+    border-top-right-radius: 0;
+  }
+
+  .rtl\:rounded-bl-none {
+    border-bottom-left-radius: 0;
+  }
+
+  .rtl\:rounded-br-none {
+    border-bottom-right-radius: 0;
+  }
+
+  /* RTL Borders */
+  .rtl\:border-l-0 {
+    border-left-width: 0;
+  }
+
+  .rtl\:border-r-0 {
+    border-right-width: 0;
+  }
+
+  .rtl\:border-l {
+    border-left-width: 1px;
+  }
+
+  .rtl\:border-r {
+    border-right-width: 1px;
+  }
+}
+
+@layer components {
+  /* RTL Card Components */
+  .card-rtl {
+    @apply rtl:text-right;
+  }
+
+  .card-header-rtl {
+    @apply rtl:text-right rtl:space-y-reverse;
+  }
+
+  .card-content-rtl {
+    @apply rtl:text-right;
+  }
+
+  /* RTL Navigation */
+  .nav-rtl {
+    @apply rtl:flex-row-reverse rtl:space-x-reverse;
+  }
+
+  .nav-item-rtl {
+    @apply rtl:ml-auto rtl:mr-0;
+  }
+
+  /* RTL Form Components */
+  .form-rtl {
+    @apply rtl:text-right;
+  }
+
+  .form-label-rtl {
+    @apply rtl:text-right rtl:ml-auto rtl:mr-0;
+  }
+
+  .form-input-rtl {
+    @apply rtl:text-right rtl:pr-3 rtl:pl-10;
+  }
+
+  .form-checkbox-rtl {
+    @apply rtl:ml-auto rtl:mr-0;
+  }
+
+  /* RTL Button Groups */
+  .btn-group-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  .btn-group-rtl > button:first-child {
+    @apply rtl:rounded-l-none rtl:rounded-r-md;
+  }
+
+  .btn-group-rtl > button:last-child {
+    @apply rtl:rounded-r-none rtl:rounded-l-md;
+  }
+
+  /* RTL Dropdown */
+  .dropdown-rtl {
+    @apply rtl:right-0 rtl:left-auto;
+  }
+
+  /* RTL Modal */
+  .modal-rtl {
+    @apply rtl:text-right;
+  }
+
+  .modal-header-rtl {
+    @apply rtl:text-right rtl:pr-6 rtl:pl-4;
+  }
+
+  .modal-close-rtl {
+    @apply rtl:left-4 rtl:right-auto;
+  }
+
+  /* RTL Sidebar */
+  .sidebar-rtl {
+    @apply rtl:right-0 rtl:left-auto;
+  }
+
+  .sidebar-item-rtl {
+    @apply rtl:text-right rtl:pr-4 rtl:pl-2;
+  }
+
+  /* RTL Data Table */
+  .table-rtl {
+    @apply rtl:text-right;
+  }
+
+  .table-header-rtl {
+    @apply rtl:text-right;
+  }
+
+  .table-cell-rtl {
+    @apply rtl:text-right;
+  }
+
+  /* RTL Avatar Group */
+  .avatar-group-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  .avatar-group-rtl .avatar {
+    @apply rtl:-mr-2 rtl:ml-0;
+  }
+
+  /* RTL Breadcrumb */
+  .breadcrumb-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  .breadcrumb-separator-rtl {
+    transform: scaleX(-1);
+  }
+
+  /* RTL Progress Bar */
+  .progress-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  /* RTL Toast Notifications */
+  .toast-rtl {
+    @apply rtl:right-4 rtl:left-auto;
+  }
+
+  .toast-close-rtl {
+    @apply rtl:left-2 rtl:right-auto;
+  }
+
+  /* RTL Tabs */
+  .tabs-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  .tab-content-rtl {
+    @apply rtl:text-right;
+  }
+
+  /* RTL Accordion */
+  .accordion-rtl {
+    @apply rtl:text-right;
+  }
+
+  .accordion-trigger-rtl {
+    @apply rtl:text-right rtl:pr-4 rtl:pl-0;
+  }
+
+  .accordion-icon-rtl {
+    @apply rtl:rotate-180;
+  }
+
+  /* RTL Select */
+  .select-rtl {
+    @apply rtl:text-right;
+  }
+
+  .select-trigger-rtl {
+    @apply rtl:text-right rtl:pr-3 rtl:pl-8;
+  }
+
+  .select-icon-rtl {
+    @apply rtl:left-3 rtl:right-auto;
+  }
+
+  /* RTL Date Picker */
+  .datepicker-rtl {
+    @apply rtl:text-right;
+  }
+
+  .datepicker-header-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  .datepicker-nav-rtl {
+    transform: scaleX(-1);
+  }
+
+  /* RTL Command Palette */
+  .command-rtl {
+    @apply rtl:text-right;
+  }
+
+  .command-input-rtl {
+    @apply rtl:text-right rtl:pr-4 rtl:pl-8;
+  }
+
+  .command-shortcut-rtl {
+    @apply rtl:left-4 rtl:right-auto;
+  }
+
+  /* RTL Pagination */
+  .pagination-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  .pagination-prev-rtl {
+    @apply rtl:rotate-180;
+  }
+
+  .pagination-next-rtl {
+    @apply rtl:rotate-180;
+  }
+
+  /* RTL Calendar */
+  .calendar-rtl {
+    @apply rtl:text-right;
+  }
+
+  .calendar-header-rtl {
+    @apply rtl:flex-row-reverse;
+  }
+
+  .calendar-nav-rtl {
+    transform: scaleX(-1);
+  }
+
+  .calendar-grid-rtl {
+    @apply rtl:text-right;
+  }
+
+  /* RTL Sheet/Drawer */
+  .sheet-rtl[data-side="right"] {
+    @apply rtl:left-0 rtl:right-auto;
+  }
+
+  .sheet-rtl[data-side="left"] {
+    @apply rtl:right-0 rtl:left-auto;
+  }
+
+  /* RTL Scroll Area */
+  .scrollbar-rtl {
+    @apply rtl:left-0 rtl:right-auto;
+  }
+
+  /* RTL Menu */
+  .menu-rtl {
+    @apply rtl:text-right;
+  }
+
+  .menu-item-rtl {
+    @apply rtl:text-right rtl:pr-2 rtl:pl-8;
+  }
+
+  .menu-shortcut-rtl {
+    @apply rtl:left-2 rtl:right-auto;
+  }
+
+  .menu-submenu-rtl {
+    @apply rtl:left-full rtl:right-auto rtl:-ml-1 rtl:mr-0;
+  }
+}
+
+/* RTL-specific animations and transitions */
+@layer utilities {
+  .rtl\:animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .rtl\:animate-slide-out-right {
+    animation: slideOutRight 0.3s ease-in;
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  /* RTL Hover and Focus States */
+  .rtl\:hover\:translate-x-2:hover {
+    transform: translateX(0.5rem);
+  }
+
+  .rtl\:hover\:-translate-x-2:hover {
+    transform: translateX(-0.5rem);
+  }
+
+  .rtl\:focus\:translate-x-1:focus {
+    transform: translateX(0.25rem);
+  }
+
+  /* RTL Group Utilities */
+  .group:hover .rtl\:group-hover\:translate-x-2 {
+    transform: translateX(0.5rem);
+  }
+
+  .group:hover .rtl\:group-hover\:-translate-x-2 {
+    transform: translateX(-0.5rem);
+  }
+}
+
+/* Print styles for RTL */
+@media print {
+  [dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+  }
+
+  [dir="rtl"] .print\:text-left {
+    text-align: left;
+  }
+
+  [dir="rtl"] .print\:text-right {
+    text-align: right;
+  }
+}
