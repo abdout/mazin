@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { i18n, type Locale } from '@/components/internationalization/config'
-import { auth } from '@/auth'
 import { apiAuthPrefix, authRoutes, publicRoutes, DEFAULT_LOGIN_REDIRECT } from '@/routes'
 
 function getLocale(request: NextRequest): string {
@@ -20,34 +19,13 @@ function getLocale(request: NextRequest): string {
   return i18n.defaultLocale
 }
 
-function localizationMiddleware(request: NextRequest): NextResponse | null {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const pathnameHasLocale = i18n.locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  )
-
-  if (pathnameHasLocale) {
-    return null
-  }
-
-  const locale = getLocale(request)
-  request.nextUrl.pathname = `/${locale}${pathname}`
-
-  const response = NextResponse.redirect(request.nextUrl)
-  response.cookies.set('NEXT_LOCALE', locale, {
-    maxAge: 365 * 24 * 60 * 60,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-  })
-
-  return response
-}
-
-export default auth((req) => {
-  const { nextUrl } = req
-  const isLoggedIn = !!req.auth
-  const pathname = nextUrl.pathname
+  // Check for auth session token (JWT)
+  const sessionToken = request.cookies.get('authjs.session-token')?.value
+    || request.cookies.get('__Secure-authjs.session-token')?.value
+  const isLoggedIn = !!sessionToken
 
   // Extract locale from pathname
   const localeMatch = pathname.match(/^\/(ar|en)/)
@@ -66,28 +44,38 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
-  // Handle locale redirect first
-  const localeResponse = localizationMiddleware(req)
-  if (localeResponse) {
-    return localeResponse
+  // Handle locale redirect
+  const pathnameHasLocale = i18n.locales.some(
+    (loc) => pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`
+  )
+
+  if (!pathnameHasLocale) {
+    const detectedLocale = getLocale(request)
+    const url = request.nextUrl.clone()
+    url.pathname = `/${detectedLocale}${pathname}`
+
+    const response = NextResponse.redirect(url)
+    response.cookies.set('NEXT_LOCALE', detectedLocale, {
+      maxAge: 365 * 24 * 60 * 60,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    })
+    return response
   }
 
   // Redirect logged in users away from auth routes
-  if (isAuthRoute) {
-    if (isLoggedIn) {
-      return NextResponse.redirect(new URL(`/${locale || i18n.defaultLocale}${DEFAULT_LOGIN_REDIRECT}`, nextUrl))
-    }
-    return NextResponse.next()
+  if (isAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL(`/${locale || i18n.defaultLocale}${DEFAULT_LOGIN_REDIRECT}`, request.nextUrl))
   }
 
   // Protect non-public routes
-  if (!isLoggedIn && !isPublicRoute) {
+  if (!isLoggedIn && !isPublicRoute && !isAuthRoute) {
     const callbackUrl = encodeURIComponent(pathname)
-    return NextResponse.redirect(new URL(`/${locale || i18n.defaultLocale}/login?callbackUrl=${callbackUrl}`, nextUrl))
+    return NextResponse.redirect(new URL(`/${locale || i18n.defaultLocale}/login?callbackUrl=${callbackUrl}`, request.nextUrl))
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: [
