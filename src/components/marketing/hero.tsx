@@ -16,6 +16,7 @@ export function Hero({ dictionary }: HeroProps) {
   const { locale } = useLocale()
   const router = useRouter()
   const [trackingNumber, setTrackingNumber] = useState('')
+  const isArabic = locale === 'ar'
 
   const handleTrack = () => {
     if (trackingNumber.trim()) {
@@ -46,7 +47,7 @@ export function Hero({ dictionary }: HeroProps) {
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center" style={{ paddingInline: 'var(--container-padding)' }}>
-        <div className="max-w-lg">
+        <div className={`max-w-lg ${isArabic ? 'bg-black/30 backdrop-blur-md border border-white/30 rounded-2xl p-5 sm:bg-transparent sm:backdrop-blur-none sm:border-0 sm:p-0 sm:rounded-none' : ''}`}>
           {/* Badge */}
           <span className="inline-block text-xs font-semibold tracking-wider text-white/80 uppercase mb-4">
             {hero.badge}

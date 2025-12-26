@@ -38,7 +38,7 @@ export function Services({ dictionary }: ServicesProps) {
   const titleWords = services.title.split(' ')
 
   return (
-    <section className="py-20 bg-background">
+    <section id="services" className="py-20 bg-background">
       <div style={{ paddingInline: 'var(--container-padding)' }}>
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-14">

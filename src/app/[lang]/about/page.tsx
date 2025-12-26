@@ -124,7 +124,7 @@ export default async function AboutPage({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                 {about.boardOfDirectors.members.map((member, index) => {
                   const images = [
                     'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop',
@@ -137,21 +137,21 @@ export default async function AboutPage({
                     'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=400&auto=format&fit=crop',
                   ]
                   return (
-                    <div key={index} className="text-center space-y-4">
-                      <div className="relative w-56 h-56 mx-auto">
+                    <div key={index} className="text-center space-y-3 md:space-y-4">
+                      <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 mx-auto">
                         <Image
                           src={images[index] || images[0]}
                           alt={member.name}
                           width={224}
                           height={224}
-                          className="w-56 h-56 rounded-full object-cover"
+                          className="w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 rounded-full object-cover"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="font-semibold text-lg text-foreground">
+                      <div className="space-y-1 md:space-y-2">
+                        <h3 className="font-semibold text-sm md:text-lg text-foreground">
                           {member.name}
                         </h3>
-                        <p className="text-muted-foreground text-sm font-medium">
+                        <p className="text-muted-foreground text-xs md:text-sm font-medium">
                           {member.position}
                         </p>
                       </div>
