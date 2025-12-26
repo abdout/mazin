@@ -53,7 +53,7 @@ export function Hero({ dictionary }: HeroProps) {
           </span>
 
           {/* Title - 3 lines on mobile, 2 lines on desktop */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-4 sm:mb-6">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-4 sm:mb-6">
             {/* Mobile: 3 lines */}
             <span className="block sm:hidden">{hero.titleMobileLine1}</span>
             <span className="block sm:hidden">{hero.titleMobileLine2}</span>

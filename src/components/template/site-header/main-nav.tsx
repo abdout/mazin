@@ -22,7 +22,7 @@ export function MainNav({ dictionary, className }: MainNavProps) {
 
   const navItems = React.useMemo(
     () => [
-      { title: t.about, href: `/${locale}#about` },
+      { title: t.about, href: `/${locale}/about` },
       { title: t.services, href: `/${locale}#services` },
       { title: t.blog, href: `/${locale}/blog` },
       { title: t.platform, href: `/${locale}/dashboard` },

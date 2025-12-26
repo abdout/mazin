@@ -33,7 +33,7 @@ export function MobileNav({ items, className, dictionary }: MobileNavProps) {
 
   const defaultItems: NavItem[] = React.useMemo(
     () => [
-      { href: `/${locale}#about`, label: t.about },
+      { href: `/${locale}/about`, label: t.about },
       { href: `/${locale}#services`, label: t.services },
       { href: `/${locale}/blog`, label: t.blog },
       { href: `/${locale}/dashboard`, label: t.platform },
