@@ -110,11 +110,18 @@ export const login = async (
       switch (error.type) {
         case "CredentialsSignin":
           return { error: "Invalid credentials!" }
+        case "CallbackRouteError":
+          return { error: "Authentication callback failed. Please try again." }
+        case "AccessDenied":
+          return { error: "Access denied. Your account may not be verified." }
         default:
+          console.error("AuthError:", error.type, error.message);
           return { error: "Something went wrong!" }
       }
     }
 
+    // Log unexpected errors for debugging
+    console.error("Login error:", error);
     return { error: "Something went wrong!" };
   }
 
