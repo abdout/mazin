@@ -65,4 +65,11 @@
     position: relative;
     margin-inline: calc(50% - 50vw);
   }
+
+  /* Dashboard container - data-dense views with minimal padding */
+  .dashboard-container {
+    @apply w-full min-w-0;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }

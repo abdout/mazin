@@ -1,10 +1,10 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { getDictionary } from "@/components/internationalization/dictionaries"
-import type { Locale } from "@/components/internationalization"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/template/sidebar/app-sidebar"
-import { AppHeader } from "@/components/template/header/app-header"
+import { isRTL, type Locale } from "@/components/internationalization"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { PlatformHeader } from "@/components/template/platform-header"
+import { PlatformSidebar } from "@/components/template/platform-sidebar"
 
 export default async function PlatformLayout({
   children,
@@ -22,33 +22,31 @@ export default async function PlatformLayout({
   }
 
   const dict = await getDictionary(lang)
-
-  // Normalize user for components
-  const user = {
-    id: session.user.id,
-    email: session.user.email ?? "",
-    name: session.user.name ?? null,
-    role: session.user.role ?? "VIEWER",
-  }
+  const rtl = isRTL(lang)
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" dictionary={dict} locale={lang} user={user} />
-      <SidebarInset>
-        <AppHeader dictionary={dict} locale={lang} user={user} />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
+    <SidebarProvider>
+      <div
+        className="flex min-h-svh w-full flex-col"
+        dir={rtl ? "rtl" : "ltr"}
+      >
+        <PlatformHeader
+          dictionary={dict}
+          locale={lang}
+          userRole={session.user.role}
+        />
+        <div className="flex pt-6">
+          <PlatformSidebar
+            dictionary={dict}
+            locale={lang}
+            userRole={session.user.role}
+            side={rtl ? "right" : "left"}
+          />
+          <div className="dashboard-container overflow-hidden pb-10 transition-[margin] duration-200 ease-in-out">
             {children}
           </div>
         </div>
-      </SidebarInset>
+      </div>
     </SidebarProvider>
   )
 }

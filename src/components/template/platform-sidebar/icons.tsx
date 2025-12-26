@@ -1,0 +1,31 @@
+import {
+  Bell,
+  BookOpen,
+  ChartPie,
+  CreditCard,
+  FileText,
+  HelpCircle,
+  LayoutDashboard,
+  Mail,
+  Receipt,
+  Settings,
+  Ship,
+  User,
+} from "lucide-react"
+
+export const Icons = {
+  dashboard: LayoutDashboard,
+  pieChart: ChartPie,
+  cog: Settings,
+  settings: Settings,
+  bookOpen: BookOpen,
+  envelope: Mail,
+  bell: Bell,
+  receipt: Receipt,
+  creditCard: CreditCard,
+  user: User,
+  ship: Ship,
+  customs: FileText,
+  invoice: Receipt,
+  help: HelpCircle,
+}

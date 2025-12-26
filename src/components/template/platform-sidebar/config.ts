@@ -1,0 +1,46 @@
+type IconKey = keyof typeof import("./icons").Icons
+
+export type PlatformNavItem = {
+  title: string
+  href: string
+  icon: IconKey
+  roles: Role[]
+  className?: string
+}
+
+export type Role = "ADMIN" | "MANAGER" | "VIEWER" | "USER"
+
+const ALL_ROLES: Role[] = ["ADMIN", "MANAGER", "VIEWER", "USER"]
+
+export const platformNav: PlatformNavItem[] = [
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: "dashboard",
+    roles: ALL_ROLES,
+  },
+  {
+    title: "Shipments",
+    href: "/shipments",
+    icon: "ship",
+    roles: ALL_ROLES,
+  },
+  {
+    title: "Customs",
+    href: "/customs",
+    icon: "customs",
+    roles: ALL_ROLES,
+  },
+  {
+    title: "Invoices",
+    href: "/invoices",
+    icon: "invoice",
+    roles: ALL_ROLES,
+  },
+  {
+    title: "Settings",
+    href: "/settings",
+    icon: "settings",
+    roles: ALL_ROLES,
+  },
+]
