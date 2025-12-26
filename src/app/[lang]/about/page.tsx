@@ -3,7 +3,6 @@ import type { Locale } from "@/components/internationalization"
 import { SiteHeader } from "@/components/template/site-header"
 import { Footer } from "@/components/marketing/footer"
 import Image from "next/image"
-import { Users, Shield, Zap } from "lucide-react"
 
 export default async function AboutPage({
   params,
@@ -15,7 +14,11 @@ export default async function AboutPage({
   const dict = await getDictionary(lang)
   const { about } = dict
 
-  const goalIcons = [Users, Shield, Zap]
+  const goalIcons = [
+    "/category-01.svg",
+    "/category-06.svg",
+    "/category-03.svg"
+  ]
 
   return (
     <>
@@ -90,22 +93,25 @@ export default async function AboutPage({
 
                 {/* Goals */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                  {about.goals.map((goal, index) => {
-                    const Icon = goalIcons[index]
-                    return (
-                      <div key={index} className="space-y-4">
-                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
-                          <Icon className="w-8 h-8 text-primary-foreground" />
-                        </div>
-                        <h3 className="text-foreground text-xl font-semibold">
-                          {goal.title}
-                        </h3>
-                        <p className="text-muted-foreground text-sm">
-                          {goal.description}
-                        </p>
+                  {about.goals.map((goal, index) => (
+                    <div key={index} className="space-y-4">
+                      <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
+                        <Image
+                          src={goalIcons[index]}
+                          alt=""
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 brightness-0 invert"
+                        />
                       </div>
-                    )
-                  })}
+                      <h3 className="text-foreground text-xl font-semibold">
+                        {goal.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        {goal.description}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -124,7 +130,7 @@ export default async function AboutPage({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
                 {about.boardOfDirectors.members.map((member, index) => {
                   const images = [
                     'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop',
@@ -138,13 +144,12 @@ export default async function AboutPage({
                   ]
                   return (
                     <div key={index} className="text-center space-y-3 md:space-y-4">
-                      <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 mx-auto">
+                      <div className="relative aspect-square w-full max-w-48 mx-auto">
                         <Image
                           src={images[index] || images[0]}
                           alt={member.name}
-                          width={224}
-                          height={224}
-                          className="w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 rounded-full object-cover"
+                          fill
+                          className="rounded-full object-cover"
                         />
                       </div>
                       <div className="space-y-1 md:space-y-2">
