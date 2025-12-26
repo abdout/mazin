@@ -105,9 +105,9 @@ export default function PlatformHeader({
         </div>
         <div className="ms-auto flex items-center gap-1.5">
           <Button
-            variant="ghost"
+            variant="link"
             size="icon"
-            className="size-7 hidden sm:flex"
+            className="size-7 hidden sm:flex cursor-pointer transition-opacity hover:opacity-70"
             title="Search"
           >
             <Search className="h-4 w-4" />
@@ -116,9 +116,9 @@ export default function PlatformHeader({
           <LanguageSwitcher variant="icon" />
           <ModeSwitcher />
           <Button
-            variant="ghost"
+            variant="link"
             size="icon"
-            className="size-7"
+            className="size-7 cursor-pointer transition-opacity hover:opacity-70"
             asChild
           >
             <Link href={`/${locale}/notifications`}>
@@ -127,9 +127,9 @@ export default function PlatformHeader({
             </Link>
           </Button>
           <Button
-            variant="ghost"
+            variant="link"
             size="icon"
-            className="size-7"
+            className="size-7 cursor-pointer transition-opacity hover:opacity-70"
             asChild
           >
             <Link href={`/${locale}/messages`}>

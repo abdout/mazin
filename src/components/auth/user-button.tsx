@@ -1,44 +1,113 @@
-"use client";
+"use client"
 
-import { FaUser } from "react-icons/fa";
+import Link from "next/link"
+import { useParams } from "next/navigation"
 import { ExitIcon } from "@radix-ui/react-icons"
+import { LogIn, Settings, User } from "lucide-react"
 
+import { cn } from "@/lib/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "@/components/ui/avatar";
+} from "@/components/ui/dropdown-menu"
+import { LogoutButton } from "@/components/auth/logout-button"
+import { useCurrentUser } from "./use-current-user"
 
-import { LogoutButton } from "@/components/auth/logout-button";
-import { useCurrentUser } from "./use-current-user";
+interface UserButtonProps {
+  className?: string
+}
 
-export const UserButton = () => {
-  const user = useCurrentUser();
+export const UserButton = ({ className }: UserButtonProps) => {
+  const user = useCurrentUser()
+  const params = useParams()
+  const locale = (params?.lang as string) || "en"
+
+  const loginUrl = `/${locale}/login`
+
+  if (!user) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn("size-7", className)}
+        asChild
+      >
+        <Link href={loginUrl}>
+          <LogIn className="size-4 rtl:-scale-x-100" />
+          <span className="sr-only">Login</span>
+        </Link>
+      </Button>
+    )
+  }
+
+  const userInitials = user.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : user.email?.charAt(0).toUpperCase() || "U"
+
+  const displayName = user.name || user.email?.split("@")[0] || "User"
+  const displayEmail = user.email || ""
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Avatar>
-          <AvatarImage src={user?.image || ""} />
-          <AvatarFallback className="bg-black">
-            <FaUser className="text-[#fcfcfc] p-[2px]" />
-          </AvatarFallback>
-        </Avatar>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className={cn("size-7", className)}>
+          <Avatar className="size-4">
+            <AvatarImage src={user.image || ""} alt={displayName} />
+            <AvatarFallback className="bg-primary text-primary-foreground text-[8px] font-medium">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
+          <span className="sr-only">User menu</span>
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40" align="end">
+      <DropdownMenuContent className="w-56" align="end" sideOffset={8}>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm leading-none font-medium">{displayName}</p>
+            <p className="text-muted-foreground text-xs leading-none">
+              {displayEmail}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href={`/${locale}/profile`}>
+              <User />
+              Profile
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href={`/${locale}/settings`}>
+              <Settings />
+              Settings
+              <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
         <LogoutButton>
-          <DropdownMenuItem>
-            <ExitIcon className="h-4 w-4 mr-2" />
+          <DropdownMenuItem variant="destructive" className="cursor-pointer">
+            <ExitIcon />
             Logout
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </LogoutButton>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
