@@ -42,7 +42,7 @@ export default function PlatformSidebar({
   return (
     <Sidebar
       {...props}
-      className="top-12 w-56 px-2"
+      className="top-16 w-56 px-2"
       collapsible="offcanvas"
       side={isRTL ? "right" : "left"}
     >

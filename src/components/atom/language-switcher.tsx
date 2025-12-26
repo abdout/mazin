@@ -35,7 +35,7 @@ export function LanguageSwitcher({ variant = "dropdown" }: LanguageSwitcherProps
         asChild
         variant="ghost"
         size="icon"
-        className="h-8 w-8"
+        className="size-7"
         title={`Switch to ${targetConfig.nativeName}`}
       >
         <Link href={switchLocaleHref(targetLocale)}>

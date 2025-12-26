@@ -53,8 +53,8 @@ export default function PlatformHeader({
   }, [role, dictionary])
 
   return (
-    <div className="bg-background sticky top-0 z-40 -mx-2">
-      <header className="mx-2 flex h-12 shrink-0 items-center gap-2 border-b">
+    <div className="bg-background sticky top-0 z-40">
+      <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ms-1.5 hidden size-7 lg:flex" />
           <MobileNav
@@ -105,9 +105,9 @@ export default function PlatformHeader({
         </div>
         <div className="ms-auto flex items-center gap-1.5">
           <Button
-            variant="link"
+            variant="ghost"
             size="icon"
-            className="size-7 hidden sm:flex cursor-pointer transition-opacity hover:opacity-70"
+            className="size-7 hidden sm:flex"
             title="Search"
           >
             <Search className="h-4 w-4" />
@@ -116,9 +116,9 @@ export default function PlatformHeader({
           <LanguageSwitcher variant="icon" />
           <ModeSwitcher />
           <Button
-            variant="link"
+            variant="ghost"
             size="icon"
-            className="size-7 cursor-pointer transition-opacity hover:opacity-70"
+            className="size-7"
             asChild
           >
             <Link href={`/${locale}/notifications`}>
@@ -127,9 +127,9 @@ export default function PlatformHeader({
             </Link>
           </Button>
           <Button
-            variant="link"
+            variant="ghost"
             size="icon"
-            className="size-7 cursor-pointer transition-opacity hover:opacity-70"
+            className="size-7"
             asChild
           >
             <Link href={`/${locale}/messages`}>

@@ -219,7 +219,12 @@
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
-    "confirmPassword": "Confirm Password"
+    "confirmPassword": "Confirm Password",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggleTheme": "Toggle theme"
   },
   "users": {
     "title": "Users",
@@ -462,6 +467,7 @@
       "company": "Company",
       "support": "Support",
       "copyright": "All rights reserved.",
+      "readyToGetStarted": "Ready to Get Started?",
       "newsletter": {
         "title": "Subscribe to Newsletter",
         "description": "Stay updated with the latest news and offers.",
@@ -516,6 +522,138 @@
         "deliveryLabel": "On-Time Delivery"
       },
       "cta": "Explore Our Fleet"
+    },
+    "servicesPage": {
+      "hero": {
+        "badge": "OUR SERVICES",
+        "title": "Comprehensive Logistics Solutions",
+        "subtitle": "From documentation to delivery, we handle every step of your customs clearance journey with precision and expertise."
+      },
+      "overview": {
+        "badge": "WHAT WE OFFER",
+        "title": "End-to-End Logistics Services",
+        "subtitle": "Professional customs clearance and freight forwarding services tailored to your business needs."
+      },
+      "serviceDetails": {
+        "sea": {
+          "title": "Maritime Shipping",
+          "description": "Cost-effective ocean freight solutions for bulk cargo and container shipments.",
+          "features": [
+            "Full Container Load (FCL) Services",
+            "Less than Container Load (LCL) Options",
+            "Port-to-Port and Door-to-Door Delivery",
+            "Temperature-Controlled Containers",
+            "Real-time Vessel Tracking"
+          ]
+        },
+        "air": {
+          "title": "Air Freight",
+          "description": "Fast, secure air cargo services for time-sensitive shipments worldwide.",
+          "features": [
+            "Express Air Freight",
+            "Charter Services Available",
+            "Dangerous Goods Handling",
+            "Airport-to-Airport Delivery",
+            "Priority Customs Clearance"
+          ]
+        },
+        "ground": {
+          "title": "Ground Transport",
+          "description": "Reliable land transportation connecting ports to final destinations.",
+          "features": [
+            "Truck Load (TL) Services",
+            "Last Mile Delivery",
+            "Cross-Border Transportation",
+            "GPS Fleet Tracking",
+            "Flexible Scheduling"
+          ]
+        }
+      },
+      "process": {
+        "badge": "HOW IT WORKS",
+        "title": "Our Clearance Process",
+        "subtitle": "A streamlined 7-step process ensuring smooth customs clearance.",
+        "steps": [
+          {
+            "number": "01",
+            "title": "Document Submission",
+            "description": "Submit your shipping documents through our digital platform or in person."
+          },
+          {
+            "number": "02",
+            "title": "Document Verification",
+            "description": "Our experts verify all documents for compliance and accuracy."
+          },
+          {
+            "number": "03",
+            "title": "Customs Declaration",
+            "description": "We prepare and file your customs declaration with authorities."
+          },
+          {
+            "number": "04",
+            "title": "Duty Assessment",
+            "description": "Calculation of applicable duties, taxes, and fees."
+          },
+          {
+            "number": "05",
+            "title": "Payment Processing",
+            "description": "Secure payment handling for all customs charges."
+          },
+          {
+            "number": "06",
+            "title": "Inspection",
+            "description": "Coordination with authorities for any required inspections."
+          },
+          {
+            "number": "07",
+            "title": "Release & Delivery",
+            "description": "Cargo release and arrangement of final delivery."
+          }
+        ]
+      },
+      "advantages": {
+        "badge": "WHY CHOOSE US",
+        "title": "Our Competitive Advantages",
+        "subtitle": "What sets Abdout apart in customs clearance services.",
+        "items": [
+          {
+            "title": "Expert Team",
+            "description": "Licensed customs brokers with decades of experience in Port Sudan."
+          },
+          {
+            "title": "Fast Processing",
+            "description": "Expedited clearance through established relationships with authorities."
+          },
+          {
+            "title": "Transparent Pricing",
+            "description": "No hidden fees. Clear, upfront pricing for all services."
+          },
+          {
+            "title": "Real-time Tracking",
+            "description": "Monitor your shipment status 24/7 through our digital platform."
+          },
+          {
+            "title": "24/7 Support",
+            "description": "Round-the-clock customer support for urgent queries."
+          }
+        ]
+      },
+      "stats": {
+        "years": "39",
+        "yearsLabel": "Years Experience",
+        "shipments": "50K+",
+        "shipmentsLabel": "Shipments Cleared",
+        "clients": "2K+",
+        "clientsLabel": "Happy Clients",
+        "rate": "99%",
+        "rateLabel": "Success Rate"
+      },
+      "cta": {
+        "title": "Ready to Ship?",
+        "subtitle": "Get started with your customs clearance today.",
+        "quoteButton": "Request Quote",
+        "trackButton": "Track Shipment"
+      }
     }
   },
   "chatbot": {
@@ -551,6 +689,15 @@
   "tracking": {
     "title": "Track Shipment",
     "publicTitle": "Track Your Shipment",
+    "publicSubtitle": "Enter your tracking number to see real-time updates on your shipment status",
+    "seaTracking": "Sea Tracking",
+    "seaTrackingDesc": "Track your containers from port to port",
+    "landTracking": "Land Tracking",
+    "landTrackingDesc": "Track your ground shipments to delivery",
+    "liveUpdates": "Live Updates",
+    "liveUpdatesDesc": "Get real-time status updates",
+    "demoNumbers": "Demo Tracking Numbers",
+    "demoNumbersDesc": "Try these numbers to explore the tracking system",
     "enterNumber": "Enter tracking number",
     "trackButton": "Track",
     "notFound": "Shipment not found",

@@ -65,7 +65,7 @@ export function InvoiceDetail({ invoice, dictionary, locale }: InvoiceDetailProp
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <IconArrowLeft />
+            <IconArrowLeft className="rtl:rotate-180" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold">{invoice.invoiceNumber}</h1>

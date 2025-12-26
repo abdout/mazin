@@ -26,7 +26,7 @@ export default function ReadySection({ dictionary, lang, isRTL = false }: ReadyS
   return (
     <div className="min-w-[300px] w-2/6" data-section="ready-to-build">
       <p className="font-medium mb-4 text-[oklch(1_0_0)]">
-        Ready to Get Started?
+        {dictionary.marketing.footer.readyToGetStarted}
       </p>
       <Link href={`/${lang}/login`}>
         <ExpandButton

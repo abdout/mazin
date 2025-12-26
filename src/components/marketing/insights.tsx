@@ -51,7 +51,7 @@ export function Insights({ dictionary, lang }: InsightsProps) {
               className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors w-fit shrink-0"
             >
               {insights.viewAll}
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 rtl:rotate-180" />
             </Link>
           </div>
         </div>

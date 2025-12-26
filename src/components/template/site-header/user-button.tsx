@@ -18,12 +18,14 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { Dictionary } from "@/components/internationalization/types"
 
 interface UserButtonProps {
   className?: string
+  dictionary?: Dictionary
 }
 
-export function UserButton({ className }: UserButtonProps) {
+export function UserButton({ className, dictionary }: UserButtonProps) {
   const { data: session, status } = useSession()
   const pathname = usePathname()
 
@@ -48,7 +50,7 @@ export function UserButton({ className }: UserButtonProps) {
       >
         <Link href={loginUrl}>
           <LogIn className="size-4 rtl:-scale-x-100" />
-          <span className="sr-only">Login</span>
+          <span className="sr-only">{dictionary?.auth?.login ?? "Login"}</span>
         </Link>
       </Button>
     )
@@ -64,7 +66,7 @@ export function UserButton({ className }: UserButtonProps) {
         .slice(0, 2)
     : user.email?.charAt(0).toUpperCase() || "U"
 
-  const displayName = user.name || user.email?.split("@")[0] || "User"
+  const displayName = user.name || user.email?.split("@")[0] || (dictionary?.users?.name ?? "User")
   const displayEmail = user.email || ""
 
   return (
@@ -76,7 +78,7 @@ export function UserButton({ className }: UserButtonProps) {
               {userInitials}
             </AvatarFallback>
           </Avatar>
-          <span className="sr-only">User menu</span>
+          <span className="sr-only">{dictionary?.common?.actions ?? "User menu"}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" sideOffset={8}>
@@ -94,20 +96,20 @@ export function UserButton({ className }: UserButtonProps) {
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/${locale}/dashboard`}>
               <LayoutDashboard className="size-4" />
-              Dashboard
+              {dictionary?.navigation?.dashboard ?? "Dashboard"}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/${locale}/profile`}>
               <User className="size-4" />
-              Profile
+              {dictionary?.settings?.profile ?? "Profile"}
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/${locale}/settings`}>
               <Settings className="size-4" />
-              Settings
+              {dictionary?.navigation?.settings ?? "Settings"}
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -117,8 +119,8 @@ export function UserButton({ className }: UserButtonProps) {
           className="cursor-pointer text-destructive focus:text-destructive"
           onClick={() => signOut({ callbackUrl: `/${locale}` })}
         >
-          <LogOut className="size-4" />
-          Logout
+          <LogOut className="size-4 rtl:-scale-x-100" />
+          {dictionary?.navigation?.logout ?? "Logout"}
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>

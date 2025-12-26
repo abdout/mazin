@@ -7,6 +7,7 @@ import { LanguageToggle } from "@/components/template/site-header/language-toggl
 import { ModeToggle } from "@/components/atom/mode-toggle"
 import { IconPackage } from "@tabler/icons-react"
 import Link from "next/link"
+import Image from "next/image"
 
 interface TrackingPageProps {
   params: Promise<{ lang: string; trackingNumber: string }>
@@ -59,22 +60,37 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-3xl space-y-8">
-          {/* Page Title */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold">{dict.tracking.publicTitle}</h1>
-            <p className="mt-2 text-muted-foreground">
-              {dict.tracking.trackingNumber}: {trackingNumber}
-            </p>
+        <div className="flex flex-col gap-8 md:flex-row md:gap-12">
+          {/* Left: Box Image */}
+          <div className="flex items-start justify-center md:w-2/5 md:sticky md:top-24 md:self-start">
+            <Image
+              src="/box.png"
+              alt="Package"
+              width={400}
+              height={400}
+              className="w-48 md:w-full max-w-xs"
+              priority
+            />
           </div>
 
-          {/* Tracking Header with info */}
-          <TrackingHeader data={trackingData} dictionary={dict} locale={lang} />
+          {/* Right: Tracking Details */}
+          <div className="flex-1 space-y-8">
+            {/* Page Title */}
+            <div className="text-center md:text-start">
+              <h1 className="text-3xl font-bold">{dict.tracking.publicTitle}</h1>
+              <p className="mt-2 text-muted-foreground">
+                {dict.tracking.trackingNumber}: {trackingNumber}
+              </p>
+            </div>
 
-          {/* Timeline */}
-          <div className="rounded-lg border bg-card p-6">
-            <h2 className="mb-6 text-xl font-semibold">{dict.tracking.title}</h2>
-            <TrackingTimeline stages={stages} dictionary={dict} locale={lang} />
+            {/* Tracking Header with info */}
+            <TrackingHeader data={trackingData} dictionary={dict} locale={lang} />
+
+            {/* Timeline */}
+            <div className="rounded-lg border bg-card p-6">
+              <h2 className="mb-6 text-xl font-semibold">{dict.tracking.title}</h2>
+              <TrackingTimeline stages={stages} dictionary={dict} locale={lang} />
+            </div>
           </div>
         </div>
       </main>

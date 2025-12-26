@@ -14,9 +14,9 @@ export function ModeSwitcher() {
 
   return (
     <Button
-      variant="link"
+      variant="ghost"
       size="icon"
-      className="group/toggle size-10 text-foreground"
+      className="group/toggle size-7"
       onClick={toggleTheme}
       title="Toggle theme"
     >
@@ -30,7 +30,7 @@ export function ModeSwitcher() {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="size-5"
+        className="size-4"
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />

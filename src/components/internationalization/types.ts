@@ -223,6 +223,11 @@ export interface Dictionary {
     currentPassword: string
     newPassword: string
     confirmPassword: string
+    theme: string
+    light: string
+    dark: string
+    system: string
+    toggleTheme: string
   }
   users: {
     title: string
@@ -353,6 +358,7 @@ export interface Dictionary {
       company: string
       support: string
       copyright: string
+      readyToGetStarted: string
       newsletter: {
         title: string
         description: string
@@ -399,6 +405,43 @@ export interface Dictionary {
       }
       cta: string
     }
+    servicesPage: {
+      hero: { badge: string; title: string; subtitle: string }
+      overview: { badge: string; title: string; subtitle: string }
+      serviceDetails: {
+        sea: { title: string; description: string; features: string[] }
+        air: { title: string; description: string; features: string[] }
+        ground: { title: string; description: string; features: string[] }
+      }
+      process: {
+        badge: string
+        title: string
+        subtitle: string
+        steps: Array<{ number: string; title: string; description: string }>
+      }
+      advantages: {
+        badge: string
+        title: string
+        subtitle: string
+        items: Array<{ title: string; description: string }>
+      }
+      stats: {
+        years: string
+        yearsLabel: string
+        shipments: string
+        shipmentsLabel: string
+        clients: string
+        clientsLabel: string
+        rate: string
+        rateLabel: string
+      }
+      cta: {
+        title: string
+        subtitle: string
+        quoteButton: string
+        trackButton: string
+      }
+    }
   }
   chatbot: {
     openChat: string
@@ -433,6 +476,15 @@ export interface Dictionary {
   tracking: {
     title: string
     publicTitle: string
+    publicSubtitle: string
+    seaTracking: string
+    seaTrackingDesc: string
+    landTracking: string
+    landTrackingDesc: string
+    liveUpdates: string
+    liveUpdatesDesc: string
+    demoNumbers: string
+    demoNumbersDesc: string
     enterNumber: string
     trackButton: string
     notFound: string
