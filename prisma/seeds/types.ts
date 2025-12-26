@@ -32,6 +32,16 @@ export interface DeclarationRef {
   declarationNo: string
 }
 
+export interface ClientRef {
+  id: string
+  companyName: string
+}
+
+export interface SettingsRef {
+  id: string
+  companyName: string
+}
+
 // ============================================================================
 // Seed Context
 // ============================================================================
@@ -42,6 +52,8 @@ export interface SeedContext {
   shipments: ShipmentRef[]
   invoices: InvoiceRef[]
   declarations: DeclarationRef[]
+  clients: ClientRef[]
+  settings: SettingsRef[]
 }
 
 export type PartialSeedContext = Partial<SeedContext> & {

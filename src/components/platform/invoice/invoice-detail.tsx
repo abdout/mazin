@@ -28,16 +28,19 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { updateInvoiceStatus } from "@/actions/invoice"
-import type { Invoice, InvoiceItem, Shipment } from "@prisma/client"
+import { InvoiceActions } from "./invoice-actions"
+import type { Invoice, InvoiceItem, Shipment, Client, CompanySettings } from "@prisma/client"
 import type { Dictionary, Locale } from "@/components/internationalization"
 
 type InvoiceWithRelations = Invoice & {
   items: InvoiceItem[]
   shipment: Shipment | null
+  client: Client | null
 }
 
 interface InvoiceDetailProps {
   invoice: InvoiceWithRelations
+  settings?: CompanySettings | null
   dictionary: Dictionary
   locale: Locale
 }
@@ -55,16 +58,16 @@ const statusConfig: Record<
   CANCELLED: { icon: IconFileOff, className: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500" },
 }
 
-export function InvoiceDetail({ invoice, dictionary, locale }: InvoiceDetailProps) {
+export function InvoiceDetail({ invoice, settings, dictionary, locale }: InvoiceDetailProps) {
   const router = useRouter()
   const config = statusConfig[invoice.status]
   const StatusIcon: IconComponent = config?.icon || IconEdit
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 invoice-print">
+      <div className="flex items-center justify-between no-print">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <Button variant="ghost" size="icon" onClick={() => router.back()} className="back-button">
             <IconArrowLeft className="rtl:rotate-180" />
           </Button>
           <div>
@@ -75,7 +78,15 @@ export function InvoiceDetail({ invoice, dictionary, locale }: InvoiceDetailProp
             </Badge>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <InvoiceActions
+            invoiceId={invoice.id}
+            invoiceNumber={invoice.invoiceNumber}
+            invoiceStatus={invoice.status}
+            clientEmail={invoice.client?.email}
+            dictionary={dictionary}
+            locale={locale}
+          />
           {invoice.status !== "PAID" && invoice.status !== "CANCELLED" && (
             <Button onClick={() => updateInvoiceStatus(invoice.id, "PAID")}>
               <IconCheck className="size-4" />
@@ -156,6 +167,53 @@ export function InvoiceDetail({ invoice, dictionary, locale }: InvoiceDetailProp
                   <p className="font-medium">{invoice.shipment.status}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {invoice.client && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{dictionary.invoices.clientInfo || "Client Information"}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <p className="font-medium text-lg">{invoice.client.companyName}</p>
+                {invoice.client.contactName && (
+                  <p className="text-sm text-muted-foreground">{invoice.client.contactName}</p>
+                )}
+              </div>
+              <div className="text-sm space-y-1">
+                <p>{invoice.client.billingAddress1}</p>
+                {invoice.client.billingAddress2 && <p>{invoice.client.billingAddress2}</p>}
+                <p>
+                  {invoice.client.billingCity}
+                  {invoice.client.billingState && `, ${invoice.client.billingState}`}
+                </p>
+                <p>{invoice.client.billingCountry}</p>
+              </div>
+              {(invoice.client.email || invoice.client.phone) && (
+                <div className="text-sm space-y-1 pt-2 border-t">
+                  {invoice.client.email && (
+                    <p>
+                      <span className="text-muted-foreground">{dictionary.common.email || "Email"}: </span>
+                      {invoice.client.email}
+                    </p>
+                  )}
+                  {invoice.client.phone && (
+                    <p>
+                      <span className="text-muted-foreground">{dictionary.common.phone || "Phone"}: </span>
+                      {invoice.client.phone}
+                    </p>
+                  )}
+                </div>
+              )}
+              {invoice.client.taxId && (
+                <p className="text-sm">
+                  <span className="text-muted-foreground">{dictionary.invoices.taxId || "Tax ID"}: </span>
+                  {invoice.client.taxId}
+                </p>
+              )}
             </CardContent>
           </Card>
         )}

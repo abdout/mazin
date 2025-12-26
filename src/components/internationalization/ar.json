@@ -26,7 +26,10 @@
     "warning": "تحذير",
     "view": "عرض",
     "select": "اختر",
-    "createdAt": "تاريخ الإنشاء"
+    "createdAt": "تاريخ الإنشاء",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "update": "تحديث"
   },
   "header": {
     "services": "الخدمات",
@@ -204,8 +207,21 @@
     "unitPrice": "سعر الوحدة",
     "notes": "ملاحظات",
     "downloadPdf": "تحميل PDF",
+    "print": "طباعة",
+    "sendEmail": "إرسال بالبريد",
+    "sendEmailDescription": "إرسال الفاتورة {invoiceNumber} عبر البريد الإلكتروني",
+    "emailRecipient": "البريد الإلكتروني للمستلم",
+    "emailMessage": "رسالة (اختياري)",
+    "emailMessagePlaceholder": "أضف رسالة شخصية...",
+    "confirmSend": "إرسال الفاتورة",
+    "sending": "جاري الإرسال...",
+    "emailSent": "تم إرسال الفاتورة بنجاح!",
+    "clientInfo": "معلومات العميل",
+    "companyInfo": "معلومات الشركة",
+    "taxId": "الرقم الضريبي",
     "markAsPaid": "تحديد كمدفوعة",
     "markAsSent": "تحديد كمرسلة",
+    "cannotEditPaidCancelled": "لا يمكن تعديل الفواتير المدفوعة أو الملغاة",
     "statuses": {
       "DRAFT": "مسودة",
       "SENT": "مرسلة",
@@ -290,6 +306,8 @@
     "boardOfDirectors": {
       "subtitle": "ق ي ا د ت ن ا",
       "title": "مجلس الإدارة",
+      "titleMobileLine1": "مجلس",
+      "titleMobileLine2": "الإدارة",
       "description": "تعرف على أعضاء فريقنا المتفانين الذين يقودون عبدوت بخبرتهم والتزامهم بالتميز.",
       "members": [
         { "name": "مازن عبدوت", "position": "الرئيس التنفيذي" },

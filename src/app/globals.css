@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "../styles/rtl.css";
 @import "../styles/container.css";
+@import "../styles/invoice-print.css";
 
 @custom-variant dark (&:is(.dark *));
 

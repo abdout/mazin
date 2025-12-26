@@ -14,10 +14,10 @@ export default async function AboutPage({
   const dict = await getDictionary(lang)
   const { about } = dict
 
-  const goalIcons = [
-    "/category-01.svg",
-    "/category-06.svg",
-    "/category-03.svg"
+  const goalItems = [
+    { icon: "/category-01.svg", bgColor: "bg-[#D97757]" },
+    { icon: "/category-06.svg", bgColor: "bg-[#6A9BCC]" },
+    { icon: "/category-03.svg", bgColor: "bg-[#BCD1CA]" },
   ]
 
   return (
@@ -95,13 +95,13 @@ export default async function AboutPage({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                   {about.goals.map((goal, index) => (
                     <div key={index} className="space-y-4">
-                      <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
+                      <div className={`w-24 h-24 ${goalItems[index]?.bgColor} rounded-2xl flex items-center justify-center mx-auto`}>
                         <Image
-                          src={goalIcons[index]}
+                          src={goalItems[index]?.icon || ""}
                           alt=""
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 brightness-0 invert"
+                          width={64}
+                          height={64}
+                          className="dark:invert"
                         />
                       </div>
                       <h3 className="text-foreground text-xl font-semibold">

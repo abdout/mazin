@@ -26,7 +26,10 @@
     "warning": "Warning",
     "view": "View",
     "select": "Select",
-    "createdAt": "Created"
+    "createdAt": "Created",
+    "email": "Email",
+    "phone": "Phone",
+    "update": "Update"
   },
   "header": {
     "services": "Services",
@@ -204,8 +207,21 @@
     "unitPrice": "Unit Price",
     "notes": "Notes",
     "downloadPdf": "Download PDF",
+    "print": "Print",
+    "sendEmail": "Send Email",
+    "sendEmailDescription": "Send invoice {invoiceNumber} via email",
+    "emailRecipient": "Recipient Email",
+    "emailMessage": "Message (Optional)",
+    "emailMessagePlaceholder": "Add a personal message...",
+    "confirmSend": "Send Invoice",
+    "sending": "Sending...",
+    "emailSent": "Invoice sent successfully!",
+    "clientInfo": "Client Information",
+    "companyInfo": "Company Information",
+    "taxId": "Tax ID",
     "markAsPaid": "Mark as Paid",
     "markAsSent": "Mark as Sent",
+    "cannotEditPaidCancelled": "Cannot edit paid or cancelled invoices",
     "statuses": {
       "DRAFT": "Draft",
       "SENT": "Sent",
@@ -290,6 +306,8 @@
     "boardOfDirectors": {
       "subtitle": "O u r   L e a d e r s h i p",
       "title": "Board of Directors",
+      "titleMobileLine1": "",
+      "titleMobileLine2": "",
       "description": "Meet our dedicated team members who guide Abdout with their expertise and commitment to excellence.",
       "members": [
         { "name": "Mazin Abdout", "position": "CEO" },

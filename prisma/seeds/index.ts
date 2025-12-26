@@ -9,9 +9,13 @@
  *
  * Expected Output:
  *   - 3 Users (mazin, sami, admin)
+ *   - 1 Company Settings (with branding)
+ *   - 5 Clients (with billing addresses)
  *   - 2 Shipments (with tracking stages)
  *   - 1 Customs Declaration
- *   - 1 Invoice (with line items)
+ *   - 15 Invoices (with 65+ line items)
+ *     - Statuses: 3 DRAFT, 5 SENT, 5 PAID, 2 OVERDUE, 1 CANCELLED
+ *     - Currencies: SDG (12), USD (2), SAR (1)
  *
  * Test Credentials:
  *   - mazin@abdout.org / 1234 (Admin)
@@ -29,8 +33,10 @@ import { Pool } from "pg"
 import dotenv from "dotenv"
 
 import { seedUsers } from "./auth"
+import { seedClients } from "./clients"
 import { seedDeclarations } from "./declarations"
 import { seedInvoices } from "./invoices"
+import { seedSettings } from "./settings"
 import { seedShipments } from "./shipments"
 import type { SeedContext } from "./types"
 import { logHeader, logPhase, logSummary, measureDuration } from "./utils"
@@ -66,9 +72,29 @@ async function main() {
     context.users = users
 
     // ========================================================================
-    // PHASE 2: SHIPMENTS
+    // PHASE 2: COMPANY SETTINGS
     // ========================================================================
-    logPhase(2, "SHIPMENTS & TRACKING")
+    logPhase(2, "COMPANY SETTINGS")
+
+    const settings = await measureDuration("Settings", () =>
+      seedSettings(prisma, users)
+    )
+    context.settings = settings
+
+    // ========================================================================
+    // PHASE 3: CLIENTS
+    // ========================================================================
+    logPhase(3, "CLIENTS")
+
+    const clients = await measureDuration("Clients", () =>
+      seedClients(prisma, users)
+    )
+    context.clients = clients
+
+    // ========================================================================
+    // PHASE 4: SHIPMENTS
+    // ========================================================================
+    logPhase(4, "SHIPMENTS & TRACKING")
 
     const shipments = await measureDuration("Shipments", () =>
       seedShipments(prisma, users)
@@ -76,9 +102,9 @@ async function main() {
     context.shipments = shipments
 
     // ========================================================================
-    // PHASE 3: DECLARATIONS
+    // PHASE 5: DECLARATIONS
     // ========================================================================
-    logPhase(3, "CUSTOMS DECLARATIONS")
+    logPhase(5, "CUSTOMS DECLARATIONS")
 
     const declarations = await measureDuration("Declarations", () =>
       seedDeclarations(prisma, shipments, users)
@@ -86,12 +112,12 @@ async function main() {
     context.declarations = declarations
 
     // ========================================================================
-    // PHASE 4: INVOICES
+    // PHASE 6: INVOICES
     // ========================================================================
-    logPhase(4, "INVOICES")
+    logPhase(6, "INVOICES")
 
     const invoices = await measureDuration("Invoices", () =>
-      seedInvoices(prisma, shipments, users)
+      seedInvoices(prisma, shipments, users, clients)
     )
     context.invoices = invoices
 
@@ -100,6 +126,8 @@ async function main() {
     // ========================================================================
     logSummary(startTime, {
       Users: users.length,
+      Settings: settings.length,
+      Clients: clients.length,
       Shipments: shipments.length,
       "Tracking Stages": 22, // 11 per shipment
       Declarations: declarations.length,

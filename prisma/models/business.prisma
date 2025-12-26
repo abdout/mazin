@@ -129,6 +129,111 @@ enum DocumentType {
 }
 
 // ============================================
+// Client Model
+// ============================================
+
+model Client {
+  id               String   @id @default(cuid())
+  companyName      String
+  contactName      String?
+  email            String?
+  phone            String?
+  taxId            String?
+
+  // Billing Address
+  billingAddress1  String
+  billingAddress2  String?
+  billingCity      String
+  billingState     String?
+  billingCountry   String   @default("SD")
+  billingPostal    String?
+
+  // Shipping Address (optional)
+  shippingAddress1 String?
+  shippingAddress2 String?
+  shippingCity     String?
+  shippingState    String?
+  shippingCountry  String?
+  shippingPostal   String?
+
+  sameAsShipping   Boolean  @default(true)
+  notes            String?
+  isActive         Boolean  @default(true)
+
+  // Relations
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  invoices         Invoice[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([companyName])
+  @@index([email])
+  @@index([userId])
+  @@map("clients")
+}
+
+// ============================================
+// Company Settings Model
+// ============================================
+
+model CompanySettings {
+  id                  String   @id @default(cuid())
+
+  // Company Identity
+  companyName         String
+  companyNameAr       String?
+  taxId               String?
+
+  // Contact Information
+  email               String?
+  phone               String?
+  website             String?
+
+  // Company Address
+  address1            String?
+  address2            String?
+  city                String?
+  state               String?
+  country             String   @default("SD")
+  postalCode          String?
+
+  // Branding
+  logoUrl             String?  @default("/logo.png")
+  signatureUrl        String?  @default("/sign.png")
+  primaryColor        String?
+
+  // Invoice Defaults
+  invoicePrefix       String   @default("INV")
+  invoiceStartNum     Int      @default(1)
+  defaultCurrency     String   @default("SDG")
+  defaultTaxRate      Decimal  @default(15) @db.Decimal(5, 2)
+  defaultPaymentTerms Int      @default(30)
+
+  // Bank Details
+  bankName            String?
+  bankBranch          String?
+  accountName         String?
+  accountNumber       String?
+  iban                String?
+  swiftCode           String?
+
+  // Default Text
+  termsAndConditions  String?  @db.Text
+  footerNote          String?
+
+  // Relation
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id])
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("company_settings")
+}
+
+// ============================================
 // Invoice Models
 // ============================================
 
@@ -146,6 +251,17 @@ model Invoice {
   paidAt  DateTime?
   notes   String?
 
+  // Client relationship
+  clientId         String?
+  client           Client?  @relation(fields: [clientId], references: [id])
+
+  // Payment and terms
+  paymentTermsDays Int?
+  taxRate          Decimal? @db.Decimal(5, 2)
+  taxLabel         String?  @default("VAT")
+  referenceNumber  String?
+  termsAndConditions String? @db.Text
+
   // Relations
   shipmentId String?
   shipment   Shipment? @relation(fields: [shipmentId], references: [id])
@@ -161,6 +277,7 @@ model Invoice {
   @@index([invoiceNumber])
   @@index([status])
   @@index([userId])
+  @@index([clientId])
   @@map("invoices")
 }
 

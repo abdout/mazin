@@ -22,9 +22,11 @@ model User {
   sessions              Session[]
   twoFactorConfirmation TwoFactorConfirmation?
 
-  shipments    Shipment[]
-  invoices     Invoice[]
-  declarations CustomsDeclaration[]
+  shipments       Shipment[]
+  invoices        Invoice[]
+  declarations    CustomsDeclaration[]
+  clients         Client[]
+  companySettings CompanySettings?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

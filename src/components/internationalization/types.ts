@@ -30,6 +30,9 @@ export interface Dictionary {
     view: string
     select: string
     createdAt: string
+    email: string
+    phone: string
+    update: string
   }
   header: {
     services: string
@@ -207,8 +210,21 @@ export interface Dictionary {
     unitPrice: string
     notes: string
     downloadPdf: string
+    print: string
+    sendEmail: string
+    sendEmailDescription: string
+    emailRecipient: string
+    emailMessage: string
+    emailMessagePlaceholder: string
+    confirmSend: string
+    sending: string
+    emailSent: string
+    clientInfo: string
+    companyInfo: string
+    taxId: string
     markAsPaid: string
     markAsSent: string
+    cannotEditPaidCancelled: string
     statuses: {
       DRAFT: string
       SENT: string
@@ -268,6 +284,8 @@ export interface Dictionary {
     boardOfDirectors: {
       subtitle: string
       title: string
+      titleMobileLine1: string
+      titleMobileLine2: string
       description: string
       members: Array<{ name: string; position: string }>
     }

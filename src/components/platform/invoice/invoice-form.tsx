@@ -29,37 +29,61 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { createInvoice } from "@/actions/invoice"
+import { createInvoice, updateInvoice } from "@/actions/invoice"
 import type { Dictionary, Locale } from "@/components/internationalization"
-import type { Shipment } from "@prisma/client"
+import type { Shipment, Invoice, InvoiceItem } from "@prisma/client"
 
 interface FormValues {
   shipmentId?: string
+  clientId?: string
   currency: "SDG" | "USD" | "SAR"
   dueDate?: string
   notes?: string
-  items: { description: string; quantity: number; unitPrice: number }[]
+  items: { id?: string; description: string; quantity: number; unitPrice: number }[]
 }
+
+type InvoiceWithItems = Invoice & { items: InvoiceItem[] }
 
 interface InvoiceFormProps {
   dictionary: Dictionary
   locale: Locale
   shipments?: Shipment[]
+  invoice?: InvoiceWithItems
+  mode?: "create" | "edit"
 }
 
 export function InvoiceForm({
   dictionary,
   locale,
   shipments = [],
+  invoice,
+  mode = "create",
 }: InvoiceFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
+  const isEditMode = mode === "edit" && invoice
 
   const form = useForm<FormValues>({
-    defaultValues: {
-      currency: "SDG",
-      items: [{ description: "", quantity: 1, unitPrice: 0 }],
-    },
+    defaultValues: isEditMode
+      ? {
+          shipmentId: invoice.shipmentId || undefined,
+          clientId: invoice.clientId || undefined,
+          currency: invoice.currency as "SDG" | "USD" | "SAR",
+          dueDate: invoice.dueDate
+            ? new Date(invoice.dueDate).toISOString().split("T")[0]
+            : undefined,
+          notes: invoice.notes || undefined,
+          items: invoice.items.map((item) => ({
+            id: item.id,
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: Number(item.unitPrice),
+          })),
+        }
+      : {
+          currency: "SDG",
+          items: [{ description: "", quantity: 1, unitPrice: 0 }],
+        },
   })
 
   const { fields, append, remove } = useFieldArray({
@@ -79,10 +103,17 @@ export function InvoiceForm({
 
   async function onSubmit(values: FormValues) {
     startTransition(async () => {
-      await createInvoice({
-        ...values,
-        dueDate: values.dueDate || undefined,
-      })
+      if (isEditMode) {
+        await updateInvoice(invoice.id, {
+          ...values,
+          dueDate: values.dueDate || undefined,
+        })
+      } else {
+        await createInvoice({
+          ...values,
+          dueDate: values.dueDate || undefined,
+        })
+      }
       router.push(`/${locale}/invoices`)
     })
   }
@@ -92,7 +123,11 @@ export function InvoiceForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>{dictionary.invoices.newInvoice || "New Invoice"}</CardTitle>
+            <CardTitle>
+              {isEditMode
+                ? dictionary.invoices.editInvoice || "Edit Invoice"
+                : dictionary.invoices.newInvoice || "New Invoice"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
@@ -304,7 +339,9 @@ export function InvoiceForm({
           <Button type="submit" disabled={isPending}>
             {isPending
               ? dictionary.common.loading || "Loading..."
-              : dictionary.common.create || "Create"}
+              : isEditMode
+                ? dictionary.common.update || "Update"
+                : dictionary.common.create || "Create"}
           </Button>
         </div>
       </form>
