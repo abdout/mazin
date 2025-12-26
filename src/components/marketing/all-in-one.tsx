@@ -13,11 +13,11 @@ interface AllInOneProps {
 export function AllInOne({ dictionary }: AllInOneProps) {
   const { allInOne } = dictionary.marketing
 
-  // Anthropic-inspired color palette: Cararra #F0EFEA base with subtle tints
+  // Anthropic website actual colors
   const cards = [
     {
       id: 0,
-      bgColor: 'bg-[#f5ebe4] dark:bg-[#2a2520]',
+      bgColor: 'bg-[#e8e6dc] dark:bg-[#2a2826]',
       image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop',
       icon: '/settings.png',
       tags: [allInOne.tags.control, allInOne.tags.ops],
@@ -25,7 +25,7 @@ export function AllInOne({ dictionary }: AllInOneProps) {
     },
     {
       id: 1,
-      bgColor: 'bg-[#F0EFEA] dark:bg-[#252524]',
+      bgColor: 'bg-[#f0eee6] dark:bg-[#252423]',
       image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop',
       icon: '/money.png',
       tags: [allInOne.tags.cost, allInOne.tags.efficiency],
@@ -33,7 +33,7 @@ export function AllInOne({ dictionary }: AllInOneProps) {
     },
     {
       id: 2,
-      bgColor: 'bg-[#e8ebe6] dark:bg-[#222524]',
+      bgColor: 'bg-[#e8e6dc] dark:bg-[#2a2826]',
       image: 'https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop',
       icon: '/approval.png',
       tags: [allInOne.tags.speed, allInOne.tags.accuracy],

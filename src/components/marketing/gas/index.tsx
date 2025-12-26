@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
+import type { Dictionary } from '@/components/internationalization/types'
 
 // Dynamic import to avoid SSR issues with Three.js
 const Container3D = dynamic(
@@ -15,24 +16,6 @@ const Container3D = dynamic(
     ),
   }
 )
-
-const features = [
-  {
-    title: 'Global Reach',
-    description: 'Seamless logistics across 150+ countries with real-time tracking',
-    icon: '🌍',
-  },
-  {
-    title: 'Smart Containers',
-    description: 'IoT-enabled containers with temperature and humidity monitoring',
-    icon: '📦',
-  },
-  {
-    title: 'Fast Clearance',
-    description: 'Automated customs processing reduces delays by 70%',
-    icon: '⚡',
-  },
-]
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -49,29 +32,34 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
+    transition: { duration: 0.6, ease: [0.33, 1, 0.68, 1] as const },
   },
 }
 
 interface GasSectionProps {
-  dictionary?: {
-    marketing?: {
-      gas?: {
-        title?: string
-        subtitle?: string
-        description?: string
-      }
-    }
-  }
+  dictionary: Dictionary
 }
 
 export function GasSection({ dictionary }: GasSectionProps) {
-  const content = dictionary?.marketing?.gas || {
-    title: '3GS Container Solutions',
-    subtitle: 'Next-Generation Shipping',
-    description:
-      'Experience the future of global logistics with our intelligent container management system. From port to destination, we ensure your cargo travels safely and efficiently.',
-  }
+  const content = dictionary.marketing.gas
+
+  const features = [
+    {
+      title: content.features.global.title,
+      description: content.features.global.description,
+      icon: '🌍',
+    },
+    {
+      title: content.features.smart.title,
+      description: content.features.smart.description,
+      icon: '📦',
+    },
+    {
+      title: content.features.fast.title,
+      description: content.features.fast.description,
+      icon: '⚡',
+    },
+  ]
 
   return (
     <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-background via-background/95 to-background">
@@ -139,7 +127,7 @@ export function GasSection({ dictionary }: GasSectionProps) {
             {/* CTA Button */}
             <motion.div variants={itemVariants} className="mt-10">
               <button className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-xl font-medium overflow-hidden transition-all hover:shadow-xl hover:shadow-primary/25">
-                <span className="relative z-10">Explore Our Fleet</span>
+                <span className="relative z-10">{content.cta}</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-primary to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
             </motion.div>
@@ -150,7 +138,7 @@ export function GasSection({ dictionary }: GasSectionProps) {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+            transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
             className="order-1 lg:order-2 h-[400px] md:h-[500px] lg:h-[600px] relative"
           >
             {/* Glow behind container */}
@@ -173,8 +161,8 @@ export function GasSection({ dictionary }: GasSectionProps) {
               transition={{ delay: 0.5, duration: 0.5 }}
               className="absolute top-10 left-4 md:left-0 px-4 py-2 bg-card/80 backdrop-blur-md rounded-xl border border-border/50 shadow-lg"
             >
-              <div className="text-2xl font-bold text-primary">50K+</div>
-              <div className="text-xs text-muted-foreground">Containers Shipped</div>
+              <div className="text-2xl font-bold text-primary">{content.stats.containers}</div>
+              <div className="text-xs text-muted-foreground">{content.stats.containersLabel}</div>
             </motion.div>
 
             <motion.div
@@ -184,8 +172,8 @@ export function GasSection({ dictionary }: GasSectionProps) {
               transition={{ delay: 0.7, duration: 0.5 }}
               className="absolute bottom-20 right-4 md:right-0 px-4 py-2 bg-card/80 backdrop-blur-md rounded-xl border border-border/50 shadow-lg"
             >
-              <div className="text-2xl font-bold text-green-500">99.8%</div>
-              <div className="text-xs text-muted-foreground">On-Time Delivery</div>
+              <div className="text-2xl font-bold text-green-500">{content.stats.delivery}</div>
+              <div className="text-xs text-muted-foreground">{content.stats.deliveryLabel}</div>
             </motion.div>
           </motion.div>
         </div>

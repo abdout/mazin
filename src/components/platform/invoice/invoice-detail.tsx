@@ -42,9 +42,11 @@ interface InvoiceDetailProps {
   locale: Locale
 }
 
+type IconComponent = React.ComponentType<{ className?: string }>
+
 const statusConfig: Record<
   string,
-  { icon: React.ElementType; className: string }
+  { icon: IconComponent; className: string }
 > = {
   DRAFT: { icon: IconEdit, className: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300" },
   SENT: { icon: IconSend, className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" },
@@ -56,7 +58,7 @@ const statusConfig: Record<
 export function InvoiceDetail({ invoice, dictionary, locale }: InvoiceDetailProps) {
   const router = useRouter()
   const config = statusConfig[invoice.status]
-  const StatusIcon = config?.icon || IconEdit
+  const StatusIcon: IconComponent = config?.icon || IconEdit
 
   return (
     <div className="space-y-6">
