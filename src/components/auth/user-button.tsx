@@ -20,12 +20,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { LogoutButton } from "@/components/auth/logout-button"
 import { useCurrentUser } from "./use-current-user"
+import type { Dictionary } from "@/components/internationalization"
 
 interface UserButtonProps {
   className?: string
+  dictionary?: Dictionary
 }
 
-export const UserButton = ({ className }: UserButtonProps) => {
+export const UserButton = ({ className, dictionary }: UserButtonProps) => {
   const user = useCurrentUser()
   const params = useParams()
   const locale = (params?.lang as string) || "en"
@@ -42,7 +44,7 @@ export const UserButton = ({ className }: UserButtonProps) => {
       >
         <Link href={loginUrl}>
           <LogIn className="size-4 rtl:-scale-x-100" />
-          <span className="sr-only">Login</span>
+          <span className="sr-only">{dictionary?.auth?.login || "Login"}</span>
         </Link>
       </Button>
     )
@@ -70,7 +72,7 @@ export const UserButton = ({ className }: UserButtonProps) => {
               {userInitials}
             </AvatarFallback>
           </Avatar>
-          <span className="sr-only">User menu</span>
+          <span className="sr-only">{dictionary?.navigation?.userMenu || "User menu"}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" sideOffset={8}>
@@ -87,14 +89,14 @@ export const UserButton = ({ className }: UserButtonProps) => {
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/${locale}/profile`}>
               <User />
-              Profile
+              {dictionary?.settings?.profile || "Profile"}
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/${locale}/settings`}>
               <Settings />
-              Settings
+              {dictionary?.settings?.title || "Settings"}
               <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
@@ -103,7 +105,7 @@ export const UserButton = ({ className }: UserButtonProps) => {
         <LogoutButton>
           <DropdownMenuItem variant="destructive" className="cursor-pointer">
             <ExitIcon />
-            Logout
+            {dictionary?.auth?.logout || "Logout"}
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </LogoutButton>

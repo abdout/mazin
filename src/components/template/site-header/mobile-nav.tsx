@@ -68,10 +68,10 @@ export function MobileNav({ items, className, dictionary }: MobileNavProps) {
                 )}
               />
             </div>
-            <span className="sr-only">Toggle Menu</span>
+            <span className="sr-only">{dictionary.navigation?.toggleMenu || "Toggle Menu"}</span>
           </div>
           <span className="flex h-8 items-center text-lg leading-none font-medium">
-            Menu
+            {dictionary.navigation?.menu || "Menu"}
           </span>
         </Button>
       </PopoverTrigger>
@@ -85,7 +85,7 @@ export function MobileNav({ items, className, dictionary }: MobileNavProps) {
         <div className="flex flex-col gap-12 overflow-auto px-6 py-6">
           <div className="flex flex-col gap-4">
             <div className="text-muted-foreground text-sm font-medium">
-              Menu
+              {dictionary.navigation?.menu || "Menu"}
             </div>
             <div className="flex flex-col gap-3">
               <MobileLink href={`/${locale}`} onOpenChange={setOpen}>

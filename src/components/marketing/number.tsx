@@ -1,12 +1,17 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, useSpring, useTransform } from 'framer-motion';
+import type { Dictionary } from '@/components/internationalization';
 
 interface CounterProps {
   end: number;
   title: string;
   suffix?: string;
   delay?: number;
+}
+
+interface NumberSectionProps {
+  dictionary: Dictionary;
 }
 
 const Counter = ({ end, title, suffix = '+', delay = 0 }: CounterProps) => {
@@ -83,15 +88,17 @@ const Counter = ({ end, title, suffix = '+', delay = 0 }: CounterProps) => {
   );
 };
 
-export function NumberSection() {
+export function NumberSection({ dictionary }: NumberSectionProps) {
+  const numbers = dictionary.marketing.numbers;
+
   return (
     <div className="relative">
       {/* Background Image Section with Mask */}
       <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] bg-[url('/number.webp')] bg-cover bg-center bg-scroll md:bg-fixed">
         <div className="absolute inset-0 bg-black/50">
           <div className="h-full flex flex-col justify-end pb-10 sm:pb-12 md:pb-16" style={{ paddingInline: 'var(--container-padding)' }}>
-            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-background mb-2">Company</span>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-background/80">In numbers</h1>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-background mb-2">{numbers.company}</span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-background/80">{numbers.inNumbers}</h1>
           </div>
         </div>
         {/* Angular Shape Divider with Three Peaks */}
@@ -108,10 +115,10 @@ export function NumberSection() {
             transition={{ staggerChildren: 0.2 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
           >
-            <Counter end={120} title="PROJECT" suffix="" delay={0} />
-            <Counter end={70} title="EXPERT" suffix="" delay={150} />
-            <Counter end={14} title="AWARDS" suffix="" delay={300} />
-            <Counter end={100} title="SATISFIED" suffix="" delay={450} />
+            <Counter end={120} title={numbers.projects} suffix="" delay={0} />
+            <Counter end={70} title={numbers.experts} suffix="" delay={150} />
+            <Counter end={14} title={numbers.awards} suffix="" delay={300} />
+            <Counter end={100} title={numbers.satisfied} suffix="" delay={450} />
           </motion.div>
         </div>
       </div>

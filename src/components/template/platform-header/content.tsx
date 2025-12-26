@@ -108,10 +108,10 @@ export default function PlatformHeader({
             variant="ghost"
             size="icon"
             className="size-7 hidden sm:flex"
-            title="Search"
+            title={dictionary.common.search}
           >
             <Search className="h-4 w-4" />
-            <span className="sr-only">Search</span>
+            <span className="sr-only">{dictionary.common.search}</span>
           </Button>
           <LanguageSwitcher variant="icon" />
           <ModeSwitcher />
@@ -123,7 +123,7 @@ export default function PlatformHeader({
           >
             <Link href={`/${locale}/notifications`}>
               <Bell className="h-4 w-4" />
-              <span className="sr-only">Notifications</span>
+              <span className="sr-only">{dictionary.navigation?.notifications || "Notifications"}</span>
             </Link>
           </Button>
           <Button
@@ -134,10 +134,10 @@ export default function PlatformHeader({
           >
             <Link href={`/${locale}/messages`}>
               <Mail className="h-4 w-4" />
-              <span className="sr-only">Messages</span>
+              <span className="sr-only">{dictionary.navigation?.messages || "Messages"}</span>
             </Link>
           </Button>
-          <UserButton />
+          <UserButton dictionary={dictionary} />
         </div>
       </header>
     </div>

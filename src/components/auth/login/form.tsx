@@ -81,7 +81,7 @@ export const LoginForm = ({
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-base text-muted-foreground">or continue with</span>
+        <span className="text-base text-muted-foreground">{dictionary?.auth?.orContinueWith || "Or continue with"}</span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -97,7 +97,7 @@ export const LoginForm = ({
                     <Input
                       {...field}
                       disabled={isPending}
-                      placeholder="Code"
+                      placeholder={dictionary?.auth?.twoFactorCode || "Code"}
                     />
                   </FormControl>
                   <FormMessage />
@@ -116,7 +116,7 @@ export const LoginForm = ({
                       <Input
                         {...field}
                         disabled={isPending}
-                        placeholder="Email"
+                        placeholder={dictionary?.auth?.enterEmail || "Email"}
                         type="email"
                       />
                     </FormControl>
@@ -133,7 +133,7 @@ export const LoginForm = ({
                       <Input
                         {...field}
                         disabled={isPending}
-                        placeholder="Password"
+                        placeholder={dictionary?.auth?.enterPassword || "Password"}
                         type="password"
                       />
                     </FormControl>

@@ -44,7 +44,14 @@
     "settings": "Settings",
     "users": "Users",
     "logout": "Logout",
-    "help": "Help"
+    "help": "Help",
+    "inbox": "Inbox",
+    "userMenu": "User menu",
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "menu": "Menu",
+    "toggleMenu": "Toggle Menu",
+    "toggleSidebar": "Toggle Sidebar"
   },
   "auth": {
     "login": "Login",
@@ -496,6 +503,14 @@
         "phone": "+249 123 456 789",
         "email": "info@mazin.sd"
       }
+    },
+    "numbers": {
+      "company": "Company",
+      "inNumbers": "In numbers",
+      "projects": "PROJECT",
+      "experts": "EXPERT",
+      "awards": "AWARDS",
+      "satisfied": "SATISFIED"
     },
     "gas": {
       "subtitle": "Next-Generation Shipping",

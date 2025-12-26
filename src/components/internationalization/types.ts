@@ -48,6 +48,13 @@ export interface Dictionary {
     users: string
     logout: string
     help: string
+    inbox: string
+    userMenu: string
+    notifications: string
+    messages: string
+    menu: string
+    toggleMenu: string
+    toggleSidebar: string
   }
   auth: {
     login: string
@@ -387,6 +394,14 @@ export interface Dictionary {
         phone: string
         email: string
       }
+    }
+    numbers: {
+      company: string
+      inNumbers: string
+      projects: string
+      experts: string
+      awards: string
+      satisfied: string
     }
     gas: {
       subtitle: string

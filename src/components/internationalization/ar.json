@@ -44,7 +44,14 @@
     "settings": "الإعدادات",
     "users": "المستخدمين",
     "logout": "تسجيل الخروج",
-    "help": "مساعدة"
+    "help": "مساعدة",
+    "inbox": "البريد الوارد",
+    "userMenu": "قائمة المستخدم",
+    "notifications": "الإشعارات",
+    "messages": "الرسائل",
+    "menu": "القائمة",
+    "toggleMenu": "تبديل القائمة",
+    "toggleSidebar": "تبديل الشريط الجانبي"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -301,9 +308,9 @@
       "badge": "خدمات التخليص الجمركي",
       "titleLine1": "دقة في",
       "titleLine2": "كل شحنة",
-      "titleMobileLine1": "دقة",
-      "titleMobileLine2": "في كل",
-      "titleMobileLine3": "شحنة",
+      "titleMobileLine1": "دقّة في",
+      "titleMobileLine2": "كل شحنة",
+      "titleMobileLine3": "",
       "subtitle": "نُسهّل عمليات الاستيراد والتصدير بمنصة رقمية متكاملة، تتبع فوري، وفريق متخصص في التخليص الجمركي ببورتسودان.",
       "cta": "ابدأ الآن",
       "trackPlaceholder": "أدخل رقم التتبع",
@@ -496,6 +503,14 @@
         "phone": "+249 123 456 789",
         "email": "info@mazin.sd"
       }
+    },
+    "numbers": {
+      "company": "الشركة",
+      "inNumbers": "بالأرقام",
+      "projects": "مشروع",
+      "experts": "خبير",
+      "awards": "جائزة",
+      "satisfied": "عميل راضٍ"
     },
     "gas": {
       "subtitle": "شحن الجيل القادم",

@@ -27,8 +27,8 @@ export async function MarketingContent({ dictionary, lang }: MarketingContentPro
         <Partners />
         <Services dictionary={dictionary} />
         <AllInOne dictionary={dictionary} />
-        <NumberSection />
-        <TeamPage />
+        <NumberSection dictionary={dictionary} />
+        <TeamPage dictionary={dictionary} />
         <Insights dictionary={dictionary} lang={lang} />
         <Faq dictionary={dictionary} lang={lang} />
         <ReadyToBuildSection dictionary={dictionary} />

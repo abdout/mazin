@@ -52,7 +52,7 @@ export function NavMain({ items, locale, dictionary }: NavMainProps) {
               variant="outline"
             >
               <IconMail />
-              <span className="sr-only">Inbox</span>
+              <span className="sr-only">{dictionary.navigation?.inbox || "Inbox"}</span>
             </Button>
           </SidebarMenuItem>
         </SidebarMenu>
