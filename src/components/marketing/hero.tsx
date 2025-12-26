@@ -64,22 +64,22 @@ export function Hero({ dictionary }: HeroProps) {
           </p>
 
           {/* Track Input with Button */}
-          <div className="relative inline-flex items-center">
+          <div className="relative inline-flex items-center w-[70%] sm:w-auto">
             <input
               type="text"
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={hero.trackPlaceholder}
-              className="h-12 w-80 ps-5 pe-28 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+              className="h-11 sm:h-12 w-full sm:w-80 ps-4 sm:ps-5 pe-24 sm:pe-28 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm sm:text-base"
             />
             <Button
               size="sm"
               onClick={handleTrack}
-              className="absolute end-1.5 bg-blue-500 hover:bg-blue-600 text-white font-medium h-9 px-5 gap-1.5 rounded-full"
+              className="absolute end-1.5 bg-blue-500 hover:bg-blue-600 text-white font-medium h-8 sm:h-9 px-3 sm:px-5 gap-1 sm:gap-1.5 rounded-full text-xs sm:text-sm"
             >
-              <Search className="w-4 h-4" />
-              {hero.trackButton}
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{hero.trackButton}</span>
             </Button>
           </div>
         </div>

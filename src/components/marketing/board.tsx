@@ -31,22 +31,22 @@ const teamMembers = [
 
 export function TeamPage() {
   return (
-    <section className="py-24 bg-foreground text-background">
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-foreground text-background">
       <div style={{ paddingInline: 'var(--container-padding)' }}>
-        <div className="text-center mb-12">
-          <h2 className="text-5xl font-bold mb-4">Board</h2>
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Board</h2>
           <p className="text-background/70">
             Meet the experts behind our success.
           </p>
         </div>
 
-        <div className="flex justify-between">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           {teamMembers.map((member) => (
             <div
               key={member.id}
               className="flex flex-col items-center text-center"
             >
-              <div className="relative w-72 h-72 mb-6 overflow-hidden rounded-full">
+              <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 mb-4 md:mb-6 overflow-hidden rounded-full">
                 <Image
                   src={member.image}
                   alt={member.name}
@@ -54,8 +54,8 @@ export function TeamPage() {
                   className="object-cover"
                 />
               </div>
-              <h3 className="text-3xl font-bold mb-1 text-background">{member.rank}</h3>
-              <p className=" text-background/70">{member.name}</p>
+              <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 text-background">{member.rank}</h3>
+              <p className="text-sm md:text-base text-background/70">{member.name}</p>
             </div>
           ))}
         </div>

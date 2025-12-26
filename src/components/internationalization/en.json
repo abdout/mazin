@@ -347,7 +347,7 @@
       "features": {
         "documentation": {
           "title": "Complete Documentation",
-          "description": "Digital customs docs with secure storage and quick retrieval"
+          "description": "Digital customs documentation with secure cloud storage, quick retrieval, and automated compliance verification"
         },
         "tracking": {
           "title": "Real-Time Tracking",
@@ -355,7 +355,7 @@
         },
         "invoicing": {
           "title": "Multi-Currency Invoicing",
-          "description": "Multi-currency invoicing with automated duty calculations"
+          "description": "Flexible multi-currency invoicing with automated duty calculations and seamless payment processing"
         },
         "access": {
           "title": "Team Access Control",

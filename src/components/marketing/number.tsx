@@ -55,7 +55,7 @@ const Counter = ({ end, title, suffix = '+', delay = 0 }: CounterProps) => {
       className="text-center"
     >
       <motion.div
-        className="text-7xl md:text-8xl font-bold mb-2 tabular-nums"
+        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-2 tabular-nums"
         initial={{ scale: 1 }}
         animate={hasAnimated ? { scale: [1, 1.02, 1] } : {}}
         transition={{ duration: 0.3, delay: 2 }}
@@ -87,11 +87,11 @@ export function NumberSection() {
   return (
     <div className="relative">
       {/* Background Image Section with Mask */}
-      <div className="relative h-[90vh] bg-[url('/number.webp')] bg-cover bg-center bg-fixed">
+      <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] bg-[url('/number.webp')] bg-cover bg-center bg-scroll md:bg-fixed">
         <div className="absolute inset-0 bg-black/50">
-          <div className="h-full flex flex-col justify-end pb-16" style={{ paddingInline: 'var(--container-padding)' }}>
-            <span className="text-3xl md:text-4xl font-black text-background mb-2">Company</span>
-            <h1 className="text-2xl md:text-3xl font-bold text-background/80">In numbers</h1>
+          <div className="h-full flex flex-col justify-end pb-10 sm:pb-12 md:pb-16" style={{ paddingInline: 'var(--container-padding)' }}>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-background mb-2">Company</span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-background/80">In numbers</h1>
           </div>
         </div>
         {/* Angular Shape Divider with Three Peaks */}
@@ -99,14 +99,14 @@ export function NumberSection() {
       </div>
 
       {/* Counters Section */}
-      <div className="bg-background text-foreground -mt-1 py-10">
+      <div className="bg-background text-foreground -mt-1 py-8 sm:py-10">
         <div style={{ paddingInline: 'var(--container-padding)' }}>
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ staggerChildren: 0.2 }}
-            className="flex justify-between"
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
           >
             <Counter end={120} title="PROJECT" suffix="" delay={0} />
             <Counter end={70} title="EXPERT" suffix="" delay={150} />

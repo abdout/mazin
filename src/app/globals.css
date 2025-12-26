@@ -57,7 +57,7 @@
 
 :root {
   --radius: 0.625rem;
-  --container-padding: 3.75rem;  /* 60px */
+  --container-padding: 1.25rem;  /* 20px mobile */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -95,6 +95,25 @@
   --code-foreground: var(--surface-foreground);
   --code-highlight: oklch(0.96 0 0);
   --code-number: oklch(0.56 0 0);
+}
+
+/* Responsive container padding */
+@media (min-width: 640px) {
+  :root {
+    --container-padding: 2rem;  /* 32px sm */
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --container-padding: 2.5rem;  /* 40px md */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --container-padding: 3.75rem;  /* 60px lg+ */
+  }
 }
 
 .dark {

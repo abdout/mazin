@@ -42,30 +42,30 @@ export function AllInOne({ dictionary }: AllInOneProps) {
   ]
 
   return (
-    <section id="features" className="py-20 bg-muted">
+    <section id="features" className="py-12 sm:py-16 md:py-20 bg-muted">
       <div style={{ paddingInline: 'var(--container-padding)' }}>
         {/* Split Header */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid lg:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
           {/* Left: Badge + Title */}
           <div>
-            <span className="inline-block text-xs font-medium tracking-wider text-muted-foreground uppercase mb-4 px-4 py-2 border border-border rounded-full">
+            <span className="inline-block text-xs font-medium tracking-wider text-muted-foreground uppercase mb-3 md:mb-4 px-3 md:px-4 py-1.5 md:py-2 border border-border rounded-full">
               {allInOne.badge}
             </span>
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
               {allInOne.title}
             </h2>
           </div>
 
           {/* Right: Subtitle */}
           <div className="flex items-end">
-            <p className="text-lg text-muted-foreground">
+            <p className="text-base md:text-lg text-muted-foreground">
               {allInOne.subtitle}
             </p>
           </div>
         </div>
 
         {/* Interactive Cards */}
-        <div className="flex gap-4 h-[320px]">
+        <div className="flex flex-col md:flex-row gap-4 md:h-[320px]">
           {cards.map((card) => (
             <FeatureCard key={card.id} card={card} />
           ))}
@@ -89,7 +89,7 @@ function FeatureCard({ card }: { card: CardData }) {
 
   return (
     <motion.div
-      className={`relative rounded-2xl overflow-hidden cursor-pointer ${card.bgColor}`}
+      className={`relative rounded-2xl overflow-hidden cursor-pointer ${card.bgColor} h-[280px] md:h-auto`}
       initial={{ flex: 1 }}
       animate={{ flex: isHovered ? 2 : 1 }}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
@@ -112,34 +112,39 @@ function FeatureCard({ card }: { card: CardData }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
       </motion.div>
 
-      {/* Arrow link */}
-      <div className="absolute top-4 end-4 z-10">
-        <motion.div
-          className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
-          initial={{ backgroundColor: 'rgba(156, 163, 175, 0.1)' }}
-          animate={{
-            backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.2)' : 'rgba(156, 163, 175, 0.1)',
-          }}
-          transition={{ duration: 0.3 }}
-        >
-          <motion.div
-            animate={{ color: isHovered ? '#ffffff' : '#6b7280' }}
-            transition={{ duration: 0.3 }}
-          >
-            <ArrowUpRight className="w-4 h-4" />
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Default State */}
+      {/* Default State - Column layout on mobile */}
       <motion.div
-        className="absolute inset-0 flex flex-col items-start justify-between p-5"
+        className="absolute inset-0 flex flex-col p-4 md:p-5"
         initial={{ opacity: 1 }}
         animate={{ opacity: isHovered ? 0 : 1 }}
         transition={{ duration: 0.3 }}
       >
+        {/* Arrow link - top right */}
+        <div className="flex justify-end mb-2 md:mb-0">
+          <motion.div
+            className="px-3 md:px-4 py-1.5 md:py-2 rounded-full flex items-center justify-center cursor-pointer backdrop-blur-md border"
+            initial={{
+              backgroundColor: 'rgba(0, 0, 0, 0.1)',
+              borderColor: 'rgba(0, 0, 0, 0.2)'
+            }}
+            animate={{
+              backgroundColor: isHovered ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.1)',
+              borderColor: isHovered ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.2)',
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              animate={{ color: isHovered ? '#ffffff' : '#374151' }}
+              transition={{ duration: 0.3 }}
+            >
+              <ArrowUpRight className="w-4 h-4" />
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Icon */}
         <motion.div
-          className="pt-1"
+          className="flex-1 flex items-start"
           animate={{ scale: isHovered ? 0.9 : 1 }}
           transition={{ duration: 0.3 }}
         >
@@ -148,19 +153,20 @@ function FeatureCard({ card }: { card: CardData }) {
             alt=""
             width={100}
             height={100}
-            className="w-24 h-24 object-contain"
+            className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain"
           />
         </motion.div>
 
-        <div>
-          <div className="flex gap-2 mb-2">
+        {/* Tags and Description */}
+        <div className="mt-auto">
+          <div className="flex flex-wrap gap-2 mb-2">
             {card.tags.map((tag) => (
-              <span key={tag} className="px-3 py-1 bg-background/80 dark:bg-background/50 text-foreground text-sm font-medium rounded-full border border-border/50">
+              <span key={tag} className="px-2 md:px-3 py-1 bg-background/80 dark:bg-background/50 text-foreground text-xs md:text-sm font-medium rounded-full border border-border/50">
                 {tag}
               </span>
             ))}
           </div>
-          <p className="text-foreground text-sm leading-relaxed line-clamp-2">
+          <p className="text-foreground text-xs md:text-sm leading-relaxed line-clamp-2">
             {card.description}
           </p>
         </div>
@@ -168,7 +174,7 @@ function FeatureCard({ card }: { card: CardData }) {
 
       {/* Hover State */}
       <motion.div
-        className="absolute inset-x-0 bottom-0 p-5"
+        className="absolute inset-x-0 bottom-0 p-4 md:p-5"
         initial={{ opacity: 0, y: 20 }}
         animate={{
           opacity: isHovered ? 1 : 0,
@@ -187,15 +193,15 @@ function FeatureCard({ card }: { card: CardData }) {
             alt=""
             width={40}
             height={40}
-            className="w-10 h-10 object-contain brightness-0 invert"
+            className="w-8 h-8 md:w-10 md:h-10 object-contain brightness-0 invert"
           />
         </motion.div>
 
-        <div className="flex gap-2 mb-2">
+        <div className="flex flex-wrap gap-2 mb-2">
           {card.tags.map((tag, index) => (
             <motion.span
               key={tag}
-              className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-full"
+              className="px-2 md:px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs md:text-sm font-medium rounded-full"
               initial={{ opacity: 0, x: -10 }}
               animate={{
                 opacity: isHovered ? 1 : 0,
@@ -209,7 +215,7 @@ function FeatureCard({ card }: { card: CardData }) {
         </div>
 
         <motion.p
-          className="text-white/90 text-sm leading-relaxed"
+          className="text-white/90 text-xs md:text-sm leading-relaxed"
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.3, delay: isHovered ? 0.2 : 0 }}
