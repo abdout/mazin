@@ -5,9 +5,9 @@ import { Dictionary } from '@/components/internationalization/types'
 
 // Static featured articles data
 const FEATURED_ARTICLES = [
-  { slug: 'sudan-customs-digital-system', image: '/blog/sudan-customs.jpg' },
-  { slug: 'red-sea-shipping-crisis', image: '/blog/red-sea.jpg' },
-  { slug: 'port-sudan-operations-update', image: '/blog/port-sudan.jpg' },
+  { slug: 'sudan-customs-digital-system', image: '/digital.jpg' },
+  { slug: 'red-sea-shipping-crisis', image: '/red-sea.jpg' },
+  { slug: 'port-sudan-operations-update', image: '/operation.jpg' },
 ]
 
 interface InsightsProps {

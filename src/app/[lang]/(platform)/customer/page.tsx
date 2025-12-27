@@ -1,38 +1,51 @@
-import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Suspense } from "react"
 
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
-import { getClients } from "@/components/platform/customer/actions"
-import { CustomerTable } from "@/components/platform/customer/customer-table"
 import PageHeading from "@/components/atom/page-heading"
-import { Button } from "@/components/ui/button"
+import {
+  clientSearchParamsCache,
+  getClients,
+  getClientStatusCounts,
+  ClientsTable,
+  ClientsTableSkeleton,
+} from "@/components/platform/customer/_table"
+
+interface CustomerPageProps {
+  params: Promise<{ lang: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
 
 export default async function CustomerPage({
   params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+  searchParams,
+}: CustomerPageProps) {
   const { lang } = await params
   const locale = lang as Locale
   const dict = await getDictionary(locale)
-  const clients = await getClients()
+
+  // Parse search params for table state
+  const search = clientSearchParamsCache.parse(await searchParams)
+
+  // Fetch data in parallel
+  const promises = Promise.all([
+    getClients(search),
+    getClientStatusCounts(),
+  ])
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <div className="px-4 lg:px-6">
-        <div className="flex items-start justify-between">
-          <PageHeading title={dict.customer?.title || "Customers"} />
-          <Button asChild>
-            <Link href={`/${locale}/customer/new`}>
-              <Plus className="mr-2 h-4 w-4" />
-              {dict.customer?.newCustomer || "New Customer"}
-            </Link>
-          </Button>
-        </div>
+        <PageHeading title={dict.customer?.title || "Customers"} />
       </div>
       <div className="px-4 lg:px-6">
-        <CustomerTable data={clients} dictionary={dict} locale={locale} />
+        <Suspense fallback={<ClientsTableSkeleton />}>
+          <ClientsTable
+            promises={promises}
+            dictionary={dict}
+            locale={locale}
+          />
+        </Suspense>
       </div>
     </div>
   )
