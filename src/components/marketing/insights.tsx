@@ -73,11 +73,11 @@ export function Insights({ dictionary }: InsightsProps) {
   const featuredArticles = FEATURED_ARTICLES
 
   return (
-    <section className="py-16 lg:py-24 bg-background overflow-hidden">
+    <section className="py-12 sm:py-16 lg:py-24 bg-background overflow-hidden">
       <div style={{ paddingInline: 'var(--container-padding)' }}>
         {/* Section Header */}
         <motion.div
-          className="mb-12"
+          className="mb-8 sm:mb-12"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -142,13 +142,13 @@ export function Insights({ dictionary }: InsightsProps) {
                     </div>
                     {/* Date Badge */}
                     <motion.div
-                      className="absolute top-4 end-4"
+                      className="absolute top-3 end-3 sm:top-4 sm:end-4"
                       initial={{ opacity: 0, x: 20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
                     >
-                      <span className="px-4 py-2 bg-black/25 backdrop-blur-md border border-white/60 rounded-full text-sm font-medium text-white">
+                      <span className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-black/30 backdrop-blur-md border border-white/50 rounded-full text-xs sm:text-sm font-medium text-white whitespace-nowrap">
                         {articleContent.date}
                       </span>
                     </motion.div>
