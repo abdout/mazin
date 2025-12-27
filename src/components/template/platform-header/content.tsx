@@ -1,9 +1,8 @@
 "use client"
 
 import { useMemo } from "react"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Bell, Mail, Search } from "lucide-react"
+import { Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import {
@@ -115,28 +114,6 @@ export default function PlatformHeader({
           </Button>
           <LanguageSwitcher variant="icon" />
           <ModeSwitcher />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            asChild
-          >
-            <Link href={`/${locale}/notifications`}>
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">{dictionary.navigation?.notifications || "Notifications"}</span>
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            asChild
-          >
-            <Link href={`/${locale}/messages`}>
-              <Mail className="h-4 w-4" />
-              <span className="sr-only">{dictionary.navigation?.messages || "Messages"}</span>
-            </Link>
-          </Button>
           <UserButton dictionary={dictionary} />
         </div>
       </header>
