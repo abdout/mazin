@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Dictionary } from '@/components/internationalization/types'
+import '@/styles/animation-box.css'
 
 // Static featured articles data
 const FEATURED_ARTICLES = [
@@ -54,16 +55,6 @@ const cardVariants = {
   },
 }
 
-const imageVariants = {
-  rest: { scale: 1 },
-  hover: {
-    scale: 1.05,
-    transition: {
-      duration: 0.4,
-      ease: smoothEase,
-    },
-  },
-}
 
 const badgeVariants = {
   hidden: { opacity: 0, scale: 0.8 },
@@ -139,19 +130,16 @@ export function Insights({ dictionary }: InsightsProps) {
                     transition: { duration: 0.3, ease: smoothEase },
                   }}
                 >
-                  {/* Image Container */}
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <motion.div
-                      className="absolute inset-0"
-                      variants={imageVariants}
-                    >
+                  {/* Image Container with slow zoom animation */}
+                  <div className="relative aspect-[4/3] animation-box">
+                    <div className="absolute inset-0">
                       <Image
                         src={article.image}
                         alt={articleContent.title}
                         fill
                         className="object-cover"
                       />
-                    </motion.div>
+                    </div>
                     {/* Date Badge */}
                     <motion.div
                       className="absolute top-4 end-4"
