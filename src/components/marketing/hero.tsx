@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -73,6 +73,15 @@ export function Hero({ dictionary }: HeroProps) {
   const [trackingNumber, setTrackingNumber] = useState('')
   const isArabic = locale === 'ar'
   const { setVideoLoaded } = useLoading()
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // Check if video is already loaded (e.g., from cache on refresh)
+  useEffect(() => {
+    const video = videoRef.current
+    if (video && video.readyState >= 3) {
+      setVideoLoaded()
+    }
+  }, [setVideoLoaded])
 
   const handleTrack = () => {
     if (trackingNumber.trim()) {
@@ -91,6 +100,7 @@ export function Hero({ dictionary }: HeroProps) {
       {/* Video Background */}
       <div className="absolute inset-0">
         <video
+          ref={videoRef}
           autoPlay
           loop
           muted

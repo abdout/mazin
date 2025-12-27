@@ -4,12 +4,14 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { LoadingProvider, useLoading } from './loading-context';
 import { LoadingScreen } from './loading-screen';
 
+type LoadingState = 'loading' | 'transitioning' | 'complete';
+
 function LoadingContent({ children }: { children: ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [state, setState] = useState<LoadingState>('loading');
   const { isVideoLoaded } = useLoading();
 
   useEffect(() => {
-    if (isLoading) {
+    if (state !== 'complete') {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -17,22 +19,45 @@ function LoadingContent({ children }: { children: ReactNode }) {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isLoading]);
+  }, [state]);
 
-  const handleLoadingComplete = () => setIsLoading(false);
+  const handleLoadingComplete = () => {
+    setState('transitioning');
+    setTimeout(() => setState('complete'), 700);
+  };
 
-  if (isLoading) {
-    return (
-      <>
-        <LoadingScreen isVideoLoaded={isVideoLoaded} onComplete={handleLoadingComplete} />
-        <div style={{ visibility: 'hidden', position: 'absolute', top: 0, left: 0 }}>
-          {children}
+  const isLoading = state === 'loading';
+  const isTransitioning = state === 'transitioning';
+  const isComplete = state === 'complete';
+
+  return (
+    <>
+      {/* Loading screen - always in DOM until complete, fades out during transition */}
+      {!isComplete && (
+        <div
+          className="transition-opacity duration-500 ease-out"
+          style={{
+            opacity: isTransitioning ? 0 : 1,
+            pointerEvents: isTransitioning ? 'none' : 'auto',
+          }}
+        >
+          <LoadingScreen isVideoLoaded={isVideoLoaded} onComplete={handleLoadingComplete} />
         </div>
-      </>
-    );
-  }
+      )}
 
-  return <>{children}</>;
+      {/* Content - always rendered, transitions opacity and scale */}
+      <div
+        className={isComplete ? '' : 'transition-all duration-700 ease-out'}
+        style={isComplete ? undefined : {
+          opacity: isTransitioning ? 1 : 0,
+          transform: isTransitioning ? 'none' : 'scale(0.98)',
+          visibility: isLoading ? 'hidden' : 'visible',
+        }}
+      >
+        {children}
+      </div>
+    </>
+  );
 }
 
 export function LoadingWrapper({ children }: { children: ReactNode }) {

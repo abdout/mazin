@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface LoadingScreenProps {
   isVideoLoaded: boolean;
@@ -9,20 +9,41 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ isVideoLoaded, onComplete }: LoadingScreenProps) {
   const [count, setCount] = useState(0);
+  const [isExiting, setIsExiting] = useState(false);
+
+  const startExitAnimation = useCallback(() => {
+    setIsExiting(true);
+    // Wait for exit animation to complete before calling onComplete
+    setTimeout(onComplete, 600);
+  }, [onComplete]);
 
   useEffect(() => {
+    // If already exiting, don't do anything
+    if (isExiting) return;
+
+    // When count reaches 100, start the exit animation
     if (count >= 100) {
-      const timeout = setTimeout(onComplete, 300);
+      // Small delay to show 100% before animating out
+      const timeout = setTimeout(startExitAnimation, 200);
       return () => clearTimeout(timeout);
     }
 
-    // If video is loaded, accelerate to 100%
-    if (isVideoLoaded && count < 100) {
+    // If video is loaded and we're past 90%, accelerate to 100
+    if (isVideoLoaded && count >= 90 && count < 100) {
       const timeout = setTimeout(() => {
         const remaining = 100 - count;
-        const increment = Math.max(Math.ceil(remaining / 5), 2);
+        const increment = Math.max(Math.ceil(remaining / 3), 1);
         setCount(prev => Math.min(prev + increment, 100));
-      }, 30);
+      }, 40);
+      return () => clearTimeout(timeout);
+    }
+
+    // If video is loaded but we're below 90%, speed up moderately
+    if (isVideoLoaded && count < 90) {
+      const timeout = setTimeout(() => {
+        const increment = Math.floor(Math.random() * 10) + 3;
+        setCount(prev => Math.min(prev + increment, 90));
+      }, 30 + Math.random() * 50);
       return () => clearTimeout(timeout);
     }
 
@@ -38,32 +59,26 @@ export function LoadingScreen({ isVideoLoaded, onComplete }: LoadingScreenProps)
     }, 50 + Math.random() * 100);
 
     return () => clearTimeout(timeout);
-  }, [count, isVideoLoaded, onComplete]);
+  }, [count, isVideoLoaded, isExiting, startExitAnimation]);
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#121214',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 9999,
-      }}
+      className="fixed inset-0 flex items-center justify-center bg-background z-[9999]"
     >
+      {/* Container with overflow hidden to clip the text as it moves up */}
       <div
-        style={{
-          color: 'white',
-          fontSize: '18px',
-          fontWeight: '300',
-          fontFamily: 'Inter, system-ui, sans-serif',
-        }}
+        className="overflow-hidden"
+        style={{ height: '1.5em' }}
       >
-        {count}%
+        <div
+          className="text-foreground text-lg font-light transition-transform duration-500 ease-out"
+          style={{
+            fontFamily: 'Inter, system-ui, sans-serif',
+            transform: isExiting ? 'translateY(-100%)' : 'translateY(0)',
+          }}
+        >
+          {count}%
+        </div>
       </div>
     </div>
   );
