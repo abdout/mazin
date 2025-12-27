@@ -40,6 +40,7 @@
     "login": "Login"
   },
   "navigation": {
+    "overview": "Overview",
     "dashboard": "Dashboard",
     "shipments": "Shipments",
     "customs": "Customs",
@@ -191,8 +192,11 @@
   },
   "invoices": {
     "title": "Invoices",
+    "description": "Manage and track your invoices",
     "newInvoice": "New Invoice",
+    "newInvoiceDescription": "Create a new invoice for your client",
     "editInvoice": "Edit Invoice",
+    "editInvoiceDescription": "Update invoice details",
     "invoiceDetails": "Invoice Details",
     "details": "Invoice Details",
     "invoiceNumber": "Invoice Number",
@@ -409,25 +413,82 @@
       "title": "Latest Insights and Trends",
       "viewAll": "See more",
       "articles": {
-        "article1": {
+        "sudan-customs-digital-system": {
           "category": "News",
-          "title": "New Customs Regulations for 2025",
-          "description": "New leadership accelerates innovation and growth across regional operations to strengthen market presence.",
-          "date": "July 22, 2025"
+          "title": "Sudan Customs Goes Digital",
+          "description": "Sudan Customs Authority signed a landmark agreement with Substansible for an Advanced Cargo Declaration System. Director General Lt. Gen. Salah Ahmed Ibrahim confirmed the system enables pre-loading cargo verification and prevents non-compliant goods from entering.",
+          "content": "Sudan Customs Authority signed a landmark agreement with Substansible for an Advanced Cargo Declaration System. Director General Lt. Gen. Salah Ahmed Ibrahim confirmed the system enables pre-loading cargo verification and prevents non-compliant goods from entering. This digital integration aligns with international trade standards and marks a significant step toward modernizing Sudan's customs infrastructure.",
+          "date": "October 15, 2025"
         },
-        "article2": {
-          "category": "News",
-          "title": "Optimizing Your Supply Chain",
-          "description": "New platform policy streamlines operations and ensures service continuity while driving operational excellence.",
-          "date": "July 20, 2025"
+        "red-sea-shipping-crisis": {
+          "category": "Industry",
+          "title": "Red Sea Shipping Crisis Impact",
+          "description": "Houthi attacks have disrupted 10% of global seaborne trade, forcing ships to reroute around Africa. Aid shipments to Port Sudan now take months instead of weeks. Despite a May 2025 ceasefire, attacks resumed in July.",
+          "content": "Houthi attacks have disrupted 10% of global seaborne trade, forcing ships to reroute around Africa. Aid shipments to Port Sudan now take months instead of weeks. Despite a May 2025 ceasefire, attacks resumed in July. Maersk completed its first test transit in December 2025, signaling cautious optimism for the future of Red Sea shipping lanes.",
+          "date": "December 20, 2025"
         },
-        "article3": {
+        "port-sudan-operations-update": {
           "category": "News",
-          "title": "Digital Transformation in Logistics",
-          "description": "Revolutionizing Liquid Transport: How Smart SaaS Technology Optimizes Bulk Supply Chain Efficiency and reduces operational costs significantly.",
-          "date": "July 18, 2025"
+          "title": "Port Sudan Operations Update",
+          "description": "Despite ongoing conflict, Port Sudan maintains operations. Container terminal resumed service in May 2025, and bulk cargo including wheat arrives regularly. Bank closures create documentation challenges.",
+          "content": "Despite ongoing conflict, Port Sudan maintains operations. Container terminal resumed service in May 2025, and bulk cargo including wheat arrives regularly. Bank closures create documentation challenges, but workarounds keep trade flowing through this critical Red Sea gateway. The port remains a vital lifeline for humanitarian aid and commercial goods.",
+          "date": "December 18, 2025"
+        },
+        "africa-single-window-revolution": {
+          "category": "Industry",
+          "title": "Africa's Single Window Revolution",
+          "description": "African nations are modernizing customs through ASYCUDA technology. The Gambia saw 23% revenue increase after implementation. Cloud-based systems connect government agencies on a single platform.",
+          "content": "African nations are modernizing customs through ASYCUDA technology. The Gambia saw 23% revenue increase after implementation. Cloud-based systems connect government agencies on a single platform, reducing clearance times and costs for traders across the continent. This digital transformation is reshaping how Africa trades.",
+          "date": "November 25, 2025"
+        },
+        "customs-automation-trends-2025": {
+          "category": "Guide",
+          "title": "2025 Customs Automation Trends",
+          "description": "AI-powered document verification and automated customs declarations are transforming border processing. Green corridors for trusted traders reduce wait times significantly.",
+          "content": "AI-powered document verification and automated customs declarations are transforming border processing. Green corridors for trusted traders reduce wait times. Digital customs integration enables data-driven decisions and ensures secure, transparent trade systems. These technologies are setting new standards for international trade.",
+          "date": "January 7, 2025"
+        },
+        "sudan-pre-shipment-verification-guide": {
+          "category": "Guide",
+          "title": "Pre-Shipment Verification Guide",
+          "description": "Sudan's SSMO requires a Certificate of Inspection (CoI) for regulated products. Working with TUV Rheinland, exporters can ensure compliance with national and international standards.",
+          "content": "Sudan's SSMO requires a Certificate of Inspection (CoI) for regulated products. Working with TUV Rheinland, exporters can ensure compliance with national and international standards before shipment, facilitating smooth customs clearance at Sudanese ports. This guide covers the essential steps for successful verification.",
+          "date": "December 1, 2025"
+        },
+        "sudan-afcfta-path-forward": {
+          "category": "News",
+          "title": "Sudan & AfCFTA: The Path Forward",
+          "description": "Sudan remains a non-state party to the African Continental Free Trade Area. Ratification would open preferential trade access to 54 African nations.",
+          "content": "Sudan remains a non-state party to the African Continental Free Trade Area. Ratification would open preferential trade access to 54 African nations. As 11 countries now actively trade under AfCFTA rules, pressure grows for non-members to join. The potential benefits for Sudan's economy could be substantial.",
+          "date": "November 10, 2025"
+        },
+        "gulf-ports-technology-innovation": {
+          "category": "Industry",
+          "title": "Gulf Ports Lead Technology Innovation",
+          "description": "GCC ports are investing $110 billion by 2030 in smart logistics. Jebel Ali sets cargo records while Hamad Port leads in automation.",
+          "content": "GCC ports are investing $110 billion by 2030 in smart logistics. Jebel Ali sets cargo records while Hamad Port leads in automation. Fujairah's new MarHub platform integrates vessel calls, security, and analytics. The region is becoming a global maritime tech leader, setting examples for ports worldwide.",
+          "date": "December 5, 2025"
+        },
+        "smart-ports-global-trade": {
+          "category": "Guide",
+          "title": "Smart Ports Shaping Global Trade",
+          "description": "IoT sensors, AI scheduling, and blockchain tracking are revolutionizing port operations. Automated container handling and real-time cargo visibility help ports manage disruptions.",
+          "content": "IoT sensors, AI scheduling, and blockchain tracking are revolutionizing port operations. Automated container handling and real-time cargo visibility help ports manage disruptions. These technologies offer a roadmap for emerging market ports seeking efficiency gains and competitive advantages in global trade.",
+          "date": "December 10, 2025"
         }
       }
+    },
+    "blog": {
+      "title": "Blog & Insights",
+      "subtitle": "Stay updated with the latest news, industry trends, and expert guides on customs clearance and international trade.",
+      "allCategories": "All",
+      "categoryNews": "News",
+      "categoryIndustry": "Industry",
+      "categoryGuide": "Guide",
+      "readMore": "Read more",
+      "backToBlog": "Back to Blog",
+      "relatedArticles": "Related Articles",
+      "source": "Source"
     },
     "services": {
       "badge": "OUR SERVICE",
@@ -692,8 +753,8 @@
   "chatbot": {
     "openChat": "Open chat",
     "closeChat": "Close chat",
-    "placeholder": "Type your message...",
-    "welcomeMessage": "Hello! How can I help you with your shipping needs?",
+    "placeholder": "Ask about customs clearance...",
+    "welcomeMessage": "Hello! I'm here to help with customs clearance and import/export inquiries. How can I assist you today?",
     "noMessages": "No messages yet. Start a conversation!",
     "errorMessage": "Sorry, something went wrong. Please try again.",
     "typing": "Typing...",
@@ -706,13 +767,13 @@
     "speechError": "Speech recognition error. Please try again.",
     "quickActions": {
       "track": "Track",
-      "trackQuestion": "Where is my shipment?",
-      "rates": "Rates",
-      "ratesQuestion": "What are your shipping rates?",
-      "delivery": "Delivery",
-      "deliveryQuestion": "How long does delivery take?",
-      "contact": "Contact",
-      "contactQuestion": "How can I contact you?"
+      "trackQuestion": "I want to track my shipment",
+      "rates": "Documents",
+      "ratesQuestion": "What documents do I need for customs clearance?",
+      "delivery": "Timeline",
+      "deliveryQuestion": "How long does the clearance process take?",
+      "contact": "Quote",
+      "contactQuestion": "I need a quote for customs clearance"
     }
   },
   "table": {

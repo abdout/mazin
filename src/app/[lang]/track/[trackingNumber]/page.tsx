@@ -51,7 +51,13 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
             </div>
             <span className="text-xl font-bold">{dict.common.appName}</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/${lang}/track`}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {dict.tracking.trackButton}
+            </Link>
             <LanguageToggle />
             <ModeToggle />
           </div>

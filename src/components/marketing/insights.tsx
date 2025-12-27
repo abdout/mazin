@@ -1,35 +1,22 @@
 'use client'
 
-import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronRight } from 'lucide-react'
 import { Dictionary } from '@/components/internationalization/types'
+
+// Static featured articles data
+const FEATURED_ARTICLES = [
+  { slug: 'sudan-customs-digital-system', image: '/blog/sudan-customs.jpg' },
+  { slug: 'red-sea-shipping-crisis', image: '/blog/red-sea.jpg' },
+  { slug: 'port-sudan-operations-update', image: '/blog/port-sudan.jpg' },
+]
 
 interface InsightsProps {
   dictionary: Dictionary
-  lang: string
 }
 
-export function Insights({ dictionary, lang }: InsightsProps) {
+export function Insights({ dictionary }: InsightsProps) {
   const { insights } = dictionary.marketing
-
-  const articles = [
-    {
-      ...insights.articles.article1,
-      image: 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?q=80&w=2070&auto=format&fit=crop',
-      slug: 'customs-regulations-2025',
-    },
-    {
-      ...insights.articles.article2,
-      image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=2070&auto=format&fit=crop',
-      slug: 'optimizing-supply-chain',
-    },
-    {
-      ...insights.articles.article3,
-      image: 'https://images.unsplash.com/photo-1605745341112-85968b19335b?q=80&w=2070&auto=format&fit=crop',
-      slug: 'digital-transformation-logistics',
-    },
-  ]
+  const featuredArticles = FEATURED_ARTICLES
 
   return (
     <section className="py-16 lg:py-24 bg-background">
@@ -41,58 +28,59 @@ export function Insights({ dictionary, lang }: InsightsProps) {
             {insights.badge}
           </span>
 
-          {/* Title Row with See More Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-foreground leading-tight">
-              {insights.title}
-            </h2>
-            <Link
-              href={`/${lang}/blog`}
-              className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors w-fit shrink-0"
-            >
-              {insights.viewAll}
-              <ChevronRight className="w-4 h-4 rtl:rotate-180" />
-            </Link>
-          </div>
+          {/* Title */}
+          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-foreground leading-tight">
+            {insights.title}
+          </h2>
         </div>
 
         {/* Articles Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {articles.map((article, index) => (
-            <article key={index} className="group cursor-pointer">
-              {/* Card Container */}
-              <div className="rounded-md overflow-hidden border border-border">
-                {/* Image Container */}
-                <div className="relative aspect-[4/3]">
-                  <Image
-                    src={article.image}
-                    alt={article.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Date Badge */}
-                  <div className="absolute top-4 end-4">
-                    <span className="px-4 py-2 bg-black/25 backdrop-blur-md border border-white/60 rounded-full text-sm font-medium text-white">
-                      {article.date}
+          {featuredArticles.map((article) => {
+            const articleContent = insights.articles[article.slug as keyof typeof insights.articles]
+            if (!articleContent) return null
+
+            return (
+              <article key={article.slug} className="group">
+                {/* Card Container */}
+                <div className="rounded-md overflow-hidden border border-border">
+                  {/* Image Container */}
+                  <div className="relative aspect-[4/3]">
+                    <Image
+                      src={article.image}
+                      alt={articleContent.title}
+                      fill
+                      className="object-cover"
+                    />
+                    {/* Date Badge */}
+                    <div className="absolute top-4 end-4">
+                      <span className="px-4 py-2 bg-black/25 backdrop-blur-md border border-white/60 rounded-full text-sm font-medium text-white">
+                        {articleContent.date}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5 space-y-3 bg-card">
+                    {/* Category Badge */}
+                    <span className="inline-block text-sm text-muted-foreground border border-border rounded-full px-4 py-1">
+                      {articleContent.category}
                     </span>
+
+                    {/* Title */}
+                    <h3 className="text-foreground text-lg font-semibold">
+                      {articleContent.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-muted-foreground text-base leading-relaxed line-clamp-2">
+                      {articleContent.description}
+                    </p>
                   </div>
                 </div>
-
-                {/* Content - with border connecting to image */}
-                <div className="p-5 space-y-3 bg-card">
-                  {/* Category Badge */}
-                  <span className="inline-block text-sm text-muted-foreground border border-border rounded-full px-4 py-1">
-                    {article.category}
-                  </span>
-
-                  {/* Description */}
-                  <p className="text-foreground text-base leading-relaxed">
-                    {article.description}
-                  </p>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            )
+          })}
         </div>
       </div>
     </section>

@@ -54,7 +54,7 @@ export default function PlatformHeader({
 
   return (
     <div className="bg-background sticky top-0 z-40">
-      <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+      <header className="flex h-12 shrink-0 items-center gap-2 border-b px-8">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ms-1.5 hidden size-7 lg:flex" />
           <MobileNav

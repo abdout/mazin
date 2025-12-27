@@ -227,65 +227,25 @@ export default async function ServicesPage({
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-16 bg-primary text-primary-foreground">
-          <div style={{ paddingInline: "var(--container-padding)" }}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">
-                  {servicesPage.stats.years}
-                </div>
-                <div className="text-sm opacity-80">
-                  {servicesPage.stats.yearsLabel}
-                </div>
-              </div>
-              <div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">
-                  {servicesPage.stats.shipments}
-                </div>
-                <div className="text-sm opacity-80">
-                  {servicesPage.stats.shipmentsLabel}
-                </div>
-              </div>
-              <div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">
-                  {servicesPage.stats.clients}
-                </div>
-                <div className="text-sm opacity-80">
-                  {servicesPage.stats.clientsLabel}
-                </div>
-              </div>
-              <div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">
-                  {servicesPage.stats.rate}
-                </div>
-                <div className="text-sm opacity-80">
-                  {servicesPage.stats.rateLabel}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* CTA Section */}
-        <section className="py-20 bg-muted">
+        <section className="py-20 bg-primary">
           <div
             style={{ paddingInline: "var(--container-padding)" }}
             className="text-center"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-primary-foreground mb-4">
               {servicesPage.cta.title}
             </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+            <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
               {servicesPage.cta.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
+              <Button size="lg" variant="secondary" asChild>
                 <Link href={`/${lang}/dashboard`}>
                   {servicesPage.cta.quoteButton}
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
                 <Link href={`/${lang}/track`}>
                   {servicesPage.cta.trackButton}
                 </Link>

@@ -1,10 +1,21 @@
+import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
+
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
 import { InvoiceForm } from "@/components/platform/invoice/invoice-form"
 import { getInvoice } from "@/actions/invoice"
 import { db } from "@/lib/db"
 import { auth } from "@/auth"
+import PageHeading from "@/components/atom/page-heading"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 export default async function EditInvoicePage({
   params,
@@ -34,6 +45,31 @@ export default async function EditInvoicePage({
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <div className="px-4 lg:px-6">
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href={`/${locale}/invoices`}>{dict.invoices.title}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href={`/${locale}/invoices/${id}`}>{invoice.invoiceNumber}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{dict.invoices.editInvoice}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <PageHeading
+          title={dict.invoices.editInvoice}
+          description={dict.invoices.editInvoiceDescription || "Update invoice details"}
+        />
+      </div>
       <div className="px-4 lg:px-6">
         <InvoiceForm
           dictionary={dict}

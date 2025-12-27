@@ -194,8 +194,11 @@ export interface Dictionary {
   }
   invoices: {
     title: string
+    description: string
     newInvoice: string
+    newInvoiceDescription: string
     editInvoice: string
+    editInvoiceDescription: string
     invoiceDetails: string
     details: string
     invoiceNumber: string
@@ -347,11 +350,7 @@ export interface Dictionary {
       badge: string
       title: string
       viewAll: string
-      articles: {
-        article1: { category: string; title: string; description: string; date: string }
-        article2: { category: string; title: string; description: string; date: string }
-        article3: { category: string; title: string; description: string; date: string }
-      }
+      articles: Record<string, { category: string; title: string; description: string; content?: string; date: string }>
     }
     services: {
       badge: string

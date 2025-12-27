@@ -29,7 +29,7 @@ export async function MarketingContent({ dictionary, lang }: MarketingContentPro
         <AllInOne dictionary={dictionary} />
         <NumberSection dictionary={dictionary} />
         <TeamPage dictionary={dictionary} />
-        <Insights dictionary={dictionary} lang={lang} />
+        <Insights dictionary={dictionary} />
         <Faq dictionary={dictionary} lang={lang} />
         <ReadyToBuildSection dictionary={dictionary} />
       </main>

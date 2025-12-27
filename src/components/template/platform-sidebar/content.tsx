@@ -42,13 +42,13 @@ export default function PlatformSidebar({
   return (
     <Sidebar
       {...props}
-      className="top-16 w-56 px-2"
+      className="top-12 w-56 px-8"
       collapsible="offcanvas"
       side={isRTL ? "right" : "left"}
     >
       <SidebarContent className="border-0 bg-transparent">
-        <SidebarGroup className="p-2 pb-16">
-          <SidebarMenu className="list-none space-y-1">
+        <SidebarGroup className="p-0 pb-16">
+          <SidebarMenu className="list-none space-y-0.5">
             {platformNav
               .filter((item) => item.roles.includes(currentRole))
               .map((item) => {

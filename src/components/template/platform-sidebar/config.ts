@@ -14,7 +14,7 @@ const ALL_ROLES: Role[] = ["ADMIN", "MANAGER", "VIEWER", "USER"]
 
 export const platformNav: PlatformNavItem[] = [
   {
-    title: "Dashboard",
+    title: "Overview",
     href: "/dashboard",
     icon: "dashboard",
     roles: ALL_ROLES,

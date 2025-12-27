@@ -23,8 +23,8 @@ export const CHAT_WINDOW_SIZE = {
 export const DEFAULT_DICTIONARY: ChatbotDictionary = {
   openChat: 'Open chat',
   closeChat: 'Close chat',
-  placeholder: 'Type your message...',
-  welcomeMessage: 'Hello! How can I help you with your shipping needs?',
+  placeholder: 'Ask about customs clearance...',
+  welcomeMessage: 'Hello! I\'m here to help with customs clearance and import/export inquiries. How can I assist you today?',
   noMessages: 'No messages yet. Start a conversation!',
   errorMessage: 'Sorry, something went wrong. Please try again.',
   typing: 'Typing...',
@@ -37,13 +37,13 @@ export const DEFAULT_DICTIONARY: ChatbotDictionary = {
   speechError: 'Speech recognition error. Please try again.',
   quickActions: {
     track: 'Track',
-    trackQuestion: 'Where is my shipment?',
-    rates: 'Rates',
-    ratesQuestion: 'What are your shipping rates?',
-    delivery: 'Delivery',
-    deliveryQuestion: 'How long does delivery take?',
-    contact: 'Contact',
-    contactQuestion: 'How can I contact you?',
+    trackQuestion: 'I want to track my shipment',
+    rates: 'Documents',
+    ratesQuestion: 'What documents do I need for customs clearance?',
+    delivery: 'Timeline',
+    deliveryQuestion: 'How long does the clearance process take?',
+    contact: 'Quote',
+    contactQuestion: 'I need a quote for customs clearance',
   },
 };
 
