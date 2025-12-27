@@ -45,6 +45,10 @@
     "shipments": "Shipments",
     "customs": "Customs",
     "invoices": "Invoices",
+    "finance": "Finance",
+    "project": "Projects",
+    "task": "Tasks",
+    "customers": "Customers",
     "settings": "Settings",
     "users": "Users",
     "logout": "Logout",
@@ -193,6 +197,33 @@
   "invoices": {
     "title": "Invoices",
     "description": "Manage and track your invoices",
+    "nav": {
+      "all": "All",
+      "invoices": "Invoices",
+      "settings": "Settings",
+      "templates": "Templates"
+    },
+    "settingsPage": {
+      "title": "Invoice Settings",
+      "companyInfo": "Company Information",
+      "branding": "Branding",
+      "logo": "Logo",
+      "signature": "Signature",
+      "bankDetails": "Bank Details",
+      "defaults": "Invoice Defaults",
+      "invoicePrefix": "Invoice Prefix",
+      "defaultCurrency": "Default Currency",
+      "taxRate": "Tax Rate",
+      "paymentTerms": "Payment Terms",
+      "terms": "Terms & Conditions"
+    },
+    "templatesPage": {
+      "title": "Invoice Templates",
+      "preview": "Preview",
+      "downloadPdf": "Download PDF",
+      "printTemplate": "Print Template",
+      "sampleInvoice": "Sample Invoice"
+    },
     "newInvoice": "New Invoice",
     "newInvoiceDescription": "Create a new invoice for your client",
     "editInvoice": "Edit Invoice",
@@ -265,6 +296,77 @@
       "MANAGER": "Manager",
       "CLERK": "Clerk",
       "VIEWER": "Viewer"
+    }
+  },
+  "customer": {
+    "title": "Customers",
+    "newCustomer": "New Customer",
+    "editCustomer": "Edit Customer",
+    "companyName": "Company Name",
+    "contactName": "Contact Name",
+    "taxId": "Tax ID",
+    "address": "Address",
+    "billingAddress": "Billing Address",
+    "shippingAddress": "Shipping Address",
+    "isActive": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "invoiceCount": "Invoices",
+    "deleteConfirm": "Are you sure you want to delete this customer?"
+  },
+  "finance": {
+    "title": "Finance",
+    "totalRevenue": "Total Revenue",
+    "outstandingPayments": "Outstanding Payments",
+    "paidThisMonth": "Paid This Month",
+    "totalExpenses": "Total Expenses"
+  },
+  "project": {
+    "title": "Projects",
+    "newProject": "New Project",
+    "editProject": "Edit Project",
+    "customer": "Customer",
+    "blAwbNumber": "BL/AWB Number",
+    "portOfOrigin": "Port of Origin",
+    "portOfDestination": "Port of Destination",
+    "teamLead": "Team Lead",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "nav": {
+      "all": "All"
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "CUSTOMS_HOLD": "Customs Hold",
+      "RELEASED": "Released",
+      "DELIVERED": "Delivered"
+    }
+  },
+  "task": {
+    "title": "Tasks",
+    "newTask": "New Task",
+    "editTask": "Edit Task",
+    "taskName": "Task Name",
+    "projectRef": "Project",
+    "description": "Description",
+    "duration": "Duration",
+    "assignedTo": "Assigned To",
+    "dueDate": "Due Date",
+    "nav": {
+      "all": "All"
+    },
+    "statuses": {
+      "PENDING": "Pending",
+      "STUCK": "Stuck",
+      "IN_PROGRESS": "In Progress",
+      "DONE": "Done"
+    },
+    "priorities": {
+      "URGENT": "Urgent",
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low"
     }
   },
   "validation": {

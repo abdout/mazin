@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Dictionary } from '@/components/internationalization/types'
 import { useLocale } from '@/components/internationalization'
+import { useLoading } from './loading-context'
 
 interface HeroProps {
   dictionary: Dictionary
@@ -71,6 +72,7 @@ export function Hero({ dictionary }: HeroProps) {
   const router = useRouter()
   const [trackingNumber, setTrackingNumber] = useState('')
   const isArabic = locale === 'ar'
+  const { setVideoLoaded } = useLoading()
 
   const handleTrack = () => {
     if (trackingNumber.trim()) {
@@ -93,6 +95,7 @@ export function Hero({ dictionary }: HeroProps) {
           loop
           muted
           playsInline
+          onLoadedData={setVideoLoaded}
           className="w-full h-full object-cover"
         >
           <source src="/hero.mp4" type="video/mp4" />

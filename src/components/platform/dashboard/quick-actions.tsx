@@ -1,74 +1,94 @@
 "use client"
 
 import Link from "next/link"
-import {
-  IconCirclePlusFilled,
-  IconShip,
-  IconFileDescription,
-  IconReceipt,
-} from "@tabler/icons-react"
 
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+import { AnthropicIcons } from "@/components/icons/anthropic"
 import type { Dictionary, Locale } from "@/components/internationalization"
+
+/**
+ * QuickActions Component
+ * Displays a row of quick action cards with colored backgrounds
+ * - Icon and text in horizontal layout
+ * - 4 actions with solid colored backgrounds (coral, blue, lavender, mint)
+ * - Uses Anthropic icons
+ */
 
 interface QuickActionsProps {
   dictionary: Dictionary
   locale: Locale
+  className?: string
 }
 
-export function QuickActions({ dictionary, locale }: QuickActionsProps) {
+// Card background colors (Anthropic design colors)
+const cardColors = [
+  { bg: "bg-[#D97757]", text: "text-white" }, // Coral/orange
+  { bg: "bg-[#6A9BCC]", text: "text-white" }, // Blue
+  { bg: "bg-[#CBCADB]", text: "text-gray-800" }, // Lavender
+  { bg: "bg-[#BCD1CA]", text: "text-gray-800" }, // Mint
+]
+
+export function QuickActions({
+  dictionary,
+  locale,
+  className,
+}: QuickActionsProps) {
   const actions = [
     {
-      title: dictionary.dashboard.newShipment,
+      label: dictionary.dashboard.newShipment,
       href: `/${locale}/shipments/new`,
-      icon: IconShip,
-      description: dictionary.shipments.title,
+      icon: AnthropicIcons.Briefcase,
     },
     {
-      title: dictionary.dashboard.newDeclaration,
+      label: dictionary.dashboard.newDeclaration,
       href: `/${locale}/customs/new`,
-      icon: IconFileDescription,
-      description: dictionary.customs.title,
+      icon: AnthropicIcons.Notebook,
     },
     {
-      title: dictionary.dashboard.newInvoice,
+      label: dictionary.dashboard.newInvoice,
       href: `/${locale}/invoices/new`,
-      icon: IconReceipt,
-      description: dictionary.invoices.title,
+      icon: AnthropicIcons.BarChart,
+    },
+    {
+      label: dictionary.common.view || "Clients",
+      href: `/${locale}/settings`,
+      icon: AnthropicIcons.Users,
     },
   ]
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <IconCirclePlusFilled className="size-5 text-primary" />
-          {dictionary.dashboard.quickActions}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {actions.map((action) => (
-            <Button
+    <div className={cn("w-full", className)}>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {actions.map((action, index) => {
+          const Icon = action.icon
+          const color = cardColors[index % cardColors.length]
+
+          return (
+            <Link
               key={action.href}
-              variant="outline"
-              className="h-auto flex-col gap-2 py-4"
-              asChild
+              href={action.href}
+              className="focus-visible:ring-primary block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
-              <Link href={action.href}>
-                <action.icon className="size-6" />
-                <span className="font-medium">{action.title}</span>
-              </Link>
-            </Button>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+              <div
+                className={cn(
+                  "flex items-center gap-4 rounded-lg p-4 transition-all hover:opacity-90 hover:shadow-md",
+                  color.bg
+                )}
+              >
+                <Icon
+                  className={cn("h-6 w-6 shrink-0", color.text)}
+                  aria-hidden={true}
+                />
+                <span
+                  className={cn("truncate text-base font-semibold", color.text)}
+                >
+                  {action.label}
+                </span>
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
   )
 }

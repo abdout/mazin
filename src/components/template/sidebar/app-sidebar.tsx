@@ -5,8 +5,10 @@ import Link from "next/link"
 import {
   IconDashboard,
   IconFileDescription,
+  IconFolder,
   IconHelp,
   IconInnerShadowTop,
+  IconListCheck,
   IconReceipt,
   IconSettings,
   IconShip,
@@ -43,6 +45,16 @@ export function AppSidebar({ dictionary, locale, user, ...props }: AppSidebarPro
       title: dictionary.navigation.dashboard,
       url: `/${locale}/dashboard`,
       icon: IconDashboard,
+    },
+    {
+      title: dictionary.navigation.project,
+      url: `/${locale}/project`,
+      icon: IconFolder,
+    },
+    {
+      title: dictionary.navigation.task,
+      url: `/${locale}/task`,
+      icon: IconListCheck,
     },
     {
       title: dictionary.navigation.shipments,

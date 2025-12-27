@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
@@ -24,11 +24,29 @@ export function PageNav({
   ...props
 }: PageNavProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const isPageActive = (pageHref: string) => {
+    // Parse the href to get pathname and query params
+    const url = new URL(pageHref, "http://localhost")
+    const hrefPathname = url.pathname.replace(/\/$/, "")
     const normalizedPath = pathname.replace(/\/$/, "")
-    const normalizedHref = pageHref.replace(/\/$/, "")
-    return normalizedPath === normalizedHref
+
+    // Check if pathnames match
+    if (normalizedPath !== hrefPathname) return false
+
+    // Check if it's the base path (no query params in href)
+    if (!url.search) {
+      // Active only if current URL also has no relevant query params
+      return searchParams.size === 0
+    }
+
+    // Compare query params
+    const hrefParams = url.searchParams
+    for (const [key, value] of hrefParams) {
+      if (searchParams.get(key) !== value) return false
+    }
+    return true
   }
 
   return (

@@ -65,10 +65,7 @@ export default async function EditInvoicePage({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <PageHeading
-          title={dict.invoices.editInvoice}
-          description={dict.invoices.editInvoiceDescription || "Update invoice details"}
-        />
+        <PageHeading title={dict.invoices.editInvoice} />
       </div>
       <div className="px-4 lg:px-6">
         <InvoiceForm

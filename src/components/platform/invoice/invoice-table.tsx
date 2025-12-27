@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   IconDotsVertical,
@@ -9,6 +10,10 @@ import {
   IconFileOff,
   IconSend,
   IconEdit,
+  IconPlus,
+  IconSearch,
+  IconFilter,
+  IconX,
 } from "@tabler/icons-react"
 import {
   type ColumnDef,
@@ -29,7 +34,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -66,9 +73,39 @@ const statusConfig: Record<
   CANCELLED: { icon: IconFileOff, className: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500" },
 }
 
+const statusOptions = [
+  { value: "DRAFT", label: "Draft" },
+  { value: "SENT", label: "Sent" },
+  { value: "PAID", label: "Paid" },
+  { value: "OVERDUE", label: "Overdue" },
+  { value: "CANCELLED", label: "Cancelled" },
+]
+
 export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
   const router = useRouter()
   const [rowSelection, setRowSelection] = React.useState({})
+  const [globalFilter, setGlobalFilter] = React.useState("")
+  const [statusFilter, setStatusFilter] = React.useState<string[]>([])
+
+  // Filter data based on status and global filter
+  const filteredData = React.useMemo(() => {
+    return data.filter((invoice) => {
+      // Status filter
+      if (statusFilter.length > 0 && !statusFilter.includes(invoice.status)) {
+        return false
+      }
+      // Global search filter
+      if (globalFilter) {
+        const searchLower = globalFilter.toLowerCase()
+        return (
+          invoice.invoiceNumber.toLowerCase().includes(searchLower) ||
+          invoice.status.toLowerCase().includes(searchLower) ||
+          invoice.currency.toLowerCase().includes(searchLower)
+        )
+      }
+      return true
+    })
+  }, [data, statusFilter, globalFilter])
 
   const columns: ColumnDef<InvoiceWithRelations>[] = [
     {
@@ -183,7 +220,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
   ]
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -195,8 +232,98 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
     },
   })
 
+  const toggleStatusFilter = (status: string) => {
+    setStatusFilter((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status]
+    )
+  }
+
+  const clearFilters = () => {
+    setGlobalFilter("")
+    setStatusFilter([])
+  }
+
+  const hasActiveFilters = globalFilter || statusFilter.length > 0
+
   return (
     <div className="space-y-4">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Left: Search and Filters */}
+        <div className="flex flex-1 items-center gap-2">
+          <div className="relative">
+            <IconSearch className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input
+              placeholder={dictionary.common.search || "Search..."}
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="h-9 w-40 pe-8 ps-9 lg:w-64"
+            />
+            {globalFilter && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-1/2 right-1 size-6 -translate-y-1/2"
+                onClick={() => setGlobalFilter("")}
+              >
+                <IconX className="size-3" />
+              </Button>
+            )}
+          </div>
+
+          {/* Status Filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9">
+                <IconFilter className="size-4 me-2" />
+                {dictionary.shipments.status || "Status"}
+                {statusFilter.length > 0 && (
+                  <Badge variant="secondary" className="ms-2 rounded-full px-1.5">
+                    {statusFilter.length}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              {statusOptions.map((option) => (
+                <DropdownMenuCheckboxItem
+                  key={option.value}
+                  checked={statusFilter.includes(option.value)}
+                  onCheckedChange={() => toggleStatusFilter(option.value)}
+                >
+                  {dictionary.invoices.statuses?.[option.value as keyof typeof dictionary.invoices.statuses] || option.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+              {statusFilter.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setStatusFilter([])}>
+                    {dictionary.common.all || "Clear filters"}
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
+              <IconX className="size-4 me-1" />
+              {dictionary.common.all || "Clear"}
+            </Button>
+          )}
+        </div>
+
+        {/* Right: Add Invoice Button */}
+        <Button asChild size="sm" className="h-9">
+          <Link href={`/${locale}/invoices/new`}>
+            <IconPlus className="size-4 me-1" />
+            {dictionary.invoices.newInvoice || "New Invoice"}
+          </Link>
+        </Button>
+      </div>
+
       <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader className="bg-muted/50">

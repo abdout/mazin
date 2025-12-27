@@ -47,6 +47,8 @@ export interface Dictionary {
     shipments: string
     customs: string
     invoices: string
+    project: string
+    task: string
     settings: string
     users: string
     logout: string
@@ -131,6 +133,12 @@ export interface Dictionary {
   }
   shipments: {
     title: string
+    nav?: {
+      all?: string
+      pending?: string
+      inTransit?: string
+      delivered?: string
+    }
     newShipment: string
     editShipment: string
     shipmentDetails: string
@@ -163,6 +171,12 @@ export interface Dictionary {
   }
   customs: {
     title: string
+    nav?: {
+      all?: string
+      pending?: string
+      cleared?: string
+      held?: string
+    }
     newDeclaration: string
     editDeclaration: string
     declarationDetails: string
@@ -195,6 +209,12 @@ export interface Dictionary {
   invoices: {
     title: string
     description: string
+    nav?: {
+      all: string
+      invoices?: string
+      settings?: string
+      templates?: string
+    }
     newInvoice: string
     newInvoiceDescription: string
     editInvoice: string
@@ -240,6 +260,27 @@ export interface Dictionary {
       USD: string
       SAR: string
     }
+    settingsPage?: {
+      title: string
+      companyInfo: string
+      branding: string
+      logo: string
+      signature: string
+      bankDetails: string
+      defaults: string
+      invoicePrefix: string
+      defaultCurrency: string
+      taxRate: string
+      paymentTerms: string
+      terms: string
+    }
+    templatesPage?: {
+      title: string
+      preview: string
+      downloadPdf: string
+      printTemplate: string
+      sampleInvoice: string
+    }
   }
   settings: {
     title: string
@@ -276,6 +317,94 @@ export interface Dictionary {
     maxLength: string
     invalidNumber: string
     positiveNumber: string
+  }
+  finance?: {
+    title?: string
+    totalRevenue?: string
+    outstanding?: string
+    outstandingPayments?: string
+    paidThisMonth?: string
+    totalExpenses?: string
+    growth?: string
+    comingSoon?: string
+  }
+  project?: {
+    title?: string
+    newProject?: string
+    editProject?: string
+    customer?: string
+    blAwbNumber?: string
+    portOfOrigin?: string
+    portOfDestination?: string
+    teamLead?: string
+    startDate?: string
+    endDate?: string
+    nav?: {
+      all?: string
+      active?: string
+      completed?: string
+      archived?: string
+    }
+    statuses?: {
+      PENDING?: string
+      IN_PROGRESS?: string
+      CUSTOMS_HOLD?: string
+      RELEASED?: string
+      DELIVERED?: string
+    }
+  }
+  task?: {
+    title?: string
+    newTask?: string
+    editTask?: string
+    taskName?: string
+    projectRef?: string
+    description?: string
+    duration?: string
+    assignedTo?: string
+    dueDate?: string
+    nav?: {
+      all?: string
+      pending?: string
+      inProgress?: string
+      done?: string
+    }
+    statuses?: {
+      PENDING?: string
+      STUCK?: string
+      IN_PROGRESS?: string
+      DONE?: string
+    }
+    priorities?: {
+      URGENT?: string
+      HIGH?: string
+      MEDIUM?: string
+      LOW?: string
+    }
+  }
+  customer?: {
+    title?: string
+    newCustomer?: string
+    companyName?: string
+    contactName?: string
+    isActive?: string
+    active?: string
+    inactive?: string
+    invoiceCount?: string
+    noCustomers?: string
+    noCustomersDescription?: string
+    addFirst?: string
+    searchPlaceholder?: string
+    filterStatus?: string
+    columns?: {
+      companyName?: string
+      contactName?: string
+      email?: string
+      phone?: string
+      status?: string
+      invoiceCount?: string
+      actions?: string
+    }
   }
   about: {
     sections: {

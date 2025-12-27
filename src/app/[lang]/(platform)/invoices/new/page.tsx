@@ -46,10 +46,7 @@ export default async function NewInvoicePage({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <PageHeading
-          title={dict.invoices.newInvoice}
-          description={dict.invoices.newInvoiceDescription || "Create a new invoice for your client"}
-        />
+        <PageHeading title={dict.invoices.newInvoice} />
       </div>
       <div className="px-4 lg:px-6">
         <InvoiceForm dictionary={dict} locale={locale} shipments={shipments} />

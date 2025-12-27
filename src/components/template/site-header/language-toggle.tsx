@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
+import { Languages } from "lucide-react"
 
 export function LanguageToggle() {
   const router = useRouter()
@@ -19,9 +20,12 @@ export function LanguageToggle() {
   return (
     <button
       onClick={switchLanguage}
-      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+      className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
     >
-      {currentLang === "ar" ? "EN" : "ع"}
+      <Languages className="size-5" />
+      <span className="sr-only">
+        Switch to {nextLang === "ar" ? "Arabic" : "English"}
+      </span>
     </button>
   )
 }

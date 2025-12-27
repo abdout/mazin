@@ -38,6 +38,30 @@ export const platformNav: PlatformNavItem[] = [
     roles: ALL_ROLES,
   },
   {
+    title: "Finance",
+    href: "/finance",
+    icon: "finance",
+    roles: ALL_ROLES,
+  },
+  {
+    title: "Projects",
+    href: "/project",
+    icon: "project",
+    roles: ALL_ROLES,
+  },
+  {
+    title: "Tasks",
+    href: "/task",
+    icon: "task",
+    roles: ALL_ROLES,
+  },
+  {
+    title: "Customers",
+    href: "/customer",
+    icon: "customer",
+    roles: ALL_ROLES,
+  },
+  {
     title: "Settings",
     href: "/settings",
     icon: "settings",

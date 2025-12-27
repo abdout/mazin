@@ -45,6 +45,10 @@
     "shipments": "الشحنات",
     "customs": "الجمارك",
     "invoices": "الفواتير",
+    "finance": "المالية",
+    "project": "المشاريع",
+    "task": "المهام",
+    "customers": "العملاء",
     "settings": "الإعدادات",
     "users": "المستخدمين",
     "logout": "تسجيل الخروج",
@@ -193,6 +197,33 @@
   "invoices": {
     "title": "الفواتير",
     "description": "إدارة وتتبع فواتيرك",
+    "nav": {
+      "all": "الكل",
+      "invoices": "الفواتير",
+      "settings": "الإعدادات",
+      "templates": "القوالب"
+    },
+    "settingsPage": {
+      "title": "إعدادات الفاتورة",
+      "companyInfo": "معلومات الشركة",
+      "branding": "الهوية البصرية",
+      "logo": "الشعار",
+      "signature": "التوقيع",
+      "bankDetails": "التفاصيل البنكية",
+      "defaults": "الإعدادات الافتراضية",
+      "invoicePrefix": "بادئة الفاتورة",
+      "defaultCurrency": "العملة الافتراضية",
+      "taxRate": "نسبة الضريبة",
+      "paymentTerms": "شروط الدفع",
+      "terms": "الشروط والأحكام"
+    },
+    "templatesPage": {
+      "title": "قوالب الفاتورة",
+      "preview": "معاينة",
+      "downloadPdf": "تحميل PDF",
+      "printTemplate": "طباعة القالب",
+      "sampleInvoice": "فاتورة نموذجية"
+    },
     "newInvoice": "فاتورة جديدة",
     "newInvoiceDescription": "إنشاء فاتورة جديدة لعميلك",
     "editInvoice": "تعديل الفاتورة",
@@ -265,6 +296,77 @@
       "MANAGER": "مشرف",
       "CLERK": "موظف",
       "VIEWER": "مشاهد"
+    }
+  },
+  "customer": {
+    "title": "العملاء",
+    "newCustomer": "عميل جديد",
+    "editCustomer": "تعديل العميل",
+    "companyName": "اسم الشركة",
+    "contactName": "اسم جهة الاتصال",
+    "taxId": "الرقم الضريبي",
+    "address": "العنوان",
+    "billingAddress": "عنوان الفوترة",
+    "shippingAddress": "عنوان الشحن",
+    "isActive": "الحالة",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "invoiceCount": "الفواتير",
+    "deleteConfirm": "هل أنت متأكد من حذف هذا العميل؟"
+  },
+  "finance": {
+    "title": "المالية",
+    "totalRevenue": "إجمالي الإيرادات",
+    "outstandingPayments": "المدفوعات المعلقة",
+    "paidThisMonth": "المدفوع هذا الشهر",
+    "totalExpenses": "إجمالي المصروفات"
+  },
+  "project": {
+    "title": "المشاريع",
+    "newProject": "مشروع جديد",
+    "editProject": "تعديل المشروع",
+    "customer": "العميل",
+    "blAwbNumber": "رقم بوليصة الشحن",
+    "portOfOrigin": "ميناء المنشأ",
+    "portOfDestination": "ميناء الوصول",
+    "teamLead": "قائد الفريق",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "nav": {
+      "all": "الكل"
+    },
+    "statuses": {
+      "PENDING": "معلق",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "CUSTOMS_HOLD": "محتجز جمركياً",
+      "RELEASED": "تم الإفراج",
+      "DELIVERED": "تم التسليم"
+    }
+  },
+  "task": {
+    "title": "المهام",
+    "newTask": "مهمة جديدة",
+    "editTask": "تعديل المهمة",
+    "taskName": "اسم المهمة",
+    "projectRef": "المشروع",
+    "description": "الوصف",
+    "duration": "المدة",
+    "assignedTo": "مسند إلى",
+    "dueDate": "تاريخ الاستحقاق",
+    "nav": {
+      "all": "الكل"
+    },
+    "statuses": {
+      "PENDING": "معلق",
+      "STUCK": "متوقف",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "DONE": "مكتمل"
+    },
+    "priorities": {
+      "URGENT": "عاجل",
+      "HIGH": "عالي",
+      "MEDIUM": "متوسط",
+      "LOW": "منخفض"
     }
   },
   "validation": {

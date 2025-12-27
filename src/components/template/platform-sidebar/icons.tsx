@@ -2,8 +2,11 @@ import {
   Bell,
   BookOpen,
   ChartPie,
+  CheckSquare,
   CreditCard,
+  DollarSign,
   FileText,
+  FolderKanban,
   HelpCircle,
   LayoutDashboard,
   Mail,
@@ -11,6 +14,7 @@ import {
   Settings,
   Ship,
   User,
+  Users,
 } from "lucide-react"
 
 export const Icons = {
@@ -28,4 +32,8 @@ export const Icons = {
   customs: FileText,
   invoice: Receipt,
   help: HelpCircle,
+  finance: DollarSign,
+  project: FolderKanban,
+  task: CheckSquare,
+  customer: Users,
 }

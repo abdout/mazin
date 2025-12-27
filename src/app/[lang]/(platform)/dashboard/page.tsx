@@ -1,9 +1,9 @@
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
 import { auth } from "@/auth"
-import { db } from "@/lib/db"
-import { SectionCards } from "@/components/platform/dashboard/section-cards"
-import { QuickActions } from "@/components/platform/dashboard/quick-actions"
+import { AdminDashboardClient } from "@/components/platform/dashboard/admin-client"
+import { getQuickLookData, getUpcomingData } from "@/components/platform/dashboard/actions"
+import type { UserRole } from "@prisma/client"
 
 export default async function DashboardPage({
   params,
@@ -15,52 +15,21 @@ export default async function DashboardPage({
   const dict = await getDictionary(lang)
   const session = await auth()
 
-  // Fetch stats from database
-  const [
-    totalShipments,
-    inTransit,
-    pendingCustoms,
-    unpaidInvoicesResult,
-  ] = await Promise.all([
-    db.shipment.count({
-      where: { userId: session?.user?.id },
-    }),
-    db.shipment.count({
-      where: { userId: session?.user?.id, status: "IN_TRANSIT" },
-    }),
-    db.customsDeclaration.count({
-      where: {
-        userId: session?.user?.id,
-        status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] },
-      },
-    }),
-    db.invoice.aggregate({
-      where: {
-        userId: session?.user?.id,
-        status: { notIn: ["PAID", "CANCELLED"] },
-      },
-      _sum: { total: true },
-    }),
+  // Get user role, default to VIEWER
+  const userRole = (session?.user?.role as UserRole) || "VIEWER"
+
+  // Fetch data using server actions
+  const [quickLookData, upcomingData] = await Promise.all([
+    getQuickLookData(),
+    getUpcomingData(userRole),
   ])
 
-  const unpaidTotal = Number(unpaidInvoicesResult._sum.total || 0)
-
-  const stats = {
-    totalShipments: { value: totalShipments, trend: 12 },
-    inTransit: { value: inTransit, trend: 5 },
-    pendingCustoms: { value: pendingCustoms, trend: -3 },
-    unpaidInvoices: {
-      value: `SDG ${unpaidTotal.toLocaleString()}`,
-      trend: 8,
-    },
-  }
-
   return (
-    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-      <SectionCards dictionary={dict} stats={stats} />
-      <div className="px-4 lg:px-6">
-        <QuickActions dictionary={dict} locale={lang} />
-      </div>
-    </div>
+    <AdminDashboardClient
+      dictionary={dict}
+      locale={lang}
+      quickLookData={quickLookData}
+      upcomingData={upcomingData}
+    />
   )
 }

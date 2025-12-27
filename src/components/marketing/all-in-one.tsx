@@ -122,7 +122,7 @@ function FeatureCard({ card }: { card: CardData }) {
         {/* Arrow link - top right */}
         <div className="flex justify-end mb-2 md:mb-0">
           <motion.div
-            className="px-3 md:px-4 py-1.5 md:py-2 rounded-full flex items-center justify-center cursor-pointer backdrop-blur-md border"
+            className="size-9 md:size-10 rounded-full flex items-center justify-center cursor-pointer backdrop-blur-md border"
             initial={{
               backgroundColor: 'rgba(0, 0, 0, 0.1)',
               borderColor: 'rgba(0, 0, 0, 0.2)'

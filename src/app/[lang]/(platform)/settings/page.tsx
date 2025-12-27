@@ -1,21 +1,25 @@
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
+import PageHeading from "@/components/atom/page-heading"
 
 export default async function SettingsPage({
   params,
 }: {
   params: Promise<{ lang: string }>
 }) {
-  const { lang: langParam } = await params
-  const lang = langParam as Locale
-  const dict = await getDictionary(lang)
+  const { lang } = await params
+  const locale = lang as Locale
+  const dict = await getDictionary(locale)
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{dict.settings.title}</h1>
-
-      <div className="text-muted-foreground">
-        Settings page content coming soon...
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <div className="px-4 lg:px-6">
+        <PageHeading title={dict.settings?.title || "Settings"} />
+      </div>
+      <div className="px-4 lg:px-6">
+        <div className="text-muted-foreground">
+          Settings page content coming soon...
+        </div>
       </div>
     </div>
   )

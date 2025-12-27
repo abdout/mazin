@@ -12,6 +12,7 @@ import { Faq } from './faq'
 import ReadyToBuildSection from './ready-to-build'
 import { Footer } from './footer'
 import { Chatbot } from '@/components/chatbot'
+import { LoadingWrapper } from './loading-wrapper'
 
 interface MarketingContentProps {
   dictionary: Dictionary
@@ -20,7 +21,7 @@ interface MarketingContentProps {
 
 export async function MarketingContent({ dictionary, lang }: MarketingContentProps) {
   return (
-    <>
+    <LoadingWrapper>
       <SiteHeader dictionary={dictionary} />
       <main className="min-h-screen">
         <Hero dictionary={dictionary} />
@@ -35,6 +36,6 @@ export async function MarketingContent({ dictionary, lang }: MarketingContentPro
       </main>
       <Footer dictionary={dictionary} lang={lang} />
       <Chatbot lang={lang as Locale} />
-    </>
+    </LoadingWrapper>
   )
 }
