@@ -14,13 +14,13 @@ const sponsors = [
 
 function LogoItem({ sponsor }: { sponsor: (typeof sponsors)[0] }) {
   return (
-    <div className="flex-shrink-0 flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-10">
+    <div className="flex-shrink-0 flex items-center justify-center px-6 sm:px-8 md:px-10 lg:px-12">
       <Image
         src={sponsor.src}
         alt={sponsor.name}
-        width={120}
-        height={60}
-        className="h-6 sm:h-8 md:h-10 lg:h-12 w-auto max-w-[80px] sm:max-w-[100px] md:max-w-[120px] lg:max-w-[140px] object-contain grayscale opacity-50 hover:opacity-100 hover:grayscale-0 transition-all duration-300 dark:invert dark:opacity-60 dark:hover:opacity-100"
+        width={140}
+        height={70}
+        className="h-10 sm:h-10 md:h-11 lg:h-12 w-auto max-w-[110px] sm:max-w-[115px] md:max-w-[130px] lg:max-w-[150px] object-contain grayscale opacity-50 hover:opacity-100 hover:grayscale-0 transition-all duration-300 dark:invert dark:opacity-60 dark:hover:opacity-100"
         unoptimized
         draggable={false}
       />
