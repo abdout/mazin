@@ -1,19 +1,40 @@
+import { Suspense } from "react"
+
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
-import { getInvoices } from "@/actions/invoice"
-import { InvoiceTable } from "@/components/platform/invoice/invoice-table"
 import PageHeading from "@/components/atom/page-heading"
 import { PageNav, type PageNavItem } from "@/components/atom/page-nav"
+import {
+  invoiceSearchParamsCache,
+  getInvoices,
+  getInvoiceStatusCounts,
+  getInvoiceTotalRange,
+  InvoicesTable,
+  InvoicesTableSkeleton,
+} from "@/components/platform/invoice/_table"
+
+interface InvoicesPageProps {
+  params: Promise<{ lang: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
 
 export default async function InvoicesPage({
   params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+  searchParams,
+}: InvoicesPageProps) {
   const { lang } = await params
   const locale = lang as Locale
   const dict = await getDictionary(locale)
-  const invoices = await getInvoices()
+
+  // Parse search params for table state
+  const search = invoiceSearchParamsCache.parse(await searchParams)
+
+  // Fetch data in parallel
+  const promises = Promise.all([
+    getInvoices(search),
+    getInvoiceStatusCounts(),
+    getInvoiceTotalRange(),
+  ])
 
   const navItems: PageNavItem[] = [
     { name: dict.invoices.nav?.invoices || "Invoices", href: `/${locale}/invoices` },
@@ -28,7 +49,13 @@ export default async function InvoicesPage({
         <PageNav pages={navItems} className="mt-4" />
       </div>
       <div className="px-4 lg:px-6">
-        <InvoiceTable data={invoices} dictionary={dict} locale={locale} />
+        <Suspense fallback={<InvoicesTableSkeleton />}>
+          <InvoicesTable
+            promises={promises}
+            dictionary={dict}
+            locale={locale}
+          />
+        </Suspense>
       </div>
     </div>
   )

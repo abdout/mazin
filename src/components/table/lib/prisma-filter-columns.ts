@@ -1,4 +1,3 @@
-import type { Prisma } from "@prisma/client"
 import { addDays, endOfDay, startOfDay } from "date-fns"
 
 import type {
@@ -6,21 +5,39 @@ import type {
   JoinOperator,
 } from "@/components/table/types/data-table"
 
-// Type for Prisma where conditions
-type WhereCondition = Prisma.TaskWhereInput
+/**
+ * Generic type for Prisma where conditions
+ * This allows the function to work with any Prisma model
+ */
+type WhereCondition = Record<string, unknown>
 
 /**
- * Convert filters to Prisma where conditions for Task model
+ * Convert filters to Prisma where conditions
+ * Works with any Prisma model (Invoice, Client, User, etc.)
+ *
+ * @example
+ * // For Invoice model
+ * const where = filterColumns<Prisma.InvoiceWhereInput>({
+ *   filters: [...],
+ *   joinOperator: 'and'
+ * })
+ *
+ * @example
+ * // For Client model
+ * const where = filterColumns<Prisma.ClientWhereInput>({
+ *   filters: [...],
+ *   joinOperator: 'and'
+ * })
  */
-export function filterColumns({
+export function filterColumns<TWhereInput extends WhereCondition = WhereCondition>({
   filters,
   joinOperator,
 }: {
   filters: ExtendedColumnFilter<unknown>[]
   joinOperator: JoinOperator
-}): WhereCondition | undefined {
+}): TWhereInput | undefined {
   const conditions = filters.map((filter): WhereCondition | undefined => {
-    const columnId = filter.id as keyof Prisma.TaskWhereInput
+    const columnId = filter.id
 
     switch (filter.operator) {
       case "iLike":
@@ -257,9 +274,11 @@ export function filterColumns({
 
   if (validConditions.length === 0) return undefined
 
-  if (validConditions.length === 1) return validConditions[0]
+  if (validConditions.length === 1) return validConditions[0] as TWhereInput
 
-  return joinOperator === "and"
-    ? { AND: validConditions }
-    : { OR: validConditions }
+  return (
+    joinOperator === "and"
+      ? { AND: validConditions }
+      : { OR: validConditions }
+  ) as unknown as TWhereInput
 }

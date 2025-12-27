@@ -33,6 +33,13 @@ export interface Dictionary {
     email: string
     phone: string
     update: string
+    export?: string
+    deleteSelected?: string
+    rowsPerPage?: string
+    page?: string
+    of?: string
+    rows?: string
+    selected?: string
   }
   header: {
     services: string
@@ -248,6 +255,16 @@ export interface Dictionary {
     markAsPaid: string
     markAsSent: string
     cannotEditPaidCancelled: string
+    client?: string
+    amount?: string
+    status?: string
+    date?: string
+    searchPlaceholder?: string
+    actions?: string
+    noInvoices?: string
+    quantity?: string
+    currency?: string
+    createInvoice?: string
     statuses: {
       DRAFT: string
       SENT: string
