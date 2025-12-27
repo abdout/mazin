@@ -14,17 +14,17 @@ export interface BlogArticle {
 const featuredArticles: BlogArticle[] = [
   {
     slug: 'sudan-customs-digital-system',
-    image: '/blog/digital-customs.jpg',
+    image: '/digital.jpg',
     publishedAt: '2025-10-15',
   },
   {
     slug: 'red-sea-shipping-crisis',
-    image: '/blog/red-sea.jpg',
+    image: '/red-sea.jpg',
     publishedAt: '2025-12-20',
   },
   {
     slug: 'port-sudan-operations-update',
-    image: '/blog/port-sudan.jpg',
+    image: '/operation.jpg',
     publishedAt: '2025-12-18',
   },
 ]

@@ -3,12 +3,66 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Dictionary } from '@/components/internationalization/types'
 import { useLocale } from '@/components/internationalization'
 
 interface HeroProps {
   dictionary: Dictionary
+}
+
+// Animation variants for staggered text reveal
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+const wordVariants = {
+  hidden: {
+    opacity: 0,
+    y: 40,
+    rotateX: -90,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    transition: {
+      type: 'spring' as const,
+      damping: 12,
+      stiffness: 100,
+    },
+  },
+}
+
+// Component to animate each word in a line
+function AnimatedWords({ text, className }: { text: string; className?: string }) {
+  const words = text.split(' ')
+
+  return (
+    <motion.span className={className} style={{ display: 'block', perspective: '1000px' }}>
+      {words.map((word, index) => (
+        <motion.span
+          key={index}
+          variants={wordVariants}
+          style={{
+            display: 'inline-block',
+            marginInlineEnd: '0.25em',
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.span>
+  )
 }
 
 export function Hero({ dictionary }: HeroProps) {
@@ -54,15 +108,24 @@ export function Hero({ dictionary }: HeroProps) {
           </span>
 
           {/* Title - mobile lines vary by locale, 2 lines on desktop */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-4 sm:mb-6">
+          <motion.h1
+            className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-4 sm:mb-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {/* Mobile */}
-            <span className="block sm:hidden">{hero.titleMobileLine1}</span>
-            <span className="block sm:hidden">{hero.titleMobileLine2}</span>
-            {hero.titleMobileLine3 && <span className="block sm:hidden">{hero.titleMobileLine3}</span>}
+            <span className="sm:hidden">
+              <AnimatedWords text={hero.titleMobileLine1} />
+              <AnimatedWords text={hero.titleMobileLine2} />
+              {hero.titleMobileLine3 && <AnimatedWords text={hero.titleMobileLine3} />}
+            </span>
             {/* Desktop: 2 lines */}
-            <span className="hidden sm:block">{hero.titleLine1}</span>
-            <span className="hidden sm:block whitespace-nowrap">{hero.titleLine2}</span>
-          </h1>
+            <span className="hidden sm:block">
+              <AnimatedWords text={hero.titleLine1} />
+              <AnimatedWords text={hero.titleLine2} className="whitespace-nowrap" />
+            </span>
+          </motion.h1>
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 leading-relaxed">

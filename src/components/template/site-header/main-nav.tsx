@@ -44,19 +44,19 @@ export function MainNav({ dictionary, className }: MainNavProps) {
           {dictionary.common.appName}
         </span>
       </Link>
-      <nav className="flex items-center gap-4 text-sm xl:gap-6">
+      <nav className="flex items-center gap-6 xl:gap-8">
         {navItems.map((item, index) => (
           <Link
             key={index}
             href={item.href}
             className={cn(
-              "transition-colors hover:text-foreground",
+              "text-base font-medium transition-colors hover:text-foreground",
               item.href.includes(`/${segment}`)
                 ? "text-foreground"
                 : "text-muted-foreground"
             )}
           >
-            <h6>{item.title}</h6>
+            {item.title}
           </Link>
         ))}
       </nav>

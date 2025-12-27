@@ -123,7 +123,17 @@ export default async function AboutPage({
                   {about.boardOfDirectors.subtitle}
                 </div>
                 <h2 className="text-foreground text-5xl font-bold leading-tight">
-                  {about.boardOfDirectors.title}
+                  {/* Mobile: show line-by-line if mobile lines exist */}
+                  {about.boardOfDirectors.titleMobileLine1 && (
+                    <>
+                      <span className="block sm:hidden">{about.boardOfDirectors.titleMobileLine1}</span>
+                      <span className="block sm:hidden">{about.boardOfDirectors.titleMobileLine2}</span>
+                    </>
+                  )}
+                  {/* Desktop: always show full title; Mobile: show if no mobile lines */}
+                  <span className={about.boardOfDirectors.titleMobileLine1 ? "hidden sm:block" : "block"}>
+                    {about.boardOfDirectors.title}
+                  </span>
                 </h2>
                 <p className="text-muted-foreground text-lg leading-relaxed">
                   {about.boardOfDirectors.description}

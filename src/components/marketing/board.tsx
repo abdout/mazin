@@ -23,19 +23,7 @@ export function TeamPage({ dictionary }: TeamPageProps) {
     <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-foreground text-background">
       <div style={{ paddingInline: 'var(--container-padding)' }}>
         <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            {/* Mobile: show line-by-line if mobile lines exist */}
-            {boardContent.titleMobileLine1 && (
-              <>
-                <span className="block sm:hidden">{boardContent.titleMobileLine1}</span>
-                <span className="block sm:hidden">{boardContent.titleMobileLine2}</span>
-              </>
-            )}
-            {/* Desktop: always show full title; Mobile: show if no mobile lines */}
-            <span className={boardContent.titleMobileLine1 ? "hidden sm:block" : "block"}>
-              {boardContent.title}
-            </span>
-          </h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{boardContent.title}</h2>
           <p className="text-background/70">
             {boardContent.description}
           </p>
