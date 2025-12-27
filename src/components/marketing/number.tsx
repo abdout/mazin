@@ -93,16 +93,15 @@ export function NumberSection({ dictionary }: NumberSectionProps) {
 
   return (
     <div className="relative">
-      {/* Background Image Section with Mask */}
-      <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] bg-[url('/number.webp')] bg-cover bg-center bg-scroll md:bg-fixed">
+      {/* Background Image Section with Parallax - works on all devices */}
+      <div className="parallax-container h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh]">
+        <div className="parallax-bg bg-[url('/number.webp')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-black/50">
           <div className="h-full flex flex-col justify-end pb-10 sm:pb-12 md:pb-16" style={{ paddingInline: 'var(--container-padding)' }}>
             <span className="text-2xl sm:text-3xl md:text-4xl font-black text-background mb-2">{numbers.company}</span>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-background/80">{numbers.inNumbers}</h1>
           </div>
         </div>
-        {/* Angular Shape Divider with Three Peaks */}
-
       </div>
 
       {/* Counters Section */}

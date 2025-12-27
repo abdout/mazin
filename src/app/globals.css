@@ -249,14 +249,99 @@
   }
 }
 
-/* Marquee animation for partners section */
-@keyframes partners-scroll {
-  0% {
-    transform: translate3d(0, 0, 0);
+/* Partners Marquee - RTL/LTR aware infinite scroll */
+.partners-marquee-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
+
+.partners-marquee {
+  display: flex;
+  width: max-content;
+}
+
+.partners-marquee-content {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  animation: partners-scroll-ltr 40s linear infinite;
+}
+
+/* RTL: Reverse animation direction */
+[dir="rtl"] .partners-marquee-content {
+  animation-name: partners-scroll-rtl;
+}
+
+/* LTR animation - logos scroll left */
+@keyframes partners-scroll-ltr {
+  from {
+    transform: translateX(0);
   }
-  100% {
-    transform: translate3d(-50%, 0, 0);
+  to {
+    transform: translateX(-100%);
   }
+}
+
+/* RTL animation - logos scroll right */
+@keyframes partners-scroll-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Speed adjustments for different screen sizes */
+@media (max-width: 640px) {
+  .partners-marquee-content {
+    animation-duration: 25s;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .partners-marquee-content {
+    animation-duration: 32s;
+  }
+}
+
+@media (min-width: 1025px) {
+  .partners-marquee-content {
+    animation-duration: 40s;
+  }
+}
+
+/* Parallax effect that works on all devices including iOS */
+.parallax-container {
+  position: relative;
+  overflow: hidden;
+  clip-path: inset(0);
+  -webkit-clip-path: inset(0);
+}
+
+.parallax-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  will-change: transform;
 }
 
 /* Legacy marquee support */
