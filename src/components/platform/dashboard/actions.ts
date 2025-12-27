@@ -244,3 +244,225 @@ async function getViewerUpcoming(userId?: string): Promise<UpcomingData> {
     linkLabel: "Track Shipments",
   }
 }
+
+// ============================================================================
+// FINANCIAL DATA FOR CHARTS
+// ============================================================================
+
+export interface FinancialChartData {
+  revenueData: number[]
+  expenseData: number[]
+  profitData: number[]
+  labels: string[]
+}
+
+export interface CashFlowData {
+  inflowData: number[]
+  outflowData: number[]
+  balanceData: number[]
+}
+
+export interface ExpenseCategory {
+  category: string
+  amount: number
+  percentage: number
+}
+
+export interface TrendingStatsData {
+  totalShipments: { value: number; change: number; changeType: "positive" | "negative" }
+  totalRevenue: { value: number; change: number; changeType: "positive" | "negative" }
+  pendingDeclarations: { value: number; change: number; changeType: "positive" | "negative" }
+  completionRate: { value: number; change: number; changeType: "positive" | "negative" }
+}
+
+/**
+ * Get financial data for revenue/expense charts
+ * Returns last 12 months of data
+ */
+export async function getFinancialChartData(): Promise<FinancialChartData> {
+  const now = new Date()
+  const labels: string[] = []
+  const revenueData: number[] = []
+  const expenseData: number[] = []
+  const profitData: number[] = []
+
+  // Generate last 12 months
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0)
+
+    labels.push(date.toLocaleDateString("en-US", { month: "short" }))
+
+    // Get revenue (paid invoices) for this month
+    const revenue = await db.invoice.aggregate({
+      where: {
+        status: "PAID",
+        paidAt: {
+          gte: date,
+          lte: monthEnd,
+        },
+      },
+      _sum: { total: true },
+    })
+
+    // For expenses, we'll estimate based on a percentage of revenue
+    // In a real app, you'd have an expenses table
+    const monthRevenue = Number(revenue._sum.total || 0)
+    const monthExpense = Math.round(monthRevenue * 0.65) // Estimate 65% as expenses
+
+    revenueData.push(monthRevenue)
+    expenseData.push(monthExpense)
+    profitData.push(monthRevenue - monthExpense)
+  }
+
+  return { revenueData, expenseData, profitData, labels }
+}
+
+/**
+ * Get cash flow data for the current period
+ */
+export async function getCashFlowData(): Promise<CashFlowData> {
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
+  // Cash inflow = paid invoices this month
+  const inflow = await db.invoice.aggregate({
+    where: {
+      status: "PAID",
+      paidAt: {
+        gte: monthStart,
+        lte: monthEnd,
+      },
+    },
+    _sum: { total: true },
+  })
+
+  // Cash outflow = estimated at 60% of inflow
+  const inflowAmount = Number(inflow._sum.total || 0)
+  const outflowAmount = Math.round(inflowAmount * 0.6)
+
+  // Balance = total paid invoices - estimated expenses
+  const totalRevenue = await db.invoice.aggregate({
+    where: { status: "PAID" },
+    _sum: { total: true },
+  })
+  const balance = Math.round(Number(totalRevenue._sum.total || 0) * 0.35)
+
+  return {
+    inflowData: [inflowAmount],
+    outflowData: [outflowAmount],
+    balanceData: [balance],
+  }
+}
+
+/**
+ * Get expense categories breakdown
+ */
+export async function getExpenseCategories(): Promise<ExpenseCategory[]> {
+  // In a real app, you'd have an expenses table with categories
+  // For now, we'll create sample data based on typical logistics expenses
+  const categories: ExpenseCategory[] = [
+    { category: "Operations", amount: 450000, percentage: 35 },
+    { category: "Transportation", amount: 320000, percentage: 25 },
+    { category: "Customs Fees", amount: 190000, percentage: 15 },
+    { category: "Staff", amount: 130000, percentage: 10 },
+    { category: "Storage", amount: 90000, percentage: 7 },
+    { category: "Insurance", amount: 65000, percentage: 5 },
+    { category: "Utilities", amount: 40000, percentage: 3 },
+  ]
+
+  return categories
+}
+
+/**
+ * Get trending stats for dashboard
+ */
+export async function getTrendingStatsData(): Promise<TrendingStatsData> {
+  const now = new Date()
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
+
+  // Current month data
+  const [currentShipments, currentRevenue, currentPending, currentCompleted] = await Promise.all([
+    db.shipment.count({
+      where: { createdAt: { gte: thisMonth } },
+    }),
+    db.invoice.aggregate({
+      where: { status: "PAID", paidAt: { gte: thisMonth } },
+      _sum: { total: true },
+    }),
+    db.customsDeclaration.count({
+      where: { status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] } },
+    }),
+    db.customsDeclaration.count({
+      where: { status: "APPROVED", approvedAt: { gte: thisMonth } },
+    }),
+  ])
+
+  // Last month data for comparison
+  const [lastShipments, lastRevenue, lastPending, lastCompleted] = await Promise.all([
+    db.shipment.count({
+      where: { createdAt: { gte: lastMonth, lte: lastMonthEnd } },
+    }),
+    db.invoice.aggregate({
+      where: { status: "PAID", paidAt: { gte: lastMonth, lte: lastMonthEnd } },
+      _sum: { total: true },
+    }),
+    db.customsDeclaration.count({
+      where: {
+        status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] },
+        createdAt: { lte: lastMonthEnd }
+      },
+    }),
+    db.customsDeclaration.count({
+      where: { status: "APPROVED", approvedAt: { gte: lastMonth, lte: lastMonthEnd } },
+    }),
+  ])
+
+  // Calculate changes
+  const calcChange = (current: number, last: number) => {
+    if (last === 0) return current > 0 ? 100 : 0
+    return Math.round(((current - last) / last) * 100)
+  }
+
+  const shipmentChange = calcChange(currentShipments, lastShipments)
+  const revenueChange = calcChange(
+    Number(currentRevenue._sum.total || 0),
+    Number(lastRevenue._sum.total || 0)
+  )
+  const pendingChange = calcChange(currentPending, lastPending)
+  const completionChange = calcChange(currentCompleted, lastCompleted)
+
+  // Total declarations for completion rate
+  const totalDeclarations = await db.customsDeclaration.count({
+    where: { createdAt: { gte: thisMonth } },
+  })
+  const completionRate = totalDeclarations > 0
+    ? Math.round((currentCompleted / totalDeclarations) * 100)
+    : 0
+
+  return {
+    totalShipments: {
+      value: currentShipments,
+      change: Math.abs(shipmentChange),
+      changeType: shipmentChange >= 0 ? "positive" : "negative",
+    },
+    totalRevenue: {
+      value: Number(currentRevenue._sum.total || 0),
+      change: Math.abs(revenueChange),
+      changeType: revenueChange >= 0 ? "positive" : "negative",
+    },
+    pendingDeclarations: {
+      value: currentPending,
+      change: Math.abs(pendingChange),
+      changeType: pendingChange <= 0 ? "positive" : "negative", // Less pending is better
+    },
+    completionRate: {
+      value: completionRate,
+      change: Math.abs(completionChange),
+      changeType: completionChange >= 0 ? "positive" : "negative",
+    },
+  }
+}

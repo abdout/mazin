@@ -2,7 +2,14 @@ import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
 import { auth } from "@/auth"
 import { AdminDashboardClient } from "@/components/platform/dashboard/admin-client"
-import { getQuickLookData, getUpcomingData } from "@/components/platform/dashboard/actions"
+import {
+  getQuickLookData,
+  getUpcomingData,
+  getFinancialChartData,
+  getCashFlowData,
+  getExpenseCategories,
+  getTrendingStatsData,
+} from "@/components/platform/dashboard/actions"
 import type { UserRole } from "@prisma/client"
 
 export default async function DashboardPage({
@@ -18,10 +25,21 @@ export default async function DashboardPage({
   // Get user role, default to VIEWER
   const userRole = (session?.user?.role as UserRole) || "VIEWER"
 
-  // Fetch data using server actions
-  const [quickLookData, upcomingData] = await Promise.all([
+  // Fetch all data using server actions in parallel
+  const [
+    quickLookData,
+    upcomingData,
+    financialData,
+    cashFlowData,
+    expenseCategories,
+    trendingStats,
+  ] = await Promise.all([
     getQuickLookData(),
     getUpcomingData(userRole),
+    getFinancialChartData(),
+    getCashFlowData(),
+    getExpenseCategories(),
+    getTrendingStatsData(),
   ])
 
   return (
@@ -30,6 +48,10 @@ export default async function DashboardPage({
       locale={lang}
       quickLookData={quickLookData}
       upcomingData={upcomingData}
+      financialData={financialData}
+      cashFlowData={cashFlowData}
+      expenseCategories={expenseCategories}
+      trendingStats={trendingStats}
     />
   )
 }
