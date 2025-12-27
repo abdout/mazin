@@ -52,7 +52,7 @@ export function PageNav({
   return (
     <div className={cn("border-b", className)} {...props}>
       <ScrollArea className="max-w-[600px] lg:max-w-none">
-        <nav className="flex items-center gap-6 rtl:flex-row-reverse">
+        <nav className="flex items-center gap-6">
           {defaultPage && (
             <PageLink
               page={defaultPage}
