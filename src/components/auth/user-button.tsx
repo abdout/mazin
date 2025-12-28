@@ -68,7 +68,7 @@ export const UserButton = ({ className, dictionary }: UserButtonProps) => {
         <Button variant="ghost" size="icon" className={cn("size-7", className)}>
           <Avatar className="size-4">
             <AvatarImage src={user.image || ""} alt={displayName} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-[8px] font-medium">
+            <AvatarFallback className="bg-foreground text-background text-[8px] font-medium">
               {userInitials}
             </AvatarFallback>
           </Avatar>

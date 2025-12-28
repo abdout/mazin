@@ -1,3 +1,6 @@
 export { RevenueChart } from "./revenue-chart"
 export { CashFlowChart } from "./cash-flow-chart"
 export { ExpenseChart } from "./expense-chart"
+export { AreaChartStacked } from "./chart-area-stacked"
+export { InteractiveBarChart } from "./chart-interactive-bar"
+export { RadialTextChart } from "./chart-radial-text"

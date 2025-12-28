@@ -2,7 +2,6 @@ import React from 'react';
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Project } from './types';
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import Delete from "./delete";
 import { SHIPMENT_TYPE_LABELS } from './constant';
 
@@ -62,58 +61,59 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const shipmentType = getShipmentTypeLabel();
 
   return (
-    <div className="relative">
-      <Card
-        className={`border border-gray-400 hover:border-black h-48 ${contextMenu.projectID === project.id ? 'opacity-20' : ''}`}
+    <div className="relative h-48">
+      <div
+        className={`w-full h-full p-5 border rounded-xl flex flex-col justify-between hover:border-black transition-colors ${contextMenu.projectID === project.id ? 'opacity-20' : ''}`}
         onContextMenu={(e) => {
           if (project.id) {
             onRightClick(e, project.id);
           }
         }}
       >
-        <Link href={`/project/${project.id}`}>
-          <CardHeader>
-            <strong className="font-heading text-2xl">{project.customer}</strong>
-            <p className="line-clamp-1 overflow-hidden text-ellipsis">
-              {project.blAwbNumber || project.location || <span className="opacity-50">BL/AWB Number</span>}
+        <Link href={`/project/${project.id}`} className="flex flex-col h-full">
+          {/* Header */}
+          <div className="space-y-1">
+            <h3 className="font-semibold text-lg leading-tight truncate">{project.customer}</h3>
+            <p className="text-sm text-muted-foreground truncate">
+              {project.blAwbNumber || project.location || 'BL/AWB'}
             </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 -ms-1 items-center -mt-2">
-              <Icon icon="mdi:ship" width={25} />
-              <p className="text-sm">{shipmentType || project.client || 'Shipment Type'}</p>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 flex flex-col justify-center py-2">
+            <div className="flex gap-2 items-center text-sm">
+              <Icon icon="mdi:ship" width={18} className="text-muted-foreground" />
+              <span className="truncate">{shipmentType || 'Shipment'}</span>
             </div>
             {(project.portOfOrigin || project.portOfDestination) && (
-              <div className="flex gap-2 items-center mt-1 text-xs text-muted-foreground">
-                <span>{project.portOfOrigin || '---'}</span>
-                <Icon icon="mdi:arrow-right" width={14} />
-                <span>{project.portOfDestination || '---'}</span>
+              <div className="flex gap-1.5 items-center mt-1.5 text-xs text-muted-foreground">
+                <span className="truncate max-w-[80px]">{project.portOfOrigin || '---'}</span>
+                <Icon icon="mdi:arrow-right" width={12} />
+                <span className="truncate max-w-[80px]">{project.portOfDestination || '---'}</span>
               </div>
             )}
-          </CardContent>
-          <CardFooter className="flex gap-4 items-center -mt-5">
-            <div className={`rounded-full w-4 h-4 ${statusInfo.color}`}></div>
-            <p className="capitalize">{statusInfo.label}</p>
-          </CardFooter>
+          </div>
+
+          {/* Footer */}
+          <div className="flex gap-2 items-center">
+            <div className={`rounded-full w-3 h-3 ${statusInfo.color}`}></div>
+            <span className="text-sm">{statusInfo.label}</span>
+          </div>
         </Link>
-      </Card>
+      </div>
 
       {contextMenu.projectID === project.id && (
         <div
-          className="absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center space-x-4 p-8"
+          className="absolute top-0 left-0 w-full h-full rounded-xl bg-background/80 flex flex-row justify-center items-center gap-6"
           onMouseLeave={onCloseContextMenu}
         >
-          <div className="flex items-center justify-center">
-            <Delete id={contextMenu.projectID} onSuccess={onProjectDeleted} />
-          </div>
-          <div className="flex items-center justify-center">
-            <button
-              onClick={() => project.id && onOpenDialog(project.id)}
-              className="flex gap-4 z-50"
-            >
-              <Icon icon="icon-park-solid:edit" width={40} />
-            </button>
-          </div>
+          <Delete id={contextMenu.projectID} onSuccess={onProjectDeleted} />
+          <button
+            onClick={() => project.id && onOpenDialog(project.id)}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+          >
+            <Icon icon="ph:pencil-simple" width={28} />
+          </button>
         </div>
       )}
     </div>

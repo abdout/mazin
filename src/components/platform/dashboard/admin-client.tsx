@@ -1,9 +1,12 @@
 "use client"
 
+import { cn } from "@/lib/utils"
+import { Card, CardContent } from "@/components/ui/card"
 import { QuickActions } from "./quick-actions"
 import { Upcoming } from "./upcoming"
-import { RevenueChart, CashFlowChart, ExpenseChart } from "./charts"
-import { TrendingStats } from "@/components/platform/shared/stats"
+import { Weather } from "./weather"
+import { QuickLook } from "./quick-look"
+import { FinanceOverview } from "./finance-overview"
 import type {
   QuickLookData,
   UpcomingData,
@@ -13,13 +16,17 @@ import type {
   TrendingStatsData,
 } from "./actions"
 import type { Dictionary, Locale } from "@/components/internationalization"
-import type { TrendingStatItem } from "@/components/platform/shared/stats"
+import type { WeatherData } from "./weather"
 
 /**
- * AdminDashboardClient
- * Client-side orchestration component for the dashboard
- * - Receives server-fetched data as props
- * - Renders Upcoming (flip card), QuickActions, TrendingStats, and Charts
+ * AdminDashboardClient - Hogwarts Edition
+ * Elegant admin dashboard with magical styling
+ *
+ * Layout:
+ * 1. Section 1: Upcoming + Weather (side by side)
+ * 2. Section 2: Quick Look (4 stat cards)
+ * 3. Section 3: Quick Actions (4 action buttons)
+ * 4. Section 4: Finance Overview (charts)
  */
 
 interface AdminDashboardClientProps {
@@ -31,6 +38,7 @@ interface AdminDashboardClientProps {
   cashFlowData: CashFlowData
   expenseCategories: ExpenseCategory[]
   trendingStats: TrendingStatsData
+  weatherData?: WeatherData | null
 }
 
 export function AdminDashboardClient({
@@ -42,71 +50,70 @@ export function AdminDashboardClient({
   cashFlowData,
   expenseCategories,
   trendingStats,
+  weatherData,
 }: AdminDashboardClientProps) {
-  // Transform trendingStats into TrendingStatItem array
-  const trendingItems: TrendingStatItem[] = [
-    {
-      label: "Total Shipments",
-      value: trendingStats.totalShipments.value,
-      change: trendingStats.totalShipments.change,
-      changeType: trendingStats.totalShipments.changeType,
-    },
-    {
-      label: "Total Revenue",
-      value: `SDG ${trendingStats.totalRevenue.value.toLocaleString()}`,
-      change: trendingStats.totalRevenue.change,
-      changeType: trendingStats.totalRevenue.changeType,
-    },
-    {
-      label: "Pending Declarations",
-      value: trendingStats.pendingDeclarations.value,
-      change: trendingStats.pendingDeclarations.change,
-      changeType: trendingStats.pendingDeclarations.changeType,
-    },
-    {
-      label: "Completion Rate",
-      value: `${trendingStats.completionRate.value}%`,
-      change: trendingStats.completionRate.change,
-      changeType: trendingStats.completionRate.changeType,
-    },
-  ]
-
   return (
-    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-      {/* 1. Flip Card (full width at top) */}
-      <div className="px-4 lg:px-6">
-        <Upcoming data={upcomingData} locale={locale} />
-      </div>
+    <div className="flex flex-col gap-6 py-4 md:py-6">
+      {/* ============================================
+          SECTION 1: Upcoming + Weather
+          Two elegant cards side by side
+          ============================================ */}
+      <section className="px-4 lg:px-6">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {/* Upcoming Card - Takes 2 columns */}
+          <div className="lg:col-span-2 min-h-[280px]">
+            <Upcoming data={upcomingData} locale={locale} />
+          </div>
 
-      {/* 2. Quick Actions */}
-      <div className="px-4 lg:px-6">
+          {/* Weather Card */}
+          <Card
+            className={cn(
+              "min-h-[280px]",
+              "bg-gradient-to-br from-sky-50/80 via-blue-50/60 to-indigo-50/40",
+              "dark:from-slate-900/80 dark:via-blue-950/60 dark:to-indigo-950/40",
+              "border border-blue-200/50 dark:border-blue-900/40",
+              "shadow-sm transition-all duration-500",
+              "hover:shadow-lg hover:shadow-blue-500/10 dark:hover:shadow-blue-500/5"
+            )}
+          >
+            <CardContent className="p-5">
+              <Weather
+                current={weatherData?.current}
+                forecast={weatherData?.forecast}
+                location={weatherData?.location}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* ============================================
+          SECTION 2: Quick Look
+          4 elegant stat cards with house colors
+          ============================================ */}
+      <section className="px-4 lg:px-6">
+        <QuickLook stats={trendingStats} />
+      </section>
+
+      {/* ============================================
+          SECTION 3: Quick Actions
+          4 action buttons with magical styling
+          ============================================ */}
+      <section className="px-4 lg:px-6">
         <QuickActions dictionary={dictionary} locale={locale} />
-      </div>
+      </section>
 
-      {/* 3. Trending Stats (badges variant) */}
-      <div className="px-4 lg:px-6">
-        <TrendingStats items={trendingItems} variant="badges" />
-      </div>
-
-      {/* 4. Charts Grid - Revenue + Cash Flow */}
-      <div className="grid gap-4 px-4 lg:grid-cols-2 lg:px-6">
-        <RevenueChart
-          revenueData={financialData.revenueData}
-          expenseData={financialData.expenseData}
-          profitData={financialData.profitData}
-          labels={financialData.labels}
+      {/* ============================================
+          SECTION 4: Finance Overview
+          Revenue, Cash Flow, and Expense charts
+          ============================================ */}
+      <section className="px-4 lg:px-6">
+        <FinanceOverview
+          financialData={financialData}
+          cashFlowData={cashFlowData}
+          expenseCategories={expenseCategories}
         />
-        <CashFlowChart
-          inflowData={cashFlowData.inflowData}
-          outflowData={cashFlowData.outflowData}
-          balanceData={cashFlowData.balanceData}
-        />
-      </div>
-
-      {/* 5. Expense Chart (full width) */}
-      <div className="px-4 lg:px-6">
-        <ExpenseChart expenseCategories={expenseCategories} />
-      </div>
+      </section>
     </div>
   )
 }

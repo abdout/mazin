@@ -22,6 +22,7 @@ import { UserButton } from "@/components/auth/user-button"
 import { MobileNav } from "@/components/template/mobile-nav"
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs"
 import { platformNav, type Role } from "@/components/template/platform-sidebar/config"
+import { usePageHeading } from "@/components/platform/context/page-heading-context"
 
 interface PlatformHeaderProps {
   dictionary: Dictionary
@@ -39,6 +40,14 @@ export default function PlatformHeader({
   const pathname = usePathname()
   const role = userRole as Role
 
+  let pageHeading = null
+  try {
+    const context = usePageHeading()
+    pageHeading = context.heading
+  } catch {
+    // PageHeading context not available
+  }
+
   const mobileNavItems = useMemo(() => {
     return platformNav
       .filter((item) => item.roles.includes(role))
@@ -50,6 +59,19 @@ export default function PlatformHeader({
           ] || item.title,
       }))
   }, [role, dictionary])
+
+  // Enhanced breadcrumbs that replace "Details" with actual page heading when available
+  const enhancedBreadcrumbs = useMemo(() => {
+    if (!pageHeading?.title) return breadcrumbItems
+
+    return breadcrumbItems.map((item, index) => {
+      // Replace the last breadcrumb item's title if it's "Details"
+      if (index === breadcrumbItems.length - 1 && item.title === "Details") {
+        return { ...item, title: pageHeading.title }
+      }
+      return item
+    })
+  }, [breadcrumbItems, pageHeading])
 
   return (
     <div className="bg-background sticky top-0 z-40">

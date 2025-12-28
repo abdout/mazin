@@ -329,7 +329,22 @@
     "totalRevenue": "إجمالي الإيرادات",
     "outstandingPayments": "المدفوعات المعلقة",
     "paidThisMonth": "المدفوع هذا الشهر",
-    "totalExpenses": "إجمالي المصروفات"
+    "totalExpenses": "إجمالي المصروفات",
+    "navigation": {
+      "overview": "نظرة عامة",
+      "invoice": "الفواتير",
+      "banking": "البنوك",
+      "fees": "الرسوم",
+      "salary": "الرواتب",
+      "payroll": "كشوف الرواتب",
+      "reports": "التقارير",
+      "receipt": "الإيصالات",
+      "timesheet": "الحضور",
+      "wallet": "المحفظة",
+      "budget": "الميزانية",
+      "expenses": "المصروفات",
+      "accounts": "الحسابات"
+    }
   },
   "project": {
     "title": "المشاريع",

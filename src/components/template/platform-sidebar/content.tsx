@@ -65,10 +65,10 @@ export default function PlatformSidebar({
 
                 return (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={isActive} size="sm">
+                    <SidebarMenuButton asChild isActive={isActive}>
                       <Link
                         href={localizedHref}
-                        className="muted"
+                        className="muted text-sm"
                         onClick={handleLinkClick}
                       >
                         <span className="inline-flex size-5 items-center justify-center">

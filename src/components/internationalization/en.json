@@ -329,7 +329,22 @@
     "totalRevenue": "Total Revenue",
     "outstandingPayments": "Outstanding Payments",
     "paidThisMonth": "Paid This Month",
-    "totalExpenses": "Total Expenses"
+    "totalExpenses": "Total Expenses",
+    "navigation": {
+      "overview": "Overview",
+      "invoice": "Invoice",
+      "banking": "Banking",
+      "fees": "Fees",
+      "salary": "Salary",
+      "payroll": "Payroll",
+      "reports": "Reports",
+      "receipt": "Receipt",
+      "timesheet": "Timesheet",
+      "wallet": "Wallet",
+      "budget": "Budget",
+      "expenses": "Expenses",
+      "accounts": "Accounts"
+    }
   },
   "project": {
     "title": "Projects",

@@ -1,11 +1,5 @@
 "use client"
 
-/**
- * Finance Content - Stubbed Implementation
- *
- * TODO: Replace with actual dashboard components when ready
- */
-
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -21,6 +15,11 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Locale } from "@/components/internationalization/config"
+import {
+  AreaChartStacked,
+  InteractiveBarChart,
+  RadialTextChart,
+} from "@/components/platform/dashboard/charts"
 
 interface Props {
   dictionary?: unknown
@@ -127,15 +126,13 @@ export default function FinanceContent({ lang }: Props) {
         </div>
       </div>
 
-      {/* Charts Section Placeholder */}
+      {/* Charts Section */}
       <div className="space-y-4">
-        <Card className="p-6">
-          <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed">
-            <p className="text-muted-foreground">
-              {isRTL ? "الرسوم البيانية قادمة قريباً" : "Charts coming soon"}
-            </p>
-          </div>
-        </Card>
+        <InteractiveBarChart />
+        <div className="grid gap-4 md:grid-cols-2">
+          <RadialTextChart />
+          <AreaChartStacked />
+        </div>
       </div>
 
       {/* Finance Quick Look */}

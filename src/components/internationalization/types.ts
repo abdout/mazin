@@ -353,6 +353,21 @@ export interface Dictionary {
     totalExpenses?: string
     growth?: string
     comingSoon?: string
+    navigation?: {
+      overview?: string
+      invoice?: string
+      banking?: string
+      fees?: string
+      salary?: string
+      payroll?: string
+      reports?: string
+      receipt?: string
+      timesheet?: string
+      wallet?: string
+      budget?: string
+      expenses?: string
+      accounts?: string
+    }
   }
   project?: {
     title?: string

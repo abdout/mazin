@@ -2,19 +2,17 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, CalendarDays, Clock, ScrollText } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { AnthropicIcons } from "@/components/icons/anthropic"
 import type { UpcomingData } from "./actions"
 import type { Locale } from "@/components/internationalization"
 
 /**
- * Upcoming Component
- * 3D flip card with role-based content
- * - Front: pulsing circles animation, title, subtitle, badge
- * - Back: details list with navigation link
+ * Upcoming Component - Hogwarts Edition
+ * Elegant parchment-style card with magical hover effects
+ * Displays upcoming tasks, deadlines, and system overview
  */
 
 interface UpcomingProps {
@@ -24,164 +22,131 @@ interface UpcomingProps {
 }
 
 export function Upcoming({ data, locale, className }: UpcomingProps) {
-  const [isFlipped, setIsFlipped] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   return (
     <div
       className={cn(
-        "group relative h-[320px] w-full max-w-[280px] cursor-pointer lg:max-w-[320px]",
+        "group relative h-full w-full",
         className
       )}
-      style={{ perspective: "2000px" }}
-      onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Main card with elegant border */}
       <div
         className={cn(
-          "relative h-full w-full transition-all duration-700",
-          isFlipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
+          "relative h-full w-full overflow-hidden rounded-xl",
+          "bg-gradient-to-br from-amber-50/80 via-stone-50/60 to-amber-50/40",
+          "dark:from-stone-900/80 dark:via-stone-950/60 dark:to-amber-950/40",
+          "border border-amber-200/60 dark:border-amber-900/40",
+          "shadow-sm transition-all duration-500",
+          "hover:shadow-lg hover:shadow-amber-500/10 dark:hover:shadow-amber-500/5",
+          "hover:border-amber-300/80 dark:hover:border-amber-800/60"
         )}
-        style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Front of card */}
-        <div
-          className={cn(
-            "absolute inset-0 h-full w-full",
-            "[transform:rotateY(0deg)] [backface-visibility:hidden]",
-            "overflow-hidden rounded-2xl",
-            "bg-card border shadow-sm",
-            "transition-all duration-700",
-            "group-hover:shadow-lg",
-            isFlipped ? "opacity-0" : "opacity-100"
-          )}
-        >
-          <div className="from-muted/50 to-background relative h-full overflow-hidden bg-gradient-to-b">
-            {/* Pulsing circles animation */}
-            <div className="absolute inset-0 flex items-start justify-center pt-24">
-              <div className="relative flex h-[100px] w-[200px] items-center justify-center">
-                {[...Array(10)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "absolute h-[50px] w-[50px]",
-                      "rounded-[140px]",
-                      "animate-pulse",
-                      "opacity-20",
-                      "bg-primary/30"
-                    )}
-                    style={{
-                      animationDelay: `${i * 0.3}s`,
-                      transform: `scale(${1 + i * 0.2})`,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* Decorative corner flourish */}
+        <div className="absolute top-0 left-0 h-16 w-16 overflow-hidden opacity-30">
+          <div className="absolute -top-8 -left-8 h-16 w-16 rotate-45 bg-gradient-to-br from-amber-400 to-transparent" />
+        </div>
+        <div className="absolute right-0 bottom-0 h-16 w-16 overflow-hidden opacity-30">
+          <div className="absolute -right-8 -bottom-8 h-16 w-16 rotate-45 bg-gradient-to-tl from-amber-400 to-transparent" />
+        </div>
 
-          <div className="absolute right-0 bottom-0 left-0 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-1.5">
-                <h3 className="text-foreground text-lg leading-snug font-semibold tracking-tighter transition-all duration-500 ease-out group-hover:translate-y-[-4px]">
+        {/* Content */}
+        <div className="relative flex h-full flex-col p-5">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 dark:from-amber-400/20 dark:to-amber-500/10">
+                <ScrollText className="h-4.5 w-4.5 text-amber-700 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-foreground text-base font-semibold tracking-tight">
                   {data.title}
                 </h3>
-                <p className="text-muted-foreground line-clamp-2 text-sm tracking-tight transition-all delay-[50ms] duration-500 ease-out group-hover:translate-y-[-4px]">
+                <p className="text-muted-foreground text-xs">
                   {data.subtitle}
                 </p>
               </div>
-              <div className="group/icon relative">
-                <div
+            </div>
+            <Badge
+              variant={data.badgeVariant}
+              className={cn(
+                "text-xs font-medium",
+                data.badgeVariant === "destructive"
+                  ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400"
+                  : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400"
+              )}
+            >
+              {data.badge}
+            </Badge>
+          </div>
+
+          {/* Divider with magical glow */}
+          <div className="relative my-4">
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-300/50 to-transparent dark:via-amber-700/50" />
+            <div
+              className={cn(
+                "absolute left-1/2 top-1/2 h-1 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full",
+                "bg-amber-400/50 blur-sm transition-all duration-500",
+                isHovered && "w-16 bg-amber-400/70"
+              )}
+            />
+          </div>
+
+          {/* Details list */}
+          <div className="flex-1 space-y-2.5">
+            {data.details.slice(0, 4).map((detail, index) => (
+              <div
+                key={detail.label}
+                className={cn(
+                  "flex items-center justify-between text-sm transition-all duration-300",
+                  "rounded-md px-2 py-1.5",
+                  "hover:bg-amber-100/50 dark:hover:bg-amber-900/20"
+                )}
+                style={{
+                  transitionDelay: `${index * 50}ms`,
+                }}
+              >
+                <span className="text-muted-foreground flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400/60 dark:bg-amber-500/60" />
+                  {detail.label}
+                </span>
+                <span
                   className={cn(
-                    "absolute inset-[-8px] rounded-lg transition-opacity duration-300",
-                    "from-primary/20 via-primary/10 bg-gradient-to-br to-transparent"
+                    "font-medium tabular-nums",
+                    detail.highlight
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-foreground"
                   )}
-                />
-                <Badge
-                  variant={data.badgeVariant}
-                  className="relative z-10 text-xs"
                 >
-                  {data.badge}
-                </Badge>
+                  {detail.value}
+                </span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Back of card */}
-        <div
-          className={cn(
-            "absolute inset-0 h-full w-full",
-            "[transform:rotateY(180deg)] [backface-visibility:hidden]",
-            "flex flex-col rounded-2xl border p-6",
-            "from-muted/50 to-background bg-gradient-to-b",
-            "shadow-sm",
-            "transition-all duration-700",
-            "group-hover:shadow-lg",
-            !isFlipped ? "opacity-0" : "opacity-100"
-          )}
-        >
-          <div className="flex-1 space-y-6">
-            <div className="space-y-2">
-              <h3 className="text-foreground text-lg leading-snug font-semibold tracking-tight transition-all duration-500 ease-out group-hover:translate-y-[-2px]">
-                {data.title}
-              </h3>
-              <p className="text-muted-foreground line-clamp-2 text-sm tracking-tight transition-all duration-500 ease-out group-hover:translate-y-[-2px]">
-                {data.subtitle}
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              {data.details.slice(0, 4).map((detail, index) => (
-                <div
-                  key={detail.label}
-                  className="flex items-center justify-between text-sm transition-all duration-500"
-                  style={{
-                    transform: isFlipped ? "translateX(0)" : "translateX(-10px)",
-                    opacity: isFlipped ? 1 : 0,
-                    transitionDelay: `${index * 100 + 200}ms`,
-                  }}
-                >
-                  <span className="text-muted-foreground">{detail.label}</span>
-                  <span
-                    className={cn(
-                      "text-foreground font-medium",
-                      detail.highlight && "text-destructive"
-                    )}
-                  >
-                    {detail.value}
-                  </span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
 
-          <div className="mt-6 border-t pt-6">
+          {/* Footer action */}
+          <div className="mt-4 pt-3 border-t border-amber-200/40 dark:border-amber-800/30">
             <Link
               href={`/${locale}${data.link}`}
               className={cn(
-                "group/start relative",
-                "flex items-center justify-between",
-                "-m-3 rounded-xl p-3",
+                "group/link flex items-center justify-between",
+                "rounded-lg px-3 py-2",
+                "bg-gradient-to-r from-amber-100/60 to-amber-50/40",
+                "dark:from-amber-900/30 dark:to-amber-950/20",
+                "border border-amber-200/40 dark:border-amber-800/30",
                 "transition-all duration-300",
-                "bg-muted/50",
-                "hover:bg-primary/10",
-                "hover:scale-[1.02]"
+                "hover:from-amber-200/80 hover:to-amber-100/60",
+                "dark:hover:from-amber-800/40 dark:hover:to-amber-900/30",
+                "hover:border-amber-300/60 dark:hover:border-amber-700/50"
               )}
-              onClick={(e) => e.stopPropagation()}
             >
-              <span className="text-foreground group-hover/start:text-primary text-sm font-medium transition-colors duration-300">
+              <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
                 {data.linkLabel}
               </span>
-              <div className="group/icon relative">
-                <div
-                  className={cn(
-                    "absolute inset-[-6px] rounded-lg transition-all duration-300",
-                    "from-primary/20 via-primary/10 bg-gradient-to-br to-transparent",
-                    "scale-90 opacity-0 group-hover/start:scale-100 group-hover/start:opacity-100"
-                  )}
-                />
-                <ArrowRight className="text-primary relative z-10 h-4 w-4 transition-all duration-300 group-hover/start:translate-x-0.5 group-hover/start:scale-110 rtl:rotate-180" />
-              </div>
+              <ArrowRight className="h-4 w-4 text-amber-600 transition-transform duration-300 group-hover/link:translate-x-1 dark:text-amber-400 rtl:rotate-180 rtl:group-hover/link:-translate-x-1" />
             </Link>
           </div>
         </div>
