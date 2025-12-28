@@ -5,6 +5,7 @@ import { isRTL, type Locale } from "@/components/internationalization"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { PlatformHeader } from "@/components/template/platform-header"
 import { PlatformSidebar } from "@/components/template/platform-sidebar"
+import { PageHeadingProvider } from "@/components/platform/context/page-heading-context"
 
 export default async function PlatformLayout({
   children,
@@ -42,9 +43,11 @@ export default async function PlatformLayout({
             userRole={session.user.role}
             side={rtl ? "right" : "left"}
           />
-          <div className="dashboard-container overflow-hidden pb-10 transition-[margin] duration-200 ease-in-out">
-            {children}
-          </div>
+          <PageHeadingProvider>
+            <div className="dashboard-container overflow-hidden pb-10 transition-[margin] duration-200 ease-in-out">
+              {children}
+            </div>
+          </PageHeadingProvider>
         </div>
       </div>
     </SidebarProvider>
