@@ -31,6 +31,7 @@ interface MobileNavProps {
   dictionary?: Dictionary
   locale?: string
   homeHref?: string
+  mobileActions?: React.ReactNode
 }
 
 export function MobileNav({
@@ -40,6 +41,7 @@ export function MobileNav({
   dictionary,
   locale = "en",
   homeHref = "/",
+  mobileActions,
 }: MobileNavProps) {
   const [open, setOpen] = React.useState(false)
   const pathname = usePathname()
@@ -136,6 +138,8 @@ export function MobileNav({
               </div>
             </div>
           )}
+
+          {mobileActions}
         </div>
       </PopoverContent>
     </Popover>

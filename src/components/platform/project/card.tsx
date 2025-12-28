@@ -104,16 +104,23 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {contextMenu.projectID === project.id && (
         <div
-          className="absolute top-0 left-0 w-full h-full rounded-xl bg-background/80 flex flex-row justify-center items-center gap-6"
+          className="absolute top-0 left-0 w-full h-full rounded-xl bg-background/90 backdrop-blur-sm flex flex-row justify-center items-center gap-4"
           onMouseLeave={onCloseContextMenu}
+          onClick={(e) => {
+            // Close if clicking outside the buttons
+            if (e.target === e.currentTarget) {
+              onCloseContextMenu();
+            }
+          }}
         >
-          <Delete id={contextMenu.projectID} onSuccess={onProjectDeleted} />
           <button
             onClick={() => project.id && onOpenDialog(project.id)}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            className="p-3 hover:bg-muted rounded-xl transition-colors border bg-background"
+            title="Edit"
           >
-            <Icon icon="ph:pencil-simple" width={28} />
+            <Icon icon="ph:pencil-simple" width={24} />
           </button>
+          <Delete id={contextMenu.projectID} onSuccess={onProjectDeleted} />
         </div>
       )}
     </div>

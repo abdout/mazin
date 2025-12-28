@@ -2,8 +2,13 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
+import { cn } from "@/lib/utils"
 
-export function ModeSwitcher() {
+interface ModeSwitcherProps {
+  className?: string
+}
+
+export function ModeSwitcher({ className }: ModeSwitcherProps) {
   const { setTheme, resolvedTheme } = useTheme()
 
   const toggleTheme = React.useCallback(() => {
@@ -13,7 +18,10 @@ export function ModeSwitcher() {
   return (
     <button
       onClick={toggleTheme}
-      className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+      className={cn(
+        "hover:text-foreground transition-colors cursor-pointer",
+        className
+      )}
       title="Toggle theme"
     >
       <svg
@@ -26,7 +34,7 @@ export function ModeSwitcher() {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="size-5"
+        className="size-4"
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />

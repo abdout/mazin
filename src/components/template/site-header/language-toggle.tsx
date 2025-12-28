@@ -20,9 +20,9 @@ export function LanguageToggle() {
   return (
     <button
       onClick={switchLanguage}
-      className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+      className="hover:text-foreground transition-colors cursor-pointer"
     >
-      <Languages className="size-5" />
+      <Languages className="size-4" />
       <span className="sr-only">
         Switch to {nextLang === "ar" ? "Arabic" : "English"}
       </span>

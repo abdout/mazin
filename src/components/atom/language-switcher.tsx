@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Languages } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -19,9 +20,10 @@ import {
 
 interface LanguageSwitcherProps {
   variant?: "icon" | "full" | "dropdown"
+  className?: string
 }
 
-export function LanguageSwitcher({ variant = "dropdown" }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ variant = "dropdown", className }: LanguageSwitcherProps) {
   const switchLocaleHref = useSwitchLocaleHref()
   const { locale } = useLocale()
 
@@ -35,7 +37,7 @@ export function LanguageSwitcher({ variant = "dropdown" }: LanguageSwitcherProps
         asChild
         variant="ghost"
         size="icon"
-        className="size-7"
+        className={cn("size-7", className)}
         title={`Switch to ${targetConfig.nativeName}`}
       >
         <Link href={switchLocaleHref(targetLocale)}>

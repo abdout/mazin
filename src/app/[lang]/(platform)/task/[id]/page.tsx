@@ -254,14 +254,7 @@ const TaskDetail = () => {
         
         {/* Main content area */}
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2 mb-4">
-            <Button variant="ghost" onClick={handleBack} className="p-0 h-auto">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Tasks
-            </Button>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-primary">{task.task}</h1>
+          <h1 className="text-4xl font-bold">{task.task}</h1>
           <h2 className="text-2xl text-muted-foreground mt-2">{task.project}</h2>
           
           <div className="mt-8 border-t border-primary/20 pt-6">

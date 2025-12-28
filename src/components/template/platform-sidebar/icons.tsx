@@ -99,12 +99,8 @@ const ProjectIcon = ({ className }: { className?: string }) => (
     className={className}
   >
     <path
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.5"
-      d="M3 8a2 2 0 0 1 2-2h4l3 3h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+      fill="currentColor"
+      d="M5 5h4l3 3h6a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3m0 1a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-6.41l-3-3z"
     />
   </svg>
 )
@@ -121,7 +117,7 @@ const CustomersIcon = ({ className }: { className?: string }) => (
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="1.5"
-      d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m22 0v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75M9 7a4 4 0 1 1 0 8a4 4 0 0 1 0-8"
+      d="M17.928 19.634h2.138a1.165 1.165 0 0 0 1.116-1.555a6.85 6.85 0 0 0-6.117-3.95m0-2.759a3.664 3.664 0 0 0 3.665-3.664a3.664 3.664 0 0 0-3.665-3.674m-1.04 16.795a1.908 1.908 0 0 0 1.537-3.035a8.03 8.03 0 0 0-6.222-3.196a8.03 8.03 0 0 0-6.222 3.197a1.909 1.909 0 0 0 1.536 3.034zM9.34 11.485a4.16 4.16 0 0 0 4.15-4.161a4.151 4.151 0 0 0-8.302 0a4.16 4.16 0 0 0 4.151 4.16"
     />
   </svg>
 )
@@ -132,14 +128,11 @@ const TeamIcon = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24"
     className={className}
   >
-    <path
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.5"
-      d="M12 2L4.5 6v12L12 22l7.5-4V6zm0 0v7.5m0 0L4.5 6m7.5 3.5l7.5-3.5M12 9.5v5m0 0l-5-2.5m5 2.5l5-2.5"
-    />
+    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+      <path d="M12 2L4.5 6v12L12 22l7.5-4V6L12 2Z" />
+      <path d="M12 2v7.5M4.5 6l7.5 3.5M19.5 6l-7.5 3.5" />
+      <path d="M12 9.5v5M12 14.5l-5-2.5M12 14.5l5-2.5" />
+    </g>
   </svg>
 )
 

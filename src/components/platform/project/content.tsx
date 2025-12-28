@@ -57,7 +57,7 @@ const ProjectList: React.FC = () => {
     handleCloseContextMenu();
   };
 
-  const projectToEdit = editingProjectId ? projects.find((p: Project) => p._id === editingProjectId) : null;
+  const projectToEdit = editingProjectId ? projects.find((p: Project) => p.id === editingProjectId || p._id === editingProjectId) : null;
 
   const handleProjectCreated = async () => {
     await fetchProjects();

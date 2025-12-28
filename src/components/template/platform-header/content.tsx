@@ -83,36 +83,58 @@ export default function PlatformHeader({
             className="flex lg:hidden"
             dictionary={dictionary}
             locale={locale}
+            mobileActions={
+              <div className="flex flex-col gap-4 border-t pt-4 mt-4">
+                <div className="text-muted-foreground text-sm font-medium">
+                  {(dictionary?.navigation as Record<string, string> | undefined)?.settings || "Settings"}
+                </div>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-10"
+                    title={dictionary.common.search}
+                  >
+                    <Search className="h-5 w-5" />
+                    <span className="sr-only">{dictionary.common.search}</span>
+                  </Button>
+                  <LanguageSwitcher variant="icon" className="size-10 [&>svg]:size-5" />
+                  <ModeSwitcher className="size-10 [&>svg]:size-5" />
+                  <UserButton dictionary={dictionary} className="size-10 [&_.size-4]:size-5" />
+                </div>
+              </div>
+            }
           />
           <div className="hidden items-center md:flex">
-            {breadcrumbItems.length > 0 && (
+            {enhancedBreadcrumbs.length > 0 && (
               <Breadcrumb>
                 <BreadcrumbList className="flex items-center space-x-1 rtl:space-x-reverse">
-                  {breadcrumbItems.map((item, index) => {
+                  {enhancedBreadcrumbs.map((item, index) => {
                     const titleKey = item.title.toLowerCase()
                     const breadcrumbDict = dictionary?.navigation as
                       | Record<string, string>
                       | undefined
+                    // Use the original title if it matches a translation, otherwise use as-is
                     const translatedTitle =
                       breadcrumbDict?.[titleKey] || item.title
 
                     return (
-                      <div key={item.title} className="flex items-center">
-                        {index !== breadcrumbItems.length - 1 && (
+                      <div key={`${item.link}-${index}`} className="flex items-center">
+                        {index !== enhancedBreadcrumbs.length - 1 && (
                           <BreadcrumbItem className="flex items-center">
                             <BreadcrumbLink
                               href={item.link}
-                              className="flex items-center"
+                              className="flex items-center text-sm"
                             >
                               {translatedTitle}
                             </BreadcrumbLink>
                           </BreadcrumbItem>
                         )}
-                        {index < breadcrumbItems.length - 1 && (
+                        {index < enhancedBreadcrumbs.length - 1 && (
                           <BreadcrumbSeparator className="ms-2 hidden md:block" />
                         )}
-                        {index === breadcrumbItems.length - 1 && (
-                          <BreadcrumbPage className="flex items-center">
+                        {index === enhancedBreadcrumbs.length - 1 && (
+                          <BreadcrumbPage className="flex items-center text-sm">
                             {translatedTitle}
                           </BreadcrumbPage>
                         )}
@@ -124,11 +146,12 @@ export default function PlatformHeader({
             )}
           </div>
         </div>
-        <div className="ms-auto flex items-center gap-1.5">
+        {/* Desktop actions */}
+        <div className="ms-auto hidden sm:flex items-center gap-1.5">
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 hidden sm:flex"
+            className="size-7"
             title={dictionary.common.search}
           >
             <Search className="h-4 w-4" />
