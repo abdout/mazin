@@ -16,7 +16,7 @@ const Delete: FC<DeleteProps> = ({ id, onSuccess }) => {
       (t) => (
         <div className="bg-red-500 text-white p-3 rounded flex justify-between items-center w-full">
           <span>Are you sure?</span>
-          <div className="flex gap-2 ml-6">
+          <div className="flex gap-2 ms-6">
             <button 
               className="px-2 py-1 bg-white text-red-500 rounded text-sm font-medium"
               onClick={async () => {

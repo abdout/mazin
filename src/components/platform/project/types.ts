@@ -145,7 +145,7 @@ export interface Project {
 
   // Legacy aliases
   systems?: string[];
-  activities?: Activity[];
+  activities?: Activity[] | unknown;
 
   // Resources
   brokers?: string[];

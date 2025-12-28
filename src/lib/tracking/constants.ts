@@ -126,3 +126,18 @@ export const STATUS_STYLES = {
     badge: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
   },
 } as const
+
+// Stages that support payment requests (invoicing)
+export const PAYABLE_STAGES: TrackingStageType[] = [
+  "PRE_ARRIVAL_DOCS",     // Document processing fees
+  "CUSTOMS_DECLARATION",  // Brokerage fees
+  "CUSTOMS_PAYMENT",      // Duties & taxes
+  "INSPECTION",           // Inspection fees
+  "PORT_FEES",            // Port handling & storage
+  "RELEASE",              // Release order fees
+]
+
+// Check if a stage supports payment requests
+export function isPayableStage(stageType: TrackingStageType): boolean {
+  return PAYABLE_STAGES.includes(stageType)
+}

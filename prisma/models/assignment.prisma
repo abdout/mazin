@@ -1,0 +1,31 @@
+// Task Assignment Rules
+// This file contains models for automatic task assignment
+
+// Task assignment rules for auto-assigning tasks based on category
+model TaskAssignmentRule {
+  id String @id @default(cuid())
+
+  // Matching criteria
+  category     TaskCategory  // Task category to match
+  shipmentType ShipmentType? // Optional: specific shipment type (IMPORT/EXPORT)
+
+  // Assignment target - one of these must be set
+  roleTarget UserRole? // Assign to users with this role
+  userId     String?   // Or assign to specific user
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Priority (lower = higher priority, used when multiple rules match)
+  priority Int     @default(100)
+  isActive Boolean @default(true)
+
+  // Description for admin UI
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([category, shipmentType])
+  @@index([category, isActive])
+  @@index([roleTarget])
+  @@map("task_assignment_rules")
+}

@@ -1,0 +1,61 @@
+// Company Settings Model
+// This file contains company/organization settings
+
+model CompanySettings {
+  id String @id @default(cuid())
+
+  // Company Identity
+  companyName   String
+  companyNameAr String?
+  taxId         String?
+
+  // Contact Information
+  email   String?
+  phone   String?
+  website String?
+
+  // Company Address
+  address1   String?
+  address2   String?
+  city       String?
+  state      String?
+  country    String  @default("SD")
+  postalCode String?
+
+  // Branding
+  logoUrl      String? @default("/logo.png")
+  signatureUrl String? @default("/sign.png")
+  primaryColor String?
+
+  // Invoice Defaults
+  invoicePrefix       String  @default("INV")
+  invoiceStartNum     Int     @default(1)
+  defaultCurrency     String  @default("SDG")
+  defaultTaxRate      Decimal @default(15) @db.Decimal(5, 2)
+  defaultPaymentTerms Int     @default(30)
+
+  // Bank Details
+  bankName      String?
+  bankBranch    String?
+  accountName   String?
+  accountNumber String?
+  iban          String?
+  swiftCode     String?
+
+  // Default Text
+  termsAndConditions String? @db.Text
+  footerNote         String?
+
+  // WhatsApp Business settings
+  whatsappPhoneNumberId String? // Meta WhatsApp Business Phone Number ID
+  whatsappBusinessId    String? // Meta WhatsApp Business Account ID
+
+  // Relation
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("company_settings")
+}

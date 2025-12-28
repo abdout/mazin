@@ -10,6 +10,18 @@ const priorityEnum = z.enum([
   "urgent", "high", "medium", "low"
 ] as const);
 
+// Activity structure for cascading task generation
+const activitySchema = z.object({
+  shipmentType: z.string().optional(),
+  stage: z.string().optional(),
+  substage: z.string().optional(),
+  task: z.string().optional(),
+  system: z.string().optional(),
+  category: z.string().optional(),
+  subcategory: z.string().optional(),
+  activity: z.string().optional(),
+});
+
 export const projectFormSchema = z.object({
   // Core fields
   customer: z.string().optional(),
@@ -23,6 +35,12 @@ export const projectFormSchema = z.object({
   // Shipment types
   systems: z.array(z.string()).optional(),
 
+  // Activities for cascade task generation
+  activities: z.array(activitySchema).optional(),
+
+  // Client relation
+  customerId: z.string().optional().nullable(),
+
   // Ports
   portOfOrigin: z.string().optional(),
   portOfDestination: z.string().optional(),
@@ -34,6 +52,9 @@ export const projectFormSchema = z.object({
   // Dates
   startDate: z.date().optional().nullable(),
   endDate: z.date().optional().nullable(),
+
+  // Cascade options
+  skipCascade: z.boolean().optional(), // Skip auto-creating shipment/tasks
 });
 
 export type ProjectFormValues = z.infer<typeof projectFormSchema>;

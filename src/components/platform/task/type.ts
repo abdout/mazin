@@ -1,6 +1,15 @@
 import { TASK_STATUS, TASK_PRIORITY } from './constant';
 import { TaskStatus, TaskPriority } from '@prisma/client';
 
+// Linked Activity - stores origin stage info for auto-generated tasks
+export interface LinkedActivity {
+  projectId: string;
+  shipmentType: string;
+  stage: string;
+  substage: string;
+  task?: string;
+}
+
 // Clearance Stage (replaces Activity)
 export interface ClearanceStage {
   shipmentType: string;
@@ -37,22 +46,8 @@ export interface Task {
   hours?: number | null;
   overtime?: number | null;
   projectId?: string | null;
-  // New: Linked Stage for custom clearance
-  linkedStage?: {
-    projectId: string;
-    shipmentType: string;
-    stage: string;
-    substage: string;
-    task: string;
-  } | null;
-  // Legacy: Linked Activity for backward compatibility
-  linkedActivity?: {
-    projectId: string;
-    system: string;
-    category: string;
-    subcategory: string;
-    activity: string;
-  } | null;
+  // Linked Activity - stores origin stage info for auto-generated tasks
+  linkedActivity?: LinkedActivity | null;
   assignedTo?: string[];
   createdAt?: Date;
   updatedAt?: Date;

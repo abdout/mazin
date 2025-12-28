@@ -5,6 +5,7 @@ import { LanguageToggle } from "@/components/template/site-header/language-toggl
 import { ModeToggle } from "@/components/atom/mode-toggle"
 import { IconPackage, IconTruck, IconShip, IconMapPin } from "@tabler/icons-react"
 import Link from "next/link"
+import Image from "next/image"
 
 interface TrackingPageProps {
   params: Promise<{ lang: string }>
@@ -15,16 +16,43 @@ export default async function TrackingEntryPage({ params }: TrackingPageProps) {
   const lang = langParam as Locale
   const dict = await getDictionary(lang)
 
+  const features = [
+    {
+      id: "sea",
+      icon: IconShip,
+      title: dict.tracking.seaTracking,
+      description: dict.tracking.seaTrackingDesc,
+    },
+    {
+      id: "land",
+      icon: IconTruck,
+      title: dict.tracking.landTracking,
+      description: dict.tracking.landTrackingDesc,
+    },
+    {
+      id: "live",
+      icon: IconMapPin,
+      title: dict.tracking.liveUpdates,
+      description: dict.tracking.liveUpdatesDesc,
+    },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background/80 backdrop-blur-sm">
+      <header className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href={`/${lang}`} className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <IconPackage className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">{dict.common.appName}</span>
+            <Image
+              src="/logo.png"
+              alt={dict.common.appName}
+              width={32}
+              height={32}
+              className="h-8 w-8"
+            />
+            <span className="text-xl font-bold text-foreground">
+              {dict.common.appName}
+            </span>
           </Link>
           <div className="flex items-center gap-2">
             <LanguageToggle />
@@ -34,88 +62,68 @@ export default async function TrackingEntryPage({ params }: TrackingPageProps) {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-16">
-        <div className="mx-auto max-w-2xl">
-          {/* Hero Section */}
-          <div className="text-center">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-              <IconPackage className="h-10 w-10 text-primary" />
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              {dict.tracking.publicTitle}
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-              {dict.tracking.publicSubtitle}
-            </p>
-          </div>
+      <main className="container mx-auto px-4 py-10">
+        {/* Hero Section */}
+        <div className="text-center my-12">
+          <h1 className="text-3xl md:text-5xl text-foreground font-bold mb-6">
+            {dict.tracking.publicTitle}
+          </h1>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            {dict.tracking.publicSubtitle}
+          </p>
+        </div>
 
-          {/* Search Form */}
-          <div className="mt-10">
-            <TrackingSearchForm
-              dictionary={dict}
-              locale={lang}
-            />
-          </div>
+        {/* Search Form */}
+        <div className="max-w-xl mx-auto">
+          <TrackingSearchForm
+            dictionary={dict}
+            locale={lang}
+          />
+        </div>
 
-          {/* Features */}
-          <div className="mt-16 grid gap-6 sm:grid-cols-3">
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <IconShip className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+        {/* Feature Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-16">
+          {features.map((feature) => (
+            <div
+              key={feature.id}
+              className="py-4 text-center"
+            >
+              <div className="flex justify-center items-center mb-6 h-20">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                  <feature.icon className="h-8 w-8 text-foreground" />
+                </div>
               </div>
-              <h3 className="mt-3 font-semibold">
-                {dict.tracking.seaTracking}
+              <h3 className="text-xl font-semibold text-foreground">
+                {feature.title}
               </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {dict.tracking.seaTrackingDesc}
+              <p className="text-muted-foreground text-sm mt-2 max-w-xs mx-auto">
+                {feature.description}
               </p>
             </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                <IconTruck className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="mt-3 font-semibold">
-                {dict.tracking.landTracking}
-              </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {dict.tracking.landTrackingDesc}
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
-                <IconMapPin className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-              </div>
-              <h3 className="mt-3 font-semibold">
-                {dict.tracking.liveUpdates}
-              </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {dict.tracking.liveUpdatesDesc}
-              </p>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          {/* Example tracking numbers */}
-          <div className="mt-12 rounded-lg border bg-card p-6">
-            <h3 className="font-semibold">
-              {dict.tracking.demoNumbers}
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {dict.tracking.demoNumbersDesc}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link
-                href={`/${lang}/track/TRK-ABC123`}
-                className="rounded-md bg-muted px-3 py-1.5 text-sm font-mono hover:bg-muted/80 transition-colors"
-              >
-                TRK-ABC123
-              </Link>
-              <Link
-                href={`/${lang}/track/TRK-XYZ789`}
-                className="rounded-md bg-muted px-3 py-1.5 text-sm font-mono hover:bg-muted/80 transition-colors"
-              >
-                TRK-XYZ789
-              </Link>
-            </div>
+        {/* Demo Numbers Section */}
+        <div className="mt-12 border rounded-lg p-6 max-w-xl mx-auto">
+          <h3 className="font-semibold text-foreground">
+            {dict.tracking.demoNumbers}
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {dict.tracking.demoNumbersDesc}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href={`/${lang}/track/TRK-ABC123`}
+              className="rounded-md bg-muted px-3 py-1.5 text-sm font-mono text-foreground hover:bg-muted/80 transition-colors"
+            >
+              TRK-ABC123
+            </Link>
+            <Link
+              href={`/${lang}/track/TRK-XYZ789`}
+              className="rounded-md bg-muted px-3 py-1.5 text-sm font-mono text-foreground hover:bg-muted/80 transition-colors"
+            >
+              TRK-XYZ789
+            </Link>
           </div>
         </div>
       </main>

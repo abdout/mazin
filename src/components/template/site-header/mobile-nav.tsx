@@ -35,6 +35,7 @@ export function MobileNav({ items, className, dictionary }: MobileNavProps) {
     () => [
       { href: `/${locale}/about`, label: t.about },
       { href: `/${locale}/services`, label: t.services },
+      { href: `/${locale}/track`, label: t.track },
       { href: `/${locale}/blog`, label: t.blog },
       { href: `/${locale}/dashboard`, label: t.platform },
     ],

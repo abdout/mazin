@@ -1,0 +1,127 @@
+// Shipment and Tracking Models
+// This file contains models for shipment management and tracking
+
+model Shipment {
+  id             String         @id @default(cuid())
+  shipmentNumber String         @unique
+  trackingNumber String?        @unique // Public tracking number (TRK-XXXXXX)
+  trackingSlug   String?        @unique // URL-safe slug for public tracking
+  type           ShipmentType
+  status         ShipmentStatus @default(PENDING)
+
+  // Cargo details
+  description     String
+  weight          Decimal? @db.Decimal(10, 2)
+  quantity        Int?
+  containerNumber String?
+  vesselName      String?
+
+  // Parties
+  consignor String // Shipper
+  consignee String // Receiver
+
+  // Dates
+  arrivalDate   DateTime?
+  departureDate DateTime?
+
+  // Public tracking settings
+  publicTrackingEnabled Boolean @default(true)
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Project relation (1:1 - shipment is auto-created with project)
+  projectId String?  @unique
+  project   Project? @relation("ProjectShipment", fields: [projectId], references: [id])
+
+  // Client relation
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  declarations   CustomsDeclaration[]
+  invoices       Invoice[]
+  trackingStages TrackingStage[]
+  stageInvoices  StageInvoice[]
+  notifications  Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shipmentNumber])
+  @@index([trackingNumber])
+  @@index([trackingSlug])
+  @@index([status])
+  @@index([userId])
+  @@index([clientId])
+  @@index([createdAt])
+  @@map("shipments")
+}
+
+enum ShipmentType {
+  IMPORT
+  EXPORT
+}
+
+enum ShipmentStatus {
+  PENDING
+  IN_TRANSIT
+  ARRIVED
+  CLEARED
+  DELIVERED
+}
+
+// ============================================
+// Tracking Stage Model
+// ============================================
+
+model TrackingStage {
+  id         String              @id @default(cuid())
+  shipmentId String
+  shipment   Shipment            @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  stageType  TrackingStageType
+  status     TrackingStageStatus @default(PENDING)
+
+  // Timestamps
+  startedAt   DateTime? // When stage was started
+  completedAt DateTime? // When stage was completed
+  estimatedAt DateTime? // ETA for this stage
+
+  // Metadata
+  notes       String? // Staff notes for this stage
+  updatedById String? // User who last updated this stage
+
+  // Payment tracking for this stage
+  paymentRequested Boolean @default(false) // Invoice sent for this stage
+  paymentReceived  Boolean @default(false) // Payment received
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shipmentId, stageType])
+  @@index([shipmentId])
+  @@index([status])
+  @@index([paymentRequested])
+  @@map("tracking_stages")
+}
+
+enum TrackingStageType {
+  PRE_ARRIVAL_DOCS
+  VESSEL_ARRIVAL
+  CUSTOMS_DECLARATION
+  CUSTOMS_PAYMENT
+  INSPECTION
+  PORT_FEES
+  QUALITY_STANDARDS
+  RELEASE
+  LOADING
+  IN_TRANSIT
+  DELIVERED
+}
+
+enum TrackingStageStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}

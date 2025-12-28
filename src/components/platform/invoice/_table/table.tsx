@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { Plus } from "lucide-react"
+import type { Shipment } from "@prisma/client"
 
 import { Button } from "@/components/ui/button"
 import type { Dictionary, Locale } from "@/components/internationalization"
@@ -15,6 +15,7 @@ import { updateInvoiceStatus, deleteInvoice } from "@/actions/invoice"
 import { getInvoiceColumns, type InvoiceWithRelations } from "./columns"
 import { InvoiceCard } from "./card"
 import { InvoiceActionBar } from "./action-bar"
+import { InvoiceModal } from "../invoice-modal"
 import type { getInvoices, getInvoiceStatusCounts, getInvoiceTotalRange } from "./queries"
 
 interface InvoicesTableProps {
@@ -27,15 +28,20 @@ interface InvoicesTableProps {
   >
   dictionary: Dictionary
   locale: Locale
+  shipments?: Shipment[]
 }
 
 export function InvoicesTable({
   promises,
   dictionary,
   locale,
+  shipments = [],
 }: InvoicesTableProps) {
   // Unwrap promises with React.use
   const [{ data, pageCount }, statusCounts, totalRange] = React.use(promises)
+
+  // Modal state for create/edit
+  const [modalOpen, setModalOpen] = React.useState(false)
 
   // Row action state (for update/delete dialogs)
   const [rowAction, setRowAction] =
@@ -68,6 +74,7 @@ export function InvoicesTable({
     initialState: {
       sorting: [{ id: "createdAt", desc: true }],
       columnPinning: { right: ["actions"] },
+      columnVisibility: { currency: false },
     },
     getRowId: (row) => row.id,
     shallow: false,
@@ -91,12 +98,14 @@ export function InvoicesTable({
           showViewToggle: true,
           showExport: true,
           customActions: (
-            <Link href={`/${locale}/invoice/new`}>
-              <Button size="sm">
-                <Plus className="h-4 w-4 me-1" />
-                {dictionary.invoices?.newInvoice || "New Invoice"}
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onClick={() => setModalOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           ),
         }}
         exportConfig={{
@@ -126,7 +135,15 @@ export function InvoicesTable({
         emptyMessage={dictionary.invoices?.noInvoices || "No invoices found."}
       />
 
-      {/* Delete confirmation dialog can be added here if needed */}
+      {/* Invoice Create/Edit Modal */}
+      <InvoiceModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        dictionary={dictionary}
+        locale={locale}
+        shipments={shipments}
+        mode="create"
+      />
     </>
   )
 }

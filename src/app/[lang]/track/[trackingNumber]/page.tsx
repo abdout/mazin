@@ -5,7 +5,6 @@ import { getPublicTracking } from "@/actions/tracking"
 import { TrackingHeader, TrackingTimeline } from "@/components/platform/tracking"
 import { LanguageToggle } from "@/components/template/site-header/language-toggle"
 import { ModeToggle } from "@/components/atom/mode-toggle"
-import { IconPackage } from "@tabler/icons-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -26,7 +25,7 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
   }
 
   // Convert stages to TrackingStage format for timeline
-  const stages = trackingData.stages.map((stage, index) => ({
+  const stages = trackingData.stages.map((stage) => ({
     id: `${trackingNumber}-${stage.stageType}`,
     shipmentId: "",
     stageType: stage.stageType,
@@ -36,6 +35,8 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
     estimatedAt: stage.estimatedAt,
     notes: null,
     updatedById: null,
+    paymentRequested: false,
+    paymentReceived: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   }))
@@ -46,10 +47,16 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href={`/${lang}`} className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <IconPackage className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">{dict.common.appName}</span>
+            <Image
+              src="/logo.png"
+              alt={dict.common.appName}
+              width={32}
+              height={32}
+              className="h-8 w-8"
+            />
+            <span className="text-xl font-bold text-foreground">
+              {dict.common.appName}
+            </span>
           </Link>
           <div className="flex items-center gap-4">
             <Link
@@ -65,36 +72,57 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-8 md:flex-row md:gap-12">
-          {/* Left: Box Image */}
-          <div className="flex items-start justify-center md:w-2/5 md:sticky md:top-24 md:self-start">
+      <main className="container mx-auto px-4 md:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {/* Left Column - Package Image */}
+          <div className="flex flex-col justify-start items-center md:items-start">
             <Image
               src="/box.png"
               alt="Package"
-              width={400}
-              height={400}
-              className="w-48 md:w-full max-w-xs"
+              width={250}
+              height={250}
+              className="w-48 md:w-full max-w-[250px] h-auto object-contain"
               priority
             />
-          </div>
 
-          {/* Right: Tracking Details */}
-          <div className="flex-1 space-y-8">
-            {/* Page Title */}
-            <div className="text-center md:text-start">
-              <h1 className="text-3xl font-bold">{dict.tracking.publicTitle}</h1>
-              <p className="mt-2 text-muted-foreground">
-                {dict.tracking.trackingNumber}: {trackingNumber}
-              </p>
+            {/* Status Badge */}
+            <div className="mt-6 text-center md:text-start">
+              <span className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+                {trackingData.currentStage}
+              </span>
             </div>
 
-            {/* Tracking Header with info */}
-            <TrackingHeader data={trackingData} dictionary={dict} locale={lang} />
+            {/* Back to Track Link */}
+            <Link
+              href={`/${lang}/track`}
+              className="mt-4 px-6 py-3 rounded-full font-bold border border-input text-foreground hover:bg-muted transition-colors text-sm"
+            >
+              {dict.common.back}
+            </Link>
+          </div>
 
-            {/* Timeline */}
-            <div className="rounded-lg border bg-card p-6">
-              <h2 className="mb-6 text-xl font-semibold">{dict.tracking.title}</h2>
+          {/* Right Columns (span 2) - Tracking Details */}
+          <div className="md:col-span-2">
+            <h1 className="text-4xl font-bold text-foreground">
+              {dict.tracking.publicTitle}
+            </h1>
+            <h2 className="text-2xl text-muted-foreground mt-2 font-mono">
+              {trackingNumber}
+            </h2>
+
+            {/* Shipment Info Section */}
+            <div className="mt-8 border-t pt-6">
+              <h3 className="text-xl text-foreground font-semibold mb-4">
+                {dict.tracking.shipmentInfo}
+              </h3>
+              <TrackingHeader data={trackingData} dictionary={dict} locale={lang} />
+            </div>
+
+            {/* Timeline Section */}
+            <div className="mt-8 border-t pt-6">
+              <h3 className="text-xl text-foreground font-semibold mb-4">
+                {dict.tracking.title}
+              </h3>
               <TrackingTimeline stages={stages} dictionary={dict} locale={lang} />
             </div>
           </div>

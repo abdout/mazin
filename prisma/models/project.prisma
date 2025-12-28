@@ -1,0 +1,66 @@
+// Project Model (Clearance Jobs)
+// This file contains the Project model for customs clearance operations
+
+model Project {
+  id          String          @id @default(cuid())
+  customer    String          // Customer/Importer name (legacy field for display)
+  blAwbNumber String?         // Bill of Lading / AWB
+  description String?         @db.Text
+  status      ProjectStatus   @default(PENDING)
+  priority    ProjectPriority @default(MEDIUM)
+
+  // Shipment info
+  systems           String[] @default([]) // Shipment types (stored as JSON array)
+  activities        Json?    // Stage activities (JSON array)
+  portOfOrigin      String?
+  portOfDestination String?
+
+  // Team
+  teamLead String?
+  team     String[] @default([]) // Team member IDs
+
+  // Dates
+  startDate DateTime?
+  endDate   DateTime?
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Client relation (proper foreign key)
+  customerId String?
+  client     Client? @relation(fields: [customerId], references: [id])
+
+  // Shipment relation (1:1 - shipment is auto-created with project)
+  shipment Shipment? @relation("ProjectShipment")
+
+  // Tasks for this project
+  tasks Task[]
+
+  // Notifications for this project
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customer])
+  @@index([status])
+  @@index([userId])
+  @@index([customerId])
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  PENDING
+  IN_PROGRESS
+  CUSTOMS_HOLD
+  RELEASED
+  DELIVERED
+}
+
+enum ProjectPriority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}

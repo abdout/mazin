@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Download } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,11 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { Dictionary } from "@/components/internationalization/types"
 
 export interface ExportButtonProps extends Omit<React.ComponentProps<typeof Button>, "onClick"> {
   data?: unknown[]
   filename?: string
   onExport?: (format: "csv" | "json" | "xlsx") => void
+  iconOnly?: boolean
+  dictionary?: Dictionary
 }
 
 export function ExportButton({
@@ -22,6 +26,9 @@ export function ExportButton({
   onExport,
   variant = "outline",
   size = "sm",
+  iconOnly = false,
+  dictionary,
+  className,
   ...props
 }: ExportButtonProps) {
   const handleExport = (format: "csv" | "json" | "xlsx") => {
@@ -69,17 +76,22 @@ export function ExportButton({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={variant} size={size} {...props}>
-          <Download className="mr-2 h-4 w-4" />
-          Export
+        <Button
+          variant={variant}
+          size={iconOnly ? "icon" : size}
+          className={cn(iconOnly && "rounded-full", className)}
+          {...props}
+        >
+          <Download className={cn("h-4 w-4", !iconOnly && "me-2")} />
+          {!iconOnly && (dictionary?.common?.export ?? "Export")}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => handleExport("csv")}>
-          Export as CSV
+          {dictionary?.common?.exportAsCsv ?? "Export as CSV"}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleExport("json")}>
-          Export as JSON
+          {dictionary?.common?.exportAsJson ?? "Export as JSON"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

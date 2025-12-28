@@ -15,6 +15,7 @@ model User {
   name                  String?
   password              String?
   image                 String?
+  phone                 String?                // Phone number for notifications
   role                  UserRole               @default(CLERK)
   isTwoFactorEnabled    Boolean                @default(false)
 
@@ -22,6 +23,7 @@ model User {
   sessions              Session[]
   twoFactorConfirmation TwoFactorConfirmation?
 
+  // Business relations
   shipments       Shipment[]
   invoices        Invoice[]
   declarations    CustomsDeclaration[]
@@ -29,6 +31,13 @@ model User {
   companySettings CompanySettings?
   projects        Project[]
   tasks           Task[]
+
+  // Notification relations
+  notifications          Notification[]         @relation("UserNotifications")
+  notificationPreference NotificationPreference?
+
+  // Assignment rules (when assigning to specific user)
+  assignmentRules TaskAssignmentRule[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,0 +1,67 @@
+// Customs Declaration Models
+// This file contains models for customs declarations and documents
+
+model CustomsDeclaration {
+  id            String            @id @default(cuid())
+  declarationNo String            @unique
+  status        DeclarationStatus @default(DRAFT)
+
+  hsCode     String?
+  dutyAmount Decimal? @db.Decimal(15, 2)
+  taxAmount  Decimal? @db.Decimal(15, 2)
+  currency   String   @default("SDG")
+  notes      String?
+
+  // Relations
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  documents Document[]
+
+  approvedAt DateTime?
+  approvedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([declarationNo])
+  @@index([status])
+  @@index([shipmentId])
+  @@map("customs_declarations")
+}
+
+enum DeclarationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model Document {
+  id       String       @id @default(cuid())
+  fileName String
+  fileUrl  String
+  fileType DocumentType
+  fileSize Int?
+
+  declarationId String
+  declaration   CustomsDeclaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  BILL_OF_LADING
+  COMMERCIAL_INVOICE
+  PACKING_LIST
+  CERTIFICATE_OF_ORIGIN
+  INSURANCE_CERTIFICATE
+  OTHER
+}

@@ -3,7 +3,9 @@
 import { cn } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { STAGE_ICONS, STAGE_CONFIG, STATUS_STYLES } from "@/lib/tracking"
+import { Button } from "@/components/ui/button"
+import { IconCash, IconCheck, IconClock } from "@tabler/icons-react"
+import { STAGE_ICONS, STAGE_CONFIG, STATUS_STYLES, isPayableStage } from "@/lib/tracking"
 import type { TrackingStage, TrackingStageType, TrackingStageStatus } from "@prisma/client"
 import type { Dictionary } from "@/components/internationalization/types"
 import { formatTrackingDate, getRelativeTime } from "@/lib/tracking"
@@ -13,6 +15,8 @@ interface TrackingStageItemProps {
   isLast: boolean
   dictionary: Dictionary
   locale: string
+  showPaymentControls?: boolean
+  onRequestPayment?: (stageId: string, stageType: TrackingStageType) => void
 }
 
 export function TrackingStageItem({
@@ -20,12 +24,15 @@ export function TrackingStageItem({
   isLast,
   dictionary,
   locale,
+  showPaymentControls = false,
+  onRequestPayment,
 }: TrackingStageItemProps) {
   const Icon = STAGE_ICONS[stage.stageType]
   const config = STAGE_CONFIG[stage.stageType]
   const styles = STATUS_STYLES[stage.status]
   const isActive = stage.status === "IN_PROGRESS"
   const isCompleted = stage.status === "COMPLETED"
+  const canRequestPayment = isPayableStage(stage.stageType) && showPaymentControls
 
   return (
     <div className="relative flex gap-4 pb-8 last:pb-0">
@@ -95,6 +102,34 @@ export function TrackingStageItem({
           {stage.notes && (
             <div className="mt-3 rounded-md bg-muted p-2 text-sm">
               <span className="font-medium">{dictionary.tracking.notes}:</span> {stage.notes}
+            </div>
+          )}
+
+          {/* Payment Section */}
+          {canRequestPayment && (
+            <div className="mt-4 flex flex-wrap items-center gap-3 border-t pt-3">
+              {/* Payment Status Badges */}
+              {stage.paymentReceived ? (
+                <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                  <IconCheck className="me-1 h-3 w-3" />
+                  {dictionary.tracking.paymentReceived}
+                </Badge>
+              ) : stage.paymentRequested ? (
+                <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                  <IconClock className="me-1 h-3 w-3" />
+                  {dictionary.tracking.paymentRequested}
+                </Badge>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onRequestPayment?.(stage.id, stage.stageType)}
+                  className="gap-1"
+                >
+                  <IconCash className="h-4 w-4" />
+                  {dictionary.tracking.requestPayment}
+                </Button>
+              )}
             </div>
           )}
         </CardContent>

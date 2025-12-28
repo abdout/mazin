@@ -36,6 +36,7 @@ import { seedUsers } from "./auth"
 import { seedClients } from "./clients"
 import { seedDeclarations } from "./declarations"
 import { seedInvoices } from "./invoices"
+import { seedProjects } from "./projects"
 import { seedSettings } from "./settings"
 import { seedShipments } from "./shipments"
 import type { SeedContext } from "./types"
@@ -122,6 +123,16 @@ async function main() {
     context.invoices = invoices
 
     // ========================================================================
+    // PHASE 7: PROJECTS
+    // ========================================================================
+    logPhase(7, "PROJECTS")
+
+    const projects = await measureDuration("Projects", () =>
+      seedProjects(prisma, users)
+    )
+    context.projects = projects
+
+    // ========================================================================
     // COMPLETION
     // ========================================================================
     logSummary(startTime, {
@@ -132,6 +143,7 @@ async function main() {
       "Tracking Stages": 22, // 11 per shipment
       Declarations: declarations.length,
       Invoices: invoices.length,
+      Projects: projects.length,
     })
 
     console.log("\n📋 Test Credentials:")

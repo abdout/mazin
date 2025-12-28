@@ -219,7 +219,7 @@ function DataTableEnhancedInner<TData>({
 
             {/* Export button */}
             {toolbar.showExport && exportConfig && (
-              <ExportButton {...exportConfig} variant="outline" size="sm" />
+              <ExportButton {...exportConfig} variant="outline" iconOnly />
             )}
 
             {/* View toggle */}

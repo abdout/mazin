@@ -9,6 +9,7 @@ import { Task } from './type'
 import TaskForm from './form'
 import DeleteTask from './delete'
 import { TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from './constant'
+import type { Dictionary } from '@/components/internationalization/types'
 
 // TeamCell component to display team members with rounded images
 const TeamCell: React.FC = () => {
@@ -119,8 +120,8 @@ const PriorityCircle: React.FC<PriorityCircleProps> = ({ priority }) => {
   );
 };
 
-// Construct the columns with a function that accepts the onTaskUpdate callback
-export const getColumns = (onTaskUpdate?: () => Promise<void>): ColumnDef<Task>[] => [
+// Construct the columns with a function that accepts the onTaskUpdate callback and dictionary
+export const getColumns = (onTaskUpdate?: () => Promise<void>, dictionary?: Dictionary): ColumnDef<Task>[] => [
   {
     accessorKey: 'task',
     header: ({ column }) => {
@@ -130,15 +131,15 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>): ColumnDef<Task>[
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Task
-          <ArrowUpDown className='ml-2 h-4 w-4' />
+          {dictionary?.task?.task ?? 'Task'}
+          <ArrowUpDown className='ms-2 h-4 w-4' />
         </Button>
       )
     },
     cell: ({ row }) => {
       const task = row.getValue('task') as string;
       const tag = row.original.tag;
-      
+
       return (
         <div className="flex items-center gap-2">
           <span>{task}</span>
@@ -160,24 +161,40 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>): ColumnDef<Task>[
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Project
-          <ArrowUpDown className='ml-2 h-4 w-4' />
+          {dictionary?.task?.project ?? 'Project'}
+          <ArrowUpDown className='ms-2 h-4 w-4' />
         </Button>
       )
     }
   },
   {
+    accessorKey: 'linkedActivity',
+    header: () => <div>{dictionary?.task?.stage ?? 'Stage'}</div>,
+    cell: ({ row }) => {
+      const linkedActivity = row.original.linkedActivity;
+      if (!linkedActivity) {
+        return <span className="text-muted-foreground text-xs">{dictionary?.task?.manual ?? 'Manual'}</span>;
+      }
+      return (
+        <div className="flex flex-col gap-0.5">
+          <span className="text-xs font-medium">{linkedActivity.stage}</span>
+          <span className="text-xs text-muted-foreground">{linkedActivity.shipmentType}</span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: 'club',
-    header: () => <div>Team</div>,
+    header: () => <div>{dictionary?.task?.team ?? 'Team'}</div>,
     cell: () => <TeamCell />
   },
   {
     accessorKey: 'status',
-    header: () => <div>Status</div>,
+    header: () => <div>{dictionary?.task?.status ?? 'Status'}</div>,
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
       const statusLabel = TASK_STATUS_LABELS[status as keyof typeof TASK_STATUS_LABELS] || status;
-      
+
       return (
         <div className="flex items-center gap-2">
           <StatusCircle status={status} />
@@ -188,11 +205,11 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>): ColumnDef<Task>[
   },
   {
     accessorKey: 'priority',
-    header: () => <div>Priority</div>,
+    header: () => <div>{dictionary?.task?.priority ?? 'Priority'}</div>,
     cell: ({ row }) => {
       const priority = row.getValue('priority') as string;
       const priorityLabel = TASK_PRIORITY_LABELS[priority as keyof typeof TASK_PRIORITY_LABELS] || priority;
-      
+
       return (
         <div className="flex items-center gap-2">
           <PriorityCircle priority={priority} />
@@ -203,22 +220,22 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>): ColumnDef<Task>[
   },
   {
     accessorKey: 'duration',
-    header: () => <div className="text-center">Duration</div>,
+    header: () => <div className="text-center">{dictionary?.task?.duration ?? 'Duration'}</div>,
     cell: ({ row }) => (
       <div className="flex justify-center w-full">
-        <span>{row.getValue('duration')} hr</span>
+        <span>{row.getValue('duration')} {dictionary?.task?.hours ?? 'hr'}</span>
       </div>
     ),
   },
   {
     accessorKey: 'remark',
-    header: () => <div>Remarks</div>,
+    header: () => <div>{dictionary?.task?.remarks ?? 'Remarks'}</div>,
   },
   {
     accessorKey: 'actions',
-    header: () => <div className="text-center w-full pl-8">Actions</div>,
+    header: () => <div className="text-center w-full ps-8">{dictionary?.common?.actions ?? 'Actions'}</div>,
     cell: ({ row }) => (
-      <div className="pl-8">
+      <div className="ps-8">
         <ActionsCell row={row} onTaskUpdate={onTaskUpdate} />
       </div>
     ),

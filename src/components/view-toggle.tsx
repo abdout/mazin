@@ -25,21 +25,17 @@ export function ViewToggle({
   const handleChange = onChange ?? onViewChange ?? (() => {})
 
   return (
-    <div className="flex items-center gap-1">
-      <Button
-        variant={currentView === "table" ? "secondary" : "ghost"}
-        size="icon"
-        onClick={() => handleChange("table")}
-      >
-        <List className="h-4 w-4" />
-      </Button>
-      <Button
-        variant={currentView === "grid" ? "secondary" : "ghost"}
-        size="icon"
-        onClick={() => handleChange("grid")}
-      >
+    <Button
+      variant="outline"
+      size="icon"
+      className="rounded-full"
+      onClick={() => handleChange(currentView === "table" ? "grid" : "table")}
+    >
+      {currentView === "table" ? (
         <LayoutGrid className="h-4 w-4" />
-      </Button>
-    </div>
+      ) : (
+        <List className="h-4 w-4" />
+      )}
+    </Button>
   )
 }

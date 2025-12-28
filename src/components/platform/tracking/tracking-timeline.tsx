@@ -2,16 +2,24 @@
 
 import { STAGE_ORDER, STAGE_CONFIG, getProgress } from "@/lib/tracking"
 import { TrackingStageItem } from "./tracking-stage-item"
-import type { TrackingStage } from "@prisma/client"
+import type { TrackingStage, TrackingStageType } from "@prisma/client"
 import type { Dictionary } from "@/components/internationalization/types"
 
 interface TrackingTimelineProps {
   stages: TrackingStage[]
   dictionary: Dictionary
   locale: string
+  showPaymentControls?: boolean
+  onRequestPayment?: (stageId: string, stageType: TrackingStageType) => void
 }
 
-export function TrackingTimeline({ stages, dictionary, locale }: TrackingTimelineProps) {
+export function TrackingTimeline({
+  stages,
+  dictionary,
+  locale,
+  showPaymentControls = false,
+  onRequestPayment,
+}: TrackingTimelineProps) {
   // Sort stages by order
   const sortedStages = [...stages].sort(
     (a, b) => STAGE_CONFIG[a.stageType].order - STAGE_CONFIG[b.stageType].order
@@ -46,6 +54,8 @@ export function TrackingTimeline({ stages, dictionary, locale }: TrackingTimelin
             isLast={index === sortedStages.length - 1}
             dictionary={dictionary}
             locale={locale}
+            showPaymentControls={showPaymentControls}
+            onRequestPayment={onRequestPayment}
           />
         ))}
       </div>

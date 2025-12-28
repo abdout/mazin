@@ -42,6 +42,17 @@ export interface SettingsRef {
   companyName: string
 }
 
+export interface ProjectRef {
+  id: string
+  customer: string
+}
+
+export interface TaskRef {
+  id: string
+  task: string
+  projectId?: string
+}
+
 // ============================================================================
 // Seed Context
 // ============================================================================
@@ -54,6 +65,7 @@ export interface SeedContext {
   declarations: DeclarationRef[]
   clients: ClientRef[]
   settings: SettingsRef[]
+  projects: ProjectRef[]
 }
 
 export type PartialSeedContext = Partial<SeedContext> & {

@@ -34,7 +34,16 @@ const Detail = ({ params }: { params: Params | Promise<Params> }) => {
         const result = await getProject(id);
         
         if (result.success && result.project) {
-          setProject(result.project);
+          // Map Prisma result to Project type (client object -> client string)
+          const mappedProject: Project = {
+            ...result.project,
+            client: typeof result.project.client === 'object' && result.project.client !== null
+              ? (result.project.client as { companyName?: string }).companyName
+              : result.project.customer || undefined,
+            activities: result.project.activities ?? undefined,
+            tasks: result.project.tasks ?? undefined,
+          } as Project;
+          setProject(mappedProject);
         } else {
           setError(result.error || "Failed to load project");
           toast.error(result.error || "Failed to load project");

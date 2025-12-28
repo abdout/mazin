@@ -29,13 +29,23 @@
     "createdAt": "تاريخ الإنشاء",
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
-    "update": "تحديث"
+    "update": "تحديث",
+    "export": "تصدير",
+    "exportAsCsv": "تصدير كـ CSV",
+    "exportAsJson": "تصدير كـ JSON",
+    "reset": "إعادة تعيين",
+    "clear": "مسح",
+    "columns": "الأعمدة",
+    "sync": "مزامنة",
+    "syncing": "جاري المزامنة...",
+    "areYouSure": "هل أنت متأكد؟"
   },
   "header": {
     "services": "الخدمات",
     "blog": "المدونة",
     "about": "عن الشركة",
     "platform": "المنصة",
+    "track": "تتبع",
     "signUp": "تسجيل",
     "login": "دخول"
   },
@@ -345,6 +355,15 @@
   },
   "task": {
     "title": "المهام",
+    "task": "المهمة",
+    "project": "المشروع",
+    "stage": "المرحلة",
+    "team": "الفريق",
+    "status": "الحالة",
+    "priority": "الأولوية",
+    "remarks": "ملاحظات",
+    "hours": "ساعة",
+    "manual": "يدوي",
     "newTask": "مهمة جديدة",
     "editTask": "تعديل المهمة",
     "taskName": "اسم المهمة",
@@ -353,20 +372,82 @@
     "duration": "المدة",
     "assignedTo": "مسند إلى",
     "dueDate": "تاريخ الاستحقاق",
+    "fetchError": "فشل في جلب المهام",
+    "syncError": "فشل في مزامنة المشاريع مع المهام",
+    "syncCompleted": "تمت المزامنة",
+    "syncing": "جاري المزامنة...",
+    "syncWithProjects": "مزامنة مع المشاريع",
+    "searchPlaceholder": "البحث باسم المهمة...",
+    "filterOptions": "خيارات التصفية",
     "nav": {
-      "all": "الكل"
+      "all": "الكل",
+      "pending": "معلق",
+      "inProgress": "قيد التنفيذ",
+      "done": "مكتمل"
     },
     "statuses": {
       "PENDING": "معلق",
       "STUCK": "متوقف",
       "IN_PROGRESS": "قيد التنفيذ",
-      "DONE": "مكتمل"
+      "DONE": "مكتمل",
+      "CANCELLED": "ملغي"
     },
     "priorities": {
       "URGENT": "عاجل",
       "HIGH": "عالي",
       "MEDIUM": "متوسط",
-      "LOW": "منخفض"
+      "LOW": "منخفض",
+      "NEUTRAL": "محايد"
+    }
+  },
+  "team": {
+    "title": "الفريق",
+    "description": "إدارة أعضاء فريقك",
+    "addMember": "إضافة عضو",
+    "editMember": "تعديل العضو",
+    "member": "عضو",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "role": "الدور",
+    "status": "الحالة",
+    "phone": "الهاتف",
+    "department": "القسم",
+    "joinedAt": "تاريخ الانضمام",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "searchPlaceholder": "البحث عن أعضاء الفريق...",
+    "filterByRole": "تصفية حسب الدور",
+    "filterByStatus": "تصفية حسب الحالة",
+    "noResults": "لم يتم العثور على أعضاء",
+    "actions": "إجراءات",
+    "copyEmail": "نسخ البريد الإلكتروني",
+    "changeRole": "تغيير الدور",
+    "deactivate": "إلغاء التنشيط",
+    "activate": "تنشيط",
+    "nav": {
+      "all": "الكل",
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "columns": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "phone": "الهاتف",
+      "status": "الحالة",
+      "department": "القسم",
+      "joinedAt": "تاريخ الانضمام",
+      "actions": "إجراءات"
+    },
+    "statuses": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط"
+    },
+    "roles": {
+      "ADMIN": "مدير",
+      "MANAGER": "مشرف",
+      "CLERK": "موظف",
+      "VIEWER": "مشاهد"
     }
   },
   "validation": {
@@ -957,6 +1038,10 @@
     "notes": "ملاحظات",
     "noNotes": "لا توجد ملاحظات",
     "addNotes": "أضف ملاحظات لهذه المرحلة...",
-    "stageOf": "المرحلة {current} من {total}"
+    "stageOf": "المرحلة {current} من {total}",
+    "paymentRequested": "تم طلب الدفع",
+    "paymentReceived": "تم استلام الدفع",
+    "requestPayment": "طلب الدفع",
+    "paymentPending": "الدفع معلق"
   }
 }

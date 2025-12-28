@@ -24,6 +24,7 @@ export function MainNav({ dictionary, className }: MainNavProps) {
     () => [
       { title: t.about, href: `/${locale}/about` },
       { title: t.services, href: `/${locale}/services` },
+      { title: t.track, href: `/${locale}/track` },
       { title: t.blog, href: `/${locale}/blog` },
       { title: t.platform, href: `/${locale}/dashboard` },
     ],

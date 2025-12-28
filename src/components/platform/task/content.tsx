@@ -217,7 +217,7 @@ export function Content<TData, TValue>({ columns, data, onTasksChange, onRowClic
                     <Icon icon="lucide:filter" className="size-3" />
                     Status
                     {!!statusColumn?.getFilterValue() && (
-                      <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs font-medium">
+                      <span className="ms-1 rounded-full bg-primary/10 px-1.5 text-xs font-medium">
                         1
                       </span>
                     )}
@@ -252,7 +252,7 @@ export function Content<TData, TValue>({ columns, data, onTasksChange, onRowClic
                     <Icon icon="lucide:filter" className="size-3" />
                     Priority
                     {!!priorityColumn?.getFilterValue() && (
-                      <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs font-medium">
+                      <span className="ms-1 rounded-full bg-primary/10 px-1.5 text-xs font-medium">
                         1
                       </span>
                     )}
@@ -277,7 +277,7 @@ export function Content<TData, TValue>({ columns, data, onTasksChange, onRowClic
             )}
 
             {/* Column visibility dropdown */}
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ms-auto flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -309,7 +309,7 @@ export function Content<TData, TValue>({ columns, data, onTasksChange, onRowClic
               </DropdownMenu>
 
               {/* Sync Button */}
-              <div className='pl-2'>
+              <div className='ps-2'>
               <Button
                 variant="outline"
                 className="h-9 px-3  gap-2 reveal"

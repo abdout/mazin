@@ -18,12 +18,13 @@ import {
 // ============================================
 
 /**
- * Get public tracking data by tracking number (no auth required)
+ * Get public tracking data by tracking number or slug (no auth required)
  * Returns sanitized data safe for public display
  */
-export async function getPublicTracking(trackingNumber: string) {
-  const shipment = await db.shipment.findUnique({
-    where: { trackingNumber },
+export async function getPublicTracking(identifier: string) {
+  // Try to find by tracking number first (TRK-XXXXXX format)
+  let shipment = await db.shipment.findUnique({
+    where: { trackingNumber: identifier },
     include: {
       trackingStages: {
         orderBy: { createdAt: "asc" },
@@ -31,11 +32,34 @@ export async function getPublicTracking(trackingNumber: string) {
     },
   })
 
+  // If not found, try by tracking slug (URL-safe short code)
+  if (!shipment) {
+    shipment = await db.shipment.findFirst({
+      where: { trackingSlug: identifier },
+      include: {
+        trackingStages: {
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    })
+  }
+
   if (!shipment) {
     return null
   }
 
   return toPublicTrackingData(shipment)
+}
+
+/**
+ * Get public tracking link for a shipment
+ */
+export async function getPublicTrackingLink(
+  trackingNumber: string,
+  locale: string = "ar"
+): Promise<string> {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://mazin.sd"
+  return `${baseUrl}/${locale}/track/${trackingNumber}`
 }
 
 // ============================================

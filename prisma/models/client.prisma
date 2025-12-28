@@ -1,0 +1,55 @@
+// Client/Importer Model
+// This file contains the Client model for importers and customers
+
+model Client {
+  id             String  @id @default(cuid())
+  companyName    String
+  contactName    String?
+  email          String?
+  phone          String?
+  whatsappNumber String? // For WhatsApp notifications
+  taxId          String?
+
+  // Billing Address
+  billingAddress1 String
+  billingAddress2 String?
+  billingCity     String
+  billingState    String?
+  billingCountry  String  @default("SD")
+  billingPostal   String?
+
+  // Shipping Address (optional)
+  shippingAddress1 String?
+  shippingAddress2 String?
+  shippingCity     String?
+  shippingState    String?
+  shippingCountry  String?
+  shippingPostal   String?
+
+  sameAsShipping Boolean @default(true)
+  notes          String?
+  isActive       Boolean @default(true)
+
+  // Relations
+  userId   String
+  user     User      @relation(fields: [userId], references: [id])
+  invoices Invoice[]
+
+  // Shipments for this client
+  shipments Shipment[]
+
+  // Projects for this client
+  projects Project[]
+
+  // Notifications
+  notifications          Notification[]
+  notificationPreference NotificationPreference?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyName])
+  @@index([email])
+  @@index([userId])
+  @@map("clients")
+}

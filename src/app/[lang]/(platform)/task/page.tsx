@@ -28,7 +28,7 @@ export default async function TaskPage({
         <PageNav pages={navItems} className="mt-4" />
       </div>
       <div className="px-4 lg:px-6">
-        <TaskPageClient />
+        <TaskPageClient dictionary={dict} />
       </div>
     </div>
   )

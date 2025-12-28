@@ -42,7 +42,7 @@ export default function PlatformSidebar({
   return (
     <Sidebar
       {...props}
-      className="top-12 w-56 px-8"
+      className="top-12 w-56 ps-6"
       collapsible="offcanvas"
       side={isRTL ? "right" : "left"}
     >
@@ -71,7 +71,7 @@ export default function PlatformSidebar({
                         className="muted"
                         onClick={handleLinkClick}
                       >
-                        <span className="inline-flex size-4 items-center justify-center">
+                        <span className="inline-flex size-5 items-center justify-center">
                           {(() => {
                             const Icon = Icons[item.icon]
                             if (item.className) {
@@ -79,7 +79,7 @@ export default function PlatformSidebar({
                                 <Icon className={item.className} />
                               ) : null
                             }
-                            return Icon ? <Icon className="h-4 w-4" /> : null
+                            return Icon ? <Icon className="size-5" /> : null
                           })()}
                         </span>
                         {translatedTitle}

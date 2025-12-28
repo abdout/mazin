@@ -34,18 +34,27 @@ export interface Dictionary {
     phone: string
     update: string
     export?: string
+    exportAsCsv?: string
+    exportAsJson?: string
     deleteSelected?: string
     rowsPerPage?: string
     page?: string
     of?: string
     rows?: string
     selected?: string
+    reset?: string
+    clear?: string
+    columns?: string
+    sync?: string
+    syncing?: string
+    areYouSure?: string
   }
   header: {
     services: string
     blog: string
     about: string
     platform: string
+    track: string
     signUp: string
     login: string
   }
@@ -372,6 +381,15 @@ export interface Dictionary {
   }
   task?: {
     title?: string
+    task?: string
+    project?: string
+    stage?: string
+    team?: string
+    status?: string
+    priority?: string
+    remarks?: string
+    hours?: string
+    manual?: string
     newTask?: string
     editTask?: string
     taskName?: string
@@ -380,6 +398,13 @@ export interface Dictionary {
     duration?: string
     assignedTo?: string
     dueDate?: string
+    fetchError?: string
+    syncError?: string
+    syncCompleted?: string
+    syncing?: string
+    syncWithProjects?: string
+    searchPlaceholder?: string
+    filterOptions?: string
     nav?: {
       all?: string
       pending?: string
@@ -391,12 +416,64 @@ export interface Dictionary {
       STUCK?: string
       IN_PROGRESS?: string
       DONE?: string
+      CANCELLED?: string
     }
     priorities?: {
       URGENT?: string
       HIGH?: string
       MEDIUM?: string
       LOW?: string
+      NEUTRAL?: string
+    }
+  }
+  team?: {
+    title?: string
+    description?: string
+    addMember?: string
+    editMember?: string
+    member?: string
+    name?: string
+    email?: string
+    role?: string
+    status?: string
+    phone?: string
+    department?: string
+    joinedAt?: string
+    active?: string
+    inactive?: string
+    searchPlaceholder?: string
+    filterByRole?: string
+    filterByStatus?: string
+    noResults?: string
+    actions?: string
+    copyEmail?: string
+    changeRole?: string
+    deactivate?: string
+    activate?: string
+    nav?: {
+      all?: string
+      active?: string
+      inactive?: string
+    }
+    columns?: {
+      name?: string
+      email?: string
+      role?: string
+      phone?: string
+      status?: string
+      department?: string
+      joinedAt?: string
+      actions?: string
+    }
+    statuses?: {
+      ACTIVE?: string
+      INACTIVE?: string
+    }
+    roles?: {
+      ADMIN?: string
+      MANAGER?: string
+      CLERK?: string
+      VIEWER?: string
     }
   }
   customer?: {
@@ -727,5 +804,10 @@ export interface Dictionary {
     noNotes: string
     addNotes: string
     stageOf: string
+    // Payment tracking
+    paymentRequested: string
+    paymentReceived: string
+    requestPayment: string
+    paymentPending: string
   }
 }

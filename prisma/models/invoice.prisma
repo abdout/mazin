@@ -1,0 +1,98 @@
+// Invoice Models
+// This file contains models for invoicing and billing
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  status        InvoiceStatus @default(DRAFT)
+
+  currency String  @default("SDG")
+  subtotal Decimal @db.Decimal(15, 2)
+  tax      Decimal @default(0) @db.Decimal(15, 2)
+  total    Decimal @db.Decimal(15, 2)
+
+  dueDate DateTime?
+  paidAt  DateTime?
+  notes   String?
+
+  // Client relationship
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  // Payment and terms
+  paymentTermsDays   Int?
+  taxRate            Decimal? @db.Decimal(5, 2)
+  taxLabel           String?  @default("VAT")
+  referenceNumber    String?
+  termsAndConditions String?  @db.Text
+
+  // Relations
+  shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  items         InvoiceItem[]
+  stageInvoices StageInvoice[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([userId])
+  @@index([clientId])
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(15, 2)
+  total       Decimal @db.Decimal(15, 2)
+
+  // Fee type for categorization
+  feeType String? // DUTY, PORT_FEES, INSPECTION, BROKERAGE, etc.
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("invoice_items")
+}
+
+// Stage-Invoice linking for multi-stage invoicing
+model StageInvoice {
+  id String @id @default(cuid())
+
+  // Links
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  stage TrackingStageType // Which stage this invoice is for
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // Fee type for this stage
+  feeType String // DUTY, PORT_FEES, INSPECTION, etc.
+
+  createdAt DateTime @default(now())
+
+  @@unique([shipmentId, stage, invoiceId])
+  @@index([shipmentId, stage])
+  @@map("stage_invoices")
+}

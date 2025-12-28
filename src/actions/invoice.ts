@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import type { InvoiceStatus } from "@prisma/client"
 import type { Locale } from "@/components/internationalization"
+import { STAGE_FEE_TEMPLATES } from "@/components/platform/invoice/config"
 
 const invoiceItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -370,4 +371,201 @@ export async function sendInvoiceEmail(
   }
 
   return { success: true, messageId: data?.id }
+}
+
+// ============================================
+// Stage Invoice Functions
+// ============================================
+
+const stageInvoiceSchema = z.object({
+  shipmentId: z.string(),
+  stageId: z.string(),
+  stageType: z.enum([
+    "PRE_ARRIVAL_DOCS",
+    "VESSEL_ARRIVAL",
+    "CUSTOMS_DECLARATION",
+    "CUSTOMS_PAYMENT",
+    "INSPECTION",
+    "PORT_FEES",
+    "QUALITY_STANDARDS",
+    "RELEASE",
+    "LOADING",
+    "IN_TRANSIT",
+    "DELIVERED",
+  ]),
+  items: z.array(invoiceItemSchema).optional(),
+  currency: z.enum(["SDG", "USD", "SAR"]).default("SDG"),
+  locale: z.enum(["en", "ar"]).default("ar"),
+})
+
+/**
+ * Create an invoice for a specific tracking stage
+ * Pre-populates with stage fee templates and links to the stage
+ */
+export async function createStageInvoice(
+  formData: z.input<typeof stageInvoiceSchema>
+) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  const validated = stageInvoiceSchema.parse(formData)
+  const userId = session.user.id
+
+  // Get shipment details
+  const shipment = await db.shipment.findFirst({
+    where: { id: validated.shipmentId, userId },
+    include: { client: true, project: true },
+  })
+
+  if (!shipment) {
+    throw new Error("Shipment not found")
+  }
+
+  // Get stage to verify it exists
+  const stage = await db.trackingStage.findFirst({
+    where: { id: validated.stageId, shipmentId: validated.shipmentId },
+  })
+
+  if (!stage) {
+    throw new Error("Stage not found")
+  }
+
+  // Get fee templates for this stage
+  const templates = STAGE_FEE_TEMPLATES[validated.stageType]
+
+  // Use provided items or fall back to templates
+  const items =
+    validated.items && validated.items.length > 0
+      ? validated.items
+      : templates.map((t) => ({
+          description:
+            validated.locale === "ar" ? t.descriptionAr : t.description,
+          quantity: 1,
+          unitPrice: t.defaultPrice,
+        }))
+
+  if (items.length === 0) {
+    throw new Error("No items provided and no templates available for this stage")
+  }
+
+  // Calculate totals
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.quantity * item.unitPrice,
+    0
+  )
+  const tax = subtotal * 0.15
+  const total = subtotal + tax
+
+  // Generate invoice number
+  const count = await db.invoice.count()
+  const invoiceNumber = `INV-${String(count + 1).padStart(5, "0")}`
+
+  // Use transaction to create invoice and link to stage
+  const result = await db.$transaction(async (tx) => {
+    // Create invoice
+    const invoice = await tx.invoice.create({
+      data: {
+        invoiceNumber,
+        userId,
+        shipmentId: validated.shipmentId,
+        clientId: shipment.clientId,
+        currency: validated.currency,
+        subtotal,
+        tax,
+        total,
+        notes: `Invoice for ${validated.stageType.replace(/_/g, " ")} stage`,
+        items: {
+          create: items.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            total: item.quantity * item.unitPrice,
+            feeType: validated.stageType,
+          })),
+        },
+      },
+      include: { items: true },
+    })
+
+    // Create stage-invoice link
+    await tx.stageInvoice.create({
+      data: {
+        shipmentId: validated.shipmentId,
+        stage: validated.stageType,
+        invoiceId: invoice.id,
+        feeType: validated.stageType,
+      },
+    })
+
+    // Mark stage as payment requested
+    await tx.trackingStage.update({
+      where: { id: validated.stageId },
+      data: { paymentRequested: true },
+    })
+
+    return invoice
+  })
+
+  revalidatePath("/invoice")
+  revalidatePath("/shipment")
+  revalidatePath("/project")
+
+  return result
+}
+
+/**
+ * Mark a stage invoice as paid
+ */
+export async function markStagePaymentReceived(
+  stageId: string,
+  invoiceId: string
+) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  await db.$transaction(async (tx) => {
+    // Update invoice status
+    await tx.invoice.update({
+      where: { id: invoiceId, userId: session.user!.id },
+      data: { status: "PAID", paidAt: new Date() },
+    })
+
+    // Update stage payment received
+    await tx.trackingStage.update({
+      where: { id: stageId },
+      data: { paymentReceived: true },
+    })
+  })
+
+  revalidatePath("/invoice")
+  revalidatePath("/shipment")
+  revalidatePath("/project")
+
+  return { success: true }
+}
+
+/**
+ * Get invoices for a specific shipment grouped by stage
+ */
+export async function getShipmentStageInvoices(shipmentId: string) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  const stageInvoices = await db.stageInvoice.findMany({
+    where: { shipmentId },
+    include: {
+      invoice: {
+        include: { items: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  return stageInvoices
 }

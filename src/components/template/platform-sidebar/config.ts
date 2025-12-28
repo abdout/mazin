@@ -62,6 +62,12 @@ export const platformNav: PlatformNavItem[] = [
     roles: ALL_ROLES,
   },
   {
+    title: "Team",
+    href: "/team",
+    icon: "team",
+    roles: ALL_ROLES,
+  },
+  {
     title: "Settings",
     href: "/settings",
     icon: "settings",

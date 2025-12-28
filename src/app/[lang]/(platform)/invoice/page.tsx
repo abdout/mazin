@@ -4,6 +4,8 @@ import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
 import PageHeading from "@/components/atom/page-heading"
 import { PageNav, type PageNavItem } from "@/components/atom/page-nav"
+import { db } from "@/lib/db"
+import { auth } from "@/auth"
 import {
   invoiceSearchParamsCache,
   getInvoices,
@@ -25,11 +27,18 @@ export default async function InvoicesPage({
   const { lang } = await params
   const locale = lang as Locale
   const dict = await getDictionary(locale)
+  const session = await auth()
 
   // Parse search params for table state
   const search = invoiceSearchParamsCache.parse(await searchParams)
 
-  // Fetch data in parallel
+  // Fetch shipments for modal form
+  const shipments = await db.shipment.findMany({
+    where: { userId: session?.user?.id },
+    orderBy: { createdAt: "desc" },
+  })
+
+  // Fetch table data in parallel
   const promises = Promise.all([
     getInvoices(search),
     getInvoiceStatusCounts(),
@@ -54,6 +63,7 @@ export default async function InvoicesPage({
             promises={promises}
             dictionary={dict}
             locale={locale}
+            shipments={shipments}
           />
         </Suspense>
       </div>

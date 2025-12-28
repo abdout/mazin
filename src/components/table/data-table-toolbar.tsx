@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import type { Column, Table } from "@tanstack/react-table"
-import { X } from "lucide-react"
+import { Search, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -14,15 +14,18 @@ import { DataTableViewOptions } from "@/components/table/data-table-view-options
 
 interface DataTableToolbarProps<TData> extends React.ComponentProps<"div"> {
   table: Table<TData>
+  globalFilterPlaceholder?: string
 }
 
 function DataTableToolbarInner<TData>({
   table,
   children,
   className,
+  globalFilterPlaceholder = "Search...",
   ...props
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0
+  const globalFilter = table.getState().globalFilter as string
+  const isFiltered = table.getState().columnFilters.length > 0 || !!globalFilter
 
   const columns = React.useMemo(
     () => table.getAllColumns().filter((column) => column.getCanFilter()),
@@ -31,6 +34,7 @@ function DataTableToolbarInner<TData>({
 
   const onReset = React.useCallback(() => {
     table.resetColumnFilters()
+    table.setGlobalFilter("")
   }, [table])
 
   return (
@@ -43,7 +47,17 @@ function DataTableToolbarInner<TData>({
       )}
       {...props}
     >
-      {/* Filters (e.g., search, status) */}
+      {/* Global Search */}
+      <div className="relative">
+        <Search className="text-muted-foreground absolute start-2.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+        <Input
+          placeholder={globalFilterPlaceholder}
+          value={globalFilter ?? ""}
+          onChange={(e) => table.setGlobalFilter(e.target.value)}
+          className="h-8 w-40 ps-8 lg:w-64"
+        />
+      </div>
+      {/* Column Filters (e.g., status, date) */}
       {columns.map((column) => (
         <DataTableToolbarFilter key={column.id} column={column} />
       ))}

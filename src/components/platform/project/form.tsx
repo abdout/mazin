@@ -11,7 +11,7 @@ import { Save } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { type ShipmentType, type StageWithType, type ProjectCreateFormProps } from './types';
+import { type ShipmentType, type StageWithType, type ProjectCreateFormProps, type Activity } from './types';
 import { GeneralTab } from './general';
 import { ActivitiesTab } from './activities';
 import { ResourcesTab } from './resources';
@@ -91,11 +91,11 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
     }
 
     // Initialize categories and subcategories from project activities
-    if (projectToEdit?.activities && projectToEdit.activities.length > 0) {
+    if (projectToEdit?.activities && Array.isArray(projectToEdit.activities) && projectToEdit.activities.length > 0) {
       const categoriesMap = initializeCategories();
       const subcategoriesMap = initializeSubcategories();
 
-      projectToEdit.activities.forEach(activity => {
+      (projectToEdit.activities as Activity[]).forEach((activity: Activity) => {
         const system = activity.system as ShipmentType;
         if (!system || !SHIPMENT_TYPES.includes(system)) return;
 
@@ -333,7 +333,7 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
   }, [handleUnselectAllActivities]);
 
   return (
-    <ScrollArea className="h-full max-h-screen pr-4">
+    <ScrollArea className="h-full max-h-screen pe-4">
       <div className="container mx-auto py-8 px-10 max-w-5xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-16">
@@ -384,7 +384,7 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
                 disabled={isSubmitting}
                 size="lg"
               >
-                <Save className="mr-2 h-5 w-5" />
+                <Save className="me-2 h-5 w-5" />
                 {isSubmitting
                   ? (projectToEdit ? "Updating Shipment..." : "Creating Shipment...")
                   : (projectToEdit ? "Update Shipment" : "Create Shipment")

@@ -50,6 +50,12 @@ interface InvoiceFormProps {
   shipments?: Shipment[]
   invoice?: InvoiceWithItems
   mode?: "create" | "edit"
+  /** Whether form is in modal mode */
+  isModal?: boolean
+  /** Callback on successful submit (for modal auto-close) */
+  onSuccess?: () => void
+  /** Callback to cancel/close (for modal) */
+  onCancel?: () => void
 }
 
 export function InvoiceForm({
@@ -58,6 +64,9 @@ export function InvoiceForm({
   shipments = [],
   invoice,
   mode = "create",
+  isModal = false,
+  onSuccess,
+  onCancel,
 }: InvoiceFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
@@ -114,7 +123,12 @@ export function InvoiceForm({
           dueDate: values.dueDate || undefined,
         })
       }
-      router.push(`/${locale}/invoice`)
+
+      if (isModal && onSuccess) {
+        onSuccess()
+      } else {
+        router.push(`/${locale}/invoice`)
+      }
     })
   }
 
@@ -333,7 +347,11 @@ export function InvoiceForm({
         </Card>
 
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={isModal && onCancel ? onCancel : () => router.back()}
+          >
             {dictionary.common.cancel || "Cancel"}
           </Button>
           <Button type="submit" disabled={isPending}>

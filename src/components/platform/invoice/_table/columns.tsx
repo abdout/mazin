@@ -128,12 +128,7 @@ export function getInvoiceColumns({
           {row.original.invoiceNumber}
         </Link>
       ),
-      meta: {
-        label: dictionary.invoices?.invoiceNumber || "Invoice #",
-        placeholder: dictionary.invoices?.searchPlaceholder || "Search invoices...",
-        variant: "text",
-      },
-      enableColumnFilter: true,
+      enableGlobalFilter: true,
     },
 
     // Status
@@ -192,11 +187,7 @@ export function getInvoiceColumns({
           {row.original.client?.companyName || "-"}
         </span>
       ),
-      meta: {
-        label: dictionary.invoices?.client || "Client",
-        variant: "text",
-      },
-      enableColumnFilter: true,
+      enableGlobalFilter: true,
     },
 
     // Total
@@ -236,12 +227,12 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Currency"
+          title={dictionary.invoices?.currency || "Currency"}
         />
       ),
       cell: ({ row }) => <span>{row.original.currency}</span>,
       meta: {
-        label: "Currency",
+        label: dictionary.invoices?.currency || "Currency",
         variant: "multiSelect",
         options: currencyOptions,
       },

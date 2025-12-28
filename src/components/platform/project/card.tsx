@@ -79,7 +79,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </p>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2 -ml-1 items-center -mt-2">
+            <div className="flex gap-2 -ms-1 items-center -mt-2">
               <Icon icon="mdi:ship" width={25} />
               <p className="text-sm">{shipmentType || project.client || 'Shipment Type'}</p>
             </div>

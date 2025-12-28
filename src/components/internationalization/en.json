@@ -29,13 +29,23 @@
     "createdAt": "Created",
     "email": "Email",
     "phone": "Phone",
-    "update": "Update"
+    "update": "Update",
+    "export": "Export",
+    "exportAsCsv": "Export as CSV",
+    "exportAsJson": "Export as JSON",
+    "reset": "Reset",
+    "clear": "Clear",
+    "columns": "Columns",
+    "sync": "Sync",
+    "syncing": "Syncing...",
+    "areYouSure": "Are you sure?"
   },
   "header": {
     "services": "Services",
     "blog": "Blog",
     "about": "About",
     "platform": "Platform",
+    "track": "Track",
     "signUp": "Sign Up",
     "login": "Login"
   },
@@ -345,6 +355,15 @@
   },
   "task": {
     "title": "Tasks",
+    "task": "Task",
+    "project": "Project",
+    "stage": "Stage",
+    "team": "Team",
+    "status": "Status",
+    "priority": "Priority",
+    "remarks": "Remarks",
+    "hours": "hr",
+    "manual": "Manual",
     "newTask": "New Task",
     "editTask": "Edit Task",
     "taskName": "Task Name",
@@ -353,20 +372,82 @@
     "duration": "Duration",
     "assignedTo": "Assigned To",
     "dueDate": "Due Date",
+    "fetchError": "Failed to fetch tasks",
+    "syncError": "Failed to sync projects with tasks",
+    "syncCompleted": "Sync completed",
+    "syncing": "Syncing...",
+    "syncWithProjects": "Sync with Projects",
+    "searchPlaceholder": "Search by task name...",
+    "filterOptions": "Filter Options",
     "nav": {
-      "all": "All"
+      "all": "All",
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "done": "Done"
     },
     "statuses": {
       "PENDING": "Pending",
       "STUCK": "Stuck",
       "IN_PROGRESS": "In Progress",
-      "DONE": "Done"
+      "DONE": "Done",
+      "CANCELLED": "Cancelled"
     },
     "priorities": {
       "URGENT": "Urgent",
       "HIGH": "High",
       "MEDIUM": "Medium",
-      "LOW": "Low"
+      "LOW": "Low",
+      "NEUTRAL": "Neutral"
+    }
+  },
+  "team": {
+    "title": "Team",
+    "description": "Manage your team members",
+    "addMember": "Add Member",
+    "editMember": "Edit Member",
+    "member": "Member",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "phone": "Phone",
+    "department": "Department",
+    "joinedAt": "Joined",
+    "active": "Active",
+    "inactive": "Inactive",
+    "searchPlaceholder": "Search team members...",
+    "filterByRole": "Filter by role",
+    "filterByStatus": "Filter by status",
+    "noResults": "No team members found",
+    "actions": "Actions",
+    "copyEmail": "Copy Email",
+    "changeRole": "Change Role",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "nav": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "phone": "Phone",
+      "status": "Status",
+      "department": "Department",
+      "joinedAt": "Joined",
+      "actions": "Actions"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "roles": {
+      "ADMIN": "Admin",
+      "MANAGER": "Manager",
+      "CLERK": "Clerk",
+      "VIEWER": "Viewer"
     }
   },
   "validation": {
@@ -957,6 +1038,10 @@
     "notes": "Notes",
     "noNotes": "No notes added",
     "addNotes": "Add notes for this stage...",
-    "stageOf": "Stage {current} of {total}"
+    "stageOf": "Stage {current} of {total}",
+    "paymentRequested": "Payment Requested",
+    "paymentReceived": "Payment Received",
+    "requestPayment": "Request Payment",
+    "paymentPending": "Payment Pending"
   }
 }

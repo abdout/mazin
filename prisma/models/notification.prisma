@@ -1,0 +1,166 @@
+// Notification System
+// This file contains models for notifications and messaging
+
+// Notification types for customs clearance operations
+enum NotificationType {
+  // Task notifications
+  TASK_ASSIGNED
+  TASK_DUE_SOON
+  TASK_OVERDUE
+  TASK_COMPLETED
+
+  // Stage notifications
+  STAGE_ATTENTION_NEEDED
+  STAGE_COMPLETED
+
+  // Shipment milestones (for clients)
+  SHIPMENT_CREATED
+  SHIPMENT_ARRIVAL
+  SHIPMENT_CLEARED
+  SHIPMENT_RELEASED
+  SHIPMENT_DELIVERED
+
+  // Payment notifications
+  PAYMENT_REQUEST
+  PAYMENT_RECEIVED
+  PAYMENT_OVERDUE
+
+  // System notifications
+  SYSTEM_ALERT
+}
+
+// Notification priority levels
+enum NotificationPriority {
+  low
+  normal
+  high
+  urgent
+}
+
+// Delivery channels for notifications
+enum NotificationChannel {
+  IN_APP
+  WHATSAPP
+  EMAIL
+  SMS
+}
+
+// Notification status
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
+}
+
+// Main notification model
+model Notification {
+  id String @id @default(cuid())
+
+  // Recipient (either User or Client)
+  userId   String?
+  user     User?   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Content
+  type     NotificationType
+  priority NotificationPriority @default(normal)
+  title    String               @db.VarChar(255)
+  message  String               @db.Text
+  metadata Json? // Additional context { taskId, stageType, url, etc. }
+
+  // Delivery
+  channel NotificationChannel
+  status  NotificationStatus  @default(PENDING)
+  sentAt  DateTime?
+  readAt  DateTime?
+  error   String?             @db.Text
+
+  // Related entities (for deep linking)
+  projectId  String?
+  project    Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId     String?
+  task       Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  invoiceId  String?
+  invoice    Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  // WhatsApp message reference
+  whatsappMessageId String?
+  whatsappMessage   WhatsAppMessage? @relation(fields: [whatsappMessageId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([clientId, status])
+  @@index([projectId])
+  @@index([type, status])
+  @@index([channel, status])
+  @@map("notifications")
+}
+
+// User/Client notification preferences
+model NotificationPreference {
+  id String @id @default(cuid())
+
+  // Owner (User or Client)
+  userId   String? @unique
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId String? @unique
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Channel preferences per notification type (JSON)
+  // Format: { "TASK_ASSIGNED": ["IN_APP", "WHATSAPP"], "PAYMENT_REQUEST": ["WHATSAPP", "EMAIL"] }
+  preferences Json @default("{}")
+
+  // WhatsApp details
+  whatsappNumber   String?
+  whatsappVerified Boolean @default(false)
+
+  // Quiet hours (optional)
+  quietHoursStart Int? // Hour 0-23 (e.g., 22 for 10 PM)
+  quietHoursEnd   Int? // Hour 0-23 (e.g., 8 for 8 AM)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notification_preferences")
+}
+
+// WhatsApp message log
+model WhatsAppMessage {
+  id String @id @default(cuid())
+
+  // Recipient
+  phoneNumber String
+
+  // Message details
+  templateName   String? // WhatsApp template name (for template messages)
+  templateParams Json?   // Template parameters
+  messageBody    String? @db.Text // For non-template messages
+
+  // Status tracking
+  status            String    @default("PENDING") // PENDING, SENT, DELIVERED, READ, FAILED
+  whatsappMessageId String? // WhatsApp's external message ID
+  error             String?   @db.Text
+
+  // Timestamps
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  readAt      DateTime?
+
+  // Related notification
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phoneNumber])
+  @@index([status])
+  @@index([whatsappMessageId])
+  @@map("whatsapp_messages")
+}

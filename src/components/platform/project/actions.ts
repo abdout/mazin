@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { ProjectFormValues } from './validation';
 import { auth } from '@/auth';
 import { ProjectStatus, ProjectPriority } from '@prisma/client';
+import { executeProjectCascade } from '@/lib/services/project-cascade';
 
 // Map string status to Prisma enum
 function mapStatus(status: string | undefined): ProjectStatus {
@@ -40,28 +41,61 @@ export async function createProject(data: ProjectFormValues | null) {
       return { success: false, error: 'No data provided' };
     }
 
-    const projectData = {
-      customer: data.customer || '',
-      blAwbNumber: data.blAwbNumber || null,
-      description: data.description || '',
-      status: mapStatus(data.status),
-      priority: mapPriority(data.priority),
-      systems: Array.isArray(data.systems) ? data.systems : [],
-      portOfOrigin: data.portOfOrigin || null,
-      portOfDestination: data.portOfDestination || null,
-      teamLead: data.teamLead || null,
-      team: Array.isArray(data.team) ? data.team : [],
-      startDate: data.startDate || null,
-      endDate: data.endDate || null,
-      userId: session.user.id,
-    };
+    const userId = session.user.id;
 
-    const project = await db.project.create({
-      data: projectData,
+    // Use transaction for cascade creation
+    const result = await db.$transaction(async (tx) => {
+      // 1. Create the project
+      const project = await tx.project.create({
+        data: {
+          customer: data.customer || '',
+          blAwbNumber: data.blAwbNumber || null,
+          description: data.description || '',
+          status: mapStatus(data.status),
+          priority: mapPriority(data.priority),
+          systems: Array.isArray(data.systems) ? data.systems : [],
+          activities: data.activities || undefined,
+          customerId: data.customerId || null,
+          portOfOrigin: data.portOfOrigin || null,
+          portOfDestination: data.portOfDestination || null,
+          teamLead: data.teamLead || null,
+          team: Array.isArray(data.team) ? data.team : [],
+          startDate: data.startDate || null,
+          endDate: data.endDate || null,
+          userId,
+        },
+      });
+
+      // 2. Execute cascade (shipment, stages, tasks) unless skipped
+      let cascadeResult = null;
+      if (!data.skipCascade) {
+        cascadeResult = await executeProjectCascade(tx, {
+          id: project.id,
+          customer: project.customer,
+          blAwbNumber: project.blAwbNumber,
+          systems: project.systems,
+          activities: project.activities,
+          team: project.team,
+          teamLead: project.teamLead,
+          portOfOrigin: project.portOfOrigin,
+          portOfDestination: project.portOfDestination,
+          startDate: project.startDate,
+          customerId: project.customerId,
+        }, userId);
+      }
+
+      return { project, cascadeResult };
     });
 
     revalidatePath('/project');
-    return { success: true, project };
+    revalidatePath('/task');
+    revalidatePath('/shipment');
+
+    return {
+      success: true,
+      project: result.project,
+      cascade: result.cascadeResult,
+    };
   } catch (error) {
     console.error('Error creating project:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create project' };
@@ -105,7 +139,22 @@ export async function getProject(id: string) {
     const project = await db.project.findUnique({
       where: { id },
       include: {
-        tasks: true,
+        tasks: {
+          orderBy: { createdAt: 'asc' },
+        },
+        shipment: {
+          include: {
+            trackingStages: {
+              orderBy: { stageType: 'asc' },
+            },
+            stageInvoices: {
+              include: {
+                invoice: true,
+              },
+            },
+          },
+        },
+        client: true,
       },
     });
 
