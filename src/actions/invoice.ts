@@ -64,7 +64,7 @@ export async function createInvoice(formData: z.input<typeof createInvoiceSchema
     include: { items: true },
   })
 
-  revalidatePath("/invoices")
+  revalidatePath("/invoice")
   return invoice
 }
 
@@ -110,8 +110,8 @@ export async function updateInvoiceStatus(id: string, status: InvoiceStatus) {
     },
   })
 
-  revalidatePath("/invoices")
-  revalidatePath(`/invoices/${id}`)
+  revalidatePath("/invoice")
+  revalidatePath(`/invoice/${id}`)
   return invoice
 }
 
@@ -122,7 +122,7 @@ export async function deleteInvoice(id: string) {
   }
 
   await db.invoice.delete({ where: { id } })
-  revalidatePath("/invoices")
+  revalidatePath("/invoice")
 }
 
 // Update invoice schema - includes optional item IDs for existing items
@@ -237,8 +237,8 @@ export async function updateInvoice(
     })
   })
 
-  revalidatePath("/invoices")
-  revalidatePath(`/invoices/${id}`)
+  revalidatePath("/invoice")
+  revalidatePath(`/invoice/${id}`)
   return invoice
 }
 
@@ -328,7 +328,7 @@ export async function sendInvoiceEmail(
 
   // Build invoice URL
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://mazin.sd"
-  const invoiceUrl = `${baseUrl}/${locale}/invoices/${invoiceId}`
+  const invoiceUrl = `${baseUrl}/${locale}/invoice/${invoiceId}`
 
   // Generate email content
   const recipientName = invoice.client?.contactName || invoice.client?.companyName || recipientEmail
@@ -365,8 +365,8 @@ export async function sendInvoiceEmail(
       where: { id: invoiceId },
       data: { status: "SENT" },
     })
-    revalidatePath("/invoices")
-    revalidatePath(`/invoices/${invoiceId}`)
+    revalidatePath("/invoice")
+    revalidatePath(`/invoice/${invoiceId}`)
   }
 
   return { success: true, messageId: data?.id }

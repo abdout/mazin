@@ -39,7 +39,7 @@ export function InvoiceActions({
   const handleDownloadPdf = async () => {
     setDownloadingPdf(true)
     try {
-      const response = await fetch(`/api/invoices/${invoiceId}/pdf?locale=${locale}`)
+      const response = await fetch(`/api/invoice/${invoiceId}/pdf?locale=${locale}`)
       if (!response.ok) throw new Error("Failed to generate PDF")
 
       const blob = await response.blob()
@@ -59,7 +59,7 @@ export function InvoiceActions({
   }
 
   const handleEdit = () => {
-    router.push(`/${locale}/invoices/${invoiceId}/edit`)
+    router.push(`/${locale}/invoice/${invoiceId}/edit`)
   }
 
   return (

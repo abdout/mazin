@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
 import { IconDotsVertical } from "@tabler/icons-react"
-import type { Invoice, InvoiceItem, Client, Shipment } from "@prisma/client"
+import type { InvoiceStatus, Client, Shipment } from "@prisma/client"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,8 +27,40 @@ import {
   type InvoiceStatusKey,
 } from "./config"
 
-export type InvoiceWithRelations = Invoice & {
-  items: InvoiceItem[]
+// Serialized type with number instead of Decimal (after JSON serialization)
+export interface InvoiceItemSerialized {
+  id: string
+  createdAt: Date
+  updatedAt: Date
+  description: string
+  quantity: number
+  unitPrice: number
+  total: number
+  invoiceId: string
+}
+
+export interface InvoiceWithRelations {
+  id: string
+  invoiceNumber: string
+  status: InvoiceStatus
+  currency: string
+  subtotal: number
+  tax: number
+  total: number
+  taxRate: number | null
+  dueDate: Date | null
+  paidAt: Date | null
+  notes: string | null
+  paymentTermsDays: number | null
+  taxLabel: string | null
+  referenceNumber: string | null
+  termsAndConditions: string | null
+  createdAt: Date
+  updatedAt: Date
+  userId: string
+  clientId: string | null
+  shipmentId: string | null
+  items: InvoiceItemSerialized[]
   client: Client | null
   shipment: Shipment | null
 }
@@ -90,7 +122,7 @@ export function getInvoiceColumns({
       ),
       cell: ({ row }) => (
         <Link
-          href={`/${locale}/invoices/${row.original.id}`}
+          href={`/${locale}/invoice/${row.original.id}`}
           className="font-medium hover:underline"
         >
           {row.original.invoiceNumber}
@@ -286,13 +318,13 @@ export function getInvoiceColumns({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href={`/${locale}/invoices/${invoice.id}`}>
+                <Link href={`/${locale}/invoice/${invoice.id}`}>
                   {dictionary.common?.view || "View"}
                 </Link>
               </DropdownMenuItem>
               {canEdit && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/${locale}/invoices/${invoice.id}/edit`}>
+                  <Link href={`/${locale}/invoice/${invoice.id}/edit`}>
                     {dictionary.common?.edit || "Edit"}
                   </Link>
                 </DropdownMenuItem>

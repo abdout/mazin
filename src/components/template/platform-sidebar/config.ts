@@ -33,7 +33,7 @@ export const platformNav: PlatformNavItem[] = [
   },
   {
     title: "Invoices",
-    href: "/invoices",
+    href: "/invoice",
     icon: "invoice",
     roles: ALL_ROLES,
   },

@@ -66,7 +66,7 @@ export async function getInvoices(input: GetInvoicesSchema) {
     )
 
     // Execute queries in parallel
-    const [data, total] = await db.$transaction([
+    const [rawData, total] = await db.$transaction([
       db.invoice.findMany({
         where,
         orderBy,
@@ -82,6 +82,20 @@ export async function getInvoices(input: GetInvoicesSchema) {
     ])
 
     const pageCount = Math.ceil(total / perPage)
+
+    // Serialize Decimal fields to numbers for Client Components
+    const data = rawData.map((invoice) => ({
+      ...invoice,
+      subtotal: Number(invoice.subtotal),
+      tax: Number(invoice.tax),
+      total: Number(invoice.total),
+      taxRate: invoice.taxRate ? Number(invoice.taxRate) : null,
+      items: invoice.items.map((item) => ({
+        ...item,
+        unitPrice: Number(item.unitPrice),
+        total: Number(item.total),
+      })),
+    }))
 
     return { data, pageCount }
   } catch (error) {

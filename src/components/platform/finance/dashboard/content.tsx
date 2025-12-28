@@ -1,0 +1,320 @@
+import { auth } from "@/auth"
+import {
+  Building,
+  CircleAlert,
+  DollarSign,
+  Receipt,
+  TrendingDown,
+  TrendingUp,
+  Users,
+  Wallet,
+} from "lucide-react"
+
+import { UserRole } from "../lib/permissions"
+import {
+  getDashboardStats,
+  getFinancialAlerts,
+  getQuickActionsForRole,
+  getRecentTransactions,
+} from "./actions"
+import { AlertCard } from "./alert-card"
+import { BankAccountsSummary } from "./bank-accounts-summary"
+import { CashFlowChart } from "./cash-flow-chart"
+import { ExpenseChart } from "./expense-chart"
+import { KPICard } from "./kpi-card"
+import { QuickActions } from "./quick-actions"
+import { RevenueChart } from "./revenue-chart"
+import { TransactionList } from "./transaction-list"
+import type { FinancialKPI } from "./types"
+
+export async function FinanceDashboardContent() {
+  const session = await auth()
+  if (!session?.user) {
+    return <div>Unauthorized</div>
+  }
+
+  const userRole = (session.user.role || "VIEWER") as UserRole
+
+  // Fetch all lab data in parallel
+  const [stats, transactions, alerts, quickActions] = await Promise.all([
+    getDashboardStats("month"),
+    getRecentTransactions(5),
+    getFinancialAlerts(),
+    getQuickActionsForRole(userRole),
+  ])
+
+  // Prepare KPIs based on role
+  const getKPIsForRole = (): FinancialKPI[] => {
+    const allKPIs: FinancialKPI[] = [
+      {
+        id: "total-revenue",
+        title: "Total Revenue",
+        value: stats.totalRevenue,
+        change: 12,
+        changeType: "increase",
+        icon: "💰",
+        color: "green",
+        description: "Total invoiced amount",
+        trend: stats.revenueTrend.slice(-7),
+      },
+      {
+        id: "collected-revenue",
+        title: "Collected Revenue",
+        value: stats.collectedRevenue,
+        change: stats.collectionRate > 75 ? 5 : -5,
+        changeType: stats.collectionRate > 75 ? "increase" : "decrease",
+        icon: "✅",
+        color: "blue",
+        description: `${stats.collectionRate.toFixed(1)}% collection rate`,
+      },
+      {
+        id: "total-expenses",
+        title: "Total Expenses",
+        value: stats.totalExpenses,
+        change: 3,
+        changeType: "increase",
+        icon: "💸",
+        color: "red",
+        description: "All expenses this period",
+      },
+      {
+        id: "net-profit",
+        title: "Net Profit",
+        value: stats.netProfit,
+        change: stats.profitMargin,
+        changeType: stats.netProfit > 0 ? "increase" : "decrease",
+        icon: "📈",
+        color: stats.netProfit > 0 ? "green" : "red",
+        description: `${stats.profitMargin.toFixed(1)}% profit margin`,
+        trend: stats.profitTrend.slice(-7),
+      },
+      {
+        id: "cash-balance",
+        title: "Cash Balance",
+        value: stats.cashBalance,
+        change: 8,
+        changeType: "increase",
+        icon: "🏦",
+        color: "purple",
+        description: `${stats.cashRunway} months runway`,
+      },
+      {
+        id: "outstanding-invoices",
+        title: "Outstanding",
+        value: stats.outstandingRevenue,
+        change: stats.overdueInvoices,
+        changeType: stats.overdueInvoices > 0 ? "increase" : "neutral",
+        icon: "⏰",
+        color: "yellow",
+        description: `${stats.overdueInvoices} overdue invoices`,
+      },
+      {
+        id: "active-clients",
+        title: "Active Clients",
+        value: `${stats.activeClients}/${stats.totalClients}`,
+        change: stats.totalClients > 0 ? (stats.activeClients / stats.totalClients) * 100 : 0,
+        changeType: "neutral",
+        icon: "👥",
+        color: "blue",
+        description: "Client payment status",
+      },
+      {
+        id: "payroll-expense",
+        title: "Payroll",
+        value: stats.totalPayroll,
+        change: 0,
+        changeType: "neutral",
+        icon: "💼",
+        color: "orange",
+        description: `${stats.payrollProcessed} processed, ${stats.pendingPayroll} pending`,
+      },
+    ]
+
+    // ListFilter KPIs based on role
+    switch (userRole) {
+      case "ADMIN":
+      case "ACCOUNTANT":
+        return allKPIs // Show all KPIs
+      case "MANAGER":
+      case "OPERATOR":
+        return allKPIs.filter((kpi) =>
+          ["net-profit", "payroll-expense", "total-revenue", "active-clients"].includes(kpi.id)
+        )
+      case "STAFF":
+        return allKPIs.filter((kpi) =>
+          ["active-clients", "outstanding-invoices"].includes(kpi.id)
+        )
+      default:
+        return allKPIs.slice(0, 4) // Show basic KPIs
+    }
+  }
+
+  const kpis = getKPIsForRole()
+
+  // Check if user has full access
+  const hasFullAccess = ["ADMIN", "ACCOUNTANT"].includes(userRole)
+  const hasLimitedAccess = ["MANAGER", "OPERATOR"].includes(userRole)
+  const hasMinimalAccess = ["STAFF"].includes(userRole)
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Financial Dashboard
+        </h1>
+        <p className="text-muted-foreground">
+          Overview of your company's financial performance
+        </p>
+      </div>
+
+      {/* Alerts Section */}
+      {alerts.length > 0 && (
+        <div className="space-y-2">
+          {alerts.slice(0, 2).map((alert) => (
+            <AlertCard key={alert.id} alert={alert} />
+          ))}
+        </div>
+      )}
+
+      {/* KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((kpi) => (
+          <KPICard key={kpi.id} kpi={kpi} />
+        ))}
+      </div>
+
+      {/* Charts Section */}
+      {hasFullAccess && (
+        <div className="grid gap-6 md:grid-cols-2">
+          <RevenueChart
+            revenueData={stats.revenueTrend}
+            expenseData={stats.expensesTrend}
+            profitData={stats.profitTrend}
+          />
+          <ExpenseChart expenseCategories={stats.expenseCategories} />
+        </div>
+      )}
+
+      {/* Additional Charts */}
+      {hasFullAccess && (
+        <div className="grid gap-6 md:grid-cols-2">
+          <CashFlowChart
+            inflowData={[stats.cashInflow]}
+            outflowData={[stats.cashOutflow]}
+            balanceData={[stats.cashBalance]}
+          />
+          <BankAccountsSummary accounts={stats.bankAccounts} />
+        </div>
+      )}
+
+      {/* Quick Actions and Recent Transactions */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <QuickActions actions={quickActions} />
+        {(hasFullAccess || hasLimitedAccess) && (
+          <TransactionList transactions={transactions} />
+        )}
+      </div>
+
+      {/* Budget Overview - Only for Admin/Accountant */}
+      {hasFullAccess && stats.budgetCategories.length > 0 && (
+        <BudgetOverview categories={stats.budgetCategories} />
+      )}
+
+      {/* Footer Stats */}
+      <div className="grid gap-4 border-t pt-6 md:grid-cols-4">
+        <StatCard
+          title="Invoice Collection"
+          value={`${stats.paidInvoices}/${stats.totalInvoices}`}
+          description="Invoices paid"
+          icon={<Receipt className="h-4 w-4" />}
+        />
+        <StatCard
+          title="Budget Utilization"
+          value={`${((stats.budgetUsed / (stats.budgetUsed + stats.budgetRemaining)) * 100).toFixed(0)}%`}
+          description="Of allocated budget"
+          icon={<DollarSign className="h-4 w-4" />}
+        />
+        <StatCard
+          title="Active Clients"
+          value={stats.totalClients}
+          description="Registered clients"
+          icon={<Users className="h-4 w-4" />}
+        />
+        <StatCard
+          title="Bank Accounts"
+          value={stats.bankAccounts.length}
+          description="Active accounts"
+          icon={<Building className="h-4 w-4" />}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Helper Components
+function StatCard({
+  title,
+  value,
+  description,
+  icon,
+}: {
+  title: string
+  value: string | number
+  description: string
+  icon: React.ReactNode
+}) {
+  return (
+    <div className="bg-muted/50 flex items-center space-x-3 rounded-lg p-4">
+      <div className="bg-background rounded-md p-2">{icon}</div>
+      <div>
+        <p className="text-muted-foreground text-sm">{title}</p>
+        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-muted-foreground text-xs">{description}</p>
+      </div>
+    </div>
+  )
+}
+
+function BudgetOverview({
+  categories,
+}: {
+  categories: {
+    category: string
+    allocated: number
+    spent: number
+    remaining: number
+    percentage: number
+  }[]
+}) {
+  return (
+    <div className="rounded-lg border p-6">
+      <h3 className="mb-4 text-lg font-semibold">Budget Overview</h3>
+      <div className="space-y-3">
+        {categories.slice(0, 5).map((cat) => (
+          <div key={cat.category} className="space-y-1">
+            <div className="flex items-center justify-between text-sm">
+              <span>{cat.category}</span>
+              <span className="text-muted-foreground">
+                SDG {new Intl.NumberFormat("en-SD").format(cat.spent)} /{" "}
+                {new Intl.NumberFormat("en-SD").format(cat.allocated)}
+              </span>
+            </div>
+            <div className="bg-muted h-2 w-full rounded-full">
+              <div
+                className={`h-2 rounded-full transition-all ${
+                  cat.percentage > 90
+                    ? "bg-red-500"
+                    : cat.percentage > 75
+                      ? "bg-yellow-500"
+                      : "bg-green-500"
+                }`}
+                style={{ width: `${Math.min(cat.percentage, 100)}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

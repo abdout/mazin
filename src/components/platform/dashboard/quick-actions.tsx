@@ -46,7 +46,7 @@ export function QuickActions({
     },
     {
       label: dictionary.dashboard.newInvoice,
-      href: `/${locale}/invoices/new`,
+      href: `/${locale}/invoice/new`,
       icon: AnthropicIcons.BarChart,
     },
     {

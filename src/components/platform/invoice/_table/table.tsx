@@ -91,7 +91,7 @@ export function InvoicesTable({
           showViewToggle: true,
           showExport: true,
           customActions: (
-            <Link href={`/${locale}/invoices/new`}>
+            <Link href={`/${locale}/invoice/new`}>
               <Button size="sm">
                 <Plus className="h-4 w-4 me-1" />
                 {dictionary.invoices?.newInvoice || "New Invoice"}

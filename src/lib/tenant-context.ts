@@ -11,6 +11,7 @@ import { auth } from "@/auth"
 export interface TenantContext {
   userId: string
   organizationId?: string
+  companyId?: string // Alias for organizationId for customs clearance context
 }
 
 export async function getTenantContext(): Promise<TenantContext | null> {
@@ -24,6 +25,7 @@ export async function getTenantContext(): Promise<TenantContext | null> {
     userId: session.user.id,
     // For future multi-tenant support, this could be populated from user.organizationId
     organizationId: undefined,
+    companyId: undefined, // Alias for organizationId
   }
 }
 

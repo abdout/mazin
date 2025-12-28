@@ -21,7 +21,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ExportButton, type ExportButtonProps } from "@/components/export"
-import { useDictionary } from "@/components/internationalization/use-dictionary"
 import { DataTableLoadMore } from "@/components/table/data-table-load-more"
 import { DataTablePagination } from "@/components/table/data-table-pagination"
 import { DataTableToolbar } from "@/components/table/data-table-toolbar"
@@ -82,7 +81,6 @@ function DataTableEnhancedInner<TData>({
   className,
   emptyMessage,
 }: DataTableEnhancedProps<TData>) {
-  const dictionary = useDictionary()
   const [currentViewMode, setCurrentViewMode] = useState<ViewMode>(
     viewMode?.defaultMode || "table"
   )

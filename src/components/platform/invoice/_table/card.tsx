@@ -36,7 +36,7 @@ export function InvoiceCard({ invoice, dictionary, locale }: InvoiceCardProps) {
   }
 
   return (
-    <Link href={`/${locale}/invoices/${invoice.id}`}>
+    <Link href={`/${locale}/invoice/${invoice.id}`}>
       <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-2">

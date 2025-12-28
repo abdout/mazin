@@ -114,7 +114,7 @@ export function InvoiceForm({
           dueDate: values.dueDate || undefined,
         })
       }
-      router.push(`/${locale}/invoices`)
+      router.push(`/${locale}/invoice`)
     })
   }
 
