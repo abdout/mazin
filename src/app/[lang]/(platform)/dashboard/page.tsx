@@ -9,6 +9,7 @@ import {
   getCashFlowData,
   getExpenseCategories,
   getTrendingStatsData,
+  getRecentTransactions,
 } from "@/components/platform/dashboard/actions"
 import { getWeatherData } from "@/components/platform/dashboard/weather-actions"
 import type { UserRole } from "@prisma/client"
@@ -35,6 +36,7 @@ export default async function DashboardPage({
     expenseCategories,
     trendingStats,
     weatherData,
+    recentTransactions,
   ] = await Promise.all([
     getQuickLookData(),
     getUpcomingData(userRole),
@@ -43,6 +45,7 @@ export default async function DashboardPage({
     getExpenseCategories(),
     getTrendingStatsData(),
     getWeatherData(),
+    getRecentTransactions(8),
   ])
 
   return (
@@ -56,6 +59,7 @@ export default async function DashboardPage({
       expenseCategories={expenseCategories}
       trendingStats={trendingStats}
       weatherData={weatherData}
+      recentTransactions={recentTransactions}
     />
   )
 }

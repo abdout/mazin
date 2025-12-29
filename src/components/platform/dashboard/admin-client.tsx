@@ -1,12 +1,12 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Card, CardContent } from "@/components/ui/card"
 import { QuickActions } from "./quick-actions"
 import { Upcoming } from "./upcoming"
 import { Weather } from "./weather"
 import { QuickLook } from "./quick-look"
 import { FinanceOverview } from "./finance-overview"
+import { TransactionList } from "./transaction-list"
 import type {
   QuickLookData,
   UpcomingData,
@@ -14,6 +14,7 @@ import type {
   CashFlowData,
   ExpenseCategory,
   TrendingStatsData,
+  RecentTransaction,
 } from "./actions"
 import type { Dictionary, Locale } from "@/components/internationalization"
 import type { WeatherData } from "./weather"
@@ -39,6 +40,7 @@ interface AdminDashboardClientProps {
   expenseCategories: ExpenseCategory[]
   trendingStats: TrendingStatsData
   weatherData?: WeatherData | null
+  recentTransactions: RecentTransaction[]
 }
 
 export function AdminDashboardClient({
@@ -51,6 +53,7 @@ export function AdminDashboardClient({
   expenseCategories,
   trendingStats,
   weatherData,
+  recentTransactions,
 }: AdminDashboardClientProps) {
   return (
     <div className="flex flex-col gap-6 py-4 md:py-6">
@@ -65,25 +68,14 @@ export function AdminDashboardClient({
             <Upcoming data={upcomingData} locale={locale} />
           </div>
 
-          {/* Weather Card */}
-          <Card
-            className={cn(
-              "min-h-[280px]",
-              "bg-gradient-to-br from-sky-50/80 via-blue-50/60 to-indigo-50/40",
-              "dark:from-slate-900/80 dark:via-blue-950/60 dark:to-indigo-950/40",
-              "border border-blue-200/50 dark:border-blue-900/40",
-              "shadow-sm transition-all duration-500",
-              "hover:shadow-lg hover:shadow-blue-500/10 dark:hover:shadow-blue-500/5"
-            )}
-          >
-            <CardContent className="p-5">
-              <Weather
-                current={weatherData?.current}
-                forecast={weatherData?.forecast}
-                location={weatherData?.location}
-              />
-            </CardContent>
-          </Card>
+          {/* Weather Card - Plain styling */}
+          <div className="min-h-[280px]">
+            <Weather
+              current={weatherData?.current}
+              forecast={weatherData?.forecast}
+              location={weatherData?.location}
+            />
+          </div>
         </div>
       </section>
 
@@ -112,6 +104,17 @@ export function AdminDashboardClient({
           financialData={financialData}
           cashFlowData={cashFlowData}
           expenseCategories={expenseCategories}
+        />
+      </section>
+
+      {/* ============================================
+          SECTION 5: Recent Transactions
+          Transaction list table
+          ============================================ */}
+      <section className="px-4 lg:px-6">
+        <TransactionList
+          transactions={recentTransactions}
+          locale={locale}
         />
       </section>
     </div>

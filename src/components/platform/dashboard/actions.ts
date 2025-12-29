@@ -378,6 +378,66 @@ export async function getExpenseCategories(): Promise<ExpenseCategory[]> {
 /**
  * Get trending stats for dashboard
  */
+// ============================================================================
+// RECENT TRANSACTIONS
+// ============================================================================
+
+export interface RecentTransaction {
+  id: string
+  description: string
+  amount: number
+  type: "income" | "expense" | "transfer"
+  status: "completed" | "pending" | "failed"
+  date: Date
+  category?: string
+  reference?: string
+}
+
+/**
+ * Get recent transactions for dashboard
+ */
+export async function getRecentTransactions(
+  limit: number = 5
+): Promise<RecentTransaction[]> {
+  const session = await auth()
+
+  // Get recent invoices as transactions
+  const invoices = await db.invoice.findMany({
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      invoiceNumber: true,
+      total: true,
+      status: true,
+      createdAt: true,
+      paidAt: true,
+      client: {
+        select: { companyName: true },
+      },
+    },
+  })
+
+  return invoices.map((invoice) => ({
+    id: invoice.id,
+    description: `Invoice #${invoice.invoiceNumber} - ${invoice.client?.companyName || "Customer"}`,
+    amount: Number(invoice.total),
+    type: "income" as const,
+    status:
+      invoice.status === "PAID"
+        ? ("completed" as const)
+        : invoice.status === "CANCELLED"
+          ? ("failed" as const)
+          : ("pending" as const),
+    date: invoice.paidAt || invoice.createdAt,
+    category: "Invoice",
+    reference: invoice.invoiceNumber,
+  }))
+}
+
+/**
+ * Get trending stats for dashboard
+ */
 export async function getTrendingStatsData(): Promise<TrendingStatsData> {
   const now = new Date()
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)

@@ -701,13 +701,47 @@ const integrations = {
 
 ### Process Elimination Checklist
 
-- [ ] Manual typing of invoice line items → OCR extraction
-- [ ] Phone calls for status updates → Client portal + WhatsApp bot
-- [ ] Paper-based document tracking → Digital document management
-- [ ] Manual duty calculations → Automated HS code lookup + calculation
-- [ ] Calendar-based demurrage tracking → Automated countdown alerts
-- [ ] Email-based ACD requests → Automated trigger 72h before loading
-- [ ] Manual IM Form expiry tracking → Automated alerts at 10, 5, 3, 1 days
+> **Status Legend:** ✅ Implemented | ⚠️ Partial | ❌ Not Implemented | 🔧 In Progress
+
+- ❌ Manual typing of invoice line items → OCR extraction
+  - *Status: STUBBED - `extract-receipt-data.ts` returns hardcoded data*
+  - *Action: Install @ai-sdk/anthropic, implement real extraction*
+
+- ⚠️ Phone calls for status updates → Client portal + WhatsApp bot
+  - *Status: Service exists but NOT auto-triggered on stage changes*
+  - *Action: Connect `advanceToNextStage()` to `notifyShipmentMilestone()`*
+
+- ✅ Paper-based document tracking → Digital document management
+  - *Status: Document model exists with upload support*
+
+- ⚠️ Manual duty calculations → Automated HS code lookup + calculation
+  - *Status: Basic frontend calculator at `/project/[id]/duty/`*
+  - *Action: Add HS code database, server-side logic, tariff lookup*
+
+- ❌ Calendar-based demurrage tracking → Automated countdown alerts
+  - *Status: "DEMURRAGE" fee category exists, NO tracking logic*
+  - *Action: Add Container model, cron job, countdown alerts*
+
+- ❌ Email-based ACD requests → Automated trigger 72h before loading
+  - *Status: NOT IMPLEMENTED*
+  - *Action: Add ACD model, scheduled job for pre-loading alerts*
+
+- ❌ Manual IM Form expiry tracking → Automated alerts at 10, 5, 3, 1 days
+  - *Status: NOT IMPLEMENTED*
+  - *Action: Add IMForm model with expiry tracking*
+
+### Implementation Status Summary
+
+| Feature | File Location | Status |
+|---------|---------------|--------|
+| OCR Extraction | `src/components/platform/finance/receipt/ai/` | ❌ Stubbed |
+| Notifications | `src/lib/services/notification/` | ⚠️ Service exists, not auto-triggered |
+| Duty Calculator | `src/app/[lang]/(platform)/project/[id]/duty/` | ⚠️ Frontend only |
+| Demurrage | `src/components/platform/finance/fees/config.ts` | ❌ Category only |
+| Tracking | `src/actions/tracking.ts` | ✅ 11-stage workflow |
+| WhatsApp | `src/lib/services/notification/whatsapp.ts` | ✅ Working |
+
+> See `AUTOMATION_GAP_ANALYSIS.md` for detailed implementation plan.
 
 ---
 
