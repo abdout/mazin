@@ -50,7 +50,7 @@ export function QuickActions({
       icon: Receipt,
     },
     {
-      label: dictionary.common.view || "View",
+      label: dictionary?.common?.view || "View",
       href: `/${locale}/settings`,
       icon: Users,
     },

@@ -22,23 +22,44 @@ import {
 } from "@/components/platform/dashboard/charts"
 
 interface Props {
-  dictionary?: unknown
+  dictionary?: Record<string, any>
   lang: Locale
+  data?: {
+    totalRevenue: number
+    totalExpenses: number
+    pendingPayments: number
+    unpaidInvoices: number
+    invoicesCount: number
+    clientsWithChargesCount: number
+    employeesWithSalaryCount: number
+    pendingPayrollCount: number
+    reportsCount: number
+  }
 }
 
-export default function FinanceContent({ lang }: Props) {
+export default function FinanceContent({ lang, dictionary, data }: Props) {
   const isRTL = lang === "ar"
+  const d = dictionary?.finance
 
-  // Stub data
-  const totalRevenue = 0
-  const totalExpenses = 0
-  const pendingPayments = 0
-  const unpaidInvoices = 0
-  const invoicesCount = 0
-  const clientsWithChargesCount = 0
-  const employeesWithSalaryCount = 0
-  const pendingPayrollCount = 0
-  const reportsCount = 0
+  // Use provided data or defaults
+  const totalRevenue = data?.totalRevenue ?? 0
+  const totalExpenses = data?.totalExpenses ?? 0
+  const pendingPayments = data?.pendingPayments ?? 0
+  const unpaidInvoices = data?.unpaidInvoices ?? 0
+  const invoicesCount = data?.invoicesCount ?? 0
+  const clientsWithChargesCount = data?.clientsWithChargesCount ?? 0
+  const employeesWithSalaryCount = data?.employeesWithSalaryCount ?? 0
+  const pendingPayrollCount = data?.pendingPayrollCount ?? 0
+  const reportsCount = data?.reportsCount ?? 0
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD", {
+      style: "decimal",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
 
   return (
     <div className="space-y-6">
@@ -61,16 +82,16 @@ export default function FinanceContent({ lang }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {isRTL ? "إجمالي الإيرادات" : "Total Revenue"}
+                {d?.totalRevenue || (isRTL ? "إجمالي الإيرادات" : "Total Revenue")}
               </CardTitle>
               <TrendingUp className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {Math.floor(totalRevenue / 100).toLocaleString()} SDG
+                {formatCurrency(totalRevenue)} {d?.currency?.sdg || "SDG"}
               </div>
               <p className="text-muted-foreground text-xs">
-                {isRTL ? "مكتمل" : "Completed"}
+                {isRTL ? "هذا الشهر" : "This month"}
               </p>
             </CardContent>
           </Card>
@@ -78,13 +99,13 @@ export default function FinanceContent({ lang }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {isRTL ? "إجمالي المصروفات" : "Total Expenses"}
+                {d?.totalExpenses || (isRTL ? "إجمالي المصروفات" : "Total Expenses")}
               </CardTitle>
               <DollarSign className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {Math.floor(totalExpenses / 100).toLocaleString()} SDG
+                {formatCurrency(totalExpenses)} {d?.currency?.sdg || "SDG"}
               </div>
               <p className="text-muted-foreground text-xs">
                 {isRTL ? "معتمد" : "Approved"}
@@ -95,13 +116,13 @@ export default function FinanceContent({ lang }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {isRTL ? "مدفوعات معلقة" : "Pending Payments"}
+                {d?.pendingPayments || (isRTL ? "مدفوعات معلقة" : "Pending Payments")}
               </CardTitle>
               <CircleAlert className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {Math.floor(pendingPayments / 100).toLocaleString()} SDG
+                {formatCurrency(pendingPayments)} {d?.currency?.sdg || "SDG"}
               </div>
               <p className="text-muted-foreground text-xs">
                 {isRTL ? "في الانتظار" : "Awaiting"}
@@ -112,14 +133,14 @@ export default function FinanceContent({ lang }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {isRTL ? "فواتير غير مدفوعة" : "Unpaid Invoices"}
+                {d?.unpaidInvoices || (isRTL ? "فواتير غير مدفوعة" : "Unpaid Invoices")}
               </CardTitle>
               <FileText className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">{unpaidInvoices}</div>
               <p className="text-muted-foreground text-xs">
-                {isRTL ? "فواتير" : "Invoices"}
+                {d?.invoice?.title || (isRTL ? "فواتير" : "Invoices")}
               </p>
             </CardContent>
           </Card>
@@ -146,7 +167,7 @@ export default function FinanceContent({ lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {isRTL ? "الفواتير" : "Invoicing"}
+                  {d?.invoice?.title || (isRTL ? "الفواتير" : "Invoicing")}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">{invoicesCount}</p>
@@ -177,7 +198,7 @@ export default function FinanceContent({ lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {isRTL ? "رسوم الخدمة" : "Service Charges"}
+                  {d?.navigation?.fees || (isRTL ? "رسوم الخدمة" : "Service Charges")}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
@@ -208,7 +229,7 @@ export default function FinanceContent({ lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {isRTL ? "الرواتب" : "Payroll"}
+                  {d?.payroll?.title || (isRTL ? "الرواتب" : "Payroll")}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
@@ -241,7 +262,7 @@ export default function FinanceContent({ lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {isRTL ? "التقارير" : "Reports"}
+                  {d?.reports?.title || (isRTL ? "التقارير" : "Reports")}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">{reportsCount}</p>
@@ -273,7 +294,7 @@ export default function FinanceContent({ lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {isRTL ? "إنشاء فاتورة" : "Create Invoice"}
+                    {d?.actions?.createInvoice || (isRTL ? "إنشاء فاتورة" : "Create Invoice")}
                   </p>
                   <p className="text-muted-foreground text-xs">
                     {isRTL ? "فوترة العملاء" : "Bill clients"}
@@ -284,7 +305,7 @@ export default function FinanceContent({ lang }: Props) {
           </Card>
         </Link>
 
-        <Link href={`/${lang}/finance/payroll/process`}>
+        <Link href={`/${lang}/finance/payroll/new`}>
           <Card className="group hover:border-primary/30 cursor-pointer p-4 transition-all duration-300 hover:shadow-md">
             <CardContent className="p-0">
               <div className="flex items-center gap-3">
@@ -293,7 +314,7 @@ export default function FinanceContent({ lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {isRTL ? "معالجة الرواتب" : "Process Payroll"}
+                    {d?.actions?.runPayroll || (isRTL ? "معالجة الرواتب" : "Process Payroll")}
                   </p>
                   <p className="text-muted-foreground text-xs">
                     {isRTL ? "رواتب شهرية" : "Monthly payroll"}
@@ -313,7 +334,7 @@ export default function FinanceContent({ lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {isRTL ? "تتبع المصروفات" : "Track Expenses"}
+                    {d?.actions?.submitExpense || (isRTL ? "تتبع المصروفات" : "Track Expenses")}
                   </p>
                   <p className="text-muted-foreground text-xs">
                     {isRTL ? "اعتماد وتصنيف" : "Approve & categorize"}
@@ -324,7 +345,7 @@ export default function FinanceContent({ lang }: Props) {
           </Card>
         </Link>
 
-        <Link href={`/${lang}/finance/reports/generate`}>
+        <Link href={`/${lang}/finance/reports`}>
           <Card className="group hover:border-primary/30 cursor-pointer p-4 transition-all duration-300 hover:shadow-md">
             <CardContent className="p-0">
               <div className="flex items-center gap-3">
@@ -333,7 +354,7 @@ export default function FinanceContent({ lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {isRTL ? "إنشاء تقرير" : "Generate Report"}
+                    {d?.reports?.generate || (isRTL ? "إنشاء تقرير" : "Generate Report")}
                   </p>
                   <p className="text-muted-foreground text-xs">
                     {isRTL ? "أرباح وخسائر، ميزانية" : "P&L, Balance Sheet"}

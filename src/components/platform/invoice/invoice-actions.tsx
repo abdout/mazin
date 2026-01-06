@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Download, Printer, Pencil, Loader2 } from "lucide-react"
+import { Download, Printer, Pencil, Loader2, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SendEmailDialog } from "./send-email-dialog"
+import { WhatsAppShareDialog } from "./whatsapp-share-dialog"
 import type { Dictionary } from "@/components/internationalization/types"
 import type { Locale } from "@/components/internationalization"
 import type { InvoiceStatus } from "@prisma/client"
@@ -14,6 +15,11 @@ interface InvoiceActionsProps {
   invoiceNumber: string
   invoiceStatus: InvoiceStatus
   clientEmail?: string | null
+  clientPhone?: string | null
+  clientName?: string | null
+  blNumber?: string | null
+  total: number
+  currency: string
   dictionary: Dictionary
   locale: Locale
 }
@@ -23,6 +29,11 @@ export function InvoiceActions({
   invoiceNumber,
   invoiceStatus,
   clientEmail,
+  clientPhone,
+  clientName,
+  blNumber,
+  total,
+  currency,
   dictionary,
   locale,
 }: InvoiceActionsProps) {
@@ -30,6 +41,7 @@ export function InvoiceActions({
   const [downloadingPdf, setDownloadingPdf] = useState(false)
 
   const t = dictionary.invoices
+  const isRtl = locale === "ar"
   const canEdit = invoiceStatus !== "PAID" && invoiceStatus !== "CANCELLED"
 
   const handlePrint = () => {
@@ -88,6 +100,17 @@ export function InvoiceActions({
         invoiceNumber={invoiceNumber}
         clientEmail={clientEmail}
         dictionary={dictionary}
+        locale={locale}
+      />
+
+      <WhatsAppShareDialog
+        invoiceId={invoiceId}
+        invoiceNumber={invoiceNumber}
+        clientPhone={clientPhone}
+        clientName={clientName}
+        blNumber={blNumber}
+        total={total}
+        currency={currency}
         locale={locale}
       />
 

@@ -30,7 +30,7 @@ export default async function ShipmentsPage({
           <PageHeading title={dict.shipments?.title || "Shipments"} />
           <Button asChild>
             <Link href={`/${locale}/shipments/new`}>
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="h-4 w-4 me-2" />
               {dict.shipments?.newShipment || "New Shipment"}
             </Link>
           </Button>

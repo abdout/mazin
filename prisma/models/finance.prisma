@@ -1,0 +1,979 @@
+// Finance Models
+// Comprehensive financial management for customs clearance operations
+// All models use userId for multi-tenant isolation
+
+// ============================================================================
+// BANKING & TRANSACTIONS
+// ============================================================================
+
+model BankAccount {
+  id            String            @id @default(cuid())
+  accountName   String
+  accountNumber String
+  bankName      String
+  bankBranch    String?
+  iban          String?
+  swiftCode     String?
+  currency      String            @default("SDG")
+  accountType   BankAccountType   @default(CHECKING)
+  status        BankAccountStatus @default(ACTIVE)
+
+  // Balance tracking
+  currentBalance    Decimal @default(0) @db.Decimal(15, 2)
+  availableBalance  Decimal @default(0) @db.Decimal(15, 2)
+  lastReconciled    DateTime?
+  reconciledBalance Decimal? @db.Decimal(15, 2)
+
+  // Display settings
+  color       String?
+  isDefault   Boolean @default(false)
+  displayOrder Int    @default(0)
+
+  // Relations
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([accountNumber])
+  @@map("bank_accounts")
+}
+
+enum BankAccountType {
+  CHECKING
+  SAVINGS
+  FOREIGN_CURRENCY
+  PETTY_CASH
+}
+
+enum BankAccountStatus {
+  ACTIVE
+  INACTIVE
+  FROZEN
+  CLOSED
+}
+
+model Transaction {
+  id              String            @id @default(cuid())
+  transactionDate DateTime          @default(now())
+  description     String
+  reference       String?
+  type            TransactionType
+  category        TransactionCategory
+
+  // Amounts
+  amount   Decimal @db.Decimal(15, 2)
+  currency String  @default("SDG")
+  // For multi-currency: store original amount and rate
+  originalAmount   Decimal? @db.Decimal(15, 2)
+  originalCurrency String?
+  exchangeRate     Decimal? @db.Decimal(10, 6)
+
+  // Running balance after transaction
+  balanceAfter Decimal? @db.Decimal(15, 2)
+
+  // Status
+  status           TransactionStatus @default(PENDING)
+  reconciledAt     DateTime?
+  reconciledAmount Decimal?          @db.Decimal(15, 2)
+
+  // Source references
+  invoiceId  String?
+  expenseId  String?
+  payrollId  String?
+  shipmentId String?
+  clientId   String?
+
+  // Linked entities
+  expense Expense? @relation(fields: [expenseId], references: [id])
+
+  // Relations
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
+
+  // Journal entry for double-entry
+  journalEntryId String?
+  journalEntry   JournalEntry? @relation(fields: [journalEntryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([bankAccountId])
+  @@index([transactionDate])
+  @@index([type])
+  @@index([category])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  CREDIT  // Money in
+  DEBIT   // Money out
+  TRANSFER
+}
+
+enum TransactionCategory {
+  // Revenue
+  INVOICE_PAYMENT
+  SERVICE_FEE
+  CLEARANCE_FEE
+  DOCUMENTATION_FEE
+  HANDLING_FEE
+  OTHER_REVENUE
+
+  // Expenses
+  PORT_CHARGE
+  CUSTOMS_DUTY
+  TRANSPORTATION
+  STORAGE
+  INSPECTION_FEE
+  GOVERNMENT_FEE
+  SALARY
+  OFFICE_EXPENSE
+  UTILITY
+  OTHER_EXPENSE
+
+  // Transfers
+  INTERNAL_TRANSFER
+  CLIENT_DEPOSIT
+  CLIENT_REFUND
+  DUTY_PAYMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  RECONCILED
+  CANCELLED
+  FAILED
+}
+
+// ============================================================================
+// EXPENSES
+// ============================================================================
+
+model ExpenseCategory {
+  id          String  @id @default(cuid())
+  name        String
+  nameAr      String?
+  code        String
+  description String?
+  color       String?
+  icon        String?
+  isActive    Boolean @default(true)
+
+  // Budget linking
+  budgetable Boolean @default(true)
+
+  // Parent category for hierarchy
+  parentId String?
+  parent   ExpenseCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children ExpenseCategory[] @relation("CategoryHierarchy")
+
+  // Relations
+  userId   String
+  user     User      @relation(fields: [userId], references: [id])
+  expenses Expense[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, code])
+  @@index([userId])
+  @@map("expense_categories")
+}
+
+model Expense {
+  id          String        @id @default(cuid())
+  expenseDate DateTime      @default(now())
+  description String
+  reference   String?
+  status      ExpenseStatus @default(PENDING)
+
+  // Amount
+  amount   Decimal @db.Decimal(15, 2)
+  currency String  @default("SDG")
+  taxAmount Decimal? @db.Decimal(15, 2)
+  totalAmount Decimal @db.Decimal(15, 2)
+
+  // Payment details
+  paidAt        DateTime?
+  paymentMethod PaymentMethod?
+
+  // Attachments
+  receiptUrl    String?
+  receiptName   String?
+
+  // Approval workflow
+  submittedAt DateTime?
+  submittedBy String?
+  approvedAt  DateTime?
+  approvedBy  String?
+  rejectedAt  DateTime?
+  rejectedBy  String?
+  rejectionReason String?
+
+  // Linkage to operations
+  shipmentId String?
+  clientId   String?
+  projectId  String?
+
+  // Notes
+  notes String? @db.Text
+
+  // Relations
+  userId     String
+  user       User             @relation(fields: [userId], references: [id])
+  categoryId String
+  category   ExpenseCategory  @relation(fields: [categoryId], references: [id])
+  transactions Transaction[]
+
+  // Journal entry
+  journalEntryId String?
+  journalEntry   JournalEntry? @relation(fields: [journalEntryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([expenseDate])
+  @@index([status])
+  @@map("expenses")
+}
+
+enum ExpenseStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CHECK
+  CREDIT_CARD
+  MOBILE_PAYMENT
+}
+
+// ============================================================================
+// BUDGET
+// ============================================================================
+
+model Budget {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  fiscalYear  Int
+  status      BudgetStatus @default(DRAFT)
+
+  // Period
+  startDate DateTime
+  endDate   DateTime
+
+  // Totals
+  totalAllocated Decimal @default(0) @db.Decimal(15, 2)
+  totalSpent     Decimal @default(0) @db.Decimal(15, 2)
+  totalRemaining Decimal @default(0) @db.Decimal(15, 2)
+
+  // Approval
+  approvedAt DateTime?
+  approvedBy String?
+
+  // Relations
+  userId String
+  user   User         @relation(fields: [userId], references: [id])
+  items  BudgetItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([fiscalYear])
+  @@map("budgets")
+}
+
+model BudgetItem {
+  id          String @id @default(cuid())
+  categoryName String
+  categoryCode String?
+  description String?
+
+  // Amounts (stored in cents)
+  allocated Decimal @db.Decimal(15, 2)
+  spent     Decimal @default(0) @db.Decimal(15, 2)
+  remaining Decimal @db.Decimal(15, 2)
+
+  // Monthly breakdown (JSON array of 12 monthly amounts)
+  monthlyAllocations Json?
+
+  // Variance tracking
+  varianceAmount  Decimal? @db.Decimal(15, 2)
+  variancePercent Decimal? @db.Decimal(5, 2)
+
+  // Relations
+  budgetId String
+  budget   Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([budgetId])
+  @@map("budget_items")
+}
+
+enum BudgetStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  CLOSED
+}
+
+// ============================================================================
+// PAYROLL & SALARY
+// ============================================================================
+
+model Employee {
+  id           String         @id @default(cuid())
+  employeeCode String
+  firstName    String
+  lastName     String
+  email        String?
+  phone        String?
+  department   String?
+  position     String?
+  status       EmployeeStatus @default(ACTIVE)
+
+  // Employment details
+  hireDate       DateTime
+  terminationDate DateTime?
+  employmentType  EmploymentType @default(FULL_TIME)
+
+  // Bank details for salary
+  bankName      String?
+  bankBranch    String?
+  accountNumber String?
+  iban          String?
+
+  // Relations
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  salary       Salary?
+  payrollItems PayrollItem[]
+  timesheets   Timesheet[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, employeeCode])
+  @@index([userId])
+  @@map("employees")
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+}
+
+model Salary {
+  id String @id @default(cuid())
+
+  // Base salary
+  basicSalary Decimal @db.Decimal(15, 2)
+  currency    String  @default("SDG")
+
+  // Allowances
+  housingAllowance     Decimal @default(0) @db.Decimal(15, 2)
+  transportAllowance   Decimal @default(0) @db.Decimal(15, 2)
+  mealAllowance        Decimal @default(0) @db.Decimal(15, 2)
+  phoneAllowance       Decimal @default(0) @db.Decimal(15, 2)
+  otherAllowances      Decimal @default(0) @db.Decimal(15, 2)
+
+  // Deductions
+  socialSecurityRate Decimal @default(8) @db.Decimal(5, 2)
+  taxRate            Decimal @default(0) @db.Decimal(5, 2)
+  otherDeductions    Decimal @default(0) @db.Decimal(15, 2)
+
+  // Calculated totals
+  grossSalary Decimal @db.Decimal(15, 2)
+  totalDeductions Decimal @db.Decimal(15, 2)
+  netSalary   Decimal @db.Decimal(15, 2)
+
+  // Effective dates
+  effectiveFrom DateTime @default(now())
+  effectiveTo   DateTime?
+
+  // Relations
+  employeeId String   @unique
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+  @@map("salaries")
+}
+
+model Payroll {
+  id           String        @id @default(cuid())
+  payrollCode  String
+  name         String
+  period       String        // e.g., "2025-01" for January 2025
+  status       PayrollStatus @default(DRAFT)
+
+  // Period dates
+  periodStart DateTime
+  periodEnd   DateTime
+  payDate     DateTime?
+
+  // Totals
+  totalGross      Decimal @db.Decimal(15, 2)
+  totalDeductions Decimal @db.Decimal(15, 2)
+  totalNet        Decimal @db.Decimal(15, 2)
+
+  // Processing
+  processedAt DateTime?
+  processedBy String?
+  approvedAt  DateTime?
+  approvedBy  String?
+  paidAt      DateTime?
+
+  notes String? @db.Text
+
+  // Relations
+  userId String
+  user   User          @relation(fields: [userId], references: [id])
+  items  PayrollItem[]
+
+  // Journal entry
+  journalEntryId String?
+  journalEntry   JournalEntry? @relation(fields: [journalEntryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, payrollCode])
+  @@index([userId])
+  @@index([period])
+  @@map("payrolls")
+}
+
+model PayrollItem {
+  id String @id @default(cuid())
+
+  // Base pay
+  basicSalary Decimal @db.Decimal(15, 2)
+
+  // Allowances
+  housingAllowance   Decimal @default(0) @db.Decimal(15, 2)
+  transportAllowance Decimal @default(0) @db.Decimal(15, 2)
+  mealAllowance      Decimal @default(0) @db.Decimal(15, 2)
+  otherAllowances    Decimal @default(0) @db.Decimal(15, 2)
+
+  // Overtime
+  overtimeHours  Decimal @default(0) @db.Decimal(5, 2)
+  overtimeAmount Decimal @default(0) @db.Decimal(15, 2)
+
+  // Deductions
+  socialSecurity  Decimal @default(0) @db.Decimal(15, 2)
+  incomeTax       Decimal @default(0) @db.Decimal(15, 2)
+  otherDeductions Decimal @default(0) @db.Decimal(15, 2)
+  loanDeduction   Decimal @default(0) @db.Decimal(15, 2)
+
+  // Totals
+  grossAmount       Decimal @db.Decimal(15, 2)
+  totalDeductions   Decimal @db.Decimal(15, 2)
+  netAmount         Decimal @db.Decimal(15, 2)
+
+  // Status
+  status PayrollItemStatus @default(PENDING)
+  paidAt DateTime?
+
+  // Notes
+  notes String?
+
+  // Relations
+  payrollId  String
+  payroll    Payroll  @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([payrollId, employeeId])
+  @@index([payrollId])
+  @@index([employeeId])
+  @@map("payroll_items")
+}
+
+enum PayrollStatus {
+  DRAFT
+  PROCESSING
+  PENDING_APPROVAL
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum PayrollItemStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ============================================================================
+// TIMESHEET
+// ============================================================================
+
+model Timesheet {
+  id     String          @id @default(cuid())
+  period String          // e.g., "2025-01" or "2025-W01"
+  status TimesheetStatus @default(DRAFT)
+
+  // Period dates
+  periodStart DateTime
+  periodEnd   DateTime
+
+  // Totals
+  totalRegularHours Decimal @default(0) @db.Decimal(5, 2)
+  totalOvertimeHours Decimal @default(0) @db.Decimal(5, 2)
+
+  // Approval
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  approvedBy  String?
+  rejectedAt  DateTime?
+  rejectedBy  String?
+  rejectionReason String?
+
+  // Relations
+  employeeId String
+  employee   Employee         @relation(fields: [employeeId], references: [id])
+  entries    TimesheetEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, period])
+  @@index([employeeId])
+  @@index([period])
+  @@map("timesheets")
+}
+
+model TimesheetEntry {
+  id   String   @id @default(cuid())
+  date DateTime
+
+  // Hours
+  regularHours  Decimal @default(0) @db.Decimal(5, 2)
+  overtimeHours Decimal @default(0) @db.Decimal(5, 2)
+
+  // Time tracking
+  clockIn  DateTime?
+  clockOut DateTime?
+  breakMinutes Int @default(0)
+
+  // Description
+  description String?
+  projectId   String?
+  shipmentId  String?
+
+  // Relations
+  timesheetId String
+  timesheet   Timesheet @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([timesheetId])
+  @@index([date])
+  @@map("timesheet_entries")
+}
+
+enum TimesheetStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+// ============================================================================
+// CLIENT WALLET / DEPOSITS
+// ============================================================================
+
+model Wallet {
+  id       String       @id @default(cuid())
+  balance  Decimal      @default(0) @db.Decimal(15, 2)
+  currency String       @default("SDG")
+  status   WalletStatus @default(ACTIVE)
+
+  // Credit limit for client
+  creditLimit Decimal @default(0) @db.Decimal(15, 2)
+
+  // Relations - linked to client
+  clientId     String              @unique
+  client       Client              @relation(fields: [clientId], references: [id])
+  transactions WalletTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id              String                  @id @default(cuid())
+  transactionDate DateTime                @default(now())
+  type            WalletTransactionType
+  description     String
+  reference       String?
+
+  // Amount (positive for deposits, negative for debits)
+  amount       Decimal @db.Decimal(15, 2)
+  balanceAfter Decimal @db.Decimal(15, 2)
+
+  // Linked invoice (for deductions)
+  invoiceId  String?
+  shipmentId String?
+
+  // Relations
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([walletId])
+  @@index([transactionDate])
+  @@map("wallet_transactions")
+}
+
+enum WalletStatus {
+  ACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  INVOICE_PAYMENT
+  REFUND
+  ADJUSTMENT
+  DUTY_PAYMENT
+}
+
+// ============================================================================
+// DOUBLE-ENTRY ACCOUNTING
+// ============================================================================
+
+model ChartOfAccount {
+  id          String      @id @default(cuid())
+  code        String
+  name        String
+  nameAr      String?
+  description String?
+  accountType AccountType
+  isActive    Boolean     @default(true)
+  isSystem    Boolean     @default(false) // System accounts cannot be deleted
+
+  // Balance tracking
+  balance         Decimal  @default(0) @db.Decimal(15, 2)
+  normalBalance   NormalBalance @default(DEBIT)
+
+  // Hierarchy
+  parentId String?
+  parent   ChartOfAccount?  @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children ChartOfAccount[] @relation("AccountHierarchy")
+
+  // Display
+  displayOrder Int @default(0)
+
+  // Relations
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  journalLines JournalLine[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, code])
+  @@index([userId])
+  @@index([accountType])
+  @@map("chart_of_accounts")
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum NormalBalance {
+  DEBIT
+  CREDIT
+}
+
+model JournalEntry {
+  id          String             @id @default(cuid())
+  entryNumber String
+  entryDate   DateTime           @default(now())
+  description String
+  reference   String?
+  status      JournalEntryStatus @default(DRAFT)
+
+  // Source tracking
+  sourceType String? // INVOICE, EXPENSE, PAYROLL, TRANSFER, MANUAL
+  sourceId   String?
+
+  // Totals (must be equal for valid entry)
+  totalDebit  Decimal @db.Decimal(15, 2)
+  totalCredit Decimal @db.Decimal(15, 2)
+
+  // Posting
+  postedAt DateTime?
+  postedBy String?
+
+  // Reversal
+  isReversed       Boolean @default(false)
+  reversalEntryId  String?
+  reversedAt       DateTime?
+
+  // Relations
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  lines        JournalLine[]
+  transactions Transaction[]
+  expenses     Expense[]
+  payrolls     Payroll[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, entryNumber])
+  @@index([userId])
+  @@index([entryDate])
+  @@index([sourceType, sourceId])
+  @@map("journal_entries")
+}
+
+model JournalLine {
+  id          String @id @default(cuid())
+  description String?
+  reference   String?
+
+  // Amount
+  debitAmount  Decimal @default(0) @db.Decimal(15, 2)
+  creditAmount Decimal @default(0) @db.Decimal(15, 2)
+
+  // Relations
+  journalEntryId String
+  journalEntry   JournalEntry   @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  accountId      String
+  account        ChartOfAccount @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([journalEntryId])
+  @@index([accountId])
+  @@map("journal_lines")
+}
+
+enum JournalEntryStatus {
+  DRAFT
+  PENDING
+  POSTED
+  REVERSED
+}
+
+model FiscalYear {
+  id        String           @id @default(cuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  status    FiscalYearStatus @default(OPEN)
+  isCurrent Boolean          @default(false)
+
+  // Closing balances
+  closedAt    DateTime?
+  closedBy    String?
+  closingNote String?
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("fiscal_years")
+}
+
+enum FiscalYearStatus {
+  OPEN
+  CLOSING
+  CLOSED
+}
+
+// ============================================================================
+// RECEIPTS & DOCUMENTS
+// ============================================================================
+
+model Receipt {
+  id          String        @id @default(cuid())
+  receiptNumber String
+  receiptDate DateTime      @default(now())
+  type        ReceiptType
+  status      ReceiptStatus @default(PENDING)
+
+  // Client/Vendor
+  partyName String
+  partyType String // CLIENT, VENDOR, GOVERNMENT
+
+  // Amount
+  amount   Decimal @db.Decimal(15, 2)
+  currency String  @default("SDG")
+
+  // Payment details
+  paymentMethod PaymentMethod?
+  paymentRef    String?
+
+  // Description
+  description String
+  notes       String? @db.Text
+
+  // File attachment
+  fileUrl  String?
+  fileName String?
+  fileSize Int?
+
+  // AI OCR extraction
+  extractedData Json?
+  extractedAt   DateTime?
+
+  // Linked entities
+  invoiceId  String?
+  expenseId  String?
+  shipmentId String?
+  clientId   String?
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, receiptNumber])
+  @@index([userId])
+  @@index([receiptDate])
+  @@index([type])
+  @@map("receipts")
+}
+
+enum ReceiptType {
+  PAYMENT_RECEIVED
+  PAYMENT_MADE
+  DUTY_PAYMENT
+  FEE_PAYMENT
+  REFUND
+  DEPOSIT
+}
+
+enum ReceiptStatus {
+  PENDING
+  VERIFIED
+  POSTED
+  CANCELLED
+}
+
+// ============================================================================
+// FEE TEMPLATES (Customs Clearance Specific)
+// ============================================================================
+
+model FeeTemplate {
+  id          String  @id @default(cuid())
+  code        String
+  name        String
+  nameAr      String?
+  description String?
+
+  // Fee details
+  feeType        FeeType
+  calculationType FeeCalculationType @default(FIXED)
+  amount         Decimal?            @db.Decimal(15, 2)
+  percentage     Decimal?            @db.Decimal(5, 4)
+  minAmount      Decimal?            @db.Decimal(15, 2)
+  maxAmount      Decimal?            @db.Decimal(15, 2)
+
+  // Applicability
+  applicableStages Json? // Array of TrackingStageType
+  isGovernmentFee  Boolean @default(false)
+  isTaxable        Boolean @default(false)
+  taxRate          Decimal? @db.Decimal(5, 2)
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, code])
+  @@index([userId])
+  @@index([feeType])
+  @@map("fee_templates")
+}
+
+enum FeeType {
+  CLEARANCE_SERVICE
+  DOCUMENTATION
+  CUSTOMS_DUTY
+  PORT_CHARGE
+  TERMINAL_CHARGE
+  TRANSPORTATION
+  STORAGE
+  DEMURRAGE
+  INSPECTION
+  INSURANCE
+  BANK_CHARGE
+  GOVERNMENT_LEVY
+  HANDLING
+  OTHER
+}
+
+enum FeeCalculationType {
+  FIXED
+  PERCENTAGE_OF_VALUE
+  PER_UNIT
+  PER_CONTAINER
+  PER_WEIGHT
+  TIERED
+}

@@ -12,19 +12,23 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+import type { Locale } from "@/components/internationalization"
 import type { FinancialKPI } from "./types"
 
 interface KPICardProps {
   kpi: FinancialKPI
   className?: string
   onClick?: () => void
+  locale?: Locale
 }
 
 export const KPICard = React.memo(function KPICard({
   kpi,
   className,
   onClick,
+  locale = "ar",
 }: KPICardProps) {
+  const isRTL = locale === "ar"
   const getColorClass = (color?: string) => {
     switch (color) {
       case "blue":
@@ -54,7 +58,7 @@ export const KPICard = React.memo(function KPICard({
         kpi.id.includes("cash") ||
         kpi.id.includes("amount")
       ) {
-        return new Intl.NumberFormat("en-SD", {
+        return new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD", {
           style: "currency",
           currency: "SDG",
           minimumFractionDigits: 0,
@@ -70,7 +74,7 @@ export const KPICard = React.memo(function KPICard({
         return `${value.toFixed(1)}%`
       }
       // Format as number with commas
-      return new Intl.NumberFormat("en-SD").format(value)
+      return new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(value)
     }
     return value
   }
@@ -107,7 +111,7 @@ export const KPICard = React.memo(function KPICard({
 
   // Mini sparkline component
   const Sparkline = ({ data }: { data?: number[] }) => {
-    if (!data || data.length === 0) return null
+    if (!data || data.length < 2) return null
 
     const max = Math.max(...data)
     const min = Math.min(...data)
@@ -127,7 +131,7 @@ export const KPICard = React.memo(function KPICard({
       <svg
         width={width}
         height={height}
-        className="ml-2 inline-block"
+        className="ms-2 inline-block"
         viewBox={`0 0 ${width} ${height}`}
       >
         <polyline

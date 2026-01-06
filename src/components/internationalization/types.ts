@@ -825,4 +825,65 @@ export interface Dictionary {
     requestPayment: string
     paymentPending: string
   }
+  marketplace?: {
+    title?: string
+    description?: string
+    placeOrder?: string
+    learnMore?: string
+    vendor?: string
+    priceFrom?: string
+    priceTo?: string
+    currency?: string
+    orderPlaced?: string
+    contactVia?: string
+    whatsapp?: string
+    email?: string
+    phone?: string
+    inStock?: string
+    outOfStock?: string
+    serviceArea?: string
+    viewDetails?: string
+    backToMarketplace?: string
+    categories?: {
+      [key: string]: string | undefined
+      ALL?: string
+      TRUCK?: string
+      FORKLIFT?: string
+      MANPOWER?: string
+      TOOLS?: string
+    }
+    request?: {
+      title?: string
+      name?: string
+      phone?: string
+      email?: string
+      message?: string
+      quantity?: string
+      preferredDate?: string
+      submit?: string
+      success?: string
+      contactInfo?: string
+    }
+    vendorProfile?: {
+      register?: string
+      businessName?: string
+      businessNameAr?: string
+      contactName?: string
+      description?: string
+      pending?: string
+      approved?: string
+      rejected?: string
+      suspended?: string
+      myListings?: string
+      myRequests?: string
+      addService?: string
+    }
+    statuses?: {
+      PENDING?: string
+      CONTACTED?: string
+      IN_PROGRESS?: string
+      COMPLETED?: string
+      CANCELLED?: string
+    }
+  }
 }

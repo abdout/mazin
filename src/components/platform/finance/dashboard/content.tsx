@@ -1,15 +1,12 @@
 import { auth } from "@/auth"
 import {
   Building,
-  CircleAlert,
   DollarSign,
   Receipt,
-  TrendingDown,
-  TrendingUp,
   Users,
-  Wallet,
 } from "lucide-react"
 
+import type { Locale } from "@/components/internationalization"
 import { UserRole } from "../lib/permissions"
 import {
   getDashboardStats,
@@ -27,10 +24,22 @@ import { RevenueChart } from "./revenue-chart"
 import { TransactionList } from "./transaction-list"
 import type { FinancialKPI } from "./types"
 
-export async function FinanceDashboardContent() {
+interface FinanceDashboardContentProps {
+  locale: Locale
+  dictionary: Record<string, any>
+}
+
+export async function FinanceDashboardContent({
+  locale,
+  dictionary,
+}: FinanceDashboardContentProps) {
   const session = await auth()
+  const isRTL = locale === "ar"
+  const t = dictionary.finance ?? {}
+  const common = dictionary.common ?? {}
+
   if (!session?.user) {
-    return <div>Unauthorized</div>
+    return <div>{isRTL ? "غير مصرح" : "Unauthorized"}</div>
   }
 
   const userRole = (session.user.role || "VIEWER") as UserRole
@@ -43,98 +52,98 @@ export async function FinanceDashboardContent() {
     getQuickActionsForRole(userRole),
   ])
 
-  // Prepare KPIs based on role
+  // Prepare KPIs based on role with i18n
   const getKPIsForRole = (): FinancialKPI[] => {
     const allKPIs: FinancialKPI[] = [
       {
         id: "total-revenue",
-        title: "Total Revenue",
+        title: t.totalRevenue ?? "Total Revenue",
         value: stats.totalRevenue,
         change: 12,
         changeType: "increase",
         icon: "💰",
         color: "green",
-        description: "Total invoiced amount",
+        description: isRTL ? "إجمالي المبلغ المفوتر" : "Total invoiced amount",
         trend: stats.revenueTrend.slice(-7),
       },
       {
         id: "collected-revenue",
-        title: "Collected Revenue",
+        title: t.collectedRevenue ?? "Collected Revenue",
         value: stats.collectedRevenue,
         change: stats.collectionRate > 75 ? 5 : -5,
         changeType: stats.collectionRate > 75 ? "increase" : "decrease",
         icon: "✅",
         color: "blue",
-        description: `${stats.collectionRate.toFixed(1)}% collection rate`,
+        description: `${stats.collectionRate.toFixed(1)}% ${t.collectionRate ?? "collection rate"}`,
       },
       {
         id: "total-expenses",
-        title: "Total Expenses",
+        title: t.totalExpenses ?? "Total Expenses",
         value: stats.totalExpenses,
         change: 3,
         changeType: "increase",
         icon: "💸",
         color: "red",
-        description: "All expenses this period",
+        description: isRTL ? "جميع المصروفات في هذه الفترة" : "All expenses this period",
       },
       {
         id: "net-profit",
-        title: "Net Profit",
+        title: t.netProfit ?? "Net Profit",
         value: stats.netProfit,
         change: stats.profitMargin,
         changeType: stats.netProfit > 0 ? "increase" : "decrease",
         icon: "📈",
         color: stats.netProfit > 0 ? "green" : "red",
-        description: `${stats.profitMargin.toFixed(1)}% profit margin`,
+        description: `${stats.profitMargin.toFixed(1)}% ${t.profitMargin ?? "profit margin"}`,
         trend: stats.profitTrend.slice(-7),
       },
       {
         id: "cash-balance",
-        title: "Cash Balance",
+        title: t.cashBalance ?? "Cash Balance",
         value: stats.cashBalance,
         change: 8,
         changeType: "increase",
         icon: "🏦",
         color: "purple",
-        description: `${stats.cashRunway} months runway`,
+        description: `${stats.cashRunway} ${isRTL ? "شهور متبقية" : "months runway"}`,
       },
       {
         id: "outstanding-invoices",
-        title: "Outstanding",
+        title: t.outstandingPayments ?? "Outstanding",
         value: stats.outstandingRevenue,
         change: stats.overdueInvoices,
         changeType: stats.overdueInvoices > 0 ? "increase" : "neutral",
         icon: "⏰",
         color: "yellow",
-        description: `${stats.overdueInvoices} overdue invoices`,
+        description: `${stats.overdueInvoices} ${t.overdueInvoices ?? "overdue invoices"}`,
       },
       {
         id: "active-clients",
-        title: "Active Clients",
+        title: isRTL ? "العملاء النشطون" : "Active Clients",
         value: `${stats.activeClients}/${stats.totalClients}`,
         change: stats.totalClients > 0 ? (stats.activeClients / stats.totalClients) * 100 : 0,
         changeType: "neutral",
         icon: "👥",
         color: "blue",
-        description: "Client payment status",
+        description: isRTL ? "حالة دفع العملاء" : "Client payment status",
       },
       {
         id: "payroll-expense",
-        title: "Payroll",
+        title: t.navigation?.payroll ?? "Payroll",
         value: stats.totalPayroll,
         change: 0,
         changeType: "neutral",
         icon: "💼",
         color: "orange",
-        description: `${stats.payrollProcessed} processed, ${stats.pendingPayroll} pending`,
+        description: `${stats.payrollProcessed} ${isRTL ? "مُعالَج" : "processed"}, ${stats.pendingPayroll} ${isRTL ? "معلق" : "pending"}`,
       },
     ]
 
-    // ListFilter KPIs based on role
+    // Filter KPIs based on role
     switch (userRole) {
       case "ADMIN":
       case "ACCOUNTANT":
-        return allKPIs // Show all KPIs
+        return allKPIs
       case "MANAGER":
       case "OPERATOR":
         return allKPIs.filter((kpi) =>
@@ -145,7 +154,7 @@ export async function FinanceDashboardContent() {
           ["active-clients", "outstanding-invoices"].includes(kpi.id)
         )
       default:
-        return allKPIs.slice(0, 4) // Show basic KPIs
+        return allKPIs.slice(0, 4)
     }
   }
 
@@ -154,17 +163,16 @@ export async function FinanceDashboardContent() {
   // Check if user has full access
   const hasFullAccess = ["ADMIN", "ACCOUNTANT"].includes(userRole)
   const hasLimitedAccess = ["MANAGER", "OPERATOR"].includes(userRole)
-  const hasMinimalAccess = ["STAFF"].includes(userRole)
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Financial Dashboard
+          {t.dashboard ?? "Financial Dashboard"}
         </h1>
         <p className="text-muted-foreground">
-          Overview of your company's financial performance
+          {t.overview ?? (isRTL ? "نظرة عامة على الأداء المالي لشركتك" : "Overview of your company's financial performance")}
         </p>
       </div>
 
@@ -172,7 +180,7 @@ export async function FinanceDashboardContent() {
       {alerts.length > 0 && (
         <div className="space-y-2">
           {alerts.slice(0, 2).map((alert) => (
-            <AlertCard key={alert.id} alert={alert} />
+            <AlertCard key={alert.id} alert={alert} locale={locale} />
           ))}
         </div>
       )}
@@ -180,7 +188,7 @@ export async function FinanceDashboardContent() {
       {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
-          <KPICard key={kpi.id} kpi={kpi} />
+          <KPICard key={kpi.id} kpi={kpi} locale={locale} />
         ))}
       </div>
 
@@ -191,8 +199,10 @@ export async function FinanceDashboardContent() {
             revenueData={stats.revenueTrend}
             expenseData={stats.expensesTrend}
             profitData={stats.profitTrend}
+            locale={locale}
+            dictionary={dictionary}
           />
-          <ExpenseChart expenseCategories={stats.expenseCategories} />
+          <ExpenseChart expenseCategories={stats.expenseCategories} locale={locale} />
         </div>
       )}
 
@@ -203,48 +213,49 @@ export async function FinanceDashboardContent() {
             inflowData={[stats.cashInflow]}
             outflowData={[stats.cashOutflow]}
             balanceData={[stats.cashBalance]}
+            locale={locale}
           />
-          <BankAccountsSummary accounts={stats.bankAccounts} />
+          <BankAccountsSummary accounts={stats.bankAccounts} locale={locale} />
         </div>
       )}
 
       {/* Quick Actions and Recent Transactions */}
       <div className="grid gap-6 md:grid-cols-2">
-        <QuickActions actions={quickActions} />
+        <QuickActions actions={quickActions} locale={locale} dictionary={dictionary} />
         {(hasFullAccess || hasLimitedAccess) && (
-          <TransactionList transactions={transactions} />
+          <TransactionList transactions={transactions} locale={locale} />
         )}
       </div>
 
       {/* Budget Overview - Only for Admin/Accountant */}
       {hasFullAccess && stats.budgetCategories.length > 0 && (
-        <BudgetOverview categories={stats.budgetCategories} />
+        <BudgetOverview categories={stats.budgetCategories} locale={locale} dictionary={dictionary} />
       )}
 
       {/* Footer Stats */}
       <div className="grid gap-4 border-t pt-6 md:grid-cols-4">
         <StatCard
-          title="Invoice Collection"
+          title={isRTL ? "تحصيل الفواتير" : "Invoice Collection"}
           value={`${stats.paidInvoices}/${stats.totalInvoices}`}
-          description="Invoices paid"
+          description={isRTL ? "فواتير مدفوعة" : "Invoices paid"}
           icon={<Receipt className="h-4 w-4" />}
         />
         <StatCard
-          title="Budget Utilization"
+          title={isRTL ? "استخدام الميزانية" : "Budget Utilization"}
           value={`${((stats.budgetUsed / (stats.budgetUsed + stats.budgetRemaining)) * 100).toFixed(0)}%`}
-          description="Of allocated budget"
+          description={isRTL ? "من الميزانية المخصصة" : "Of allocated budget"}
           icon={<DollarSign className="h-4 w-4" />}
         />
         <StatCard
-          title="Active Clients"
+          title={isRTL ? "العملاء النشطون" : "Active Clients"}
           value={stats.totalClients}
-          description="Registered clients"
+          description={isRTL ? "عملاء مسجلون" : "Registered clients"}
           icon={<Users className="h-4 w-4" />}
         />
         <StatCard
-          title="Bank Accounts"
+          title={isRTL ? "الحسابات البنكية" : "Bank Accounts"}
           value={stats.bankAccounts.length}
-          description="Active accounts"
+          description={isRTL ? "حسابات نشطة" : "Active accounts"}
           icon={<Building className="h-4 w-4" />}
         />
       </div>
@@ -265,7 +276,7 @@ function StatCard({
   icon: React.ReactNode
 }) {
   return (
-    <div className="bg-muted/50 flex items-center space-x-3 rounded-lg p-4">
+    <div className="bg-muted/50 flex items-center gap-3 rounded-lg p-4">
       <div className="bg-background rounded-md p-2">{icon}</div>
       <div>
         <p className="text-muted-foreground text-sm">{title}</p>
@@ -278,6 +289,8 @@ function StatCard({
 
 function BudgetOverview({
   categories,
+  locale,
+  dictionary,
 }: {
   categories: {
     category: string
@@ -286,18 +299,23 @@ function BudgetOverview({
     remaining: number
     percentage: number
   }[]
+  locale: Locale
+  dictionary: Record<string, any>
 }) {
+  const isRTL = locale === "ar"
+  const t = dictionary.finance?.budget ?? {}
+
   return (
     <div className="rounded-lg border p-6">
-      <h3 className="mb-4 text-lg font-semibold">Budget Overview</h3>
+      <h3 className="mb-4 text-lg font-semibold">{t.title ?? (isRTL ? "نظرة عامة على الميزانية" : "Budget Overview")}</h3>
       <div className="space-y-3">
         {categories.slice(0, 5).map((cat) => (
           <div key={cat.category} className="space-y-1">
             <div className="flex items-center justify-between text-sm">
               <span>{cat.category}</span>
               <span className="text-muted-foreground">
-                SDG {new Intl.NumberFormat("en-SD").format(cat.spent)} /{" "}
-                {new Intl.NumberFormat("en-SD").format(cat.allocated)}
+                {isRTL ? "ج.س" : "SDG"} {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(cat.spent)} /{" "}
+                {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(cat.allocated)}
               </span>
             </div>
             <div className="bg-muted h-2 w-full rounded-full">

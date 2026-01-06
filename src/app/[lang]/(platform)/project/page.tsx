@@ -32,7 +32,7 @@ export default async function ProjectPage({
           <PageHeading title={dict.project?.title ?? "Projects"} />
           <Button asChild>
             <Link href={`/${locale}/project/new`}>
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="h-4 w-4 me-2" />
               {dict.project?.newProject ?? "New Project"}
             </Link>
           </Button>

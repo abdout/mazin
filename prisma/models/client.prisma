@@ -35,6 +35,9 @@ model Client {
   user     User      @relation(fields: [userId], references: [id])
   invoices Invoice[]
 
+  // Statements of Account
+  statements StatementOfAccount[]
+
   // Shipments for this client
   shipments Shipment[]
 
@@ -44,6 +47,9 @@ model Client {
   // Notifications
   notifications          Notification[]
   notificationPreference NotificationPreference?
+
+  // Finance - Client Wallet
+  wallet Wallet?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

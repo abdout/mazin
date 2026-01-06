@@ -12,6 +12,7 @@ import {
   IconReceipt,
   IconSettings,
   IconShip,
+  IconBuildingStore,
 } from "@tabler/icons-react"
 
 import { NavMain } from "./nav-main"
@@ -70,6 +71,11 @@ export function AppSidebar({ dictionary, locale, user, ...props }: AppSidebarPro
       title: dictionary.navigation.invoices,
       url: `/${locale}/invoices`,
       icon: IconReceipt,
+    },
+    {
+      title: dictionary.marketplace?.title || "Marketplace",
+      url: `/${locale}/marketplace`,
+      icon: IconBuildingStore,
     },
   ]
 

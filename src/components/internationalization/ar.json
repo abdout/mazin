@@ -278,6 +278,74 @@
       "SDG": "جنيه سوداني",
       "USD": "دولار أمريكي",
       "SAR": "ريال سعودي"
+    },
+    "feeCategories": {
+      "DELIVERY_ORDER": "اذن تسليم",
+      "CUSTOMS_DECLARATION": "شهادة جمركية",
+      "CUSTOMS_DUTY_RECEIPT": "ايصال جمارك",
+      "INITIAL_PORT_INVOICE": "فاتورة موانئ اولية",
+      "EXAMINATION": "الكشف عن الطرد",
+      "QUALITY_STANDARDS": "رسوم ضبط الجودة والتحليل",
+      "CUSTOMS_LABORATORY": "رسوم معمل جمركي",
+      "MINISTRY_OF_TRADE": "رسوم وزارة التجارة",
+      "CUSTOMS_SUPERVISION": "رسوم ملاحظة",
+      "PORT_STORAGE_QUAY": "فاتورة موانئ نهائية",
+      "CONTAINER_MOVE": "نقل الحاويات",
+      "CRANE_HIRE": "إيجار كرين",
+      "STEVEDORING": "أجرة عمال التستيف",
+      "LABOURERS_WAGES": "أجرة عمال الشحن والتفريغ",
+      "CHECKERS_WAGES": "يوميات العدادين",
+      "OVERTIME_CHARGES": "عمل اضافي",
+      "TRANSPORTATION": "ترحيل محلي",
+      "FUMIGATION": "رسوم التبخير",
+      "DEMURRAGE": "إيجار حاويات",
+      "STAMPS_FEES": "دمغة جودة",
+      "HEALTH_FEES": "رسوم وزارة الصحة والبيئة ووقاية النباتات",
+      "COMMISSION": "العمولة",
+      "VAT": "قيمه مضافة 17%",
+      "OTHER": "منصرفات اخري"
+    },
+    "invoiceTypes": {
+      "CLEARANCE": "فاتورة تخليص",
+      "PROFORMA": "فاتورة مبدئية",
+      "STATEMENT": "كشف حساب",
+      "PORT": "فاتورة ميناء"
+    },
+    "documentReferences": {
+      "blNumber": "رقم بوليصة الشحن",
+      "containerNo": "رقم الحاوية",
+      "deliveryOrderNo": "اذن تسليم رقم",
+      "declarationNo": "شهادة جمركية رقم",
+      "vesselName": "اسم السفينة",
+      "voyageNumber": "رقم الرحلة",
+      "commodityType": "الصنف",
+      "supplier": "المورد"
+    },
+    "quickInvoice": {
+      "title": "فاتورة سريعة",
+      "createQuick": "إنشاء فاتورة سريعة",
+      "selectShipment": "اختر الشحنة",
+      "feeTemplates": "قوالب الرسوم",
+      "basicClearance": "تخليص أساسي",
+      "fullClearance": "تخليص كامل",
+      "portOnly": "رسوم الميناء فقط",
+      "customsOnly": "جمارك فقط"
+    },
+    "statement": {
+      "title": "كشف حساب",
+      "periodStart": "بداية الفترة",
+      "periodEnd": "نهاية الفترة",
+      "openingBalance": "رصيد سابق",
+      "closingBalance": "الرصيد المطلوب منكم",
+      "totalDebits": "اجمالي المدين",
+      "totalCredits": "اجمالي الدائن",
+      "amountInWords": "الجملة كتابة"
+    },
+    "whatsapp": {
+      "share": "مشاركة عبر واتساب",
+      "phoneNumber": "رقم الهاتف",
+      "messagePreview": "معاينة الرسالة",
+      "openWhatsApp": "فتح واتساب"
     }
   },
   "settings": {
@@ -326,12 +394,26 @@
   },
   "finance": {
     "title": "المالية",
+    "dashboard": "لوحة المالية",
+    "overview": "نظرة مالية عامة",
     "totalRevenue": "إجمالي الإيرادات",
+    "collectedRevenue": "الإيرادات المحصلة",
     "outstandingPayments": "المدفوعات المعلقة",
+    "outstandingRevenue": "الإيرادات المستحقة",
     "paidThisMonth": "المدفوع هذا الشهر",
     "totalExpenses": "إجمالي المصروفات",
+    "netProfit": "صافي الربح",
+    "grossProfit": "إجمالي الربح",
+    "profitMargin": "هامش الربح",
+    "cashBalance": "الرصيد النقدي",
+    "cashFlow": "التدفق النقدي",
+    "unpaidInvoices": "فواتير غير مدفوعة",
+    "pendingPayments": "مدفوعات معلقة",
+    "overdueInvoices": "فواتير متأخرة",
+    "collectionRate": "معدل التحصيل",
     "navigation": {
       "overview": "نظرة عامة",
+      "dashboard": "لوحة القيادة",
       "invoice": "الفواتير",
       "banking": "البنوك",
       "fees": "الرسوم",
@@ -343,7 +425,107 @@
       "wallet": "المحفظة",
       "budget": "الميزانية",
       "expenses": "المصروفات",
-      "accounts": "الحسابات"
+      "accounts": "الحسابات",
+      "myBanks": "حساباتي البنكية",
+      "paymentTransfer": "تحويل الأموال",
+      "transactionHistory": "سجل المعاملات"
+    },
+    "banking": {
+      "title": "البنوك",
+      "accounts": "الحسابات البنكية",
+      "addAccount": "إضافة حساب",
+      "accountName": "اسم الحساب",
+      "accountNumber": "رقم الحساب",
+      "bankName": "اسم البنك",
+      "bankBranch": "الفرع",
+      "currentBalance": "الرصيد الحالي",
+      "availableBalance": "الرصيد المتاح",
+      "transactions": "المعاملات",
+      "transfer": "تحويل",
+      "reconcile": "مطابقة",
+      "lastReconciled": "آخر مطابقة",
+      "totalBalance": "إجمالي الرصيد"
+    },
+    "expenses": {
+      "title": "المصروفات",
+      "newExpense": "مصروف جديد",
+      "editExpense": "تعديل المصروف",
+      "amount": "المبلغ",
+      "description": "الوصف",
+      "category": "الفئة",
+      "date": "التاريخ",
+      "receipt": "الإيصال",
+      "status": "الحالة",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "pending": "معلق",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض",
+      "paid": "مدفوع"
+    },
+    "payroll": {
+      "title": "كشوف الرواتب",
+      "runPayroll": "تشغيل الرواتب",
+      "period": "الفترة",
+      "totalGross": "إجمالي الراتب",
+      "totalDeductions": "إجمالي الاستقطاعات",
+      "totalNet": "صافي الراتب",
+      "employees": "الموظفين",
+      "approve": "اعتماد الرواتب",
+      "process": "معالجة الدفع"
+    },
+    "budget": {
+      "title": "الميزانية",
+      "newBudget": "ميزانية جديدة",
+      "fiscalYear": "السنة المالية",
+      "allocated": "المخصص",
+      "spent": "المصروف",
+      "remaining": "المتبقي",
+      "variance": "الفرق"
+    },
+    "reports": {
+      "title": "التقارير المالية",
+      "profitLoss": "الأرباح والخسائر",
+      "balanceSheet": "الميزانية العمومية",
+      "cashFlowStatement": "قائمة التدفقات النقدية",
+      "trialBalance": "ميزان المراجعة",
+      "generate": "إنشاء تقرير",
+      "export": "تصدير",
+      "period": "فترة التقرير"
+    },
+    "invoice": {
+      "title": "الفواتير",
+      "newInvoice": "فاتورة جديدة",
+      "invoiceNumber": "رقم الفاتورة",
+      "client": "العميل",
+      "amount": "المبلغ",
+      "dueDate": "تاريخ الاستحقاق",
+      "status": "الحالة",
+      "draft": "مسودة",
+      "sent": "مرسلة",
+      "paid": "مدفوعة",
+      "overdue": "متأخرة",
+      "cancelled": "ملغاة"
+    },
+    "actions": {
+      "createInvoice": "إنشاء فاتورة",
+      "recordPayment": "تسجيل دفعة",
+      "submitExpense": "تقديم مصروف",
+      "runPayroll": "تشغيل الرواتب",
+      "viewReports": "عرض التقارير",
+      "reconcile": "مطابقة"
+    },
+    "alerts": {
+      "overdueInvoices": "فواتير متأخرة",
+      "lowCashReserve": "احتياطي نقدي منخفض",
+      "pendingPayroll": "الرواتب بانتظار الموافقة",
+      "pendingExpenses": "مصروفات بانتظار الموافقة"
+    },
+    "currency": {
+      "sdg": "ج.س",
+      "usd": "دولار",
+      "eur": "يورو",
+      "sar": "ريال"
     }
   },
   "project": {
@@ -413,6 +595,31 @@
       "MEDIUM": "متوسط",
       "LOW": "منخفض",
       "NEUTRAL": "محايد"
+    },
+    "notFound": "المهمة غير موجودة",
+    "returnToList": "العودة لقائمة المهام",
+    "noDescription": "لا يوجد وصف",
+    "details": "التفاصيل",
+    "overtime": "العمل الإضافي",
+    "system": "النظام",
+    "category": "الفئة",
+    "noRemarks": "لا توجد ملاحظات",
+    "linkedActivities": "الأنشطة المرتبطة",
+    "subcategory": "الفئة الفرعية",
+    "activity": "النشاط",
+    "documentation": "الوثائق",
+    "documentationDesc": "المراجع والأدلة والتقارير لهذه المهمة",
+    "noTeamMembers": "لم يتم تعيين أعضاء فريق",
+    "lastUpdated": "آخر تحديث",
+    "unknown": "غير معروف",
+    "notSet": "غير محدد",
+    "deleteSuccess": "تم حذف المهمة بنجاح",
+    "deleteError": "فشل في حذف المهمة",
+    "document": "مستند",
+    "docs": {
+      "manuals": "الأدلة",
+      "mos": "طريقة العمل",
+      "reports": "التقارير"
     }
   },
   "team": {
@@ -1058,5 +1265,65 @@
     "paymentReceived": "تم استلام الدفع",
     "requestPayment": "طلب الدفع",
     "paymentPending": "الدفع معلق"
+  },
+  "marketplace": {
+    "title": "السوق",
+    "description": "اعثر على خدمات لاحتياجات التخليص الجمركي",
+    "placeOrder": "تقديم طلب",
+    "learnMore": "معرفة المزيد",
+    "vendor": "المزود",
+    "priceFrom": "من",
+    "priceTo": "إلى",
+    "currency": "ج.س",
+    "orderPlaced": "تم تقديم الطلب بنجاح",
+    "contactVia": "تواصل عبر",
+    "whatsapp": "واتساب",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "inStock": "متاح",
+    "outOfStock": "غير متاح",
+    "serviceArea": "منطقة الخدمة",
+    "viewDetails": "عرض التفاصيل",
+    "backToMarketplace": "العودة للسوق",
+    "categories": {
+      "ALL": "جميع الخدمات",
+      "TRUCK": "شاحنات",
+      "FORKLIFT": "رافعات شوكية",
+      "MANPOWER": "عمالة",
+      "TOOLS": "معدات وأدوات"
+    },
+    "request": {
+      "title": "طلب خدمة",
+      "name": "اسمك",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني (اختياري)",
+      "message": "رسالة للمزود (اختياري)",
+      "quantity": "الكمية",
+      "preferredDate": "التاريخ المفضل",
+      "submit": "إرسال الطلب",
+      "success": "تم تقديم طلبك! سيتواصل معك المزود قريباً.",
+      "contactInfo": "معلومات التواصل مع المزود"
+    },
+    "vendorProfile": {
+      "register": "سجل كمزود خدمة",
+      "businessName": "اسم الشركة",
+      "businessNameAr": "اسم الشركة (بالعربية)",
+      "contactName": "اسم جهة الاتصال",
+      "description": "وصف العمل",
+      "pending": "طلبك قيد المراجعة",
+      "approved": "معتمد",
+      "rejected": "مرفوض",
+      "suspended": "موقوف",
+      "myListings": "خدماتي",
+      "myRequests": "الطلبات الواردة",
+      "addService": "إضافة خدمة"
+    },
+    "statuses": {
+      "PENDING": "قيد الانتظار",
+      "CONTACTED": "تم التواصل",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "COMPLETED": "مكتمل",
+      "CANCELLED": "ملغي"
+    }
   }
 }

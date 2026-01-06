@@ -1,51 +1,9 @@
 // Invoice Models
 // This file contains models for invoicing and billing
 
-model Invoice {
-  id            String        @id @default(cuid())
-  invoiceNumber String        @unique
-  status        InvoiceStatus @default(DRAFT)
-
-  currency String  @default("SDG")
-  subtotal Decimal @db.Decimal(15, 2)
-  tax      Decimal @default(0) @db.Decimal(15, 2)
-  total    Decimal @db.Decimal(15, 2)
-
-  dueDate DateTime?
-  paidAt  DateTime?
-  notes   String?
-
-  // Client relationship
-  clientId String?
-  client   Client? @relation(fields: [clientId], references: [id])
-
-  // Payment and terms
-  paymentTermsDays   Int?
-  taxRate            Decimal? @db.Decimal(5, 2)
-  taxLabel           String?  @default("VAT")
-  referenceNumber    String?
-  termsAndConditions String?  @db.Text
-
-  // Relations
-  shipmentId String?
-  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  items         InvoiceItem[]
-  stageInvoices StageInvoice[]
-  notifications Notification[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([invoiceNumber])
-  @@index([status])
-  @@index([userId])
-  @@index([clientId])
-  @@map("invoices")
-}
+// ============================================================================
+// ENUMS
+// ============================================================================
 
 enum InvoiceStatus {
   DRAFT
@@ -55,15 +13,152 @@ enum InvoiceStatus {
   CANCELLED
 }
 
-model InvoiceItem {
-  id          String  @id @default(cuid())
-  description String
-  quantity    Int     @default(1)
-  unitPrice   Decimal @db.Decimal(15, 2)
-  total       Decimal @db.Decimal(15, 2)
+enum InvoiceType {
+  CLEARANCE // كشف حساب - Main client-facing invoice
+  PROFORMA  // فاتورة مبدئية - Estimate before clearance
+  STATEMENT // كشف حساب شامل - Statement of account with multiple invoices
+  PORT      // فاتورة ميناء - SPC format invoice
+}
 
-  // Fee type for categorization
-  feeType String? // DUTY, PORT_FEES, INSPECTION, BROKERAGE, etc.
+// Fee categories matching real Port Sudan customs clearance invoices
+enum FeeCategory {
+  // Delivery & Documentation
+  DELIVERY_ORDER       // اذن تسليم - Delivery Order
+  CUSTOMS_DECLARATION  // شهادة جمركية - Customs Declaration
+  CUSTOMS_DUTY_RECEIPT // ايصال جمارك - C.Duty Receipt
+  INITIAL_PORT_INVOICE // فاتورة موانئ اولية - Initial Port Invoice
+
+  // Inspection & Standards
+  EXAMINATION          // الكشف عن الطرد - Examination
+  QUALITY_STANDARDS    // هيئة المواصفات - Quality Standards (SSMO)
+  CUSTOMS_LABORATORY   // معمل الجمارك - Customs Laboratory
+  MINISTRY_OF_TRADE    // وزارة التجارة - Ministry of Trade Charges
+  CUSTOMS_SUPERVISION  // رسوم ملاحظة - Customs Supervision
+
+  // Port Operations
+  PORT_STORAGE_QUAY    // فاتورة موانئ نهائية - Port Storage & Quay
+  CONTAINER_MOVE       // نقل الحاويات - Container Move
+  CRANE_HIRE           // إيجار كرين - Hire of Crane
+  STEVEDORING          // أجرة عمال التستيف - Stevedoring Charges
+
+  // Labor & Services
+  LABOURERS_WAGES      // أجرة عمال الشحن والتفريغ - Labourers Wages
+  CHECKERS_WAGES       // يوميات العدادين - Checkers Wages
+  OVERTIME_CHARGES     // عمل اضافي - Overtime Charges
+
+  // Transport & Logistics
+  TRANSPORTATION       // ترحيل محلي - Trans Portation
+  FUMIGATION           // رسوم التبخير - Fumigation Fees
+
+  // Fees & Penalties
+  DEMURRAGE            // إيجار حاويات - Demurrage Charges
+  STAMPS_FEES          // دمغة جودة - Stamps
+  HEALTH_FEES          // رسوم صحية - Health Fees
+
+  // Agency & Commission
+  COMMISSION           // العمولة - Commission
+
+  // Taxes
+  VAT                  // قيمه مضافة 17% - VAT
+
+  // Other
+  OTHER                // أخرى - Other Charges
+}
+
+// ============================================================================
+// INVOICE MODEL
+// ============================================================================
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique // Format: "1044/25" for INVOICE NO(1044/25)
+  status        InvoiceStatus @default(DRAFT)
+  invoiceType   InvoiceType   @default(CLEARANCE)
+
+  // Financial
+  currency String  @default("SDG")
+  subtotal Decimal @db.Decimal(15, 2)
+  tax      Decimal @default(0) @db.Decimal(15, 2)
+  total    Decimal @db.Decimal(15, 2)
+  taxRate  Decimal @default(17) @db.Decimal(5, 2) // Sudan standard 17%
+
+  // Amount in words (Arabic tafqit)
+  totalInWordsAr String? @db.Text // e.g., "خمسة عشر مليون وثلاثمائة..."
+
+  // Dates
+  dueDate DateTime?
+  paidAt  DateTime?
+
+  // Document References (Port Sudan customs clearance specific)
+  blNumber         String?   // B/L Number - رقم بوليصة الشحن
+  containerNumbers String[]  // Container Numbers array
+  deliveryOrderNo  String?   // Delivery Order - اذن تسليم رقم
+  declarationNo    String?   // Customs Declaration - شهادة جمركية رقم
+  vesselName       String?   // Vessel Name - اسم السفينة
+  voyageNumber     String?   // Voyage Number
+  commodityType    String?   // Commodity Type - الصنف
+
+  // Client/Supplier Info
+  supplierName     String?   // المورد - Supplier name for the invoice header
+  clientId         String?
+  client           Client?   @relation(fields: [clientId], references: [id])
+
+  // Notes and Terms
+  notes              String? @db.Text
+  taxLabel           String? @default("قيمه مضافة 17%")
+  referenceNumber    String?
+  termsAndConditions String? @db.Text
+  paymentTermsDays   Int?
+
+  // Relations
+  shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  items            InvoiceItem[]
+  stageInvoices    StageInvoice[]
+  notifications    Notification[]
+  statementEntries StatementEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([userId])
+  @@index([clientId])
+  @@index([invoiceType])
+  @@map("invoices")
+}
+
+// ============================================================================
+// INVOICE ITEM MODEL
+// ============================================================================
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  description String   // English description
+  descriptionAr String? // Arabic description - البيان
+
+  quantity  Int     @default(1)
+  unitPrice Decimal @db.Decimal(15, 2)
+  total     Decimal @db.Decimal(15, 2)
+
+  // Fee categorization (using enum)
+  feeCategory FeeCategory?
+  feeType     String? // Legacy: DUTY, PORT_FEES, INSPECTION, BROKERAGE, etc.
+
+  // SPC tariff code (e.g., "CT/F-3-4", "F343_20", "H9/1")
+  tariffCode String?
+
+  // Linked receipt/document reference
+  receiptNumber String? // Receipt number for this fee item
+  receiptUrl    String? // URL to uploaded receipt document
+
+  // Display ordering
+  sortOrder Int @default(0)
 
   invoiceId String
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
@@ -71,10 +166,14 @@ model InvoiceItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([feeCategory])
   @@map("invoice_items")
 }
 
-// Stage-Invoice linking for multi-stage invoicing
+// ============================================================================
+// STAGE INVOICE MODEL (Multi-stage invoicing)
+// ============================================================================
+
 model StageInvoice {
   id String @id @default(cuid())
 
@@ -95,4 +194,72 @@ model StageInvoice {
   @@unique([shipmentId, stage, invoiceId])
   @@index([shipmentId, stage])
   @@map("stage_invoices")
+}
+
+// ============================================================================
+// STATEMENT OF ACCOUNT MODELS (كشف حساب)
+// ============================================================================
+
+model StatementOfAccount {
+  id              String @id @default(cuid())
+  statementNumber String @unique // Format: "SOA-2025/001"
+
+  // Client
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  // Period
+  periodStart DateTime
+  periodEnd   DateTime
+
+  // Balances (in SDG)
+  openingBalance Decimal @default(0) @db.Decimal(15, 2) // رصيد سابق
+  totalDebits    Decimal @default(0) @db.Decimal(15, 2) // اجمالي المدين (invoices)
+  totalCredits   Decimal @default(0) @db.Decimal(15, 2) // اجمالي الدائن (payments)
+  closingBalance Decimal @default(0) @db.Decimal(15, 2) // الرصيد المطلوب منكم
+
+  currency String @default("SDG")
+
+  // Amount in words
+  closingBalanceInWordsAr String? @db.Text
+
+  // User who generated
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Entries
+  entries StatementEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([statementNumber])
+  @@map("statements_of_account")
+}
+
+model StatementEntry {
+  id          String @id @default(cuid())
+  statementId String
+  statement   StatementOfAccount @relation(fields: [statementId], references: [id], onDelete: Cascade)
+
+  entryDate   DateTime
+  reference   String   // Invoice number or payment reference
+  description String   // البيان - Description
+  descriptionAr String? // Arabic description
+
+  debit   Decimal @default(0) @db.Decimal(15, 2) // مدين DR
+  credit  Decimal @default(0) @db.Decimal(15, 2) // دائن CT
+  balance Decimal @db.Decimal(15, 2) // Running balance
+
+  // Link to invoice if applicable
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([statementId])
+  @@map("statement_entries")
 }

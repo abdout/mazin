@@ -3,6 +3,10 @@ import { renderToBuffer } from "@react-pdf/renderer"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { InvoicePdf } from "@/components/platform/invoice/invoice-pdf"
+import {
+  ClearanceInvoicePdf,
+  shouldUseClearanceFormat,
+} from "@/components/platform/invoice/clearance-invoice-pdf"
 import type { Locale } from "@/components/internationalization"
 
 export async function GET(
@@ -16,11 +20,12 @@ export async function GET(
     }
 
     const { id } = await params
-    const locale = (request.nextUrl.searchParams.get("locale") || "en") as Locale
+    const locale = (request.nextUrl.searchParams.get("locale") || "ar") as Locale
+    const format = request.nextUrl.searchParams.get("format") // "clearance" | "standard"
 
     const invoice = await db.invoice.findFirst({
       where: { id, userId: session.user.id },
-      include: { items: true, shipment: true, client: true },
+      include: { items: { orderBy: { sortOrder: "asc" } }, shipment: true, client: true },
     })
 
     if (!invoice) {
@@ -31,8 +36,14 @@ export async function GET(
       where: { userId: session.user.id },
     })
 
+    // Use clearance format for CLEARANCE/PORT invoices, or if explicitly requested
+    const useClearanceFormat =
+      format === "clearance" || shouldUseClearanceFormat(invoice.invoiceType)
+
     const pdfBuffer = await renderToBuffer(
-      InvoicePdf({ invoice, settings: settings ?? undefined, locale })
+      useClearanceFormat
+        ? ClearanceInvoicePdf({ invoice, settings: settings ?? undefined, locale })
+        : InvoicePdf({ invoice, settings: settings ?? undefined, locale })
     )
 
     return new NextResponse(new Uint8Array(pdfBuffer), {

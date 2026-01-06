@@ -24,11 +24,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+import type { Locale } from "@/components/internationalization"
 import type { QuickAction } from "./types"
 
 interface QuickActionsProps {
   actions: QuickAction[]
   className?: string
+  locale?: Locale
+  dictionary?: Record<string, any>
 }
 
 // Icon mapping
@@ -45,7 +48,10 @@ const iconMap: Record<string, any> = {
   TrendingUp,
 }
 
-export function QuickActions({ actions, className }: QuickActionsProps) {
+export function QuickActions({ actions, className, locale = "ar", dictionary }: QuickActionsProps) {
+  const isRTL = locale === "ar"
+  const t = dictionary?.finance ?? {}
+
   const getIcon = (iconName: string) => {
     const Icon = iconMap[iconName] || Plus
     return <Icon className="h-5 w-5" />
@@ -78,8 +84,8 @@ export function QuickActions({ actions, className }: QuickActionsProps) {
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>No actions available for your role</CardDescription>
+          <CardTitle>{isRTL ? "إجراءات سريعة" : "Quick Actions"}</CardTitle>
+          <CardDescription>{isRTL ? "لا توجد إجراءات متاحة لدورك" : "No actions available for your role"}</CardDescription>
         </CardHeader>
       </Card>
     )
@@ -88,8 +94,8 @@ export function QuickActions({ actions, className }: QuickActionsProps) {
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
-        <CardDescription>Frequently used financial operations</CardDescription>
+        <CardTitle>{isRTL ? "إجراءات سريعة" : "Quick Actions"}</CardTitle>
+        <CardDescription>{isRTL ? "العمليات المالية المستخدمة بشكل متكرر" : "Frequently used financial operations"}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -136,16 +142,16 @@ export function QuickActions({ actions, className }: QuickActionsProps) {
 
         {/* Additional quick stats or actions */}
         <div className="mt-6 grid grid-cols-2 gap-4 border-t pt-6">
-          <Link href="/finance/reports">
+          <Link href={`/${locale}/finance/reports`}>
             <Button variant="outline" className="w-full justify-start">
-              <BarChart className="me-2 h-4 w-4" />
-              View All Reports
+              <BarChart className="h-4 w-4 me-2" />
+              {isRTL ? "عرض جميع التقارير" : "View All Reports"}
             </Button>
           </Link>
-          <Link href="/finance/settings">
+          <Link href={`/${locale}/finance/settings`}>
             <Button variant="outline" className="w-full justify-start">
-              <Calculator className="me-2 h-4 w-4" />
-              Finance Settings
+              <Calculator className="h-4 w-4 me-2" />
+              {isRTL ? "إعدادات المالية" : "Finance Settings"}
             </Button>
           </Link>
         </div>

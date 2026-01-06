@@ -4,21 +4,48 @@ import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import type { InvoiceStatus } from "@prisma/client"
+import type { InvoiceStatus, InvoiceType, FeeCategory } from "@prisma/client"
 import type { Locale } from "@/components/internationalization"
-import { STAGE_FEE_TEMPLATES } from "@/components/platform/invoice/config"
+import {
+  STAGE_FEE_TEMPLATES,
+  FEE_CATEGORIES,
+  VAT_RATE,
+  QUICK_FEE_PRESETS,
+  formatInvoiceNumber,
+} from "@/components/platform/invoice/config"
+import { numberToArabicWords } from "@/lib/utils/arabic-numbers"
+
+// =============================================================================
+// SCHEMAS
+// =============================================================================
 
 const invoiceItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
+  descriptionAr: z.string().optional(),
   quantity: z.coerce.number().int().positive("Quantity must be positive"),
   unitPrice: z.coerce.number().positive("Unit price must be positive"),
+  feeCategory: z.string().optional(),
+  tariffCode: z.string().optional(),
+  receiptNumber: z.string().optional(),
+  sortOrder: z.coerce.number().optional(),
 })
 
 const createInvoiceSchema = z.object({
   shipmentId: z.string().optional(),
+  clientId: z.string().optional(),
   currency: z.enum(["SDG", "USD", "SAR"]),
+  invoiceType: z.enum(["CLEARANCE", "PROFORMA", "STATEMENT", "PORT"]).default("CLEARANCE"),
   dueDate: z.string().optional().transform((val) => (val ? new Date(val) : undefined)),
   notes: z.string().optional(),
+  // Document references
+  blNumber: z.string().optional(),
+  containerNumbers: z.array(z.string()).optional(),
+  deliveryOrderNo: z.string().optional(),
+  declarationNo: z.string().optional(),
+  vesselName: z.string().optional(),
+  voyageNumber: z.string().optional(),
+  commodityType: z.string().optional(),
+  supplierName: z.string().optional(),
   items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
 })
 
@@ -35,30 +62,51 @@ export async function createInvoice(formData: z.input<typeof createInvoiceSchema
     (sum, item) => sum + item.quantity * item.unitPrice,
     0
   )
-  const tax = subtotal * 0.15 // 15% VAT
+  const tax = subtotal * VAT_RATE // 17% VAT (Sudan standard)
   const total = subtotal + tax
 
-  // Generate invoice number
-  const count = await db.invoice.count()
-  const invoiceNumber = `INV-${String(count + 1).padStart(5, "0")}`
+  // Generate invoice number in format: sequence/YY (e.g., "1044/25")
+  const count = await db.invoice.count({ where: { userId: session.user.id } })
+  const invoiceNumber = formatInvoiceNumber(count + 1)
+
+  // Generate Arabic amount in words
+  const totalInWordsAr = numberToArabicWords(total, validated.currency)
 
   const invoice = await db.invoice.create({
     data: {
       invoiceNumber,
       userId: session.user.id,
       shipmentId: validated.shipmentId || null,
+      clientId: validated.clientId || null,
       currency: validated.currency,
+      invoiceType: validated.invoiceType as InvoiceType,
       subtotal,
       tax,
+      taxRate: VAT_RATE * 100, // Store as percentage (17)
       total,
+      totalInWordsAr,
       dueDate: validated.dueDate,
       notes: validated.notes,
+      // Document references
+      blNumber: validated.blNumber,
+      containerNumbers: validated.containerNumbers || [],
+      deliveryOrderNo: validated.deliveryOrderNo,
+      declarationNo: validated.declarationNo,
+      vesselName: validated.vesselName,
+      voyageNumber: validated.voyageNumber,
+      commodityType: validated.commodityType,
+      supplierName: validated.supplierName,
       items: {
-        create: validated.items.map((item) => ({
+        create: validated.items.map((item, index) => ({
           description: item.description,
+          descriptionAr: item.descriptionAr,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           total: item.quantity * item.unitPrice,
+          feeCategory: item.feeCategory as FeeCategory | undefined,
+          tariffCode: item.tariffCode,
+          receiptNumber: item.receiptNumber,
+          sortOrder: item.sortOrder ?? index,
         })),
       },
     },
@@ -174,7 +222,7 @@ export async function updateInvoice(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0
   )
-  const tax = subtotal * 0.15
+  const tax = subtotal * VAT_RATE // 17% VAT (Sudan standard)
   const total = subtotal + tax
 
   // Determine which items to delete (those in DB but not in new list)
@@ -455,12 +503,12 @@ export async function createStageInvoice(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0
   )
-  const tax = subtotal * 0.15
+  const tax = subtotal * VAT_RATE // 17% VAT (Sudan standard)
   const total = subtotal + tax
 
-  // Generate invoice number
-  const count = await db.invoice.count()
-  const invoiceNumber = `INV-${String(count + 1).padStart(5, "0")}`
+  // Generate invoice number in format: sequence/YY
+  const count = await db.invoice.count({ where: { userId } })
+  const invoiceNumber = formatInvoiceNumber(count + 1)
 
   // Use transaction to create invoice and link to stage
   const result = await db.$transaction(async (tx) => {
@@ -568,4 +616,395 @@ export async function getShipmentStageInvoices(shipmentId: string) {
   })
 
   return stageInvoices
+}
+
+// =============================================================================
+// QUICK INVOICE FUNCTIONS
+// =============================================================================
+
+const quickInvoiceSchema = z.object({
+  shipmentId: z.string(),
+  clientId: z.string().optional(),
+  preset: z.enum(["BASIC_CLEARANCE", "FULL_CLEARANCE", "PORT_ONLY", "CUSTOMS_ONLY"]).optional(),
+  feeCategories: z.array(z.string()).optional(),
+  currency: z.enum(["SDG", "USD", "SAR"]).default("SDG"),
+  customPrices: z.record(z.string(), z.number()).optional(),
+})
+
+/**
+ * Create a quick invoice from fee presets or selected categories
+ * Auto-populates document references from shipment
+ */
+export async function createQuickInvoice(
+  formData: z.input<typeof quickInvoiceSchema>
+) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  const validated = quickInvoiceSchema.parse(formData)
+  const userId = session.user.id
+
+  // Get shipment with details
+  const shipment = await db.shipment.findFirst({
+    where: { id: validated.shipmentId, userId },
+    include: { client: true },
+  })
+
+  if (!shipment) {
+    throw new Error("Shipment not found")
+  }
+
+  // Determine fee categories to use
+  let feeCategories: string[]
+  if (validated.preset) {
+    feeCategories = QUICK_FEE_PRESETS[validated.preset] as string[]
+  } else if (validated.feeCategories?.length) {
+    feeCategories = validated.feeCategories
+  } else {
+    feeCategories = QUICK_FEE_PRESETS.BASIC_CLEARANCE as string[]
+  }
+
+  // Build invoice items from fee categories
+  const items = feeCategories.map((categoryKey, index) => {
+    const config = FEE_CATEGORIES[categoryKey as FeeCategory]
+    const customPrice = validated.customPrices?.[categoryKey]
+    const price = customPrice ?? config?.defaultPrice ?? 0
+
+    return {
+      description: config?.en ?? categoryKey,
+      descriptionAr: config?.ar ?? categoryKey,
+      quantity: 1,
+      unitPrice: price,
+      total: price,
+      feeCategory: categoryKey as FeeCategory,
+      tariffCode: config?.tariffCode,
+      sortOrder: index,
+    }
+  })
+
+  // Filter out zero-price items unless explicitly included
+  const nonZeroItems = items.filter(
+    (item) => item.unitPrice > 0 || validated.customPrices?.[item.feeCategory as string]
+  )
+
+  if (nonZeroItems.length === 0) {
+    throw new Error("No items with prices to invoice")
+  }
+
+  // Calculate totals
+  const subtotal = nonZeroItems.reduce((sum, item) => sum + item.total, 0)
+  const tax = subtotal * VAT_RATE
+  const total = subtotal + tax
+
+  // Generate invoice number
+  const count = await db.invoice.count({ where: { userId } })
+  const invoiceNumber = formatInvoiceNumber(count + 1)
+
+  // Generate Arabic amount in words
+  const totalInWordsAr = numberToArabicWords(total, validated.currency)
+
+  // Create invoice
+  const invoice = await db.invoice.create({
+    data: {
+      invoiceNumber,
+      userId,
+      shipmentId: validated.shipmentId,
+      clientId: validated.clientId || shipment.clientId,
+      currency: validated.currency,
+      invoiceType: "CLEARANCE",
+      subtotal,
+      tax,
+      taxRate: VAT_RATE * 100,
+      total,
+      totalInWordsAr,
+      // Auto-populate from shipment
+      blNumber: shipment.blNumber,
+      containerNumbers: shipment.containerNumber ? [shipment.containerNumber] : [],
+      vesselName: shipment.vesselName,
+      voyageNumber: shipment.voyageNumber,
+      commodityType: shipment.goodsDescription,
+      supplierName: shipment.client?.companyName,
+      items: {
+        create: nonZeroItems.map((item) => ({
+          description: item.description,
+          descriptionAr: item.descriptionAr,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          total: item.total,
+          feeCategory: item.feeCategory,
+          tariffCode: item.tariffCode,
+          sortOrder: item.sortOrder,
+        })),
+      },
+    },
+    include: { items: true },
+  })
+
+  revalidatePath("/invoice")
+  return invoice
+}
+
+// =============================================================================
+// STATEMENT OF ACCOUNT FUNCTIONS
+// =============================================================================
+
+const statementSchema = z.object({
+  clientId: z.string(),
+  periodStart: z.string().transform((val) => new Date(val)),
+  periodEnd: z.string().transform((val) => new Date(val)),
+  openingBalance: z.coerce.number().default(0),
+  currency: z.enum(["SDG", "USD", "SAR"]).default("SDG"),
+})
+
+/**
+ * Generate a Statement of Account for a client
+ * Includes all invoices and payments within the period
+ */
+export async function generateStatementOfAccount(
+  formData: z.input<typeof statementSchema>
+) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  const validated = statementSchema.parse(formData)
+  const userId = session.user.id
+
+  // Get client
+  const client = await db.client.findFirst({
+    where: { id: validated.clientId, userId },
+  })
+
+  if (!client) {
+    throw new Error("Client not found")
+  }
+
+  // Get invoices for the period
+  const invoices = await db.invoice.findMany({
+    where: {
+      userId,
+      clientId: validated.clientId,
+      createdAt: {
+        gte: validated.periodStart,
+        lte: validated.periodEnd,
+      },
+      status: { not: "CANCELLED" },
+    },
+    orderBy: { createdAt: "asc" },
+  })
+
+  // Build statement entries
+  let runningBalance = validated.openingBalance
+  const entries: Array<{
+    entryDate: Date
+    reference: string
+    description: string
+    descriptionAr: string
+    debit: number
+    credit: number
+    balance: number
+    invoiceId?: string
+    sortOrder: number
+  }> = []
+
+  // Add invoice entries (debits)
+  invoices.forEach((invoice, index) => {
+    const amount = Number(invoice.total)
+    runningBalance += amount
+    entries.push({
+      entryDate: invoice.createdAt,
+      reference: invoice.invoiceNumber,
+      description: `Invoice ${invoice.invoiceNumber}`,
+      descriptionAr: `فاتورة رقم ${invoice.invoiceNumber}`,
+      debit: amount,
+      credit: 0,
+      balance: runningBalance,
+      invoiceId: invoice.id,
+      sortOrder: index,
+    })
+  })
+
+  // Calculate totals
+  const totalDebits = entries.reduce((sum, e) => sum + e.debit, 0)
+  const totalCredits = entries.reduce((sum, e) => sum + e.credit, 0)
+  const closingBalance = validated.openingBalance + totalDebits - totalCredits
+
+  // Generate statement number
+  const year = new Date().getFullYear()
+  const count = await db.statementOfAccount.count({
+    where: { userId, createdAt: { gte: new Date(year, 0, 1) } },
+  })
+  const statementNumber = `SOA-${year}/${String(count + 1).padStart(3, "0")}`
+
+  // Generate Arabic amount in words
+  const closingBalanceInWordsAr = numberToArabicWords(
+    Math.abs(closingBalance),
+    validated.currency
+  )
+
+  // Create statement
+  const statement = await db.statementOfAccount.create({
+    data: {
+      statementNumber,
+      userId,
+      clientId: validated.clientId,
+      periodStart: validated.periodStart,
+      periodEnd: validated.periodEnd,
+      openingBalance: validated.openingBalance,
+      totalDebits,
+      totalCredits,
+      closingBalance,
+      closingBalanceInWordsAr,
+      currency: validated.currency,
+      entries: {
+        create: entries.map((entry) => ({
+          entryDate: entry.entryDate,
+          reference: entry.reference,
+          description: entry.description,
+          descriptionAr: entry.descriptionAr,
+          debit: entry.debit,
+          credit: entry.credit,
+          balance: entry.balance,
+          invoiceId: entry.invoiceId,
+          sortOrder: entry.sortOrder,
+        })),
+      },
+    },
+    include: { entries: true, client: true },
+  })
+
+  revalidatePath("/invoice")
+  return statement
+}
+
+/**
+ * Get statements of account for a client
+ */
+export async function getClientStatements(clientId: string) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  return db.statementOfAccount.findMany({
+    where: { userId: session.user.id, clientId },
+    include: { entries: { orderBy: { sortOrder: "asc" } }, client: true },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+// =============================================================================
+// WHATSAPP SHARE FUNCTIONS
+// =============================================================================
+
+/**
+ * Generate a WhatsApp share link for an invoice
+ */
+export async function getInvoiceWhatsAppShareData(
+  invoiceId: string,
+  locale: Locale = "ar"
+) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  const invoice = await db.invoice.findFirst({
+    where: { id: invoiceId, userId: session.user.id },
+    include: { client: true, shipment: true },
+  })
+
+  if (!invoice) {
+    throw new Error("Invoice not found")
+  }
+
+  // Format amount
+  const total = Number(invoice.total)
+  const formattedTotal = total.toLocaleString(locale === "ar" ? "ar-SA" : "en-US", {
+    minimumFractionDigits: 2,
+  })
+
+  // Build message based on locale
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://mazin.sd"
+  const pdfUrl = `${baseUrl}/api/invoice/${invoiceId}/pdf?locale=${locale}`
+
+  const messages = {
+    ar: `السلام عليكم
+
+فاتورة رقم: ${invoice.invoiceNumber}
+${invoice.client ? `العميل: ${invoice.client.companyName}` : ""}
+${invoice.blNumber ? `بوليصة الشحن: ${invoice.blNumber}` : ""}
+المبلغ الإجمالي: ${formattedTotal} ${invoice.currency}
+
+يمكنكم تحميل الفاتورة من الرابط:
+${pdfUrl}
+
+مع تحيات مازن للتخليص الجمركي`,
+
+    en: `Hello,
+
+Invoice No: ${invoice.invoiceNumber}
+${invoice.client ? `Client: ${invoice.client.companyName}` : ""}
+${invoice.blNumber ? `B/L No: ${invoice.blNumber}` : ""}
+Total Amount: ${formattedTotal} ${invoice.currency}
+
+Download invoice:
+${pdfUrl}
+
+Regards,
+Mazin Customs Clearance`,
+  }
+
+  const message = messages[locale]
+  const phone = invoice.client?.whatsappNumber || invoice.client?.phone || ""
+
+  // Generate WhatsApp URL
+  const whatsappUrl = `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`
+
+  return {
+    message,
+    phone,
+    whatsappUrl,
+    pdfUrl,
+  }
+}
+
+/**
+ * Send invoice via WhatsApp (logs the action)
+ */
+export async function shareInvoiceViaWhatsApp(
+  invoiceId: string,
+  phone: string,
+  locale: Locale = "ar"
+) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized")
+  }
+
+  // Get share data
+  const shareData = await getInvoiceWhatsAppShareData(invoiceId, locale)
+
+  // Update invoice status to SENT if it was DRAFT
+  const invoice = await db.invoice.findFirst({
+    where: { id: invoiceId, userId: session.user.id },
+  })
+
+  if (invoice?.status === "DRAFT") {
+    await db.invoice.update({
+      where: { id: invoiceId },
+      data: { status: "SENT" },
+    })
+    revalidatePath("/invoice")
+    revalidatePath(`/invoice/${invoiceId}`)
+  }
+
+  return {
+    ...shareData,
+    phone: phone || shareData.phone,
+    whatsappUrl: `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(shareData.message)}`,
+  }
 }

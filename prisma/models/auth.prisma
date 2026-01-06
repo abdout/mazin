@@ -39,6 +39,25 @@ model User {
   // Assignment rules (when assigning to specific user)
   assignmentRules TaskAssignmentRule[]
 
+  // Marketplace relations
+  vendor          Vendor?
+  serviceRequests ServiceRequest[]
+
+  // Finance relations
+  bankAccounts        BankAccount[]
+  transactions        Transaction[]
+  expenseCategories   ExpenseCategory[]
+  expenses            Expense[]
+  budgets             Budget[]
+  employees           Employee[]
+  payrolls            Payroll[]
+  chartOfAccounts     ChartOfAccount[]
+  journalEntries      JournalEntry[]
+  fiscalYears         FiscalYear[]
+  receipts            Receipt[]
+  feeTemplates        FeeTemplate[]
+  statementsOfAccount StatementOfAccount[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

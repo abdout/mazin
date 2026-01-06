@@ -1,0 +1,166 @@
+// Marketplace Models
+// Services marketplace for customs clearance operations (trucks, forklifts, manpower, tools)
+
+enum ServiceCategoryType {
+  TRUCK
+  FORKLIFT
+  MANPOWER
+  TOOLS
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+  REJECTED
+}
+
+enum ServiceRequestStatus {
+  PENDING
+  CONTACTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Vendor {
+  id             String       @id @default(cuid())
+  businessName   String
+  businessNameAr String?
+  description    String?      @db.Text
+  descriptionAr  String?      @db.Text
+  contactName    String
+  email          String       @unique
+  phone          String
+  whatsappNumber String?
+  city           String       @default("Port Sudan")
+  address        String?
+  taxId          String?
+  status         VendorStatus @default(PENDING)
+  appliedAt      DateTime     @default(now())
+  approvedAt     DateTime?
+  approvedBy     String?
+  rejectionReason String?     @db.Text
+  logoUrl        String?
+
+  // Optional link to platform User
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Relations
+  services ServiceListing[]
+  requests ServiceRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([city])
+  @@map("vendors")
+}
+
+model ServiceCategory {
+  id          String              @id @default(cuid())
+  type        ServiceCategoryType @unique
+  name        String
+  nameAr      String
+  description String?             @db.Text
+  descriptionAr String?           @db.Text
+  icon        String?
+  sortOrder   Int                 @default(0)
+  isActive    Boolean             @default(true)
+
+  // Relations
+  services ServiceListing[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("service_categories")
+}
+
+model ServiceListing {
+  id            String  @id @default(cuid())
+  title         String
+  titleAr       String?
+  description   String  @db.Text
+  descriptionAr String? @db.Text
+  details       String? @db.Text
+  detailsAr     String? @db.Text
+
+  // Pricing
+  priceMin  Decimal @db.Decimal(10, 2)
+  priceMax  Decimal? @db.Decimal(10, 2)
+  currency  String  @default("SDG")
+  priceNote String?
+  priceNoteAr String?
+
+  // Media & Availability
+  imageUrl    String?
+  isActive    Boolean @default(true)
+  serviceArea String  @default("Port Sudan")
+
+  // Capacity/Details (category-specific)
+  capacity       String?
+  specifications Json?
+
+  // Relations
+  vendorId   String
+  vendor     Vendor          @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   ServiceCategory @relation(fields: [categoryId], references: [id])
+  requests   ServiceRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([vendorId])
+  @@index([categoryId])
+  @@map("service_listings")
+}
+
+model ServiceRequest {
+  id            String               @id @default(cuid())
+  requestNumber String               @unique
+  status        ServiceRequestStatus @default(PENDING)
+
+  // Requester Info
+  requesterName  String
+  requesterPhone String
+  requesterEmail String?
+  requesterWhatsApp String?
+
+  // Request Details
+  message       String?   @db.Text
+  quantity      Int       @default(1)
+  preferredDate DateTime?
+
+  // Contact tracking
+  contactViewedAt DateTime?
+  contactMethod   String?
+
+  // Notes
+  vendorNotes String? @db.Text
+  adminNotes  String? @db.Text
+
+  // Relations
+  serviceId String
+  service   ServiceListing @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  vendorId  String
+  vendor    Vendor         @relation(fields: [vendorId], references: [id])
+
+  // Requester if authenticated
+  requesterId String?
+  requester   User?   @relation(fields: [requesterId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  @@index([status])
+  @@index([vendorId])
+  @@index([serviceId])
+  @@index([requesterId])
+  @@map("service_requests")
+}

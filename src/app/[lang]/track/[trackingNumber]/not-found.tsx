@@ -1,23 +1,46 @@
 import Link from "next/link"
-import { IconPackageOff, IconArrowLeft } from "@tabler/icons-react"
+import { cookies } from "next/headers"
+import { IconPackageOff, IconArrowLeft, IconSearch } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { getDictionary } from "@/components/internationalization/dictionaries"
+import { i18n, getDir, type Locale } from "@/components/internationalization/config"
 
-export default function TrackingNotFound() {
+export default async function TrackingNotFound() {
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get("NEXT_LOCALE")?.value
+  const locale = (localeCookie && i18n.locales.includes(localeCookie as Locale)
+    ? localeCookie
+    : i18n.defaultLocale) as Locale
+
+  const dict = await getDictionary(locale)
+  const dir = getDir(locale)
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-      <div className="text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-          <IconPackageOff className="h-10 w-10 text-muted-foreground" />
+    <div
+      className="flex min-h-screen flex-col items-center justify-center bg-background px-4"
+      dir={dir}
+    >
+      <div className="text-center max-w-md">
+        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-muted">
+          <IconPackageOff className="h-12 w-12 text-muted-foreground" />
         </div>
-        <h1 className="text-2xl font-bold">Shipment Not Found</h1>
-        <p className="mt-2 text-muted-foreground">
-          The tracking number you entered could not be found. Please check and try again.
+        <h1 className="text-2xl font-bold text-foreground">
+          {dict.tracking.notFound}
+        </h1>
+        <p className="mt-3 text-muted-foreground">
+          {dict.tracking.invalidNumber}
         </p>
-        <div className="mt-6">
-          <Button asChild>
-            <Link href="/">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Button asChild variant="default">
+            <Link href={`/${locale}/track`}>
+              <IconSearch className="me-2 h-4 w-4" />
+              {dict.tracking.trackButton}
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={`/${locale}`}>
               <IconArrowLeft className="me-2 h-4 w-4" />
-              Back to Home
+              {dict.common.back}
             </Link>
           </Button>
         </div>

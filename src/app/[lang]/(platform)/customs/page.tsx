@@ -30,7 +30,7 @@ export default async function CustomsPage({
           <PageHeading title={dict.customs?.title || "Customs"} />
           <Button asChild>
             <Link href={`/${locale}/customs/new`}>
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="h-4 w-4 me-2" />
               {dict.customs?.newDeclaration || "New Declaration"}
             </Link>
           </Button>

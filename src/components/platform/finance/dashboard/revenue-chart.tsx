@@ -25,6 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { Locale } from "@/components/internationalization"
 
 interface RevenueChartProps {
   revenueData: number[]
@@ -32,6 +33,8 @@ interface RevenueChartProps {
   profitData: number[]
   labels?: string[]
   className?: string
+  locale?: Locale
+  dictionary?: Record<string, any>
 }
 
 function RevenueChartInner({
@@ -40,7 +43,11 @@ function RevenueChartInner({
   profitData,
   labels,
   className,
+  locale = "ar",
+  dictionary,
 }: RevenueChartProps) {
+  const isRTL = locale === "ar"
+  const t = dictionary?.finance ?? {}
   // Generate labels if not provided (last 12 months)
   const monthLabels =
     labels ||
@@ -73,7 +80,7 @@ function RevenueChartInner({
             />
             <span className="capitalize">{entry.name}:</span>
             <span className="font-medium">
-              SDG {new Intl.NumberFormat("en-SD").format(entry.value)}
+              {isRTL ? "ج.س" : "SDG"} {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(entry.value)}
             </span>
           </div>
         ))}
@@ -95,17 +102,17 @@ function RevenueChartInner({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Revenue & Expenses</CardTitle>
+        <CardTitle>{isRTL ? "الإيرادات والمصروفات" : "Revenue & Expenses"}</CardTitle>
         <CardDescription>
-          Monthly financial performance over the last 12 months
+          {isRTL ? "الأداء المالي الشهري خلال الـ 12 شهراً الماضية" : "Monthly financial performance over the last 12 months"}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="area" className="w-full">
           <TabsList className="grid w-full max-w-[400px] grid-cols-3">
-            <TabsTrigger value="area">Area Chart</TabsTrigger>
-            <TabsTrigger value="bar">Bar Chart</TabsTrigger>
-            <TabsTrigger value="line">Line Chart</TabsTrigger>
+            <TabsTrigger value="area">{isRTL ? "مساحي" : "Area Chart"}</TabsTrigger>
+            <TabsTrigger value="bar">{isRTL ? "أعمدة" : "Bar Chart"}</TabsTrigger>
+            <TabsTrigger value="line">{isRTL ? "خطي" : "Line Chart"}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="area" className="mt-4">
@@ -153,7 +160,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#revenueGradient)"
-                  name="Revenue"
+                  name={isRTL ? "الإيرادات" : "Revenue"}
                 />
                 <Area
                   type="monotone"
@@ -162,7 +169,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#expenseGradient)"
-                  name="Expenses"
+                  name={isRTL ? "المصروفات" : "Expenses"}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -184,9 +191,9 @@ function RevenueChartInner({
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
-                <Bar dataKey="expense" fill="#ef4444" name="Expenses" />
-                <Bar dataKey="profit" fill="#3b82f6" name="Profit" />
+                <Bar dataKey="revenue" fill="#10b981" name={isRTL ? "الإيرادات" : "Revenue"} />
+                <Bar dataKey="expense" fill="#ef4444" name={isRTL ? "المصروفات" : "Expenses"} />
+                <Bar dataKey="profit" fill="#3b82f6" name={isRTL ? "الربح" : "Profit"} />
               </BarChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -214,7 +221,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Revenue"
+                  name={isRTL ? "الإيرادات" : "Revenue"}
                 />
                 <Line
                   type="monotone"
@@ -223,7 +230,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Expenses"
+                  name={isRTL ? "المصروفات" : "Expenses"}
                 />
                 <Line
                   type="monotone"
@@ -232,7 +239,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Profit"
+                  name={isRTL ? "الربح" : "Profit"}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -242,31 +249,37 @@ function RevenueChartInner({
         {/* Summary Stats */}
         <div className="mt-6 grid grid-cols-3 gap-4 border-t pt-6">
           <div className="text-center">
-            <p className="text-muted-foreground text-sm">Avg Monthly Revenue</p>
+            <p className="text-muted-foreground text-sm">{isRTL ? "متوسط الإيرادات الشهرية" : "Avg Monthly Revenue"}</p>
             <p className="text-lg font-semibold text-green-600">
-              SDG{" "}
-              {new Intl.NumberFormat("en-SD").format(
-                revenueData.reduce((a, b) => a + b, 0) / revenueData.length
+              {isRTL ? "ج.س" : "SDG"}{" "}
+              {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(
+                revenueData.length > 0
+                  ? revenueData.reduce((a, b) => a + b, 0) / revenueData.length
+                  : 0
               )}
             </p>
           </div>
           <div className="text-center">
             <p className="text-muted-foreground text-sm">
-              Avg Monthly Expenses
+              {isRTL ? "متوسط المصروفات الشهرية" : "Avg Monthly Expenses"}
             </p>
             <p className="text-lg font-semibold text-red-600">
-              SDG{" "}
-              {new Intl.NumberFormat("en-SD").format(
-                expenseData.reduce((a, b) => a + b, 0) / expenseData.length
+              {isRTL ? "ج.س" : "SDG"}{" "}
+              {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(
+                expenseData.length > 0
+                  ? expenseData.reduce((a, b) => a + b, 0) / expenseData.length
+                  : 0
               )}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-muted-foreground text-sm">Avg Monthly Profit</p>
+            <p className="text-muted-foreground text-sm">{isRTL ? "متوسط الربح الشهري" : "Avg Monthly Profit"}</p>
             <p className="text-lg font-semibold text-blue-600">
-              SDG{" "}
-              {new Intl.NumberFormat("en-SD").format(
-                profitData.reduce((a, b) => a + b, 0) / profitData.length
+              {isRTL ? "ج.س" : "SDG"}{" "}
+              {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(
+                profitData.length > 0
+                  ? profitData.reduce((a, b) => a + b, 0) / profitData.length
+                  : 0
               )}
             </p>
           </div>

@@ -36,6 +36,7 @@ import { seedUsers } from "./auth"
 import { seedClients } from "./clients"
 import { seedDeclarations } from "./declarations"
 import { seedInvoices } from "./invoices"
+import { seedMarketplace } from "./marketplace"
 import { seedProjects } from "./projects"
 import { seedSettings } from "./settings"
 import { seedShipments } from "./shipments"
@@ -133,6 +134,15 @@ async function main() {
     context.projects = projects
 
     // ========================================================================
+    // PHASE 8: MARKETPLACE
+    // ========================================================================
+    logPhase(8, "MARKETPLACE")
+
+    const marketplace = await measureDuration("Marketplace", () =>
+      seedMarketplace(prisma, users)
+    )
+
+    // ========================================================================
     // COMPLETION
     // ========================================================================
     logSummary(startTime, {
@@ -144,6 +154,10 @@ async function main() {
       Declarations: declarations.length,
       Invoices: invoices.length,
       Projects: projects.length,
+      "Service Categories": marketplace.categories.length,
+      Vendors: marketplace.vendors.length,
+      "Service Listings": marketplace.listings.length,
+      "Service Requests": marketplace.requests.length,
     })
 
     console.log("\n📋 Test Credentials:")
@@ -153,6 +167,10 @@ async function main() {
     console.log("\n🔍 Tracking URLs:")
     console.log("   /track/TRK-ABC123 (27% complete)")
     console.log("   /track/TRK-XYZ789 (73% complete)")
+    console.log("\n🏪 Marketplace:")
+    console.log("   /ar/marketplace - Browse services")
+    console.log("   /en/marketplace - Browse services (English)")
+    console.log(`   ${marketplace.vendors.length} vendors, ${marketplace.listings.length} services seeded`)
 
   } catch (error) {
     console.error("❌ Seed failed:", error)
