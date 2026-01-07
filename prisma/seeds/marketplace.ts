@@ -8,7 +8,8 @@
  * - Sample Service Requests
  */
 
-import type { PrismaClient, User } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
+import type { UserRef } from "./types"
 
 // ============================================================================
 // SERVICE CATEGORIES
@@ -433,7 +434,7 @@ const SERVICES: ServiceListingData[] = [
 // SEED FUNCTIONS
 // ============================================================================
 
-export async function seedMarketplace(prisma: PrismaClient, users: User[]) {
+export async function seedMarketplace(prisma: PrismaClient, users: UserRef[]) {
   console.log("   🏪 Seeding marketplace categories...")
 
   // Seed categories
