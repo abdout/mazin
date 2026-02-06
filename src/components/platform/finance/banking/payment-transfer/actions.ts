@@ -8,7 +8,7 @@
  * 2. Payment processor integration
  */
 
-import type { BankAccount } from "../actions/bank.actions"
+import type { BankAccount } from "@prisma/client"
 
 export interface TransferRequest {
   fromAccountId: string
@@ -26,13 +26,11 @@ export interface TransferResult {
 
 export async function getAccountsForTransfer(userId: string): Promise<BankAccount[]> {
   // TODO: Implement with Prisma
-  console.log("getAccountsForTransfer called for:", userId)
   return []
 }
 
 export async function createTransfer(params: TransferRequest): Promise<TransferResult> {
   // TODO: Implement with payment processor
-  console.log("createTransfer called with:", params)
   return { success: false, error: "Transfer functionality not yet implemented" }
 }
 
@@ -41,6 +39,5 @@ export async function getTransferStatus(transferId: string): Promise<{
   error?: string
 }> {
   // TODO: Implement with Prisma
-  console.log("getTransferStatus called for:", transferId)
   return { status: "pending", error: "Status check not yet implemented" }
 }

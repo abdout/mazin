@@ -1,9 +1,9 @@
 export interface PostProjectState {
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
-    error: any;
+    error: string | null;
   }
-  
+
   export interface PostProjectContextProps {
     postProjectState: PostProjectState;
-    postProject: (data: any) => Promise<void>;
+    postProject: (data: Record<string, unknown>) => Promise<void>;
   }

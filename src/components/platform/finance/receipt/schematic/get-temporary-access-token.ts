@@ -32,15 +32,10 @@ export async function getTemporaryAccessToken(): Promise<string | null> {
       return null
     }
 
-    console.log(
-      "getTemporaryAccessToken called (stubbed) for company:",
-      companyId
-    )
-
     // Return stub token for development
     return `stub-access-token-${companyId}-${Date.now()}`
   } catch (error) {
-    console.error("getTemporaryAccessToken error:", error)
+    console.error("Failed to get temporary access token")
     return null
   }
 }

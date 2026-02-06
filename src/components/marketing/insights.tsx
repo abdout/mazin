@@ -131,27 +131,24 @@ export function Insights({ dictionary }: InsightsProps) {
                   }}
                 >
                   {/* Image Container with slow zoom animation */}
-                  <div className="relative aspect-[4/3] animation-box">
-                    <div className="absolute inset-0">
-                      <Image
-                        src={article.image}
-                        alt={articleContent.title}
-                        fill
-                        className="object-cover"
-                      />
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    {/* Animated image wrapper */}
+                    <div className="animation-box absolute inset-0">
+                      <div className="absolute inset-0">
+                        <Image
+                          src={article.image}
+                          alt={articleContent.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                     </div>
-                    {/* Date Badge */}
-                    <motion.div
-                      className="absolute top-3 end-3 sm:top-4 sm:end-4"
-                      initial={{ opacity: 0, x: 20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
-                    >
-                      <span className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-black/30 backdrop-blur-md border border-white/50 rounded-full text-xs sm:text-sm font-medium text-white whitespace-nowrap">
+                    {/* Date Badge - outside animation-box to stay still */}
+                    <div className="absolute top-3 end-3 z-10">
+                      <span className="inline-flex px-3 py-1.5 bg-black/40 backdrop-blur-md border border-white/20 rounded-full text-xs font-medium text-white whitespace-nowrap">
                         {articleContent.date}
                       </span>
-                    </motion.div>
+                    </div>
                   </div>
 
                   {/* Content */}

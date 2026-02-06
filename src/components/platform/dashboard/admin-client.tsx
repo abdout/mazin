@@ -5,7 +5,12 @@ import { QuickActions } from "./quick-actions"
 import { Upcoming } from "./upcoming"
 import { Weather } from "./weather"
 import { QuickLook } from "./quick-look"
-import { FinanceOverview } from "./finance-overview"
+import dynamic from "next/dynamic"
+
+const FinanceOverview = dynamic(
+  () => import("./finance-overview").then((mod) => mod.FinanceOverview),
+  { ssr: false, loading: () => <div className="h-96 animate-pulse rounded-lg bg-muted" /> }
+)
 import { TransactionList } from "./transaction-list"
 import type {
   QuickLookData,

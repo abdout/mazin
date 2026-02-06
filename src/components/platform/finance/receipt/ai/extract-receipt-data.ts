@@ -32,8 +32,6 @@ export async function extractReceiptData(
   receiptId: string,
   fileUrl: string
 ): Promise<{ success: boolean; data?: ExtractedReceiptData; error?: string }> {
-  console.log("extractReceiptData called (stubbed):", { receiptId, fileUrl })
-
   // Return stubbed data for development
   return {
     success: true,
@@ -41,7 +39,7 @@ export async function extractReceiptData(
       merchantName: "Sample Merchant",
       merchantAddress: "123 Sample Street",
       merchantContact: "+1-234-567-8900",
-      transactionDate: new Date().toISOString().split("T")[0],
+      transactionDate: new Date().toISOString().split("T")[0] ?? "",
       transactionAmount: "100.00",
       currency: "SDG",
       receiptSummary: "Sample receipt for development",
@@ -64,8 +62,6 @@ export async function extractReceiptData(
 export async function retryExtraction(
   receiptId: string
 ): Promise<{ success: boolean; data?: ExtractedReceiptData; error?: string }> {
-  console.log("retryExtraction called (stubbed):", { receiptId })
-
   return {
     success: false,
     error: "AI extraction not implemented - install @ai-sdk/anthropic",

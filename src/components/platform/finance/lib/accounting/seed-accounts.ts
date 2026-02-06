@@ -120,8 +120,7 @@ const standardAccounts: AccountSeedData[] = [
  * Seed chart of accounts for a company (stubbed)
  */
 export async function seedChartOfAccounts(companyId: string): Promise<void> {
-  console.log(`seedChartOfAccounts called for company: ${companyId}`)
-  console.log(`Would seed ${standardAccounts.length} accounts`)
+  // TODO: Implement seeding with Prisma
 }
 
 /**
@@ -131,7 +130,6 @@ export async function getOrCreateFiscalYear(
   companyId: string,
   year?: number
 ): Promise<string> {
-  console.log("getOrCreateFiscalYear called:", { companyId, year })
   return `stub-fiscal-year-${year || new Date().getFullYear()}`
 }
 
@@ -143,8 +141,6 @@ export async function initializeAccountingSystem(companyId: string): Promise<{
   accountsCreated: number
   fiscalYearId: string
 }> {
-  console.log("initializeAccountingSystem called:", companyId)
-
   return {
     success: true,
     accountsCreated: standardAccounts.length,

@@ -86,7 +86,7 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
       setSelectedSystems(shipmentTypes);
 
       if (shipmentTypes.length > 0) {
-        setActiveSystemTab(shipmentTypes[0]);
+        setActiveSystemTab(shipmentTypes[0] ?? null);
       }
     }
 
@@ -113,7 +113,7 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
         }
 
         // Add subcategory if not already added
-        if (category && subcategory && !subcategoriesMap[system][category].includes(subcategory)) {
+        if (category && subcategory && subcategoriesMap[system][category] && !subcategoriesMap[system][category].includes(subcategory)) {
           subcategoriesMap[system][category].push(subcategory);
         }
       });
@@ -131,13 +131,13 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
 
     // If we have systems but no active tab, set the first system as active
     if (selectedSystems.length > 0 && !activeSystemTab) {
-      setActiveSystemTab(selectedSystems[0]);
+      setActiveSystemTab(selectedSystems[0] ?? null);
     } else if (selectedSystems.length === 0) {
       // If no systems are selected, clear the active tab
       setActiveSystemTab(null);
     } else if (!selectedSystems.includes(activeSystemTab as ShipmentType)) {
       // If the active tab is not in selected systems anymore, update active tab
-      setActiveSystemTab(selectedSystems[0]);
+      setActiveSystemTab(selectedSystems[0] ?? null);
     }
   }, [selectedSystems, activeSystemTab]);
 

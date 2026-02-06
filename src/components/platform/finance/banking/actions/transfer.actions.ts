@@ -34,7 +34,6 @@ export interface TransferRequest {
 
 export async function createTransfer(params: TransferRequest): Promise<Transfer | null> {
   // TODO: Implement with actual bank integration
-  console.log("createTransfer called with:", params)
   throw new Error("Transfer creation not yet implemented. Please set up bank integration.")
 }
 
@@ -50,7 +49,6 @@ export async function getTransfers(params: {
   hasMore: boolean
 }> {
   // TODO: Implement with actual Prisma queries
-  console.log("getTransfers called with:", params)
   return {
     data: [],
     total: 0,
@@ -62,12 +60,10 @@ export async function getTransfers(params: {
 
 export async function getTransfer(transferId: string): Promise<Transfer | null> {
   // TODO: Implement with actual Prisma queries
-  console.log("getTransfer called for:", transferId)
   return null
 }
 
 export async function cancelTransfer(transferId: string): Promise<Transfer | null> {
   // TODO: Implement with actual bank integration
-  console.log("cancelTransfer called for:", transferId)
   throw new Error("Transfer cancellation not yet implemented.")
 }

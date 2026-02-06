@@ -38,7 +38,9 @@
     "columns": "الأعمدة",
     "sync": "مزامنة",
     "syncing": "جاري المزامنة...",
-    "areYouSure": "هل أنت متأكد؟"
+    "areYouSure": "هل أنت متأكد؟",
+    "openMenu": "فتح القائمة",
+    "viewAll": "عرض الكل"
   },
   "header": {
     "services": "الخدمات",
@@ -69,7 +71,8 @@
     "messages": "الرسائل",
     "menu": "القائمة",
     "toggleMenu": "تبديل القائمة",
-    "toggleSidebar": "تبديل الشريط الجانبي"
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "team": "الفريق"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -132,6 +135,7 @@
     "totalShipments": "إجمالي الشحنات",
     "inTransit": "قيد النقل",
     "pendingCustoms": "جمارك معلقة",
+    "pendingDeclarations": "بيانات جمركية معلقة",
     "unpaidInvoices": "فواتير غير مدفوعة",
     "recentShipments": "أحدث الشحنات",
     "quickActions": "إجراءات سريعة",
@@ -139,7 +143,10 @@
     "newDeclaration": "بيان جمركي جديد",
     "newInvoice": "فاتورة جديدة",
     "trendingUp": "ارتفاع هذا الشهر",
-    "trendingDown": "انخفاض في هذه الفترة"
+    "trendingDown": "انخفاض في هذه الفترة",
+    "completionRate": "معدل الإنجاز",
+    "clients": "العملاء",
+    "shipment": "شحنة"
   },
   "shipments": {
     "title": "الشحنات",
@@ -411,6 +418,40 @@
     "pendingPayments": "مدفوعات معلقة",
     "overdueInvoices": "فواتير متأخرة",
     "collectionRate": "معدل التحصيل",
+    "revenueExpenses": "الإيرادات والمصروفات",
+    "lastMonths": "آخر 12 شهر",
+    "avgRevenue": "متوسط الإيرادات",
+    "avgExpenses": "متوسط المصروفات",
+    "avgProfit": "متوسط الأرباح",
+    "currentPeriod": "الفترة الحالية",
+    "balance": "الرصيد",
+    "netFlow": "صافي التدفق",
+    "expenseBreakdown": "تفصيل المصروفات",
+    "byCategory": "حسب الفئة",
+    "recentTransactions": "المعاملات الأخيرة",
+    "latestActivities": "أحدث النشاطات المالية",
+    "viewAll": "عرض الكل",
+    "totalIncome": "إجمالي الدخل",
+    "pending": "معلق",
+    "noTransactions": "لا توجد معاملات لهذه الفترة",
+    "viewDetails": "عرض التفاصيل",
+    "retryExtraction": "إعادة المحاولة",
+    "statuses": {
+      "COMPLETED": "مكتمل",
+      "PENDING": "معلق",
+      "FAILED": "فاشل",
+      "PROCESSING": "قيد المعالجة",
+      "PROCESSED": "تمت المعالجة",
+      "ERROR": "خطأ"
+    },
+    "columns": {
+      "fileName": "اسم الملف",
+      "merchant": "التاجر",
+      "date": "التاريخ",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "uploaded": "تاريخ الرفع"
+    },
     "navigation": {
       "overview": "نظرة عامة",
       "dashboard": "لوحة القيادة",
@@ -526,6 +567,42 @@
       "usd": "دولار",
       "eur": "يورو",
       "sar": "ريال"
+    },
+    "totalBalance": "إجمالي الرصيد",
+    "allAccounts": "جميع الحسابات",
+    "paid": "مدفوع",
+    "pendingPayroll": "رواتب معلقة",
+    "needApproval": "تحتاج موافقة",
+    "activeEmployees": "الموظفين النشطين",
+    "employees": "موظف",
+    "viewAccounts": "عرض الحسابات",
+    "viewPayroll": "عرض الرواتب",
+    "viewExpenses": "عرض المصروفات",
+    "customsFees": "الرسوم الجمركية",
+    "viewFees": "عرض الرسوم",
+    "addBankAccount": "إضافة حساب بنكي",
+    "manageAccounts": "إدارة الحسابات",
+    "processPayroll": "معالجة الرواتب",
+    "monthlyPayroll": "رواتب شهرية",
+    "addExpense": "إضافة مصروف",
+    "trackExpenses": "تتبع المصروفات",
+    "generateReport": "إنشاء تقرير",
+    "financialReports": "تقارير مالية",
+    "receipt": {
+      "fileName": "اسم الملف",
+      "merchant": "التاجر",
+      "date": "التاريخ",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "uploaded": "تاريخ الرفع",
+      "viewDetails": "عرض التفاصيل",
+      "retryExtraction": "إعادة الاستخراج",
+      "statuses": {
+        "pending": "معلق",
+        "processing": "قيد المعالجة",
+        "processed": "تمت المعالجة",
+        "error": "خطأ"
+      }
     }
   },
   "project": {
@@ -576,6 +653,32 @@
     "syncWithProjects": "مزامنة مع المشاريع",
     "searchPlaceholder": "البحث باسم المهمة...",
     "filterOptions": "خيارات التصفية",
+    "general": "عام",
+    "date": "التاريخ",
+    "pickDate": "اختر تاريخ",
+    "loadingProjects": "جاري تحميل المشاريع...",
+    "selectProject": "اختر المشروع",
+    "searchProjects": "البحث في المشاريع...",
+    "noProjectFound": "لم يتم العثور على مشروع.",
+    "assignTeamMembers": "تعيين أعضاء الفريق",
+    "searchTeamMembers": "البحث في أعضاء الفريق...",
+    "noMemberFound": "لم يتم العثور على عضو.",
+    "creatingTask": "جاري إنشاء المهمة...",
+    "updatingTask": "جاري تحديث المهمة...",
+    "createTask": "إنشاء المهمة",
+    "updateTask": "تحديث المهمة",
+    "enterTaskName": "أدخل اسم المهمة",
+    "enterTaskDescription": "أدخل وصف المهمة",
+    "taskDescription": "وصف المهمة",
+    "selectStatus": "اختر الحالة",
+    "selectPriority": "اختر الأولوية",
+    "taskCreatedSuccess": "تم إنشاء المهمة بنجاح",
+    "taskUpdatedSuccess": "تم تحديث المهمة بنجاح",
+    "taskDeletedSuccess": "تم حذف المهمة بنجاح",
+    "deleteTask": "حذف المهمة",
+    "deleteConfirmation": "هل أنت متأكد من حذف هذه المهمة؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deleting": "جاري الحذف...",
+    "estimatedTime": "الوقت المقدر",
     "nav": {
       "all": "الكل",
       "pending": "معلق",
@@ -1183,7 +1286,30 @@
   },
   "table": {
     "of": "من",
-    "rowsSelected": "صف (صفوف) محددة"
+    "rowsSelected": "صف (صفوف) محددة",
+    "rowsPerPage": "صفوف في الصفحة",
+    "page": "صفحة",
+    "noResults": "لا توجد نتائج.",
+    "asc": "تصاعدي",
+    "desc": "تنازلي",
+    "reset": "إعادة تعيين",
+    "hide": "إخفاء",
+    "toggleColumns": "تبديل الأعمدة",
+    "view": "عرض",
+    "searchColumns": "البحث في الأعمدة...",
+    "noColumnsFound": "لم يتم العثور على أعمدة.",
+    "clearFilters": "مسح الفلاتر",
+    "selected": "محدد",
+    "noResultsFound": "لم يتم العثور على نتائج.",
+    "loadMore": "تحميل المزيد",
+    "loading": "جاري التحميل...",
+    "search": "بحث...",
+    "all": "الكل",
+    "openMenu": "فتح القائمة",
+    "goToFirstPage": "الذهاب إلى الصفحة الأولى",
+    "goToPreviousPage": "الذهاب إلى الصفحة السابقة",
+    "goToNextPage": "الذهاب إلى الصفحة التالية",
+    "goToLastPage": "الذهاب إلى الصفحة الأخيرة"
   },
   "tracking": {
     "title": "تتبع الشحنة",
@@ -1325,5 +1451,22 @@
       "COMPLETED": "مكتمل",
       "CANCELLED": "ملغي"
     }
+  },
+  "errorPage": {
+    "title": "حدث خطأ ما",
+    "description": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+    "retry": "حاول مرة أخرى",
+    "goHome": "الذهاب للصفحة الرئيسية",
+    "goDashboard": "الذهاب للوحة التحكم",
+    "globalTitle": "خطأ في التطبيق",
+    "globalDescription": "حدث خطأ حرج. يرجى تحديث الصفحة.",
+    "refresh": "تحديث الصفحة"
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "goHome": "الذهاب للصفحة الرئيسية",
+    "goDashboard": "الذهاب للوحة التحكم",
+    "searchPlaceholder": "البحث عن صفحة..."
   }
 }

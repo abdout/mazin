@@ -13,7 +13,7 @@ export default async function NewVerificationPage({
   const dict = await getDictionary(lang)
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
+    <main className="flex min-h-screen flex-col items-center justify-center">
       <div className="w-full max-w-md space-y-6">
         <Suspense fallback={<div className="flex justify-center p-4">Loading...</div>}>
           <NewVerificationForm />

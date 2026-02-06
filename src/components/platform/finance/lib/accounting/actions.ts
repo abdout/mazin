@@ -25,15 +25,13 @@ export async function initializeAccounting(companyId: string): Promise<{
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("initializeAccounting called for:", companyId)
-
     return {
       success: true,
       accountsCreated: 0,
       fiscalYearId: "stub-fiscal-year-id",
     }
   } catch (error) {
-    console.error("Error initializing accounting:", error)
+    console.error("Failed to initialize accounting")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -61,10 +59,9 @@ export async function postFeePayment(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("postFeePayment called:", { companyId, paymentData })
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Error posting fee payment:", error)
+    console.error("Failed to post fee payment")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -91,10 +88,9 @@ export async function postFeeAssignment(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("postFeeAssignment called:", { companyId, assignmentData })
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Error posting fee assignment:", error)
+    console.error("Failed to post fee assignment")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -123,10 +119,9 @@ export async function postSalaryPayment(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("postSalaryPayment called:", { companyId, paymentData })
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Error posting salary payment:", error)
+    console.error("Failed to post salary payment")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -153,10 +148,9 @@ export async function postExpensePayment(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("postExpensePayment called:", { companyId, expenseData })
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Error posting expense payment:", error)
+    console.error("Failed to post expense payment")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -182,10 +176,9 @@ export async function postInvoicePayment(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("postInvoicePayment called:", { companyId, invoiceData })
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Error posting invoice payment:", error)
+    console.error("Failed to post invoice payment")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -210,10 +203,9 @@ export async function postWalletTopup(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("postWalletTopup called:", { companyId, topupData })
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Error posting wallet top-up:", error)
+    console.error("Failed to post wallet top-up")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -233,10 +225,9 @@ export async function postJournalEntryAction(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("postJournalEntryAction called:", journalEntryId)
     return { success: true, journalEntryId }
   } catch (error) {
-    console.error("Error posting journal entry:", error)
+    console.error("Failed to post journal entry")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -257,10 +248,9 @@ export async function reverseJournalEntryAction(
       return { success: false, errors: ["Unauthorized"] }
     }
 
-    console.log("reverseJournalEntryAction called:", { journalEntryId, reason })
     return { success: true, journalEntryId: `reversed-${journalEntryId}` }
   } catch (error) {
-    console.error("Error reversing journal entry:", error)
+    console.error("Failed to reverse journal entry")
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -278,10 +268,9 @@ export async function getChartOfAccounts(companyId: string) {
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("getChartOfAccounts called:", companyId)
     return { success: true, accounts: [] }
   } catch (error) {
-    console.error("Error fetching chart of accounts:", error)
+    console.error("Failed to fetch chart of accounts")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -307,10 +296,9 @@ export async function getJournalEntries(
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("getJournalEntries called:", { companyId, options })
     return { success: true, entries: [] }
   } catch (error) {
-    console.error("Error fetching journal entries:", error)
+    console.error("Failed to fetch journal entries")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -331,10 +319,9 @@ export async function getAccountBalances(
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("getAccountBalances called:", { companyId, fiscalYearId })
     return { success: true, balances: [] }
   } catch (error) {
-    console.error("Error fetching account balances:", error)
+    console.error("Failed to fetch account balances")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

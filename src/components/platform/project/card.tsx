@@ -4,6 +4,9 @@ import { Icon } from "@iconify/react";
 import { Project } from './types';
 import Delete from "./delete";
 import { SHIPMENT_TYPE_LABELS } from './constant';
+import type { Dictionary, Locale } from "@/components/internationalization";
+import { useDictionary } from "@/components/internationalization/use-dictionary";
+import { useLocale } from "@/components/internationalization/use-locale";
 
 interface ProjectCardProps {
   project: Project;
@@ -12,6 +15,8 @@ interface ProjectCardProps {
   onCloseContextMenu: () => void;
   onOpenDialog: (projectId: string) => void;
   onProjectDeleted?: () => Promise<void>;
+  dictionary?: Dictionary;
+  locale?: Locale;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -21,10 +26,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onCloseContextMenu,
   onOpenDialog,
   onProjectDeleted,
+  dictionary: propDictionary,
+  locale: propLocale,
 }) => {
+  const hookDictionary = useDictionary();
+  const { locale: hookLocale } = useLocale();
+
+  const dictionary = propDictionary ?? hookDictionary;
+  const locale = propLocale ?? hookLocale;
   const formatDate = (date?: Date) => {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', {
+    return new Date(date).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -40,20 +52,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   // Get status color and label
   const getStatusInfo = () => {
+    const statuses = dictionary.project?.statuses;
     switch (project.status) {
       case 'delivered':
       case 'done':
-        return { color: 'bg-green-500', label: 'Delivered' };
+        return { color: 'bg-green-500', label: statuses?.DELIVERED || 'Delivered' };
       case 'released':
-        return { color: 'bg-emerald-400', label: 'Released' };
+        return { color: 'bg-emerald-400', label: statuses?.RELEASED || 'Released' };
       case 'in_progress':
       case 'on_progress':
-        return { color: 'bg-yellow-400', label: 'In Progress' };
+        return { color: 'bg-yellow-400', label: statuses?.IN_PROGRESS || 'In Progress' };
       case 'customs_hold':
       case 'stuck':
-        return { color: 'bg-red-500', label: 'On Hold' };
+        return { color: 'bg-red-500', label: statuses?.CUSTOMS_HOLD || 'On Hold' };
       default:
-        return { color: 'bg-neutral-400', label: 'Pending' };
+        return { color: 'bg-neutral-400', label: statuses?.PENDING || 'Pending' };
     }
   };
 
@@ -70,12 +83,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           }
         }}
       >
-        <Link href={`/project/${project.id}`} className="flex flex-col h-full">
+        <Link href={`/${locale}/project/${project.id}`} className="flex flex-col h-full">
           {/* Header */}
           <div className="space-y-1">
             <h3 className="font-semibold text-lg leading-tight truncate">{project.customer}</h3>
             <p className="text-sm text-muted-foreground truncate">
-              {project.blAwbNumber || project.location || 'BL/AWB'}
+              {project.blAwbNumber || project.location || dictionary.project?.blAwbNumber || 'BL/AWB'}
             </p>
           </div>
 
@@ -83,12 +96,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="flex-1 flex flex-col justify-center py-2">
             <div className="flex gap-2 items-center text-sm">
               <Icon icon="mdi:ship" width={18} className="text-muted-foreground" />
-              <span className="truncate">{shipmentType || 'Shipment'}</span>
+              <span className="truncate">{shipmentType || dictionary.dashboard?.shipment || 'Shipment'}</span>
             </div>
             {(project.portOfOrigin || project.portOfDestination) && (
               <div className="flex gap-1.5 items-center mt-1.5 text-xs text-muted-foreground">
                 <span className="truncate max-w-[80px]">{project.portOfOrigin || '---'}</span>
-                <Icon icon="mdi:arrow-right" width={12} />
+                <Icon icon="mdi:arrow-right" width={12} className="rtl:rotate-180" />
                 <span className="truncate max-w-[80px]">{project.portOfDestination || '---'}</span>
               </div>
             )}
@@ -104,7 +117,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {contextMenu.projectID === project.id && (
         <div
-          className="absolute top-0 left-0 w-full h-full rounded-xl bg-background/90 backdrop-blur-sm flex flex-row justify-center items-center gap-4"
+          className="absolute top-0 left-0 w-full h-full rounded-xl bg-background/90 backdrop-blur-sm flex flex-row justify-center items-center gap-4 rtl:left-auto rtl:right-0"
           onMouseLeave={onCloseContextMenu}
           onClick={(e) => {
             // Close if clicking outside the buttons
@@ -116,11 +129,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <button
             onClick={() => project.id && onOpenDialog(project.id)}
             className="p-3 hover:bg-muted rounded-xl transition-colors border bg-background"
-            title="Edit"
+            title={dictionary.common.edit}
           >
             <Icon icon="ph:pencil-simple" width={24} />
           </button>
-          <Delete id={contextMenu.projectID} onSuccess={onProjectDeleted} />
+          <Delete id={contextMenu.projectID} onSuccess={onProjectDeleted} dictionary={dictionary} />
         </div>
       )}
     </div>

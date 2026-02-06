@@ -22,10 +22,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-
 interface BankingMobileNavProps {
   user: any
-  dictionary: any
+  dictionary: Record<string, any>
   lang: string
 }
 

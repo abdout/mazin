@@ -5,6 +5,36 @@
 
 ---
 
+## Real Operations Analysis (From PDFs)
+
+This knowledge base now includes insights from **actual clearance documents** processed by Abdout Group Co. at Port Sudan. Three shipments analyzed:
+
+| Shipment | Client | Commodity | Containers | Total Cost (SDG) |
+|----------|--------|-----------|------------|------------------|
+| GGZ2339767 | Hafez Emad | Kitchen Equipment | 1×40' | 15,352,201.90 |
+| VCLPKGPZUZ33125 | Yassir Emad | Petroleum Jelly | 5×20' | 25,120,988.20 |
+| OSLPKGPZU4742625 | Yassir Emad | Glycerol | 5×20' | 49,845,467.08 |
+
+### Detailed Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Document Types](./docs/knowledge/document-types.md) | 28+ document types across shipping, customs, regulatory, and financial categories |
+| [Fee Structure](./docs/knowledge/fee-structure.md) | 50+ fee categories with actual rates and calculation formulas |
+| [Workflow Stages](./docs/knowledge/workflow-stages.md) | 11 stages mapped from real documents with timelines |
+| [Reference Numbers](./docs/knowledge/reference-numbers.md) | 15+ reference formats with validation regex patterns |
+| [Entities](./docs/knowledge/entities.md) | Key parties, authorities, and relationships |
+
+### Key Operational Insights
+
+1. **VAT Applied Universally**: 17% VAT applies across all entities (Customs, Port, SSMO, Shipping)
+2. **SSMO Required for Chemicals**: Glycerin/Glycerol products require SSMO release (FR forms)
+3. **Multi-Party Payments**: Single shipment requires 4-6 separate payments to different entities
+4. **Agent Commission**: Typically 1,200,000 - 2,000,000 SDG per shipment
+5. **Container Transport**: Local transport ranges 400,000 - 1,600,000 SDG based on distance/quantity
+
+---
+
 ## Executive Summary
 
 This knowledge base enables automation of customs clearance operations for Port Sudan. The key regulatory shift is the **Advance Cargo Declaration (ACD)** requirement, transforming the workflow from reactive paperwork to proactive pre-loading data submission. Integration with the emerging **Single Window** system connecting customs, banks, and standards bodies is essential.
@@ -567,6 +597,128 @@ const ssmoWorkflow: Record<SSMOStatus, SSMOStatus[]> = {
 };
 ```
 
+### 4.7 Actual Fee Breakdown (From PDF Analysis)
+
+Real clearance cost structure from Abdout Group invoices:
+
+```typescript
+// Fee categories with actual amounts (SDG)
+interface ClearanceFeeBreakdown {
+  // Government Payments
+  customs: {
+    importDuty: number;      // IMD: 4,312,864 - 7,076,097
+    valueAddedTax: number;   // VAT 17%: 9,686,406 - 41,300,819
+    additionalTax: number;   // ADT: 966,080
+    stamps: number;          // BSS+STP+PLS: ~6,654
+  };
+
+  // Port Authority
+  seaPorts: {
+    handling: number;        // CT/F-3-4: ~1,262,920
+    portDues: number;        // CT/U-13/1: ~3,031,009
+    extraction: number;      // H9/1: ~14,032
+    equipment: number;       // H/11-1: ~22,451
+    trucks: number;          // H/12-1: ~70,162
+    stamps: number;          // STAMP20/40: ~8,400
+  };
+
+  // Shipping Line/Agent
+  shipping: {
+    deliveryOrder: number;   // D/O fee: 26,775 - 2,340
+    landingCharges: number;  // 142,800 - 941,557
+    liftOff: number;         // 350,000 - 4,524,975
+    insurance: number;       // 43,435 - 211,553
+    cleaning: number;        // 28,263 - 230,776
+  };
+
+  // Clearing Agent (Abdout Group)
+  agent: {
+    declaration: number;     // شهادة جمركية: 500,000
+    examination: number;     // الكشف عن الطرد: 1,200,000
+    supervision: number;     // اشراف ومتابعة: 200,000
+    transport: number;       // ترحيل محلي: 400,000 - 1,600,000
+    labourers: number;       // اجرة عمال: 400,000 - 3,200,000
+    commission: number;      // العمولة: 1,200,000 - 2,000,000
+  };
+
+  // Quality Standards (if required)
+  ssmo?: {
+    qualityFees: number;     // رسوم ضبط الجودة: 1,830,000
+    labFees: number;         // رسوم معمل: 100,000
+    stamps: number;          // دمغة جودة: 50,000
+  };
+}
+
+// Real invoice total ranges
+const typicalClearanceCosts = {
+  singleContainer40ft: {
+    min: 12_000_000,  // ~12M SDG
+    max: 18_000_000,  // ~18M SDG
+  },
+  fiveContainers20ft: {
+    min: 25_000_000,  // ~25M SDG
+    max: 55_000_000,  // ~55M SDG (with SSMO)
+  },
+};
+```
+
+#### Invoice Auto-Generation Template
+
+```typescript
+// Auto-generate clearance invoice from shipment data
+interface InvoiceLineItem {
+  code: string;           // Service code
+  description: string;    // English description
+  descriptionAr: string;  // Arabic description
+  amount: number;
+  category: 'CUSTOMS' | 'PORT' | 'SHIPPING' | 'AGENT' | 'SSMO';
+  taxable: boolean;
+  vatAmount?: number;
+}
+
+function generateClearanceInvoice(
+  shipment: Shipment,
+  fees: ClearanceFeeBreakdown
+): Invoice {
+  const lineItems: InvoiceLineItem[] = [
+    // Agent fees (always included)
+    { code: 'AGT-DEC', description: 'Customs Declaration', descriptionAr: 'شهادة جمركية', amount: fees.agent.declaration, category: 'AGENT', taxable: false },
+    { code: 'AGT-EXM', description: 'Container Examination', descriptionAr: 'الكشف عن الطرد', amount: fees.agent.examination, category: 'AGENT', taxable: false },
+    { code: 'AGT-SUP', description: 'Supervision & Follow-up', descriptionAr: 'اشراف ومتابعة', amount: fees.agent.supervision, category: 'AGENT', taxable: false },
+    { code: 'AGT-TRN', description: 'Local Transport', descriptionAr: 'ترحيل محلي', amount: fees.agent.transport, category: 'AGENT', taxable: false },
+    { code: 'AGT-LAB', description: 'Labourers Wages', descriptionAr: 'اجرة عمال الشحن والتفريغ', amount: fees.agent.labourers, category: 'AGENT', taxable: false },
+    { code: 'AGT-COM', description: 'Commission', descriptionAr: 'العمولة', amount: fees.agent.commission, category: 'AGENT', taxable: false },
+
+    // Port fees (pass-through)
+    { code: 'PRT-BIL', description: 'Sea Ports Corporation Bill', descriptionAr: 'فاتورة موانئ', amount: calculatePortTotal(fees.seaPorts), category: 'PORT', taxable: false },
+
+    // Customs duties (pass-through)
+    { code: 'CUS-DTY', description: 'Customs Duties', descriptionAr: 'رسوم جمركية', amount: fees.customs.importDuty + fees.customs.additionalTax, category: 'CUSTOMS', taxable: false },
+    { code: 'CUS-VAT', description: 'Value Added Tax', descriptionAr: 'ضريبة القيمة المضافة', amount: fees.customs.valueAddedTax, category: 'CUSTOMS', taxable: false },
+
+    // Shipping (pass-through)
+    { code: 'SHP-DOC', description: 'Shipping Line Charges', descriptionAr: 'رسوم خط الملاحة', amount: calculateShippingTotal(fees.shipping), category: 'SHIPPING', taxable: false },
+  ];
+
+  // Add SSMO if applicable
+  if (fees.ssmo) {
+    lineItems.push({ code: 'SSM-QTY', description: 'SSMO Quality Fees', descriptionAr: 'رسوم ضبط الجودة', amount: fees.ssmo.qualityFees, category: 'SSMO', taxable: false });
+    lineItems.push({ code: 'SSM-LAB', description: 'Customs Laboratory', descriptionAr: 'رسوم معمل جمركي', amount: fees.ssmo.labFees, category: 'SSMO', taxable: false });
+  }
+
+  return {
+    invoiceNumber: generateInvoiceNumber(),
+    shipmentId: shipment.id,
+    billOfLading: shipment.blNumber,
+    consignee: shipment.consignee,
+    lineItems,
+    subtotal: lineItems.reduce((sum, item) => sum + item.amount, 0),
+    grandTotal: lineItems.reduce((sum, item) => sum + item.amount + (item.vatAmount || 0), 0),
+    createdAt: new Date(),
+  };
+}
+```
+
 ---
 
 ## 5. Technical Architecture
@@ -787,6 +939,33 @@ const integrations = {
 | SSMO | - | Standards & Metrology |
 | Sea Port Corporation | - | Port operations |
 
+### Clearing Agent (Abdout Group Co.)
+
+| Attribute | Value |
+|-----------|-------|
+| Principal | Mazin Mohamed Al-Amin (مازن محمد الأمين) |
+| License | 276 |
+| Declarant ID | 300000981146 |
+| Location | Albahr Al-ahmar (البحر الأحمر) |
+| Email | abdoutgroup@gmail.com |
+| Phone | +249 912310205 |
+| Services | Clearance, Deportation, Storage, Customs Consultations |
+
+### Customs Offices at Port Sudan
+
+| Code | Name | Arabic |
+|------|------|--------|
+| PZUS0 | PortSudan South Quay | الميناء الجنوبي - الرصيف الجنوبي |
+| PZUS1 | PortSudan South Quay (DAMADAMA) | الميناء الجنوبي - دمدمة |
+
+### Shipping Lines & Agents
+
+| Entity | Contact | Role |
+|--------|---------|------|
+| CMA CGM | pan.mahmed@cma-cgm.com | Ocean carrier |
+| Eastern Shipping | info@easternship.com | Shipping agent |
+| Al Arbab Shipping | +249 311823729 | Shipping agent |
+
 ### Authorized SSMO Inspectors
 
 - TÜV Rheinland
@@ -811,3 +990,15 @@ const integrations = {
 ---
 
 *Last Updated: December 2025*
+
+---
+
+## Related Documentation
+
+For detailed operational knowledge extracted from real clearance documents, see:
+
+- **[docs/knowledge/document-types.md](./docs/knowledge/document-types.md)** - Comprehensive catalog of 28+ document types
+- **[docs/knowledge/fee-structure.md](./docs/knowledge/fee-structure.md)** - 50+ fee categories with actual rates and formulas
+- **[docs/knowledge/workflow-stages.md](./docs/knowledge/workflow-stages.md)** - 11 real workflow stages with timelines and automation opportunities
+- **[docs/knowledge/reference-numbers.md](./docs/knowledge/reference-numbers.md)** - Reference number formats with validation patterns
+- **[docs/knowledge/entities.md](./docs/knowledge/entities.md)** - Key parties, authorities, contacts, and relationships

@@ -117,8 +117,8 @@ export async function findBestAssignee(
     // If rule has a role target, find users with that role
     if (rule.roleTarget) {
       const users = await findUsersByRole(tx, rule.roleTarget);
-      if (users.length > 0) {
-        const leastLoaded = users[0];
+      const leastLoaded = users[0];
+      if (leastLoaded) {
         return {
           userId: leastLoaded.id,
           userName: leastLoaded.name,
@@ -132,8 +132,8 @@ export async function findBestAssignee(
   const defaultRoles = DEFAULT_CATEGORY_ROLES[category];
   for (const role of defaultRoles) {
     const users = await findUsersByRole(tx, role);
-    if (users.length > 0) {
-      const leastLoaded = users[0];
+    const leastLoaded = users[0];
+    if (leastLoaded) {
       return {
         userId: leastLoaded.id,
         userName: leastLoaded.name,
@@ -175,7 +175,7 @@ export async function autoAssignTask(
   if (task.assignedTo.length > 0) {
     return {
       taskId: task.id,
-      assignedUserId: task.assignedTo[0],
+      assignedUserId: task.assignedTo[0] ?? null,
       assignedUserName: null,
       reason: 'Already assigned',
     };

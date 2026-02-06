@@ -2,6 +2,24 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { i18n, type Locale } from '@/components/internationalization/config'
 import { apiAuthPrefix, authRoutes, publicRoutes, publicRoutePrefixes, DEFAULT_LOGIN_REDIRECT } from '@/routes'
 
+// Simple in-memory rate limiter for auth endpoints (Edge-compatible)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_WINDOW_MS = 60_000 // 1 minute
+const RATE_LIMIT_MAX = 10 // 10 requests per minute per IP
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS })
+    return false
+  }
+
+  entry.count++
+  return entry.count > RATE_LIMIT_MAX
+}
+
 function getLocale(request: NextRequest): string {
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
   if (cookieLocale && i18n.locales.includes(cookieLocale as Locale)) {
@@ -39,6 +57,17 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(pathnameWithoutLocale) ||
     publicRoutePrefixes.some(prefix => pathname.startsWith(prefix))
   const isAuthRoute = authRoutes.includes(pathnameWithoutLocale)
+
+  // Rate limit auth endpoints
+  if (isAuthRoute || isApiAuthRoute) {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      )
+    }
+  }
 
   // Allow API auth routes
   if (isApiAuthRoute) {

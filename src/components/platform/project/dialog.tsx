@@ -37,8 +37,8 @@ export function ProjectDialog({ open, onOpenChange, projectToEdit, onProjectDele
       } else {
         toast.error(result.error || 'Failed to delete project');
       }
-    } catch (error: any) {
-      toast.error(error?.message || 'An unexpected error occurred');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };
 

@@ -1,5 +1,6 @@
 import { TASK_STATUS, TASK_PRIORITY } from './constant';
 import { TaskStatus, TaskPriority } from '@prisma/client';
+import type { Dictionary, Locale } from "@/components/internationalization";
 
 // Linked Activity - stores origin stage info for auto-generated tasks
 export interface LinkedActivity {
@@ -57,6 +58,8 @@ export interface TaskCreateFormProps {
   taskToEdit?: Task | null;
   onSuccess?: () => Promise<void>;
   onClose?: () => void;
+  dictionary?: Dictionary;
+  locale?: Locale;
 }
 
 export interface TaskContextProps {

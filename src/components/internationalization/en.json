@@ -38,7 +38,9 @@
     "columns": "Columns",
     "sync": "Sync",
     "syncing": "Syncing...",
-    "areYouSure": "Are you sure?"
+    "areYouSure": "Are you sure?",
+    "openMenu": "Open menu",
+    "viewAll": "View All"
   },
   "header": {
     "services": "Services",
@@ -69,7 +71,8 @@
     "messages": "Messages",
     "menu": "Menu",
     "toggleMenu": "Toggle Menu",
-    "toggleSidebar": "Toggle Sidebar"
+    "toggleSidebar": "Toggle Sidebar",
+    "team": "Team"
   },
   "auth": {
     "login": "Login",
@@ -132,6 +135,7 @@
     "totalShipments": "Total Shipments",
     "inTransit": "In Transit",
     "pendingCustoms": "Pending Customs",
+    "pendingDeclarations": "Pending Declarations",
     "unpaidInvoices": "Unpaid Invoices",
     "recentShipments": "Recent Shipments",
     "quickActions": "Quick Actions",
@@ -139,7 +143,10 @@
     "newDeclaration": "New Declaration",
     "newInvoice": "New Invoice",
     "trendingUp": "Trending up this month",
-    "trendingDown": "Down this period"
+    "trendingDown": "Down this period",
+    "completionRate": "Completion Rate",
+    "clients": "Clients",
+    "shipment": "Shipment"
   },
   "shipments": {
     "title": "Shipments",
@@ -411,6 +418,40 @@
     "pendingPayments": "Pending Payments",
     "overdueInvoices": "Overdue Invoices",
     "collectionRate": "Collection Rate",
+    "revenueExpenses": "Revenue & Expenses",
+    "lastMonths": "Last 12 months",
+    "avgRevenue": "Avg Revenue",
+    "avgExpenses": "Avg Expenses",
+    "avgProfit": "Avg Profit",
+    "currentPeriod": "Current period",
+    "balance": "Balance",
+    "netFlow": "Net Flow",
+    "expenseBreakdown": "Expense Breakdown",
+    "byCategory": "By category",
+    "recentTransactions": "Recent Transactions",
+    "latestActivities": "Latest financial activities",
+    "viewAll": "View All",
+    "totalIncome": "Total Income",
+    "pending": "Pending",
+    "noTransactions": "No transactions found for this period",
+    "viewDetails": "View Details",
+    "retryExtraction": "Retry Extraction",
+    "statuses": {
+      "COMPLETED": "Completed",
+      "PENDING": "Pending",
+      "FAILED": "Failed",
+      "PROCESSING": "Processing",
+      "PROCESSED": "Processed",
+      "ERROR": "Error"
+    },
+    "columns": {
+      "fileName": "File Name",
+      "merchant": "Merchant",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status",
+      "uploaded": "Uploaded"
+    },
     "navigation": {
       "overview": "Overview",
       "dashboard": "Dashboard",
@@ -526,6 +567,42 @@
       "usd": "USD",
       "eur": "EUR",
       "sar": "SAR"
+    },
+    "totalBalance": "Total Balance",
+    "allAccounts": "All accounts",
+    "paid": "Paid",
+    "pendingPayroll": "Pending Payroll",
+    "needApproval": "Need approval",
+    "activeEmployees": "Active Employees",
+    "employees": "Employees",
+    "viewAccounts": "View Accounts",
+    "viewPayroll": "View Payroll",
+    "viewExpenses": "View Expenses",
+    "customsFees": "Customs Fees",
+    "viewFees": "View Fees",
+    "addBankAccount": "Add Bank Account",
+    "manageAccounts": "Manage accounts",
+    "processPayroll": "Process Payroll",
+    "monthlyPayroll": "Monthly payroll",
+    "addExpense": "Add Expense",
+    "trackExpenses": "Track expenses",
+    "generateReport": "Generate Report",
+    "financialReports": "Financial reports",
+    "receipt": {
+      "fileName": "File Name",
+      "merchant": "Merchant",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status",
+      "uploaded": "Uploaded",
+      "viewDetails": "View Details",
+      "retryExtraction": "Retry Extraction",
+      "statuses": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "processed": "Processed",
+        "error": "Error"
+      }
     }
   },
   "project": {
@@ -576,6 +653,32 @@
     "syncWithProjects": "Sync with Projects",
     "searchPlaceholder": "Search by task name...",
     "filterOptions": "Filter Options",
+    "general": "General",
+    "date": "Date",
+    "pickDate": "Pick a date",
+    "loadingProjects": "Loading projects...",
+    "selectProject": "Select project",
+    "searchProjects": "Search projects...",
+    "noProjectFound": "No project found.",
+    "assignTeamMembers": "Assign team members",
+    "searchTeamMembers": "Search team members...",
+    "noMemberFound": "No member found.",
+    "creatingTask": "Creating Task...",
+    "updatingTask": "Updating Task...",
+    "createTask": "Create Task",
+    "updateTask": "Update Task",
+    "enterTaskName": "Enter task name",
+    "enterTaskDescription": "Enter task description",
+    "taskDescription": "Task Description",
+    "selectStatus": "Select status",
+    "selectPriority": "Select priority",
+    "taskCreatedSuccess": "Task created successfully",
+    "taskUpdatedSuccess": "Task updated successfully",
+    "taskDeletedSuccess": "Task deleted successfully",
+    "deleteTask": "Delete Task",
+    "deleteConfirmation": "Are you sure you want to delete this task? This action cannot be undone.",
+    "deleting": "Deleting...",
+    "estimatedTime": "Estimated Time",
     "nav": {
       "all": "All",
       "pending": "Pending",
@@ -1183,7 +1286,30 @@
   },
   "table": {
     "of": "of",
-    "rowsSelected": "row(s) selected"
+    "rowsSelected": "row(s) selected",
+    "rowsPerPage": "Rows per page",
+    "page": "Page",
+    "noResults": "No results.",
+    "asc": "Asc",
+    "desc": "Desc",
+    "reset": "Reset",
+    "hide": "Hide",
+    "toggleColumns": "Toggle columns",
+    "view": "View",
+    "searchColumns": "Search columns...",
+    "noColumnsFound": "No columns found.",
+    "clearFilters": "Clear filters",
+    "selected": "selected",
+    "noResultsFound": "No results found.",
+    "loadMore": "Load More",
+    "loading": "Loading...",
+    "search": "Search...",
+    "all": "All",
+    "openMenu": "Open menu",
+    "goToFirstPage": "Go to first page",
+    "goToPreviousPage": "Go to previous page",
+    "goToNextPage": "Go to next page",
+    "goToLastPage": "Go to last page"
   },
   "tracking": {
     "title": "Track Shipment",
@@ -1325,5 +1451,22 @@
       "COMPLETED": "Completed",
       "CANCELLED": "Cancelled"
     }
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "retry": "Try Again",
+    "goHome": "Go to Homepage",
+    "goDashboard": "Go to Dashboard",
+    "globalTitle": "Application Error",
+    "globalDescription": "A critical error occurred. Please refresh the page.",
+    "refresh": "Refresh Page"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go to Homepage",
+    "goDashboard": "Go to Dashboard",
+    "searchPlaceholder": "Search for a page..."
   }
 }

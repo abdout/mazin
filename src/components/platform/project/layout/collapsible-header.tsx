@@ -26,11 +26,11 @@ const CollapsibleHeader = ({ params }: { params: Params | Promise<Params> }) => 
   ];
 
   // Find the active link
-  const activeLink = links.find(link => 
-    link.label === "Detail" 
-      ? pathname === link.href 
+  const activeLink = links.find(link =>
+    link.label === "Detail"
+      ? pathname === link.href
       : pathname.startsWith(link.href)
-  ) || links[0];
+  ) ?? links[0]!;
 
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 

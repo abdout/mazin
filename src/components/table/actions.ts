@@ -70,7 +70,9 @@ export function buildPrismaOrderBy<T extends Record<string, unknown>>(
   const validated = sortingSchema.parse(sorting)
 
   if (validated.length === 1) {
-    const { id, desc } = validated[0]
+    const first = validated[0]
+    if (!first) return undefined
+    const { id, desc } = first
     return { [id]: desc ? "desc" : "asc" }
   }
 

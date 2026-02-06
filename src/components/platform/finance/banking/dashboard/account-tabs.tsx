@@ -6,11 +6,12 @@ import { LoaderCircle } from "lucide-react"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatAmount } from "@/components/platform/finance/banking/lib/utils"
+import type { Dictionary } from "@/components/internationalization/types"
 
 interface AccountTabsProps {
   accounts: any[]
   currentAccountId: string
-  dictionary: any
+  dictionary: Dictionary
 }
 
 interface AccountTabTriggerProps {

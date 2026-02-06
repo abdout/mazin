@@ -51,10 +51,9 @@ export async function getAllUsersWithPermissions(): Promise<{
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("getAllUsersWithPermissions called")
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Error getting users with permissions:", error)
+    console.error("Failed to get users with permissions")
     return { success: false, error: "Failed to fetch users" }
   }
 }
@@ -73,10 +72,9 @@ export async function getPermissionsByModule(): Promise<{
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("getPermissionsByModule called")
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Error getting permissions by module:", error)
+    console.error("Failed to get permissions by module")
     return { success: false, error: "Failed to fetch module permissions" }
   }
 }
@@ -95,11 +93,10 @@ export async function grantPermission(
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("grantPermission called:", { userId, module, action })
     revalidatePath("/finance/permissions")
     return { success: true }
   } catch (error) {
-    console.error("Error granting permission:", error)
+    console.error("Failed to grant permission")
     return { success: false, error: "Failed to grant permission" }
   }
 }
@@ -118,11 +115,10 @@ export async function revokePermission(
       return { success: false, error: "Unauthorized" }
     }
 
-    console.log("revokePermission called:", { userId, module, action })
     revalidatePath("/finance/permissions")
     return { success: true }
   } catch (error) {
-    console.error("Error revoking permission:", error)
+    console.error("Failed to revoke permission")
     return { success: false, error: "Failed to revoke permission" }
   }
 }
@@ -145,11 +141,10 @@ export async function bulkGrantPermissions(
       return { success: false, granted: 0, failed: 0, error: "Unauthorized" }
     }
 
-    console.log("bulkGrantPermissions called:", { userId, permissions })
     revalidatePath("/finance/permissions")
     return { success: true, granted: permissions.length, failed: 0 }
   } catch (error) {
-    console.error("Error bulk granting permissions:", error)
+    console.error("Failed to bulk grant permissions")
     return {
       success: false,
       granted: 0,
@@ -177,11 +172,10 @@ export async function bulkRevokePermissions(
       return { success: false, revoked: 0, failed: 0, error: "Unauthorized" }
     }
 
-    console.log("bulkRevokePermissions called:", { userId, permissions })
     revalidatePath("/finance/permissions")
     return { success: true, revoked: permissions.length, failed: 0 }
   } catch (error) {
-    console.error("Error bulk revoking permissions:", error)
+    console.error("Failed to bulk revoke permissions")
     return {
       success: false,
       revoked: 0,
@@ -204,11 +198,10 @@ export async function copyPermissions(
       return { success: false, copied: 0, error: "Unauthorized" }
     }
 
-    console.log("copyPermissions called:", { fromUserId, toUserId })
     revalidatePath("/finance/permissions")
     return { success: true, copied: 0 }
   } catch (error) {
-    console.error("Error copying permissions:", error)
+    console.error("Failed to copy permissions")
     return { success: false, copied: 0, error: "Failed to copy permissions" }
   }
 }

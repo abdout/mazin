@@ -8,6 +8,7 @@
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { ar, enUS } from "date-fns/locale"
 import { Ellipsis, Eye, RefreshCw, Trash2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -20,14 +21,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { Dictionary, Locale } from "@/components/internationalization"
 
 import { ExpenseReceipt } from "./types"
 
-export function getColumns(): ColumnDef<ExpenseReceipt>[] {
+interface GetColumnsOptions {
+  dictionary: Dictionary
+  locale: Locale
+}
+
+export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef<ExpenseReceipt>[] {
+  const f = dictionary.finance
+  const dateLocale = locale === "ar" ? ar : enUS
   return [
     {
       accessorKey: "fileName",
-      header: "File Name",
+      header: f?.columns?.fileName || "File Name",
       cell: ({ row }) => {
         const receipt = row.original
         return (
@@ -39,7 +48,7 @@ export function getColumns(): ColumnDef<ExpenseReceipt>[] {
     },
     {
       accessorKey: "merchantName",
-      header: "Merchant",
+      header: f?.columns?.merchant || "Merchant",
       cell: ({ row }) => {
         const merchantName = row.getValue("merchantName") as string | null
         return merchantName || <span className="text-muted-foreground">—</span>
@@ -47,11 +56,11 @@ export function getColumns(): ColumnDef<ExpenseReceipt>[] {
     },
     {
       accessorKey: "transactionDate",
-      header: "Date",
+      header: f?.columns?.date || "Date",
       cell: ({ row }) => {
         const date = row.getValue("transactionDate") as Date | null
         return date ? (
-          format(new Date(date), "PP")
+          format(new Date(date), "PP", { locale: dateLocale })
         ) : (
           <span className="text-muted-foreground">—</span>
         )
@@ -59,7 +68,7 @@ export function getColumns(): ColumnDef<ExpenseReceipt>[] {
     },
     {
       accessorKey: "transactionAmount",
-      header: "Amount",
+      header: f?.columns?.amount || "Amount",
       cell: ({ row }) => {
         const amount = row.getValue("transactionAmount") as number | null
         const currency = row.original.currency || "USD"
@@ -74,15 +83,15 @@ export function getColumns(): ColumnDef<ExpenseReceipt>[] {
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: f?.columns?.status || "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string
 
         const statusConfig = {
-          pending: { label: "Pending", variant: "secondary" as const },
-          processing: { label: "Processing", variant: "default" as const },
-          processed: { label: "Processed", variant: "default" as const },
-          error: { label: "Error", variant: "destructive" as const },
+          pending: { label: f?.statuses?.PENDING || "Pending", variant: "secondary" as const },
+          processing: { label: f?.statuses?.PROCESSING || "Processing", variant: "default" as const },
+          processed: { label: f?.statuses?.PROCESSED || "Processed", variant: "default" as const },
+          error: { label: f?.statuses?.ERROR || "Error", variant: "destructive" as const },
         }
 
         const config =
@@ -94,10 +103,10 @@ export function getColumns(): ColumnDef<ExpenseReceipt>[] {
     },
     {
       accessorKey: "uploadedAt",
-      header: "Uploaded",
+      header: f?.columns?.uploaded || "Uploaded",
       cell: ({ row }) => {
         const date = row.getValue("uploadedAt") as Date
-        return format(new Date(date), "PP")
+        return format(new Date(date), "PP", { locale: dateLocale })
       },
     },
     {
@@ -109,43 +118,41 @@ export function getColumns(): ColumnDef<ExpenseReceipt>[] {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{dictionary.common.openMenu || "Open menu"}</span>
                 <Ellipsis className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>{dictionary.common.actions || "Actions"}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
                   // View details - will be handled by parent component
-                  window.location.href = `/receipts/${receipt.id}`
+                  window.location.href = `/${locale}/receipts/${receipt.id}`
                 }}
               >
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
+                <Eye className="me-2 h-4 w-4" />
+                {f?.viewDetails || "View Details"}
               </DropdownMenuItem>
               {receipt.status === "error" && (
                 <DropdownMenuItem
                   onClick={() => {
-                    // Handle retry - this would call retryReceiptExtraction
-                    console.log("Retry extraction for:", receipt.id)
+                    // TODO: Handle retry - call retryReceiptExtraction
                   }}
                 >
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Retry Extraction
+                  <RefreshCw className="me-2 h-4 w-4" />
+                  {f?.retryExtraction || "Retry Extraction"}
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={() => {
-                  // Handle delete - this would call deleteReceipt
-                  console.log("Delete receipt:", receipt.id)
+                  // TODO: Handle delete - call deleteReceipt
                 }}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+                <Trash2 className="me-2 h-4 w-4" />
+                {dictionary.common.delete || "Delete"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

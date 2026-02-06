@@ -13,7 +13,7 @@ export default async function NewPasswordPage({
   const dict = await getDictionary(lang)
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
+    <main className="flex min-h-screen flex-col items-center justify-center">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold">{dict.auth?.newPassword || "New Password"}</h1>

@@ -104,7 +104,7 @@ export function getNextStage(currentStage: TrackingStageType): TrackingStageType
   if (currentIndex === -1 || currentIndex >= STAGE_ORDER.length - 1) {
     return null
   }
-  return STAGE_ORDER[currentIndex + 1]
+  return STAGE_ORDER[currentIndex + 1] ?? null
 }
 
 /**
@@ -159,7 +159,7 @@ export function toPublicTrackingData(shipment: ShipmentWithTracking): PublicTrac
     }))
 
   // Extract only first name from consignee for privacy
-  const consigneeFirstName = shipment.consignee.split(" ")[0]
+  const consigneeFirstName = shipment.consignee.split(" ")[0] ?? ""
 
   return {
     trackingNumber: shipment.trackingNumber || "",

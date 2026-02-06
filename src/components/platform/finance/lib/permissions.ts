@@ -59,7 +59,6 @@ export async function checkFinancePermission(
   module: FinanceModule,
   action: FinanceAction
 ): Promise<boolean> {
-  console.log("checkFinancePermission:", { userId, companyId, module, action })
   // Return true for development
   return true
 }
@@ -73,7 +72,6 @@ export async function checkCurrentUserPermission(
   module: FinanceModule,
   action: FinanceAction
 ): Promise<boolean> {
-  console.log("checkCurrentUserPermission:", { companyId, module, action })
   // Return true for development
   return true
 }
@@ -86,7 +84,6 @@ export async function getUserModulePermissions(
   companyId: string,
   module: FinanceModule
 ): Promise<FinanceAction[]> {
-  console.log("getUserModulePermissions:", { userId, companyId, module })
   // Return all permissions for development
   return ["view", "create", "edit", "delete", "approve", "process", "export"]
 }
@@ -101,7 +98,6 @@ export async function grantFinancePermission(
   module: FinanceModule,
   action: FinanceAction
 ): Promise<boolean> {
-  console.log("grantFinancePermission:", { grantedBy, grantedTo, companyId, module, action })
   return false // Not implemented
 }
 
@@ -115,7 +111,6 @@ export async function revokeFinancePermission(
   module: FinanceModule,
   action: FinanceAction
 ): Promise<boolean> {
-  console.log("revokeFinancePermission:", { revokedBy, revokedFrom, companyId, module, action })
   return false // Not implemented
 }
 
@@ -126,7 +121,6 @@ export async function hasFinanceRole(
   userId: string,
   roles: UserRole[]
 ): Promise<boolean> {
-  console.log("hasFinanceRole:", { userId, roles })
   return true // Return true for development
 }
 

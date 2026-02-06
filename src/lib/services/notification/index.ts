@@ -46,7 +46,7 @@ export async function createNotification(
       type: input.type,
       title: input.title,
       message: input.message,
-      channel: channels[0], // Primary channel
+      channel: channels[0] ?? 'IN_APP', // Primary channel
       status: 'PENDING',
       userId: input.userId,
       clientId: input.clientId,
@@ -342,21 +342,22 @@ export async function notifyShipmentMilestone(
   trackingNumber: string,
   message?: string
 ) {
-  const typeMap: Record<string, NotificationType> = {
+  type Milestone = typeof milestone;
+  const typeMap: Record<Milestone, NotificationType> = {
     arrival: 'SHIPMENT_ARRIVAL',
     cleared: 'SHIPMENT_CLEARED',
     released: 'SHIPMENT_RELEASED',
     delivered: 'SHIPMENT_DELIVERED',
   };
 
-  const titleMap = {
+  const titleMap: Record<Milestone, string> = {
     arrival: 'Shipment Arrived',
     cleared: 'Shipment Cleared',
     released: 'Shipment Released',
     delivered: 'Shipment Delivered',
   };
 
-  const defaultMessages = {
+  const defaultMessages: Record<Milestone, string> = {
     arrival: `Your shipment ${trackingNumber} has arrived at port.`,
     cleared: `Your shipment ${trackingNumber} has been cleared by customs.`,
     released: `Your shipment ${trackingNumber} has been released.`,

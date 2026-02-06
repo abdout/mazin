@@ -156,7 +156,7 @@ export default async function AboutPage({
                     <div key={index} className="text-center space-y-3 md:space-y-4">
                       <div className="relative aspect-square w-full max-w-48 mx-auto">
                         <Image
-                          src={images[index] || images[0]}
+                          src={images[index] ?? images[0] ?? ""}
                           alt={member.name}
                           fill
                           className="rounded-full object-cover"

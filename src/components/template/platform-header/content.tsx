@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect, useCallback } from "react"
 import { usePathname } from "next/navigation"
 import { Search } from "lucide-react"
 
@@ -23,6 +23,9 @@ import { MobileNav } from "@/components/template/mobile-nav"
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs"
 import { platformNav, type Role } from "@/components/template/platform-sidebar/config"
 import { usePageHeading } from "@/components/platform/context/page-heading-context"
+import { NotificationCenter } from "@/components/platform/notification/notification-center"
+import { getNotifications, markRead, markAllRead } from "@/actions/notifications"
+import type { Notification } from "@prisma/client"
 
 interface PlatformHeaderProps {
   dictionary: Dictionary
@@ -48,6 +51,23 @@ export default function PlatformHeader({
     // PageHeading context not available
   }
 
+  // Notification state and handlers
+  const [notifications, setNotifications] = useState<Notification[]>([])
+
+  useEffect(() => {
+    getNotifications(20).then(setNotifications).catch(() => {})
+  }, [])
+
+  const handleMarkRead = useCallback(async (id: string) => {
+    await markRead(id)
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, readAt: new Date() } : n))
+  }, [])
+
+  const handleMarkAllRead = useCallback(async () => {
+    await markAllRead()
+    setNotifications(prev => prev.map(n => ({ ...n, readAt: new Date() })))
+  }, [])
+
   const mobileNavItems = useMemo(() => {
     return platformNav
       .filter((item) => item.roles.includes(role))
@@ -55,8 +75,8 @@ export default function PlatformHeader({
         href: item.href,
         label:
           (dictionary?.navigation as Record<string, string>)?.[
-            item.title.toLowerCase()
-          ] || item.title,
+            item.titleKey
+          ] || item.titleKey,
       }))
   }, [role, dictionary])
 
@@ -95,7 +115,7 @@ export default function PlatformHeader({
                     className="size-10"
                     title={dictionary.common.search}
                   >
-                    <Search className="h-5 w-5" />
+                    <Search className="size-5" />
                     <span className="sr-only">{dictionary.common.search}</span>
                   </Button>
                   <LanguageSwitcher variant="icon" className="size-10 [&>svg]:size-5" />
@@ -154,9 +174,16 @@ export default function PlatformHeader({
             className="size-7"
             title={dictionary.common.search}
           >
-            <Search className="h-4 w-4" />
+            <Search className="size-5" />
             <span className="sr-only">{dictionary.common.search}</span>
           </Button>
+          <NotificationCenter
+            notifications={notifications}
+            dictionary={dictionary}
+            locale={locale}
+            onMarkRead={handleMarkRead}
+            onMarkAllRead={handleMarkAllRead}
+          />
           <LanguageSwitcher variant="icon" />
           <ModeSwitcher />
           <UserButton dictionary={dictionary} />

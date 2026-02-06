@@ -57,7 +57,6 @@ async function getAccountIdByCode(
   accountCode: string,
   db: unknown
 ): Promise<string | null> {
-  console.log("getAccountIdByCode called:", { companyId, accountCode })
   return `stub-account-${accountCode}`
 }
 
@@ -76,8 +75,6 @@ export async function createFeePaymentEntry(
   },
   db: unknown
 ): Promise<JournalEntryInput> {
-  console.log("createFeePaymentEntry called:", { companyId, paymentData })
-
   const amount = toCents(paymentData.amount)
 
   const lines: JournalEntryLine[] = [
@@ -124,8 +121,6 @@ export async function createFeeAssignmentEntry(
   },
   db: unknown
 ): Promise<JournalEntryInput> {
-  console.log("createFeeAssignmentEntry called:", { companyId, assignmentData })
-
   const amount = toCents(assignmentData.amount)
 
   const lines: JournalEntryLine[] = [
@@ -174,8 +169,6 @@ export async function createSalaryPaymentEntry(
   },
   db: unknown
 ): Promise<JournalEntryInput> {
-  console.log("createSalaryPaymentEntry called:", { companyId, paymentData })
-
   const grossAmount = toCents(paymentData.grossSalary)
   const netAmount = toCents(paymentData.netSalary)
   const taxAmount = toCents(paymentData.taxAmount)
@@ -247,8 +240,6 @@ export async function createExpensePaymentEntry(
   },
   db: unknown
 ): Promise<JournalEntryInput> {
-  console.log("createExpensePaymentEntry called:", { companyId, expenseData })
-
   const amount = toCents(expenseData.amount)
 
   const lines: JournalEntryLine[] = [
@@ -294,8 +285,6 @@ export async function createInvoicePaymentEntry(
   },
   db: unknown
 ): Promise<JournalEntryInput> {
-  console.log("createInvoicePaymentEntry called:", { companyId, invoiceData })
-
   const amount = toCents(invoiceData.amount)
 
   const lines: JournalEntryLine[] = [
@@ -340,8 +329,6 @@ export async function createWalletTopupEntry(
   },
   db: unknown
 ): Promise<JournalEntryInput> {
-  console.log("createWalletTopupEntry called:", { companyId, topupData })
-
   const amount = toCents(topupData.amount)
 
   const lines: JournalEntryLine[] = [

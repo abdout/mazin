@@ -275,7 +275,7 @@ export async function seedProjects(
   })
   await prisma.project.deleteMany()
 
-  const mainUser = users[0] // Use first user (mazin@abdout.org)
+  const mainUser = users[0]! // Use first user (mazin@abdout.org)
 
   const createdProjects: ProjectRef[] = []
 

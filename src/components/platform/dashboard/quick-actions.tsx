@@ -61,7 +61,7 @@ export function QuickActions({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {actions.map((action, index) => {
           const Icon = action.icon
-          const color = cardColors[index % cardColors.length]
+          const color = cardColors[index % cardColors.length] ?? cardColors[0]!
 
           return (
             <Link

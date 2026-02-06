@@ -49,7 +49,7 @@ export const NewVerificationForm = ({
   }, [token, onSubmit]);
 
   return (
-    <div className={cn("flex flex-col gap-6 min-w-[200px] md:min-w-[350px]", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>
       <Card className="border-none shadow-none bg-background">
         <CardHeader className="text-center">
           <h1 className="text-xl font-semibold">Confirming your verification</h1>

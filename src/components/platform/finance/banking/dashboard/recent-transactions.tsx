@@ -18,16 +18,15 @@ import {
   formatAmount,
   formatDateTime,
 } from "@/components/platform/finance/banking/lib/utils"
-
 interface RecentTransactionsListProps {
   transactions: any[]
   currentPage: number
-  dictionary: any
+  dictionary: Record<string, any>
 }
 
 interface TransactionRowProps {
   transaction: any
-  dictionary: any
+  dictionary: Record<string, any>
 }
 
 /**

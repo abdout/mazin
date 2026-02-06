@@ -67,13 +67,12 @@ export async function createAccount(
     }
 
     // TODO: Implement with Prisma when schema is ready
-    console.log("createAccount called with formData")
     return {
       success: false,
       error: "Account creation not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Error creating account:", error)
+    console.error("Failed to create account")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to create account",
@@ -95,13 +94,12 @@ export async function updateAccount(
     }
 
     // TODO: Implement with Prisma when schema is ready
-    console.log("updateAccount called for:", accountId)
     return {
       success: false,
       error: "Account update not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Error updating account:", error)
+    console.error("Failed to update account")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update account",
@@ -122,13 +120,12 @@ export async function deleteAccount(
     }
 
     // TODO: Implement with Prisma when schema is ready
-    console.log("deleteAccount called for:", accountId)
     return {
       success: false,
       error: "Account deletion not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Error deleting account:", error)
+    console.error("Failed to delete account")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete account",
@@ -149,13 +146,12 @@ export async function createJournalEntry(
     }
 
     // TODO: Implement with Prisma when schema is ready
-    console.log("createJournalEntry called with formData")
     return {
       success: false,
       error: "Journal entry creation not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Error creating journal entry:", error)
+    console.error("Failed to create journal entry")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to create journal entry",
@@ -176,13 +172,12 @@ export async function postJournalEntry(
     }
 
     // TODO: Implement with Prisma when schema is ready
-    console.log("postJournalEntry called for:", journalEntryId)
     return {
       success: false,
       error: "Journal entry posting not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Error posting journal entry:", error)
+    console.error("Failed to post journal entry")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to post journal entry",
@@ -204,10 +199,9 @@ export async function getChartOfAccounts(filters?: {
     }
 
     // TODO: Implement with Prisma when schema is ready
-    console.log("getChartOfAccounts called with filters:", filters)
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Error fetching chart of accounts:", error)
+    console.error("Failed to fetch chart of accounts")
     return { success: false, error: "Failed to fetch chart of accounts" }
   }
 }
@@ -226,10 +220,9 @@ export async function getJournalEntries(filters?: {
     }
 
     // TODO: Implement with Prisma when schema is ready
-    console.log("getJournalEntries called with filters:", filters)
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Error fetching journal entries:", error)
+    console.error("Failed to fetch journal entries")
     return { success: false, error: "Failed to fetch journal entries" }
   }
 }

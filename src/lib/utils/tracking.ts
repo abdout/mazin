@@ -96,7 +96,7 @@ export function getNextStage(currentStage: TrackingStageType): TrackingStageType
   if (currentIndex === -1 || currentIndex === TRACKING_STAGES.length - 1) {
     return null;
   }
-  return TRACKING_STAGES[currentIndex + 1];
+  return TRACKING_STAGES[currentIndex + 1] ?? null;
 }
 
 /**

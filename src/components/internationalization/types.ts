@@ -48,6 +48,8 @@ export interface Dictionary {
     sync?: string
     syncing?: string
     areYouSure?: string
+    openMenu?: string
+    viewAll?: string
   }
   header: {
     services: string
@@ -138,6 +140,7 @@ export interface Dictionary {
     totalShipments: string
     inTransit: string
     pendingCustoms: string
+    pendingDeclarations?: string
     unpaidInvoices: string
     recentShipments: string
     quickActions: string
@@ -146,6 +149,9 @@ export interface Dictionary {
     newInvoice: string
     trendingUp: string
     trendingDown: string
+    completionRate?: string
+    clients?: string
+    shipment?: string
   }
   shipments: {
     title: string
@@ -353,6 +359,61 @@ export interface Dictionary {
     totalExpenses?: string
     growth?: string
     comingSoon?: string
+    revenueExpenses?: string
+    lastMonths?: string
+    avgRevenue?: string
+    avgExpenses?: string
+    avgProfit?: string
+    cashFlow?: string
+    currentPeriod?: string
+    balance?: string
+    netFlow?: string
+    expenseBreakdown?: string
+    byCategory?: string
+    recentTransactions?: string
+    latestActivities?: string
+    viewAll?: string
+    totalIncome?: string
+    pending?: string
+    noTransactions?: string
+    viewDetails?: string
+    retryExtraction?: string
+    totalBalance?: string
+    allAccounts?: string
+    paid?: string
+    pendingPayroll?: string
+    needApproval?: string
+    activeEmployees?: string
+    employees?: string
+    viewAccounts?: string
+    viewPayroll?: string
+    viewExpenses?: string
+    customsFees?: string
+    viewFees?: string
+    addBankAccount?: string
+    manageAccounts?: string
+    processPayroll?: string
+    monthlyPayroll?: string
+    addExpense?: string
+    trackExpenses?: string
+    generateReport?: string
+    financialReports?: string
+    statuses?: {
+      COMPLETED?: string
+      PENDING?: string
+      FAILED?: string
+      PROCESSING?: string
+      PROCESSED?: string
+      ERROR?: string
+    }
+    columns?: {
+      fileName?: string
+      merchant?: string
+      date?: string
+      amount?: string
+      status?: string
+      uploaded?: string
+    }
     navigation?: {
       overview?: string
       invoice?: string
@@ -367,6 +428,22 @@ export interface Dictionary {
       budget?: string
       expenses?: string
       accounts?: string
+    }
+    receipt?: {
+      fileName?: string
+      merchant?: string
+      date?: string
+      amount?: string
+      status?: string
+      uploaded?: string
+      viewDetails?: string
+      retryExtraction?: string
+      statuses?: {
+        pending?: string
+        processing?: string
+        processed?: string
+        error?: string
+      }
     }
   }
   project?: {
@@ -420,6 +497,32 @@ export interface Dictionary {
     syncWithProjects?: string
     searchPlaceholder?: string
     filterOptions?: string
+    general?: string
+    date?: string
+    pickDate?: string
+    loadingProjects?: string
+    selectProject?: string
+    searchProjects?: string
+    noProjectFound?: string
+    assignTeamMembers?: string
+    searchTeamMembers?: string
+    noMemberFound?: string
+    creatingTask?: string
+    updatingTask?: string
+    createTask?: string
+    updateTask?: string
+    enterTaskName?: string
+    enterTaskDescription?: string
+    taskDescription?: string
+    selectStatus?: string
+    selectPriority?: string
+    taskCreatedSuccess?: string
+    taskUpdatedSuccess?: string
+    taskDeletedSuccess?: string
+    deleteTask?: string
+    deleteConfirmation?: string
+    deleting?: string
+    estimatedTime?: string
     nav?: {
       all?: string
       pending?: string
@@ -742,6 +845,29 @@ export interface Dictionary {
   table: {
     of: string
     rowsSelected: string
+    rowsPerPage?: string
+    page?: string
+    noResults?: string
+    asc?: string
+    desc?: string
+    reset?: string
+    hide?: string
+    toggleColumns?: string
+    view?: string
+    searchColumns?: string
+    noColumnsFound?: string
+    clearFilters?: string
+    selected?: string
+    noResultsFound?: string
+    loadMore?: string
+    loading?: string
+    search?: string
+    all?: string
+    openMenu?: string
+    goToFirstPage?: string
+    goToPreviousPage?: string
+    goToNextPage?: string
+    goToLastPage?: string
   }
   tracking: {
     title: string
@@ -885,5 +1011,22 @@ export interface Dictionary {
       COMPLETED?: string
       CANCELLED?: string
     }
+  }
+  errorPage: {
+    title: string
+    description: string
+    retry: string
+    goHome: string
+    goDashboard: string
+    globalTitle: string
+    globalDescription: string
+    refresh: string
+  }
+  notFound: {
+    title: string
+    description: string
+    goHome: string
+    goDashboard: string
+    searchPlaceholder: string
   }
 }

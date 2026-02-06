@@ -61,7 +61,7 @@ export default function PlatformSidebar({
                   | Record<string, string>
                   | undefined
                 const translatedTitle =
-                  sidebarDict?.[item.title.toLowerCase()] || item.title
+                  sidebarDict?.[item.titleKey] || item.titleKey
 
                 return (
                   <SidebarMenuItem key={item.href}>

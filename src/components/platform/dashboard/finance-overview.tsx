@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { format } from "date-fns"
+import { ar, enUS } from "date-fns/locale"
 import {
   Area,
   AreaChart,
@@ -26,6 +27,9 @@ import type {
   CashFlowData,
   ExpenseCategory,
 } from "./actions"
+import type { Dictionary, Locale } from "@/components/internationalization"
+import { useDictionary } from "@/components/internationalization/use-dictionary"
+import { useLocale } from "@/components/internationalization/use-locale"
 
 /**
  * FinanceOverview Component - Hogwarts Edition
@@ -37,6 +41,8 @@ interface FinanceOverviewProps {
   financialData: FinancialChartData
   cashFlowData: CashFlowData
   expenseCategories: ExpenseCategory[]
+  dictionary?: Dictionary
+  locale?: Locale
   className?: string
 }
 
@@ -56,15 +62,26 @@ export function FinanceOverview({
   financialData,
   cashFlowData,
   expenseCategories,
+  dictionary: propDictionary,
+  locale: propLocale,
   className,
 }: FinanceOverviewProps) {
+  const hookDictionary = useDictionary()
+  const { locale: hookLocale } = useLocale()
+
+  const dictionary = propDictionary ?? hookDictionary
+  const locale = propLocale ?? hookLocale
+
+  const f = dictionary.finance
+  const dateLocale = locale === "ar" ? ar : enUS
+
   // Generate labels if not provided
   const monthLabels =
     financialData.labels ||
     Array.from({ length: 12 }, (_, i) => {
       const date = new Date()
       date.setMonth(date.getMonth() - (11 - i))
-      return format(date, "MMM")
+      return format(date, "MMM", { locale: dateLocale })
     })
 
   // Prepare revenue chart data
@@ -108,7 +125,7 @@ export function FinanceOverview({
   }
 
   const formatCurrency = (value: number) =>
-    `SDG ${new Intl.NumberFormat("en-SD").format(value)}`
+    `SDG ${new Intl.NumberFormat(locale === "ar" ? "ar-SA" : "en-SD").format(value)}`
 
   // Calculate totals
   const totalRevenue = financialData.revenueData.reduce((a, b) => a + b, 0)
@@ -165,10 +182,10 @@ export function FinanceOverview({
                 </div>
                 <div>
                   <CardTitle className="text-base">
-                    Revenue & Expenses
+                    {f?.revenueExpenses || "Revenue & Expenses"}
                   </CardTitle>
                   <p className="text-muted-foreground text-xs">
-                    Last 12 months
+                    {f?.lastMonths || "Last 12 months"}
                   </p>
                 </div>
               </div>
@@ -243,19 +260,19 @@ export function FinanceOverview({
             {/* Summary stats */}
             <div className="mt-4 grid grid-cols-3 gap-4 border-t border-amber-200/30 dark:border-amber-800/30 pt-4">
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">Avg Revenue</p>
+                <p className="text-muted-foreground text-xs">{f?.avgRevenue || "Avg Revenue"}</p>
                 <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                   {formatCurrency(Math.round(totalRevenue / 12))}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">Avg Expenses</p>
+                <p className="text-muted-foreground text-xs">{f?.avgExpenses || "Avg Expenses"}</p>
                 <p className="text-sm font-semibold text-red-600 dark:text-red-400">
                   {formatCurrency(Math.round(totalExpenses / 12))}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">Avg Profit</p>
+                <p className="text-muted-foreground text-xs">{f?.avgProfit || "Avg Profit"}</p>
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                   {formatCurrency(Math.round(totalProfit / 12))}
                 </p>
@@ -279,8 +296,8 @@ export function FinanceOverview({
                 <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <CardTitle className="text-base">Cash Flow</CardTitle>
-                <p className="text-muted-foreground text-xs">Current period</p>
+                <CardTitle className="text-base">{f?.cashFlow || "Cash Flow"}</CardTitle>
+                <p className="text-muted-foreground text-xs">{f?.currentPeriod || "Current period"}</p>
               </div>
             </div>
           </CardHeader>
@@ -311,13 +328,13 @@ export function FinanceOverview({
             {/* Cash summary */}
             <div className="mt-4 space-y-2 border-t border-amber-200/30 dark:border-amber-800/30 pt-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Balance</span>
+                <span className="text-muted-foreground">{f?.balance || "Balance"}</span>
                 <span className="font-semibold">
                   {formatCurrency(currentBalance)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Net Flow</span>
+                <span className="text-muted-foreground">{f?.netFlow || "Net Flow"}</span>
                 <span
                   className={cn(
                     "font-semibold",
@@ -350,8 +367,8 @@ export function FinanceOverview({
               <PieChartIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <CardTitle className="text-base">Expense Breakdown</CardTitle>
-              <p className="text-muted-foreground text-xs">By category</p>
+              <CardTitle className="text-base">{f?.expenseBreakdown || "Expense Breakdown"}</CardTitle>
+              <p className="text-muted-foreground text-xs">{f?.byCategory || "By category"}</p>
             </div>
           </div>
         </CardHeader>
@@ -390,7 +407,7 @@ export function FinanceOverview({
             {/* Category breakdown list */}
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium">Total Expenses</span>
+                <span className="text-sm font-medium">{f?.totalExpenses || "Total Expenses"}</span>
                 <span className="font-bold">
                   {formatCurrency(
                     topExpenses.reduce((sum, cat) => sum + cat.amount, 0)
@@ -414,11 +431,11 @@ export function FinanceOverview({
                       {cat.category}
                     </span>
                   </div>
-                  <div className="text-right">
+                  <div className="text-end">
                     <span className="font-medium">
                       {formatCurrency(cat.amount)}
                     </span>
-                    <span className="text-muted-foreground ml-2 text-xs">
+                    <span className="text-muted-foreground ms-2 text-xs">
                       ({cat.percentage.toFixed(1)}%)
                     </span>
                   </div>

@@ -20,8 +20,8 @@ import { runAllReminderJobs } from '@/lib/jobs/task-reminders';
 function verifySecret(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
-    // If no secret is configured, allow in development only
-    return process.env.NODE_ENV === 'development';
+    // CRON_SECRET must be configured -- reject all requests without it
+    return false;
   }
 
   const authHeader = request.headers.get('authorization');

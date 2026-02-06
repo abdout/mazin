@@ -16,18 +16,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { Dictionary } from "@/components/internationalization"
 
 interface DataTablePaginationProps<TData> extends React.ComponentProps<"div"> {
   table: Table<TData>
   pageSizeOptions?: number[]
+  dictionary?: Dictionary
 }
 
 function DataTablePaginationInner<TData>({
   table,
   pageSizeOptions = [10, 20, 30, 40, 50],
+  dictionary,
   className,
   ...props
 }: DataTablePaginationProps<TData>) {
+  const t = dictionary?.table
+
   return (
     <div
       className={cn(
@@ -37,12 +42,12 @@ function DataTablePaginationInner<TData>({
       {...props}
     >
       <div className="text-muted-foreground muted flex-1 whitespace-nowrap">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
+        {table.getFilteredSelectedRowModel().rows.length} {t?.of || "of"}{" "}
+        {table.getFilteredRowModel().rows.length} {t?.rowsSelected || "row(s) selected."}
       </div>
       <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
-        <div className="flex items-center space-x-2">
-          <p className="muted font-medium whitespace-nowrap">Rows per page</p>
+        <div className="flex items-center gap-2">
+          <p className="muted font-medium whitespace-nowrap">{t?.rowsPerPage || "Rows per page"}</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -62,12 +67,12 @@ function DataTablePaginationInner<TData>({
           </Select>
         </div>
         <div className="muted flex items-center justify-center font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {t?.page || "Page"} {table.getState().pagination.pageIndex + 1} {t?.of || "of"}{" "}
           {table.getPageCount()}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <Button
-            aria-label="Go to first page"
+            aria-label={t?.goToFirstPage || "Go to first page"}
             variant="outline"
             size="icon"
             className="hidden size-8 lg:flex"
@@ -77,7 +82,7 @@ function DataTablePaginationInner<TData>({
             <ChevronsLeft />
           </Button>
           <Button
-            aria-label="Go to previous page"
+            aria-label={t?.goToPreviousPage || "Go to previous page"}
             variant="outline"
             size="icon"
             className="size-8"
@@ -87,7 +92,7 @@ function DataTablePaginationInner<TData>({
             <ChevronLeft />
           </Button>
           <Button
-            aria-label="Go to next page"
+            aria-label={t?.goToNextPage || "Go to next page"}
             variant="outline"
             size="icon"
             className="size-8"
@@ -97,7 +102,7 @@ function DataTablePaginationInner<TData>({
             <ChevronRight />
           </Button>
           <Button
-            aria-label="Go to last page"
+            aria-label={t?.goToLastPage || "Go to last page"}
             variant="outline"
             size="icon"
             className="hidden size-8 lg:flex"

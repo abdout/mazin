@@ -37,7 +37,7 @@ export function TeamPage({ dictionary }: TeamPageProps) {
             >
               <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 mb-4 md:mb-6 overflow-hidden rounded-full">
                 <Image
-                  src={memberImages[index] || memberImages[0]}
+                  src={memberImages[index] ?? memberImages[0] ?? ""}
                   alt={member.name}
                   fill
                   className="object-cover"

@@ -3,7 +3,6 @@ import { Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { BankCard } from "@/components/platform/finance/banking/shared/bank-card"
-
 interface DashboardSidebarProps {
   user: {
     name?: string | null
@@ -11,7 +10,7 @@ interface DashboardSidebarProps {
   }
   transactions: any[]
   banks: any[]
-  dictionary: any
+  dictionary: Record<string, any>
   lang: string
 }
 

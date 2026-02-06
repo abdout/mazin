@@ -1,74 +1,68 @@
 type IconKey = keyof typeof import("./icons").Icons
 
 export type PlatformNavItem = {
-  title: string
+  titleKey: string
   href: string
   icon: IconKey
   roles: Role[]
   className?: string
 }
 
-export type Role = "ADMIN" | "MANAGER" | "VIEWER" | "USER"
+export type Role = "ADMIN" | "MANAGER" | "CLERK" | "VIEWER" | "USER"
 
-const ALL_ROLES: Role[] = ["ADMIN", "MANAGER", "VIEWER", "USER"]
+const ALL_ROLES: Role[] = ["ADMIN", "MANAGER", "CLERK", "VIEWER", "USER"]
 
 export const platformNav: PlatformNavItem[] = [
   {
-    title: "Overview",
+    titleKey: "dashboard",
     href: "/dashboard",
     icon: "dashboard",
     roles: ALL_ROLES,
   },
   {
-    title: "Shipments",
-    href: "/shipments",
+    titleKey: "shipments",
+    href: "/project",
     icon: "ship",
     roles: ALL_ROLES,
   },
   {
-    title: "Customs",
+    titleKey: "customs",
     href: "/customs",
     icon: "customs",
     roles: ALL_ROLES,
   },
   {
-    title: "Invoices",
+    titleKey: "invoices",
     href: "/invoice",
     icon: "invoice",
     roles: ALL_ROLES,
   },
   {
-    title: "Finance",
+    titleKey: "finance",
     href: "/finance",
     icon: "finance",
-    roles: ALL_ROLES,
+    roles: ["ADMIN", "MANAGER", "CLERK"],
   },
   {
-    title: "Projects",
-    href: "/project",
-    icon: "project",
-    roles: ALL_ROLES,
-  },
-  {
-    title: "Tasks",
+    titleKey: "task",
     href: "/task",
     icon: "task",
     roles: ALL_ROLES,
   },
   {
-    title: "Customers",
+    titleKey: "customers",
     href: "/customer",
     icon: "customer",
     roles: ALL_ROLES,
   },
   {
-    title: "Team",
+    titleKey: "team",
     href: "/team",
     icon: "team",
-    roles: ALL_ROLES,
+    roles: ["ADMIN", "MANAGER"],
   },
   {
-    title: "Settings",
+    titleKey: "settings",
     href: "/settings",
     icon: "settings",
     roles: ALL_ROLES,

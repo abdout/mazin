@@ -277,43 +277,47 @@ export interface TrendingStatsData {
 
 /**
  * Get financial data for revenue/expense charts
- * Returns last 12 months of data
+ * Returns last 12 months of data using parallel queries
  */
 export async function getFinancialChartData(): Promise<FinancialChartData> {
   const now = new Date()
   const labels: string[] = []
-  const revenueData: number[] = []
-  const expenseData: number[] = []
-  const profitData: number[] = []
+  const months: { start: Date; end: Date }[] = []
 
-  // Generate last 12 months
+  // Build month ranges
   for (let i = 11; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0)
-
-    labels.push(date.toLocaleDateString("en-US", { month: "short" }))
-
-    // Get revenue (paid invoices) for this month
-    const revenue = await db.invoice.aggregate({
-      where: {
-        status: "PAID",
-        paidAt: {
-          gte: date,
-          lte: monthEnd,
-        },
-      },
-      _sum: { total: true },
-    })
-
-    // For expenses, we'll estimate based on a percentage of revenue
-    // In a real app, you'd have an expenses table
-    const monthRevenue = Number(revenue._sum.total || 0)
-    const monthExpense = Math.round(monthRevenue * 0.65) // Estimate 65% as expenses
-
-    revenueData.push(monthRevenue)
-    expenseData.push(monthExpense)
-    profitData.push(monthRevenue - monthExpense)
+    const start = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0)
+    labels.push(start.toLocaleDateString("en-US", { month: "short" }))
+    months.push({ start, end })
   }
+
+  // Run all 12 months of revenue + expense queries in parallel
+  const [revenueResults, expenseResults] = await Promise.all([
+    Promise.all(
+      months.map((m) =>
+        db.invoice.aggregate({
+          where: { status: "PAID", paidAt: { gte: m.start, lte: m.end } },
+          _sum: { total: true },
+        })
+      )
+    ),
+    Promise.all(
+      months.map((m) =>
+        db.expense.aggregate({
+          where: {
+            status: { in: ["APPROVED", "PAID"] },
+            expenseDate: { gte: m.start, lte: m.end },
+          },
+          _sum: { amount: true },
+        })
+      )
+    ),
+  ])
+
+  const revenueData = revenueResults.map((r) => Number(r._sum.total ?? 0))
+  const expenseData = expenseResults.map((e) => Number(e._sum.amount ?? 0))
+  const profitData = revenueData.map((r, i) => r - (expenseData[i] ?? 0))
 
   return { revenueData, expenseData, profitData, labels }
 }
@@ -326,28 +330,34 @@ export async function getCashFlowData(): Promise<CashFlowData> {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
-  // Cash inflow = paid invoices this month
-  const inflow = await db.invoice.aggregate({
-    where: {
-      status: "PAID",
-      paidAt: {
-        gte: monthStart,
-        lte: monthEnd,
+  // Run queries in parallel
+  const [inflow, outflow, bankBalances] = await Promise.all([
+    // Cash inflow = paid invoices this month
+    db.invoice.aggregate({
+      where: {
+        status: "PAID",
+        paidAt: { gte: monthStart, lte: monthEnd },
       },
-    },
-    _sum: { total: true },
-  })
+      _sum: { total: true },
+    }),
+    // Cash outflow = real expenses this month
+    db.expense.aggregate({
+      where: {
+        status: { in: ["APPROVED", "PAID"] },
+        expenseDate: { gte: monthStart, lte: monthEnd },
+      },
+      _sum: { amount: true },
+    }),
+    // Balance from bank accounts
+    db.bankAccount.aggregate({
+      where: { isActive: true },
+      _sum: { currentBalance: true },
+    }),
+  ])
 
-  // Cash outflow = estimated at 60% of inflow
-  const inflowAmount = Number(inflow._sum.total || 0)
-  const outflowAmount = Math.round(inflowAmount * 0.6)
-
-  // Balance = total paid invoices - estimated expenses
-  const totalRevenue = await db.invoice.aggregate({
-    where: { status: "PAID" },
-    _sum: { total: true },
-  })
-  const balance = Math.round(Number(totalRevenue._sum.total || 0) * 0.35)
+  const inflowAmount = Number(inflow._sum.total ?? 0)
+  const outflowAmount = Number(outflow._sum.amount ?? 0)
+  const balance = Number(bankBalances._sum.currentBalance ?? 0)
 
   return {
     inflowData: [inflowAmount],
@@ -357,22 +367,42 @@ export async function getCashFlowData(): Promise<CashFlowData> {
 }
 
 /**
- * Get expense categories breakdown
+ * Get expense categories breakdown from real data
  */
 export async function getExpenseCategories(): Promise<ExpenseCategory[]> {
-  // In a real app, you'd have an expenses table with categories
-  // For now, we'll create sample data based on typical logistics expenses
-  const categories: ExpenseCategory[] = [
-    { category: "Operations", amount: 450000, percentage: 35 },
-    { category: "Transportation", amount: 320000, percentage: 25 },
-    { category: "Customs Fees", amount: 190000, percentage: 15 },
-    { category: "Staff", amount: 130000, percentage: 10 },
-    { category: "Storage", amount: 90000, percentage: 7 },
-    { category: "Insurance", amount: 65000, percentage: 5 },
-    { category: "Utilities", amount: 40000, percentage: 3 },
-  ]
+  const grouped = await db.expense.groupBy({
+    by: ["categoryId"],
+    _sum: { amount: true },
+    where: {
+      status: { in: ["APPROVED", "PAID"] },
+      categoryId: { not: null },
+    },
+    orderBy: { _sum: { amount: "desc" } },
+  })
 
-  return categories
+  if (grouped.length === 0) return []
+
+  // Fetch category names
+  const categoryIds = grouped
+    .map((g) => g.categoryId)
+    .filter((id): id is string => id !== null)
+
+  const categoryNames = await db.expenseCategory.findMany({
+    where: { id: { in: categoryIds } },
+    select: { id: true, name: true },
+  })
+
+  const nameMap = new Map(categoryNames.map((c) => [c.id, c.name]))
+  const total = grouped.reduce((sum, g) => sum + Number(g._sum.amount ?? 0), 0)
+
+  return grouped.map((g) => {
+    const amount = Number(g._sum.amount ?? 0)
+    return {
+      category: nameMap.get(g.categoryId ?? "") ?? "Uncategorized",
+      amount,
+      percentage: total > 0 ? Math.round((amount / total) * 100) : 0,
+    }
+  })
 }
 
 /**

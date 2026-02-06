@@ -12,6 +12,32 @@ import {
   recalculateRemainingETAs,
   toPublicTrackingData,
 } from "@/lib/tracking"
+import { notifyShipmentMilestone } from "@/lib/services/notification"
+
+// Map completed stage types to notification milestones
+const STAGE_MILESTONE_MAP: Partial<
+  Record<TrackingStageType, "arrival" | "cleared" | "released" | "delivered">
+> = {
+  VESSEL_ARRIVAL: "arrival",
+  QUALITY_STANDARDS: "cleared",
+  RELEASE: "released",
+  DELIVERED: "delivered",
+}
+
+/**
+ * Fire-and-forget notification for a completed stage milestone
+ */
+function fireStageNotification(
+  stageType: TrackingStageType,
+  clientId: string | null | undefined,
+  shipmentId: string,
+  trackingNumber: string | null | undefined
+) {
+  const milestone = STAGE_MILESTONE_MAP[stageType]
+  if (milestone && clientId && trackingNumber) {
+    notifyShipmentMilestone(clientId, shipmentId, milestone, trackingNumber).catch(() => {})
+  }
+}
 
 // ============================================
 // Public Actions (no auth required)
@@ -203,10 +229,15 @@ export async function updateTrackingStage(
 
   const validated = updateStageSchema.parse(data)
 
-  // Verify ownership
+  // Verify ownership and get clientId + trackingNumber for notifications
   const shipment = await db.shipment.findFirst({
     where: { id: validated.shipmentId, userId: session.user.id },
-    include: { trackingStages: true },
+    select: {
+      id: true,
+      clientId: true,
+      trackingNumber: true,
+      trackingStages: true,
+    },
   })
 
   if (!shipment) {
@@ -244,7 +275,7 @@ export async function updateTrackingStage(
     data: updateData,
   })
 
-  // If stage completed, recalculate remaining ETAs
+  // If stage completed, recalculate remaining ETAs and send notification
   if (validated.status === "COMPLETED") {
     const newEtas = recalculateRemainingETAs(
       shipment.trackingStages,
@@ -263,6 +294,14 @@ export async function updateTrackingStage(
         data: { estimatedAt: eta },
       })
     }
+
+    // Fire-and-forget notification for completed stage milestone
+    fireStageNotification(
+      validated.stageType as TrackingStageType,
+      shipment.clientId,
+      validated.shipmentId,
+      shipment.trackingNumber
+    )
   }
 
   revalidatePath(`/shipments/${validated.shipmentId}`)
@@ -282,10 +321,13 @@ export async function advanceToNextStage(shipmentId: string) {
     throw new Error("Unauthorized")
   }
 
-  // Get shipment with stages
+  // Get shipment with stages, clientId, and trackingNumber
   const shipment = await db.shipment.findFirst({
     where: { id: shipmentId, userId: session.user.id },
-    include: {
+    select: {
+      id: true,
+      clientId: true,
+      trackingNumber: true,
       trackingStages: {
         orderBy: { createdAt: "asc" },
       },
@@ -377,6 +419,19 @@ export async function advanceToNextStage(shipmentId: string) {
       },
       data: { estimatedAt: eta },
     })
+  }
+
+  // Fire-and-forget notification for completed stage milestone
+  fireStageNotification(
+    currentStage.stageType,
+    shipment.clientId,
+    shipmentId,
+    shipment.trackingNumber
+  )
+
+  // Handle DELIVERED milestone when no next stage exists
+  if (!nextStageType && currentStage.stageType !== "DELIVERED") {
+    fireStageNotification("DELIVERED", shipment.clientId, shipmentId, shipment.trackingNumber)
   }
 
   revalidatePath(`/shipments/${shipmentId}`)

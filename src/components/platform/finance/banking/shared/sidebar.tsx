@@ -13,10 +13,9 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-
 interface BankingSidebarProps {
   user: any
-  dictionary: any
+  dictionary: Record<string, any>
   lang: string
 }
 

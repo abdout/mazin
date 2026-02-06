@@ -98,8 +98,8 @@ export function NumberSection({ dictionary }: NumberSectionProps) {
         <div className="parallax-bg bg-[url('/number.webp')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-black/50">
           <div className="h-full flex flex-col justify-end pb-10 sm:pb-12 md:pb-16" style={{ paddingInline: 'var(--container-padding)' }}>
-            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-background mb-2">{numbers.company}</span>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-background/80">{numbers.inNumbers}</h1>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2">{numbers.company}</span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white/80">{numbers.inNumbers}</h1>
           </div>
         </div>
       </div>

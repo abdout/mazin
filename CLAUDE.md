@@ -20,6 +20,9 @@ pnpm db:push            # Push schema changes (no migration)
 pnpm db:migrate         # Create and apply migrations
 pnpm db:studio          # Open Prisma Studio
 pnpm db:seed            # Seed database (npx tsx prisma/seed.ts)
+
+# Type checking
+pnpm tsc --noEmit       # Validate types without building
 ```
 
 ## Architecture
@@ -31,6 +34,42 @@ pnpm db:seed            # Seed database (npx tsx prisma/seed.ts)
 - **Auth**: NextAuth v5 beta (`next-auth@5.0.0-beta.30`) with JWT strategy + Prisma adapter
 - **Styling**: Tailwind CSS 4, shadcn/ui
 - **i18n**: Dictionary-based JSON files (`ar.json`, `en.json`)
+
+### Route Structure
+
+```
+src/app/
+├── [lang]/                    # Locale segment (ar|en)
+│   ├── (auth)/                # Auth pages (login, join, reset)
+│   ├── (platform)/            # Protected platform routes
+│   │   ├── dashboard/
+│   │   ├── project/[id]/      # Project with sub-pages (acd, docs, duty, invoices, etc.)
+│   │   ├── finance/           # Finance module with nested routes
+│   │   ├── invoice/
+│   │   ├── shipments/
+│   │   ├── customer/
+│   │   ├── task/
+│   │   └── team/
+│   ├── track/[trackingNumber] # Public tracking (no auth)
+│   └── about, services        # Marketing pages
+└── api/
+    ├── auth/[...nextauth]/    # NextAuth handlers
+    ├── cron/reminders/        # Scheduled task reminders
+    └── invoice/[id]/pdf/      # PDF generation
+```
+
+### Component Organization
+
+Components are colocated with their features under `src/components/platform/`:
+
+```
+src/components/platform/{feature}/
+├── actions.ts          # Server actions ("use server")
+├── content.tsx         # Main content component
+├── types.ts            # TypeScript types
+├── validation.ts       # Zod schemas
+└── *.tsx               # Feature components
+```
 
 ### Key Patterns
 
@@ -48,19 +87,35 @@ import { getDir, isRTL } from '@/components/internationalization/config'
 const dir = getDir(locale) // 'rtl' | 'ltr'
 ```
 
-**Authentication**: JWT sessions. Route protection in `src/middleware.ts` using definitions from `src/routes.ts`:
+**Authentication**: JWT sessions via NextAuth v5. Configuration in `src/auth.ts` and `src/auth.config.ts`. Route protection in `src/middleware.ts` using definitions from `src/routes.ts`:
 - `publicRoutes`: Marketing pages, `/track/*`
-- `authRoutes`: `/login`, `/register` (redirects logged-in users)
+- `authRoutes`: `/login`, `/join`, `/reset` (redirects logged-in users)
 - All other routes require authentication
+- Default redirect after login: `/dashboard`
+
+**Server Actions**: Located in `actions.ts` files within component directories. Pattern:
+```typescript
+"use server"
+import { db } from '@/lib/db'
+// Export async functions for data mutations
+```
 
 **Database**: Prisma with connection pooling via `pg` adapter. Import from `@/lib/db`:
 ```typescript
 import { db } from '@/lib/db'
 ```
 
-Models split across `prisma/models/*.prisma` files (auth, shipment, invoice, client, customs, etc.).
+Models split across `prisma/models/*.prisma` files:
+- `auth.prisma` - User, Account, Session, VerificationToken
+- `shipment.prisma` - Shipment, TrackingStage
+- `project.prisma` - Project and related entities
+- `invoice.prisma` - Invoice, InvoiceItem
+- `client.prisma` - Client management
+- `customs.prisma` - CustomsDeclaration
+- `task.prisma` - Task management
+- `notification.prisma` - Notification system
 
-**Path Aliases** (single alias):
+**Path Alias**:
 ```typescript
 @/*  →  src/*
 ```
@@ -79,8 +134,16 @@ Each stage has status: `PENDING | IN_PROGRESS | COMPLETED | SKIPPED`
 
 Port Sudan customs clearance system. Key concepts:
 
-- **ACD (Advance Cargo Declaration)**: Required before cargo loading at origin (mandatory Jan 2026). Generates ACN number shown on B/L.
-- **IM Form**: Bank import form for foreign currency allocation
-- **SSMO**: Sudanese Standards and Metrology Organization inspection certificates
+- **ACD (Advance Cargo Declaration)**: Required before cargo loading at origin (mandatory Jan 2026). Generates ACN number shown on B/L. Must be validated 5 days before vessel arrival.
+- **IM Form**: Bank import form for foreign currency allocation (triggered by Proforma Invoice)
+- **SSMO**: Sudanese Standards and Metrology Organization - requires Certificate of Inspection (CoI) for regulated products (food, chemicals, construction materials, vehicles, textiles, electronics)
 
 See `knowledge.md` for complete domain documentation including regulatory requirements, workflow diagrams, and automation opportunities.
+
+## Environment Variables
+
+Required in `.env.local`:
+- `DATABASE_URL` - Neon PostgreSQL connection string
+- `NEXTAUTH_URL` - Base URL for auth (auto-detected on Vercel)
+- `NEXTAUTH_SECRET` - JWT encryption secret
+- OAuth credentials for Google/GitHub if using social login

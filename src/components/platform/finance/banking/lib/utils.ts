@@ -127,7 +127,7 @@ export function countTransactionCategories(
 
   const aggregatedCategories = Object.keys(categoryCounts).map((category) => ({
     name: category,
-    count: categoryCounts[category],
+    count: categoryCounts[category] ?? 0,
     totalCount,
   }))
 

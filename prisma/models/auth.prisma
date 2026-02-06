@@ -32,6 +32,17 @@ model User {
   projects        Project[]
   tasks           Task[]
 
+  // Customs relations
+  acds            AdvanceCargoDeclaration[]
+
+  // Finance relations
+  employee              Employee?
+  bankAccounts          BankAccount[]
+  processedPayrolls     PayrollRun[]       @relation("ProcessedPayrolls")
+  submittedExpenses     Expense[]          @relation("SubmittedExpenses")
+  approvedExpenses      Expense[]          @relation("ApprovedExpenses")
+  createdCustomsPayments CustomsPayment[]  @relation("CreatedCustomsPayments")
+
   // Notification relations
   notifications          Notification[]         @relation("UserNotifications")
   notificationPreference NotificationPreference?

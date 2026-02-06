@@ -21,9 +21,10 @@ import { login } from "./action";
 import { FormError } from "../error/form-error";
 import { FormSuccess } from "../form-success";
 import { Social } from "../social";
+import type { Dictionary } from "@/components/internationalization/types";
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
-  dictionary: any;
+  dictionary: Dictionary;
 }
 
 export const LoginForm = ({
@@ -76,7 +77,7 @@ export const LoginForm = ({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6 min-w-[200px] md:min-w-[350px]", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>
       <Social dictionary={dictionary} />
 
       <div className="flex items-center gap-3">

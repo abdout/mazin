@@ -41,7 +41,7 @@ export function LanguageSwitcher({ variant = "dropdown", className }: LanguageSw
         title={`Switch to ${targetConfig.nativeName}`}
       >
         <Link href={switchLocaleHref(targetLocale)}>
-          <Languages className="h-4 w-4" />
+          <Languages className="size-5" />
           <span className="sr-only">Switch to {targetConfig.nativeName}</span>
         </Link>
       </Button>
@@ -63,7 +63,7 @@ export function LanguageSwitcher({ variant = "dropdown", className }: LanguageSw
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2">
-          <Languages className="h-4 w-4" />
+          <Languages className="size-5" />
           <span>{currentConfig.flag}</span>
         </Button>
       </DropdownMenuTrigger>

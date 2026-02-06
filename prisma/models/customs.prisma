@@ -20,6 +20,7 @@ model CustomsDeclaration {
   user   User   @relation(fields: [userId], references: [id])
 
   documents Document[]
+  payments  CustomsPayment[]
 
   approvedAt DateTime?
   approvedBy String?
@@ -64,4 +65,84 @@ enum DocumentType {
   CERTIFICATE_OF_ORIGIN
   INSURANCE_CERTIFICATE
   OTHER
+}
+
+// ============================================
+// Advance Cargo Declaration (ACD) Model
+// ============================================
+
+model AdvanceCargoDeclaration {
+  id            String    @id @default(cuid())
+  acnNumber     String    @unique  // ACN-202601-00001
+  status        ACDStatus @default(DRAFT)
+
+  // Cargo info
+  consignee        String
+  consignor        String
+  hsCode           String
+  cargoDescription String
+  estimatedWeight  Decimal  @db.Decimal(10, 2)
+  quantity         Int?
+
+  // Vessel info
+  vesselName       String
+  voyageNumber     String?
+  portOfLoading    String
+  portOfDischarge  String   @default("Port Sudan")
+
+  // Dates
+  estimatedArrival DateTime?
+  validatedAt      DateTime?
+  validatedBy      String?
+
+  // Relations
+  shipmentId    String
+  shipment      Shipment @relation(fields: [shipmentId], references: [id])
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([acnNumber])
+  @@index([shipmentId])
+  @@index([status])
+  @@map("advance_cargo_declarations")
+}
+
+enum ACDStatus {
+  DRAFT
+  SUBMITTED
+  VALIDATED
+  REJECTED
+  EXPIRED
+}
+
+// ============================================
+// HS Code Model
+// ============================================
+
+model HsCode {
+  id            String  @id @default(cuid())
+  code          String  @unique   // e.g., "8703.23"
+  description   String             // "Motor cars, 1500-3000cc"
+  descriptionAr String?            // Arabic description
+
+  // Duty rates (percentages)
+  customsDutyRate  Decimal @db.Decimal(5, 2)  // e.g., 25.00%
+  vatRate          Decimal @db.Decimal(5, 2)  // e.g., 17.00%
+  exciseRate       Decimal @db.Decimal(5, 2) @default(0)  // Excise duty
+  developmentFee   Decimal @db.Decimal(5, 2) @default(0)  // Development fee %
+
+  // Category
+  category    String?   // e.g., "Vehicles", "Food", "Electronics"
+
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([code])
+  @@index([category])
+  @@map("hs_codes")
 }

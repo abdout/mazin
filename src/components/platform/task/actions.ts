@@ -424,6 +424,28 @@ export async function syncProjectsWithTasks() {
   }
 }
 
+// Get team members from the User table
+export async function getTeamMembers() {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return { error: "Not authenticated" };
+    }
+
+    const users = await db.user.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+
+    return {
+      success: true,
+      members: users.map((u) => ({ id: u.id, name: u.name ?? "Unknown" })),
+    };
+  } catch {
+    return { error: "Failed to fetch team members" };
+  }
+}
+
 // Get tasks for a specific project
 export async function getTasksByProject(projectId: string) {
   try {
@@ -457,7 +479,7 @@ export async function getTasksByProject(projectId: string) {
 
     return { success: true, tasks: simplifiedTasks };
   } catch (error) {
-    console.error('Error fetching project tasks:', error);
+    console.error("Failed to fetch project tasks");
     return { error: error instanceof Error ? error.message : 'Failed to fetch tasks' };
   }
 }

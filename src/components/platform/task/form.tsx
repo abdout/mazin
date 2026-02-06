@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CalendarIcon, Save, X } from 'lucide-react';
 import { format } from 'date-fns';
+import { ar, enUS } from 'date-fns/locale';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -38,17 +39,10 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { TASK_STATUS, TASK_PRIORITY, TASK_STATUS_OPTIONS, TASK_PRIORITY_OPTIONS } from './constant';
 import { taskFormSchema, TaskFormValues } from './validation';
 import { TaskCreateFormProps } from './type';
-import { createTask, updateTask } from './actions';
+import { createTask, updateTask, getTeamMembers } from './actions';
 import { cn } from '@/lib/utils';
-
-// Team members will need to be fetched from the server
-const TEAM_MEMBERS = [
-  { id: '1', name: 'John Doe' },
-  { id: '2', name: 'Jane Smith' },
-  { id: '3', name: 'Bob Johnson' },
-  { id: '4', name: 'Alice Williams' },
-  { id: '5', name: 'Charlie Brown' },
-];
+import { useDictionary } from '@/components/internationalization/use-dictionary';
+import { useLocale } from '@/components/internationalization/use-locale';
 
 interface Project {
   _id: string;
@@ -59,11 +53,23 @@ interface Project {
 const TaskForm: React.FC<TaskCreateFormProps> = ({
   taskToEdit = null,
   onSuccess,
-  onClose
+  onClose,
+  dictionary: propDictionary,
+  locale: propLocale
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<{ id: string; name: string }[]>([]);
+
+  const hookDictionary = useDictionary();
+  const { locale: hookLocale } = useLocale();
+
+  const dictionary = propDictionary ?? hookDictionary;
+  const locale = propLocale ?? hookLocale;
+
+  const t = dictionary.task;
+  const dateLocale = locale === 'ar' ? ar : enUS;
 
   // Fetch projects
   useEffect(() => {
@@ -72,23 +78,33 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
         setIsLoadingProjects(true);
         const response = await fetch('/api/project');
         if (!response.ok) {
-          throw new Error('Failed to fetch projects');
+          throw new Error(t?.fetchError || 'Failed to fetch projects');
         }
-        
+
         const data = await response.json();
         if (data?.projects) {
           setProjects(data.projects);
         }
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-        toast.error('Failed to load projects. Please try again.');
+      } catch {
+        toast.error(t?.fetchError || 'Failed to load projects. Please try again.');
       } finally {
         setIsLoadingProjects(false);
       }
     };
-    
+
     fetchProjects();
+  }, [t?.fetchError]);
+
+  // Fetch team members from database
+  useEffect(() => {
+    getTeamMembers().then((result) => {
+      if ("members" in result && result.members) {
+        setTeamMembers(result.members);
+      }
+    });
   }, []);
+
+  const TEAM_MEMBERS = teamMembers;
 
   const defaultValues: TaskFormValues = {
     project: taskToEdit?.project || '',
@@ -109,78 +125,81 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
   });
 
   const onSubmit = async (data: TaskFormValues) => {
-    console.log('=== Client: Task Form Submit ===');
-    console.log('Form data:', JSON.stringify(data, null, 2));
-    console.log('Mode:', taskToEdit ? 'Edit' : 'Create');
-    
     try {
       setIsSubmitting(true);
-      console.log('Setting isSubmitting to true');
 
       let result;
-      
+
       if (taskToEdit) {
         const taskId = taskToEdit.id || taskToEdit._id;
         if (!taskId) {
-          toast.error('Task ID is missing');
+          toast.error(dictionary.common.error || 'Task ID is missing');
           return;
         }
-        console.log('Updating existing task:', taskId);
         result = await updateTask(taskId, data);
       } else {
-        console.log('Creating new task');
         result = await createTask(data);
       }
-      
-      console.log('API response:', JSON.stringify(result, null, 2));
 
       if (result.error) {
-        console.error('Error from API:', result.error);
         toast.error(result.error);
         return;
       }
-      
-      console.log('Task operation successful');
+
       toast.success(
-        taskToEdit ? 'Task updated successfully' : 'Task created successfully'
+        taskToEdit
+          ? (t?.taskUpdatedSuccess || 'Task updated successfully')
+          : (t?.taskCreatedSuccess || 'Task created successfully')
       );
-      
+
       if (onSuccess) {
-        console.log('Calling onSuccess callback');
         await onSuccess();
       }
-      
-      console.log('Closing form modal');
+
       if (onClose) onClose();
-    } catch (error: any) {
-      console.error('Exception in task form submission:', error);
-      console.error('Error stack:', error.stack);
-      toast.error(error.message || 'Failed to save task');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : (dictionary.common.error || 'Failed to save task');
+      toast.error(message);
     } finally {
-      console.log('Setting isSubmitting to false');
       setIsSubmitting(false);
     }
+  };
+
+  // Get localized status options
+  const getLocalizedStatusOptions = () => {
+    return TASK_STATUS_OPTIONS.map(option => ({
+      ...option,
+      label: t?.statuses?.[option.value.toUpperCase() as keyof typeof t.statuses] || option.label
+    }));
+  };
+
+  // Get localized priority options
+  const getLocalizedPriorityOptions = () => {
+    return TASK_PRIORITY_OPTIONS.map(option => ({
+      ...option,
+      label: t?.priorities?.[option.value.toUpperCase() as keyof typeof t.priorities] || option.label
+    }));
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-background" data-action="no-navigate">
       <div className="flex h-full flex-col">
         {/* Close button in the corner */}
-        <div className="absolute top-4 right-4 z-10">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+        <div className="absolute top-4 end-4 z-10">
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={(e) => {
               e.stopPropagation();
               if (onClose) onClose();
-            }} 
+            }}
             className="h-8 w-8"
             data-action="no-navigate"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
-        
+
         {/* Content */}
         <ScrollArea className="flex-1 overflow-auto">
           <div className="container mx-auto py-8 px-10 max-w-5xl">
@@ -191,7 +210,7 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
               }} className="space-y-16" data-action="no-navigate">
                 {/* Basic Information Section */}
                 <section>
-                  <h2 className="text-xl font-semibold mb-6 pb-2 border-b">General</h2>
+                  <h2 className="text-xl font-semibold mb-6 pb-2 border-b">{t?.general || 'General'}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     {/* Project Field - Using dropdown for better UX */}
                     <FormField
@@ -199,31 +218,31 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                       name="project"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                          <FormLabel className="text-sm font-medium">Project</FormLabel>
+                          <FormLabel className="text-sm font-medium">{t?.project || 'Project'}</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
-                                <Button 
-                                  variant="outline" 
-                                  role="combobox" 
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
                                   className={cn(
                                     "w-full justify-between bg-muted/30",
                                     !field.value && "text-muted-foreground"
                                   )}
                                   disabled={isLoadingProjects}
                                 >
-                                  {isLoadingProjects 
-                                    ? "Loading projects..." 
+                                  {isLoadingProjects
+                                    ? (t?.loadingProjects || "Loading projects...")
                                     : field.value
                                       ? field.value
-                                      : "Select project"}
+                                      : (t?.selectProject || "Select project")}
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
                             <PopoverContent className="w-[300px] p-0">
                               <Command>
-                                <CommandInput placeholder="Search projects..." />
-                                <CommandEmpty>No project found.</CommandEmpty>
+                                <CommandInput placeholder={t?.searchProjects || "Search projects..."} />
+                                <CommandEmpty>{t?.noProjectFound || "No project found."}</CommandEmpty>
                                 <CommandList>
                                   <CommandGroup>
                                     {projects.map((project) => (
@@ -246,16 +265,16 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Task Name */}
                     <FormField
                       control={form.control}
                       name="task"
                       render={({ field }) => (
                         <FormItem className="md:col-span-3">
-                          <FormLabel className="text-sm font-medium">Task Name</FormLabel>
+                          <FormLabel className="text-sm font-medium">{t?.taskName || 'Task Name'}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter task name" {...field} className="bg-muted/30" />
+                            <Input placeholder={t?.enterTaskName || "Enter task name"} {...field} className="bg-muted/30" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -263,10 +282,10 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                     />
                   </div>
                 </section>
-                
+
                 {/* Description Section */}
                 <section>
-                  <h2 className="text-xl font-semibold mb-6 pb-2 border-b">Description</h2>
+                  <h2 className="text-xl font-semibold mb-6 pb-2 border-b">{t?.description || 'Description'}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                     {/* Date Field - Moved to start of row */}
                     <FormField
@@ -274,23 +293,23 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                       name="date"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                          <FormLabel className="text-sm font-medium">Date</FormLabel>
+                          <FormLabel className="text-sm font-medium">{t?.date || 'Date'}</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <Button
                                   variant="outline"
                                   className={cn(
-                                    "w-full pl-3 text-left font-normal bg-muted/30",
+                                    "w-full ps-3 text-start font-normal bg-muted/30",
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
                                   {field.value ? (
-                                    format(field.value, "PPP")
+                                    format(field.value, "PPP", { locale: dateLocale })
                                   ) : (
-                                    <span>Pick a date</span>
+                                    <span>{t?.pickDate || 'Pick a date'}</span>
                                   )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
@@ -307,25 +326,25 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Status Field */}
                     <FormField
                       control={form.control}
                       name="status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium">Status</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
+                          <FormLabel className="text-sm font-medium">{t?.status || 'Status'}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className="bg-muted/30">
-                                <SelectValue placeholder="Select status" />
+                                <SelectValue placeholder={t?.selectStatus || "Select status"} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {TASK_STATUS_OPTIONS.map(option => (
+                              {getLocalizedStatusOptions().map(option => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
                                 </SelectItem>
@@ -336,25 +355,25 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Priority Field */}
                     <FormField
                       control={form.control}
                       name="priority"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium">Priority</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
+                          <FormLabel className="text-sm font-medium">{t?.priority || 'Priority'}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className="bg-muted/30">
-                                <SelectValue placeholder="Select priority" />
+                                <SelectValue placeholder={t?.selectPriority || "Select priority"} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {TASK_PRIORITY_OPTIONS.map(option => (
+                              {getLocalizedPriorityOptions().map(option => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
                                 </SelectItem>
@@ -365,14 +384,14 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                         </FormItem>
                       )}
                     />
-                  
+
                     {/* Assigned To Field */}
                     <FormField
                       control={form.control}
                       name="assignedTo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium">Assigned To</FormLabel>
+                          <FormLabel className="text-sm font-medium">{t?.assignedTo || 'Assigned To'}</FormLabel>
                           <div className="space-y-3">
                             {field.value && field.value.length > 0 && (
                               <div className="flex flex-wrap gap-2">
@@ -383,7 +402,7 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                                       {member?.name}
                                       <button
                                         type="button"
-                                        className="ml-2 text-muted-foreground hover:text-foreground"
+                                        className="ms-2 text-muted-foreground hover:text-foreground"
                                         onClick={() => {
                                           const newValue = field.value?.filter(id => id !== memberId) || [];
                                           form.setValue('assignedTo', newValue);
@@ -399,20 +418,20 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
-                                  <Button 
-                                    variant="outline" 
+                                  <Button
+                                    variant="outline"
                                     type="button"
                                     className="w-full justify-between bg-muted/30"
                                   >
-                                    <span>Assign team members</span>
+                                    <span>{t?.assignTeamMembers || 'Assign team members'}</span>
                                     <X className="h-4 w-4" />
                                   </Button>
                                 </FormControl>
                               </PopoverTrigger>
                               <PopoverContent className="w-[300px] p-0">
                                 <Command>
-                                  <CommandInput placeholder="Search team members..." />
-                                  <CommandEmpty>No member found.</CommandEmpty>
+                                  <CommandInput placeholder={t?.searchTeamMembers || "Search team members..."} />
+                                  <CommandEmpty>{t?.noMemberFound || "No member found."}</CommandEmpty>
                                   <CommandList>
                                     <CommandGroup>
                                       {TEAM_MEMBERS
@@ -440,7 +459,7 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                       )}
                     />
                   </div>
-                  
+
                   <div className="space-y-6">
                     {/* Description Field */}
                     <FormField
@@ -448,12 +467,12 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                       name="desc"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium">Task Description</FormLabel>
+                          <FormLabel className="text-sm font-medium">{t?.taskDescription || 'Task Description'}</FormLabel>
                           <FormControl>
-                            <Textarea 
-                              placeholder="Enter task description" 
-                              className="min-h-[150px] bg-muted/30" 
-                              {...field} 
+                            <Textarea
+                              placeholder={t?.enterTaskDescription || "Enter task description"}
+                              className="min-h-[150px] bg-muted/30"
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -462,19 +481,19 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
                     />
                   </div>
                 </section>
-                
+
                 {/* Submit Button */}
                 <div className="pt-4 flex justify-end">
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full sm:w-auto px-8 py-6 rounded-md"
                     disabled={isSubmitting}
                     size="lg"
                   >
-                    <Save className="mr-2 h-5 w-5" />
-                    {isSubmitting 
-                      ? (taskToEdit ? "Updating Task..." : "Creating Task...") 
-                      : (taskToEdit ? "Update Task" : "Create Task")
+                    <Save className="me-2 h-5 w-5" />
+                    {isSubmitting
+                      ? (taskToEdit ? (t?.updatingTask || "Updating Task...") : (t?.creatingTask || "Creating Task..."))
+                      : (taskToEdit ? (t?.updateTask || "Update Task") : (t?.createTask || "Create Task"))
                     }
                   </Button>
                 </div>
@@ -487,4 +506,4 @@ const TaskForm: React.FC<TaskCreateFormProps> = ({
   );
 };
 
-export default TaskForm; 
+export default TaskForm;

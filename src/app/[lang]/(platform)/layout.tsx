@@ -31,22 +31,41 @@ export default async function PlatformLayout({
         className="flex min-h-svh w-full flex-col"
         dir={rtl ? "rtl" : "ltr"}
       >
-        <PlatformHeader
-          dictionary={dict}
-          locale={lang}
-          userRole={session.user.role}
-        />
-        <div className="flex pt-6">
-          <PlatformSidebar
+        {/* Skip to main content link for keyboard/screen reader users */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none"
+          style={rtl ? { right: "1rem" } : { left: "1rem" }}
+        >
+          {lang === "ar" ? "انتقل إلى المحتوى الرئيسي" : "Skip to main content"}
+        </a>
+
+        <header role="banner">
+          <PlatformHeader
             dictionary={dict}
             locale={lang}
             userRole={session.user.role}
-            side={rtl ? "right" : "left"}
           />
+        </header>
+
+        <div className="flex pt-6">
+          <nav role="navigation" aria-label={lang === "ar" ? "القائمة الرئيسية" : "Main navigation"}>
+            <PlatformSidebar
+              dictionary={dict}
+              locale={lang}
+              userRole={session.user.role}
+              side={rtl ? "right" : "left"}
+            />
+          </nav>
+
           <PageHeadingProvider>
-            <div className="dashboard-container overflow-hidden pb-10 transition-[margin] duration-200 ease-in-out">
+            <main
+              id="main-content"
+              role="main"
+              className="dashboard-container overflow-hidden pb-10 transition-[margin] duration-200 ease-in-out"
+            >
               {children}
-            </div>
+            </main>
           </PageHeadingProvider>
         </div>
       </div>

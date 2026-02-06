@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { format } from "date-fns"
+import { ar, enUS } from "date-fns/locale"
 import { ArrowDownLeft, ArrowRight, ArrowUpRight } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -14,18 +15,34 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Dictionary, Locale } from "@/components/internationalization"
+import { useDictionary } from "@/components/internationalization/use-dictionary"
+import { useLocale } from "@/components/internationalization/use-locale"
 
 import type { RecentTransaction } from "./types"
 
 interface TransactionListProps {
   transactions: RecentTransaction[]
+  dictionary?: Dictionary
+  locale?: Locale
   className?: string
 }
 
 export function TransactionList({
   transactions,
+  dictionary: propDictionary,
+  locale: propLocale,
   className,
 }: TransactionListProps) {
+  const hookDictionary = useDictionary()
+  const { locale: hookLocale } = useLocale()
+
+  const dictionary = propDictionary ?? hookDictionary
+  const locale = propLocale ?? hookLocale
+
+  const f = dictionary.finance
+  const dateLocale = locale === "ar" ? ar : enUS
+
   const getIcon = (type: RecentTransaction["type"]) => {
     switch (type) {
       case "income":
@@ -42,26 +59,26 @@ export function TransactionList({
       case "completed":
         return (
           <Badge variant="outline" className="text-green-600">
-            Completed
+            {f?.statuses?.COMPLETED || "Completed"}
           </Badge>
         )
       case "pending":
         return (
           <Badge variant="outline" className="text-yellow-600">
-            Pending
+            {f?.statuses?.PENDING || "Pending"}
           </Badge>
         )
       case "failed":
         return (
           <Badge variant="outline" className="text-red-600">
-            Failed
+            {f?.statuses?.FAILED || "Failed"}
           </Badge>
         )
     }
   }
 
   const formatAmount = (amount: number, type: RecentTransaction["type"]) => {
-    const formatted = new Intl.NumberFormat("en-SD", {
+    const formatted = new Intl.NumberFormat(locale === "ar" ? "ar-SA" : "en-SD", {
       style: "currency",
       currency: "SDG",
       minimumFractionDigits: 0,
@@ -83,9 +100,9 @@ export function TransactionList({
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle>{f?.recentTransactions || "Recent Transactions"}</CardTitle>
           <CardDescription>
-            No transactions found for this period
+            {f?.noTransactions || "No transactions found for this period"}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -97,12 +114,12 @@ export function TransactionList({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Recent Transactions</CardTitle>
-            <CardDescription>Latest financial activities</CardDescription>
+            <CardTitle>{f?.recentTransactions || "Recent Transactions"}</CardTitle>
+            <CardDescription>{f?.latestActivities || "Latest financial activities"}</CardDescription>
           </div>
-          <Link href="/finance/transactions">
+          <Link href={`/${locale}/finance/transactions`}>
             <Button variant="outline" size="sm">
-              View All
+              {dictionary.common.viewAll || "View All"}
             </Button>
           </Link>
         </div>
@@ -125,7 +142,7 @@ export function TransactionList({
                     </p>
                     <div className="text-muted-foreground flex items-center gap-2 text-xs">
                       <span>
-                        {format(new Date(transaction.date), "MMM d, yyyy")}
+                        {format(new Date(transaction.date), "PP", { locale: dateLocale })}
                       </span>
                       {transaction.category && (
                         <>
@@ -156,10 +173,10 @@ export function TransactionList({
         {/* Summary */}
         <div className="mt-4 grid grid-cols-3 gap-4 border-t pt-4 text-center">
           <div>
-            <p className="text-muted-foreground text-xs">Total Income</p>
+            <p className="text-muted-foreground text-xs">{f?.totalIncome || "Total Income"}</p>
             <p className="text-sm font-semibold text-green-600">
               SDG{" "}
-              {new Intl.NumberFormat("en-SD").format(
+              {new Intl.NumberFormat(locale === "ar" ? "ar-SA" : "en-SD").format(
                 transactions
                   .filter(
                     (t) => t.type === "income" && t.status === "completed"
@@ -169,10 +186,10 @@ export function TransactionList({
             </p>
           </div>
           <div>
-            <p className="text-muted-foreground text-xs">Total Expenses</p>
+            <p className="text-muted-foreground text-xs">{f?.totalExpenses || "Total Expenses"}</p>
             <p className="text-sm font-semibold text-red-600">
               SDG{" "}
-              {new Intl.NumberFormat("en-SD").format(
+              {new Intl.NumberFormat(locale === "ar" ? "ar-SA" : "en-SD").format(
                 transactions
                   .filter(
                     (t) => t.type === "expense" && t.status === "completed"
@@ -182,7 +199,7 @@ export function TransactionList({
             </p>
           </div>
           <div>
-            <p className="text-muted-foreground text-xs">Pending</p>
+            <p className="text-muted-foreground text-xs">{f?.statuses?.PENDING || "Pending"}</p>
             <p className="text-sm font-semibold text-yellow-600">
               {transactions.filter((t) => t.status === "pending").length}
             </p>

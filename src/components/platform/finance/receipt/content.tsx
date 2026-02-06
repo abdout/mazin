@@ -32,6 +32,9 @@ import { ReceiptCard } from "./receipt-card"
 import { DataTable } from "./table"
 import { ExpenseReceipt } from "./types"
 import { UploadForm } from "./upload-form"
+import { useDictionary } from "@/components/internationalization/use-dictionary"
+import { useLocale } from "@/components/internationalization/use-locale"
+import type { Locale } from "@/components/internationalization"
 
 interface ReceiptsContentProps {
   initialReceipts?: ExpenseReceipt[]
@@ -40,15 +43,17 @@ interface ReceiptsContentProps {
 
 export function ReceiptsContent({
   initialReceipts = [],
-  locale = "en",
 }: ReceiptsContentProps) {
+  const dictionary = useDictionary()
+  const { locale } = useLocale()
+
   const [receipts, setReceipts] =
     React.useState<ExpenseReceipt[]>(initialReceipts)
   const [isLoading, setIsLoading] = React.useState(false)
   const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid")
   const [isUploadDialogOpen, setIsUploadDialogOpen] = React.useState(false)
 
-  const columns = React.useMemo(() => getColumns(), [])
+  const columns = React.useMemo(() => getColumns({ dictionary, locale: locale as Locale }), [dictionary, locale])
 
   const loadReceipts = React.useCallback(async () => {
     setIsLoading(true)

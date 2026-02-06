@@ -1,6 +1,308 @@
 // Finance Models
 // Comprehensive financial management for customs clearance operations
+// This file contains all models related to financial operations:
+// Banking, Payroll, Expenses, Customs Payments, Accounting, and more
 // All models use userId for multi-tenant isolation
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+}
+
+enum BankAccountType {
+  CURRENT
+  CHECKING
+  SAVINGS
+  FOREIGN_CURRENCY
+  PETTY_CASH
+}
+
+enum BankAccountStatus {
+  ACTIVE
+  INACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum TransactionType {
+  CREDIT  // Money in
+  DEBIT   // Money out
+  TRANSFER
+}
+
+enum TransactionSourceType {
+  EXPENSE
+  PAYROLL
+  CUSTOMS
+  INVOICE
+  MANUAL
+}
+
+enum TransactionCategory {
+  // Revenue
+  INVOICE_PAYMENT
+  SERVICE_FEE
+  CLEARANCE_FEE
+  DOCUMENTATION_FEE
+  HANDLING_FEE
+  OTHER_REVENUE
+
+  // Expenses
+  PORT_CHARGE
+  CUSTOMS_DUTY
+  TRANSPORTATION
+  STORAGE
+  INSPECTION_FEE
+  GOVERNMENT_FEE
+  SALARY
+  OFFICE_EXPENSE
+  UTILITY
+  OTHER_EXPENSE
+
+  // Transfers
+  INTERNAL_TRANSFER
+  CLIENT_DEPOSIT
+  CLIENT_REFUND
+  DUTY_PAYMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  RECONCILED
+  CANCELLED
+  FAILED
+}
+
+enum BankStatementStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+enum SalaryStructureStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ExpenseStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CHECK
+  CREDIT_CARD
+  MOBILE_PAYMENT
+}
+
+enum BudgetStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  CLOSED
+}
+
+enum PayrollStatus {
+  DRAFT
+  PROCESSING
+  PENDING_APPROVAL
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum PayrollItemStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum TimesheetStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum WalletStatus {
+  ACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  INVOICE_PAYMENT
+  REFUND
+  ADJUSTMENT
+  DUTY_PAYMENT
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum NormalBalance {
+  DEBIT
+  CREDIT
+}
+
+enum JournalEntryStatus {
+  DRAFT
+  PENDING
+  POSTED
+  REVERSED
+}
+
+enum FiscalYearStatus {
+  OPEN
+  CLOSING
+  CLOSED
+}
+
+enum ReceiptType {
+  PAYMENT_RECEIVED
+  PAYMENT_MADE
+  DUTY_PAYMENT
+  FEE_PAYMENT
+  REFUND
+  DEPOSIT
+}
+
+enum ReceiptStatus {
+  PENDING
+  VERIFIED
+  POSTED
+  CANCELLED
+}
+
+enum FeeType {
+  CLEARANCE_SERVICE
+  DOCUMENTATION
+  CUSTOMS_DUTY
+  PORT_CHARGE
+  TERMINAL_CHARGE
+  TRANSPORTATION
+  STORAGE
+  DEMURRAGE
+  INSPECTION
+  INSURANCE
+  BANK_CHARGE
+  GOVERNMENT_LEVY
+  HANDLING
+  OTHER
+}
+
+enum FeeCalculationType {
+  FIXED
+  PERCENTAGE_OF_VALUE
+  PER_UNIT
+  PER_CONTAINER
+  PER_WEIGHT
+  TIERED
+}
+
+enum CustomsPaymentType {
+  DUTY
+  VAT
+  INSPECTION
+  PORT_FEE
+  SHIPPING_LINE
+  STORAGE
+  PENALTY
+  OTHER
+}
+
+enum CustomsPaymentStatus {
+  PENDING
+  PAID
+  CONFIRMED
+  CANCELLED
+}
+
+// ============================================================================
+// EMPLOYEE MODEL
+// ============================================================================
+
+model Employee {
+  id           String         @id @default(cuid())
+  employeeNo   String         @unique
+  employeeCode String?
+  givenName    String
+  surname      String
+  firstName    String?
+  lastName     String?
+  email        String?
+  phone        String?
+  jobTitle     String?
+  department   String?
+  position     String?
+  status       EmployeeStatus @default(ACTIVE)
+
+  // Employment details
+  hireDate        DateTime       @default(now())
+  terminationDate DateTime?
+  employmentType  EmploymentType @default(FULL_TIME)
+
+  // Bank details for salary payment
+  bankName      String?
+  bankBranch    String?
+  accountNumber String?
+  iban          String?
+
+  // Optional link to User for system access
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  // Relations
+  salary           Salary?
+  salaryStructures SalaryStructure[]
+  payrollItems     PayrollItem[]
+  timesheets       Timesheet[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeNo])
+  @@index([status])
+  @@map("employees")
+}
 
 // ============================================================================
 // BANKING & TRANSACTIONS
@@ -15,7 +317,7 @@ model BankAccount {
   iban          String?
   swiftCode     String?
   currency      String            @default("SDG")
-  accountType   BankAccountType   @default(CHECKING)
+  accountType   BankAccountType   @default(CURRENT)
   status        BankAccountStatus @default(ACTIVE)
 
   // Balance tracking
@@ -27,33 +329,27 @@ model BankAccount {
   // Display settings
   color       String?
   isDefault   Boolean @default(false)
+  isActive    Boolean @default(true)
   displayOrder Int    @default(0)
 
-  // Relations
+  // Owner
   userId       String
   user         User          @relation(fields: [userId], references: [id])
-  transactions Transaction[]
+
+  // Relations
+  transactions    Transaction[]
+  bankTransactions BankTransaction[]
+  statements      BankStatement[]
+  payrollRuns     PayrollRun[]
+  expenses        Expense[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([accountNumber])
+  @@index([isActive])
   @@map("bank_accounts")
-}
-
-enum BankAccountType {
-  CHECKING
-  SAVINGS
-  FOREIGN_CURRENCY
-  PETTY_CASH
-}
-
-enum BankAccountStatus {
-  ACTIVE
-  INACTIVE
-  FROZEN
-  CLOSED
 }
 
 model Transaction {
@@ -111,46 +407,63 @@ model Transaction {
   @@map("transactions")
 }
 
-enum TransactionType {
-  CREDIT  // Money in
-  DEBIT   // Money out
-  TRANSFER
+model BankTransaction {
+  id             String                @id @default(cuid())
+  transactionRef String                @unique
+  type           TransactionType
+  amount         Decimal               @db.Decimal(15, 2)
+  balanceAfter   Decimal?              @db.Decimal(15, 2)
+  description    String?
+  reference      String?
+  transactionDate DateTime             @default(now())
+
+  // Source tracking
+  sourceType     TransactionSourceType?
+  sourceId       String?
+
+  // Reconciliation
+  isReconciled   Boolean               @default(false)
+  reconciledAt   DateTime?
+
+  // Bank account relation
+  bankAccountId  String
+  bankAccount    BankAccount           @relation(fields: [bankAccountId], references: [id])
+
+  // Linked records
+  payrollItem    PayrollItem?          @relation("PayrollPayment")
+  expense        Expense?              @relation("ExpensePayment")
+  customsPayment CustomsPayment?       @relation("CustomsPaymentTransaction")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bankAccountId])
+  @@index([transactionDate])
+  @@index([sourceType, sourceId])
+  @@index([isReconciled])
+  @@map("bank_transactions")
 }
 
-enum TransactionCategory {
-  // Revenue
-  INVOICE_PAYMENT
-  SERVICE_FEE
-  CLEARANCE_FEE
-  DOCUMENTATION_FEE
-  HANDLING_FEE
-  OTHER_REVENUE
+model BankStatement {
+  id             String              @id @default(cuid())
+  statementDate  DateTime
+  openingBalance Decimal             @db.Decimal(15, 2)
+  closingBalance Decimal             @db.Decimal(15, 2)
+  fileName       String
+  fileUrl        String?
+  status         BankStatementStatus @default(PENDING)
+  parsedLines    Json?               // Store parsed CSV lines
 
-  // Expenses
-  PORT_CHARGE
-  CUSTOMS_DUTY
-  TRANSPORTATION
-  STORAGE
-  INSPECTION_FEE
-  GOVERNMENT_FEE
-  SALARY
-  OFFICE_EXPENSE
-  UTILITY
-  OTHER_EXPENSE
+  // Bank account relation
+  bankAccountId  String
+  bankAccount    BankAccount         @relation(fields: [bankAccountId], references: [id])
 
-  // Transfers
-  INTERNAL_TRANSFER
-  CLIENT_DEPOSIT
-  CLIENT_REFUND
-  DUTY_PAYMENT
-}
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-enum TransactionStatus {
-  PENDING
-  COMPLETED
-  RECONCILED
-  CANCELLED
-  FAILED
+  @@index([bankAccountId])
+  @@index([statementDate])
+  @@map("bank_statements")
 }
 
 // ============================================================================
@@ -161,14 +474,15 @@ model ExpenseCategory {
   id          String  @id @default(cuid())
   name        String
   nameAr      String?
-  code        String
+  code        String  @unique
   description String?
   color       String?
   icon        String?
   isActive    Boolean @default(true)
 
   // Budget linking
-  budgetable Boolean @default(true)
+  budgetable    Boolean  @default(true)
+  monthlyBudget Decimal? @db.Decimal(15, 2)
 
   // Parent category for hierarchy
   parentId String?
@@ -176,28 +490,29 @@ model ExpenseCategory {
   children ExpenseCategory[] @relation("CategoryHierarchy")
 
   // Relations
-  userId   String
-  user     User      @relation(fields: [userId], references: [id])
+  userId   String?
+  user     User?     @relation(fields: [userId], references: [id])
   expenses Expense[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, code])
   @@index([userId])
   @@map("expense_categories")
 }
 
 model Expense {
-  id          String        @id @default(cuid())
-  expenseDate DateTime      @default(now())
-  description String
-  reference   String?
-  status      ExpenseStatus @default(PENDING)
+  id            String        @id @default(cuid())
+  expenseNumber String        @unique
+  expenseDate   DateTime      @default(now())
+  description   String
+  reference     String?
+  vendor        String?
+  status        ExpenseStatus @default(PENDING)
 
   // Amount
-  amount   Decimal @db.Decimal(15, 2)
-  currency String  @default("SDG")
+  amount    Decimal  @db.Decimal(15, 2)
+  currency  String   @default("SDG")
   taxAmount Decimal? @db.Decimal(15, 2)
   totalAmount Decimal @db.Decimal(15, 2)
 
@@ -208,6 +523,8 @@ model Expense {
   // Attachments
   receiptUrl    String?
   receiptName   String?
+  receiptNumber String?
+  notes         String? @db.Text
 
   // Approval workflow
   submittedAt DateTime?
@@ -217,21 +534,34 @@ model Expense {
   rejectedAt  DateTime?
   rejectedBy  String?
   rejectionReason String?
+  rejectedReason  String?
 
   // Linkage to operations
   shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
   clientId   String?
   projectId  String?
 
-  // Notes
-  notes String? @db.Text
+  // Workflow relations
+  submittedById String?
+  submittedByUser User?    @relation("SubmittedExpenses", fields: [submittedById], references: [id])
+
+  approvedById  String?
+  approvedByUser User?    @relation("ApprovedExpenses", fields: [approvedById], references: [id])
 
   // Relations
-  userId     String
-  user       User             @relation(fields: [userId], references: [id])
-  categoryId String
-  category   ExpenseCategory  @relation(fields: [categoryId], references: [id])
+  userId     String?
+  user       User?            @relation(fields: [userId], references: [id])
+  categoryId String?
+  category   ExpenseCategory? @relation(fields: [categoryId], references: [id])
   transactions Transaction[]
+
+  // Payment tracking
+  bankAccountId  String?
+  bankAccount    BankAccount?     @relation(fields: [bankAccountId], references: [id])
+
+  transactionId  String?          @unique
+  transaction    BankTransaction? @relation("ExpensePayment", fields: [transactionId], references: [id])
 
   // Journal entry
   journalEntryId String?
@@ -244,24 +574,9 @@ model Expense {
   @@index([categoryId])
   @@index([expenseDate])
   @@index([status])
+  @@index([shipmentId])
+  @@index([submittedById])
   @@map("expenses")
-}
-
-enum ExpenseStatus {
-  DRAFT
-  PENDING
-  APPROVED
-  REJECTED
-  PAID
-  CANCELLED
-}
-
-enum PaymentMethod {
-  CASH
-  BANK_TRANSFER
-  CHECK
-  CREDIT_CARD
-  MOBILE_PAYMENT
 }
 
 // ============================================================================
@@ -307,7 +622,7 @@ model BudgetItem {
   categoryCode String?
   description String?
 
-  // Amounts (stored in cents)
+  // Amounts
   allocated Decimal @db.Decimal(15, 2)
   spent     Decimal @default(0) @db.Decimal(15, 2)
   remaining Decimal @db.Decimal(15, 2)
@@ -330,68 +645,9 @@ model BudgetItem {
   @@map("budget_items")
 }
 
-enum BudgetStatus {
-  DRAFT
-  PENDING_APPROVAL
-  APPROVED
-  ACTIVE
-  CLOSED
-}
-
 // ============================================================================
 // PAYROLL & SALARY
 // ============================================================================
-
-model Employee {
-  id           String         @id @default(cuid())
-  employeeCode String
-  firstName    String
-  lastName     String
-  email        String?
-  phone        String?
-  department   String?
-  position     String?
-  status       EmployeeStatus @default(ACTIVE)
-
-  // Employment details
-  hireDate       DateTime
-  terminationDate DateTime?
-  employmentType  EmploymentType @default(FULL_TIME)
-
-  // Bank details for salary
-  bankName      String?
-  bankBranch    String?
-  accountNumber String?
-  iban          String?
-
-  // Relations
-  userId       String
-  user         User           @relation(fields: [userId], references: [id])
-  salary       Salary?
-  payrollItems PayrollItem[]
-  timesheets   Timesheet[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, employeeCode])
-  @@index([userId])
-  @@map("employees")
-}
-
-enum EmployeeStatus {
-  ACTIVE
-  ON_LEAVE
-  SUSPENDED
-  TERMINATED
-}
-
-enum EmploymentType {
-  FULL_TIME
-  PART_TIME
-  CONTRACT
-  TEMPORARY
-}
 
 model Salary {
   id String @id @default(cuid())
@@ -432,6 +688,57 @@ model Salary {
   @@map("salaries")
 }
 
+model SalaryStructure {
+  id          String                @id @default(cuid())
+  basicSalary Decimal               @db.Decimal(15, 2)
+  status      SalaryStructureStatus @default(ACTIVE)
+  effectiveFrom DateTime            @default(now())
+  effectiveTo   DateTime?
+
+  // Employee relation
+  employeeId  String
+  employee    Employee              @relation(fields: [employeeId], references: [id])
+
+  // Related allowances and deductions
+  allowances  SalaryAllowance[]
+  deductions  SalaryDeduction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("salary_structures")
+}
+
+model SalaryAllowance {
+  id          String          @id @default(cuid())
+  name        String
+  nameAr      String?
+  type        String          // HOUSING, TRANSPORT, MEAL, etc.
+  amount      Decimal         @db.Decimal(15, 2)
+  isPercentage Boolean        @default(false)
+
+  salaryStructureId String
+  salaryStructure   SalaryStructure @relation(fields: [salaryStructureId], references: [id], onDelete: Cascade)
+
+  @@map("salary_allowances")
+}
+
+model SalaryDeduction {
+  id          String          @id @default(cuid())
+  name        String
+  nameAr      String?
+  type        String          // TAX, SOCIAL_SECURITY, LOAN, etc.
+  amount      Decimal         @db.Decimal(15, 2)
+  isPercentage Boolean        @default(false)
+
+  salaryStructureId String
+  salaryStructure   SalaryStructure @relation(fields: [salaryStructureId], references: [id], onDelete: Cascade)
+
+  @@map("salary_deductions")
+}
+
 model Payroll {
   id           String        @id @default(cuid())
   payrollCode  String
@@ -461,7 +768,6 @@ model Payroll {
   // Relations
   userId String
   user   User          @relation(fields: [userId], references: [id])
-  items  PayrollItem[]
 
   // Journal entry
   journalEntryId String?
@@ -476,13 +782,49 @@ model Payroll {
   @@map("payrolls")
 }
 
+model PayrollRun {
+  id           String           @id @default(cuid())
+  runNumber    String           @unique // PR-2024-12
+  periodMonth  Int              // 1-12
+  periodYear   Int              // 2024
+  periodStart  DateTime
+  periodEnd    DateTime
+  totalGross   Decimal          @db.Decimal(15, 2) @default(0)
+  totalNet     Decimal          @db.Decimal(15, 2) @default(0)
+  status       PayrollRunStatus @default(DRAFT)
+
+  // Payment source
+  bankAccountId String?
+  bankAccount   BankAccount?     @relation(fields: [bankAccountId], references: [id])
+
+  // Processed by
+  processedById String?
+  processedBy   User?            @relation("ProcessedPayrolls", fields: [processedById], references: [id])
+
+  approvedAt    DateTime?
+  processedAt   DateTime?
+
+  // Related items
+  items         PayrollItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([periodMonth, periodYear])
+  @@index([status])
+  @@index([periodYear, periodMonth])
+  @@map("payroll_runs")
+}
+
 model PayrollItem {
-  id String @id @default(cuid())
+  id              String            @id @default(cuid())
+  slipNumber      String?           @unique // SLP-2024-12-001
 
   // Base pay
-  basicSalary Decimal @db.Decimal(15, 2)
+  basicSalary     Decimal           @db.Decimal(15, 2)
 
   // Allowances
+  totalAllowances Decimal           @db.Decimal(15, 2) @default(0)
   housingAllowance   Decimal @default(0) @db.Decimal(15, 2)
   transportAllowance Decimal @default(0) @db.Decimal(15, 2)
   mealAllowance      Decimal @default(0) @db.Decimal(15, 2)
@@ -492,16 +834,24 @@ model PayrollItem {
   overtimeHours  Decimal @default(0) @db.Decimal(5, 2)
   overtimeAmount Decimal @default(0) @db.Decimal(15, 2)
 
+  // Totals
+  grossSalary       Decimal @db.Decimal(15, 2)
+  grossAmount       Decimal? @db.Decimal(15, 2)
+
   // Deductions
+  totalDeductions   Decimal           @db.Decimal(15, 2) @default(0)
   socialSecurity  Decimal @default(0) @db.Decimal(15, 2)
   incomeTax       Decimal @default(0) @db.Decimal(15, 2)
   otherDeductions Decimal @default(0) @db.Decimal(15, 2)
   loanDeduction   Decimal @default(0) @db.Decimal(15, 2)
 
-  // Totals
-  grossAmount       Decimal @db.Decimal(15, 2)
-  totalDeductions   Decimal @db.Decimal(15, 2)
-  netAmount         Decimal @db.Decimal(15, 2)
+  // Net
+  netSalary       Decimal           @db.Decimal(15, 2)
+  netAmount       Decimal?          @db.Decimal(15, 2)
+
+  // Working details
+  workingDays     Int               @default(30)
+  absentDays      Int               @default(0)
 
   // Status
   status PayrollItemStatus @default(PENDING)
@@ -510,35 +860,26 @@ model PayrollItem {
   // Notes
   notes String?
 
-  // Relations
-  payrollId  String
-  payroll    Payroll  @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  // Relations - supports both Payroll and PayrollRun
+  payrollId  String?
+  payroll    Payroll?  @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollRunId String?
+  payrollRun   PayrollRun? @relation(fields: [payrollRunId], references: [id])
   employeeId String
   employee   Employee @relation(fields: [employeeId], references: [id])
+
+  // Payment tracking
+  transactionId   String?           @unique
+  transaction     BankTransaction?  @relation("PayrollPayment", fields: [transactionId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([payrollId, employeeId])
   @@index([payrollId])
+  @@index([payrollRunId])
   @@index([employeeId])
+  @@index([status])
   @@map("payroll_items")
-}
-
-enum PayrollStatus {
-  DRAFT
-  PROCESSING
-  PENDING_APPROVAL
-  APPROVED
-  PAID
-  CANCELLED
-}
-
-enum PayrollItemStatus {
-  PENDING
-  APPROVED
-  PAID
-  CANCELLED
 }
 
 // ============================================================================
@@ -610,13 +951,6 @@ model TimesheetEntry {
   @@map("timesheet_entries")
 }
 
-enum TimesheetStatus {
-  DRAFT
-  SUBMITTED
-  APPROVED
-  REJECTED
-}
-
 // ============================================================================
 // CLIENT WALLET / DEPOSITS
 // ============================================================================
@@ -668,21 +1002,6 @@ model WalletTransaction {
   @@map("wallet_transactions")
 }
 
-enum WalletStatus {
-  ACTIVE
-  FROZEN
-  CLOSED
-}
-
-enum WalletTransactionType {
-  DEPOSIT
-  WITHDRAWAL
-  INVOICE_PAYMENT
-  REFUND
-  ADJUSTMENT
-  DUTY_PAYMENT
-}
-
 // ============================================================================
 // DOUBLE-ENTRY ACCOUNTING
 // ============================================================================
@@ -721,19 +1040,6 @@ model ChartOfAccount {
   @@index([userId])
   @@index([accountType])
   @@map("chart_of_accounts")
-}
-
-enum AccountType {
-  ASSET
-  LIABILITY
-  EQUITY
-  REVENUE
-  EXPENSE
-}
-
-enum NormalBalance {
-  DEBIT
-  CREDIT
 }
 
 model JournalEntry {
@@ -801,13 +1107,6 @@ model JournalLine {
   @@map("journal_lines")
 }
 
-enum JournalEntryStatus {
-  DRAFT
-  PENDING
-  POSTED
-  REVERSED
-}
-
 model FiscalYear {
   id        String           @id @default(cuid())
   name      String
@@ -831,12 +1130,6 @@ model FiscalYear {
   @@unique([userId, name])
   @@index([userId])
   @@map("fiscal_years")
-}
-
-enum FiscalYearStatus {
-  OPEN
-  CLOSING
-  CLOSED
 }
 
 // ============================================================================
@@ -895,22 +1188,6 @@ model Receipt {
   @@map("receipts")
 }
 
-enum ReceiptType {
-  PAYMENT_RECEIVED
-  PAYMENT_MADE
-  DUTY_PAYMENT
-  FEE_PAYMENT
-  REFUND
-  DEPOSIT
-}
-
-enum ReceiptStatus {
-  PENDING
-  VERIFIED
-  POSTED
-  CANCELLED
-}
-
 // ============================================================================
 // FEE TEMPLATES (Customs Clearance Specific)
 // ============================================================================
@@ -952,28 +1229,40 @@ model FeeTemplate {
   @@map("fee_templates")
 }
 
-enum FeeType {
-  CLEARANCE_SERVICE
-  DOCUMENTATION
-  CUSTOMS_DUTY
-  PORT_CHARGE
-  TERMINAL_CHARGE
-  TRANSPORTATION
-  STORAGE
-  DEMURRAGE
-  INSPECTION
-  INSURANCE
-  BANK_CHARGE
-  GOVERNMENT_LEVY
-  HANDLING
-  OTHER
-}
+// ============================================================================
+// CUSTOMS PAYMENT
+// ============================================================================
 
-enum FeeCalculationType {
-  FIXED
-  PERCENTAGE_OF_VALUE
-  PER_UNIT
-  PER_CONTAINER
-  PER_WEIGHT
-  TIERED
+model CustomsPayment {
+  id            String               @id @default(cuid())
+  paymentRef    String               @unique // CP-20241229-001
+  paymentType   CustomsPaymentType
+  amount        Decimal              @db.Decimal(15, 2)
+  authority     String               // Sudan Customs, Port Sudan Port, etc.
+  authorityRef  String?              // Authority's reference number
+  paymentDate   DateTime             @default(now())
+  status        CustomsPaymentStatus @default(PENDING)
+  notes         String?
+  receiptUrl    String?
+
+  // Link to declaration
+  declarationId String
+  declaration   CustomsDeclaration   @relation(fields: [declarationId], references: [id])
+
+  // Payment tracking
+  transactionId String?              @unique
+  transaction   BankTransaction?     @relation("CustomsPaymentTransaction", fields: [transactionId], references: [id])
+
+  // Created by
+  createdById   String
+  createdBy     User                 @relation("CreatedCustomsPayments", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([declarationId])
+  @@index([paymentType])
+  @@index([status])
+  @@index([paymentDate])
+  @@map("customs_payments")
 }

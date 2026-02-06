@@ -1,654 +1,705 @@
-/**
- * Expenses Module - Server Actions
- * Full CRUD implementation with Prisma
- */
-
 "use server"
 
 import { revalidatePath } from "next/cache"
-
-import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { auth } from "@/auth"
+import { ExpenseStatus } from "@prisma/client"
+import { z } from "zod"
 
-import { EXPENSE_LIMITS } from "./config"
-import type {
-  ExpenseActionResult,
-  ExpenseDashboardStats,
-  ExpenseWithDetails,
-} from "./types"
-import { expenseApprovalSchema, expenseSchema, expenseCategorySchema } from "./validation"
-
-// ============================================================================
-// EXPENSE CRUD
-// ============================================================================
-
-export async function createExpense(
-  formData: FormData
-): Promise<ExpenseActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const rawData = {
-      amount: parseFloat(formData.get("amount") as string),
-      description: formData.get("description") as string,
-      expenseDate: formData.get("expenseDate") as string,
-      categoryId: formData.get("categoryId") as string,
-      receiptUrl: formData.get("receiptUrl") as string || null,
-      notes: formData.get("notes") as string || null,
-    }
-
-    const validated = expenseSchema.safeParse(rawData)
-    if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
-    }
-
-    const data = validated.data
-    const userId = session.user.id
-
-    // Calculate tax (simplified - could be configurable)
-    const taxRate = 0 // Sudan has variable VAT, set to 0 for now
-    const taxAmount = data.amount * taxRate
-    const totalAmount = data.amount + taxAmount
-
-    // Determine initial status based on amount threshold
-    const autoApprove = data.amount <= EXPENSE_LIMITS.MAX_AMOUNT_WITHOUT_APPROVAL / 100
-
-    const expense = await db.expense.create({
-      data: {
-        description: data.description,
-        expenseDate: data.expenseDate,
-        amount: data.amount,
-        taxAmount: taxAmount,
-        totalAmount: totalAmount,
-        currency: "SDG",
-        status: autoApprove ? "APPROVED" : "PENDING",
-        receiptUrl: data.receiptUrl,
-        notes: data.notes,
-        submittedAt: new Date(),
-        submittedBy: userId,
-        approvedAt: autoApprove ? new Date() : null,
-        approvedBy: autoApprove ? userId : null,
-        categoryId: data.categoryId,
-        userId: userId,
-      },
-      include: {
-        category: { select: { id: true, name: true } },
-        user: { select: { id: true, name: true } },
-      },
-    })
-
-    revalidatePath("/finance/expenses")
-    revalidatePath("/finance/dashboard")
-
-    return {
-      success: true,
-      data: {
-        id: expense.id,
-        amount: Number(expense.amount),
-        description: expense.description,
-        expenseDate: expense.expenseDate,
-        status: expense.status as any,
-        categoryId: expense.categoryId,
-        submittedById: expense.submittedBy || expense.userId,
-        approvedById: expense.approvedBy,
-        approvedAt: expense.approvedAt,
-        receiptUrl: expense.receiptUrl,
-        category: expense.category,
-        submittedBy: expense.user,
-        companyId: expense.userId, // Using userId as tenant
-      },
-    }
-  } catch (error) {
-    console.error("Error creating expense:", error)
-    return { success: false, error: "Failed to create expense" }
-  }
+// Types
+type ActionResult<T = void> = {
+  success: boolean
+  data?: T
+  error?: string
 }
 
-export async function updateExpense(
-  expenseId: string,
-  formData: FormData
-): Promise<ExpenseActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
+// Validation schemas
+const createExpenseSchema = z.object({
+  categoryId: z.string().optional(),
+  amount: z.number().positive("Amount must be positive"),
+  description: z.string().min(1, "Description is required"),
+  vendor: z.string().optional(),
+  expenseDate: z.date().optional(),
+  receiptUrl: z.string().optional(),
+  receiptNumber: z.string().optional(),
+  notes: z.string().optional(),
+  shipmentId: z.string().optional(),
+  bankAccountId: z.string().optional(),
+})
 
-  try {
-    // Check ownership
-    const existing = await db.expense.findFirst({
-      where: { id: expenseId, userId: session.user.id },
-    })
+const createCategorySchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  nameAr: z.string().optional(),
+  code: z.string().min(1, "Code is required"),
+  description: z.string().optional(),
+  monthlyBudget: z.number().optional(),
+})
 
-    if (!existing) {
-      return { success: false, error: "Expense not found" }
-    }
+export type CreateExpenseInput = z.infer<typeof createExpenseSchema>
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 
-    if (existing.status !== "DRAFT" && existing.status !== "PENDING") {
-      return { success: false, error: "Cannot update an approved or paid expense" }
-    }
-
-    const rawData = {
-      amount: parseFloat(formData.get("amount") as string),
-      description: formData.get("description") as string,
-      expenseDate: formData.get("expenseDate") as string,
-      categoryId: formData.get("categoryId") as string,
-      receiptUrl: formData.get("receiptUrl") as string || null,
-      notes: formData.get("notes") as string || null,
-    }
-
-    const validated = expenseSchema.safeParse(rawData)
-    if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
-    }
-
-    const data = validated.data
-    const taxAmount = 0
-    const totalAmount = data.amount + taxAmount
-
-    const expense = await db.expense.update({
-      where: { id: expenseId },
-      data: {
-        description: data.description,
-        expenseDate: data.expenseDate,
-        amount: data.amount,
-        taxAmount: taxAmount,
-        totalAmount: totalAmount,
-        receiptUrl: data.receiptUrl,
-        notes: data.notes,
-        categoryId: data.categoryId,
-      },
-      include: {
-        category: { select: { id: true, name: true } },
-        user: { select: { id: true, name: true } },
-      },
-    })
-
-    revalidatePath("/finance/expenses")
-
-    return {
-      success: true,
-      data: {
-        id: expense.id,
-        amount: Number(expense.amount),
-        description: expense.description,
-        expenseDate: expense.expenseDate,
-        status: expense.status as any,
-        categoryId: expense.categoryId,
-        submittedById: expense.submittedBy || expense.userId,
-        approvedById: expense.approvedBy,
-        approvedAt: expense.approvedAt,
-        receiptUrl: expense.receiptUrl,
-        category: expense.category,
-        submittedBy: expense.user,
-        companyId: expense.userId,
-      },
-    }
-  } catch (error) {
-    console.error("Error updating expense:", error)
-    return { success: false, error: "Failed to update expense" }
-  }
+// Helper: Generate expense number
+function generateExpenseNumber(): string {
+  const date = new Date()
+  const dateStr = date.toISOString().slice(0, 10).replace(/-/g, "")
+  const random = Math.random().toString(36).substring(2, 5).toUpperCase()
+  return `EXP-${dateStr}-${random}`
 }
 
-export async function deleteExpense(expenseId: string): Promise<ExpenseActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
+// ============================================
+// EXPENSE CATEGORY MANAGEMENT
+// ============================================
 
+export async function getExpenseCategories(): Promise<ActionResult<unknown[]>> {
   try {
-    const existing = await db.expense.findFirst({
-      where: { id: expenseId, userId: session.user.id },
-    })
-
-    if (!existing) {
-      return { success: false, error: "Expense not found" }
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
     }
 
-    if (existing.status === "PAID") {
-      return { success: false, error: "Cannot delete a paid expense" }
-    }
-
-    await db.expense.delete({ where: { id: expenseId } })
-
-    revalidatePath("/finance/expenses")
-    revalidatePath("/finance/dashboard")
-
-    return { success: true }
-  } catch (error) {
-    console.error("Error deleting expense:", error)
-    return { success: false, error: "Failed to delete expense" }
-  }
-}
-
-// ============================================================================
-// EXPENSE APPROVAL
-// ============================================================================
-
-export async function approveExpense(
-  formData: FormData
-): Promise<ExpenseActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  // Check if user has approval permission (Admin, Manager)
-  const userRole = session.user.role
-  if (!["ADMIN", "MANAGER"].includes(userRole || "")) {
-    return { success: false, error: "You do not have permission to approve expenses" }
-  }
-
-  try {
-    const rawData = {
-      expenseId: formData.get("expenseId") as string,
-      status: formData.get("status") as "APPROVED" | "REJECTED",
-      notes: formData.get("notes") as string || undefined,
-    }
-
-    const validated = expenseApprovalSchema.safeParse(rawData)
-    if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
-    }
-
-    const { expenseId, status, notes } = validated.data
-
-    const existing = await db.expense.findFirst({
-      where: { id: expenseId, userId: session.user.id },
-    })
-
-    if (!existing) {
-      return { success: false, error: "Expense not found" }
-    }
-
-    if (existing.status !== "PENDING") {
-      return { success: false, error: "Expense is not pending approval" }
-    }
-
-    const expense = await db.expense.update({
-      where: { id: expenseId },
-      data: {
-        status: status,
-        approvedAt: status === "APPROVED" ? new Date() : null,
-        approvedBy: status === "APPROVED" ? session.user.id : null,
-        rejectedAt: status === "REJECTED" ? new Date() : null,
-        rejectedBy: status === "REJECTED" ? session.user.id : null,
-        rejectionReason: status === "REJECTED" ? notes : null,
-      },
-      include: {
-        category: { select: { id: true, name: true } },
-        user: { select: { id: true, name: true } },
-      },
-    })
-
-    revalidatePath("/finance/expenses")
-    revalidatePath("/finance/dashboard")
-
-    return {
-      success: true,
-      data: {
-        id: expense.id,
-        amount: Number(expense.amount),
-        description: expense.description,
-        expenseDate: expense.expenseDate,
-        status: expense.status as any,
-        categoryId: expense.categoryId,
-        submittedById: expense.submittedBy || expense.userId,
-        approvedById: expense.approvedBy,
-        approvedAt: expense.approvedAt,
-        receiptUrl: expense.receiptUrl,
-        category: expense.category,
-        submittedBy: expense.user,
-        companyId: expense.userId,
-      },
-    }
-  } catch (error) {
-    console.error("Error approving expense:", error)
-    return { success: false, error: "Failed to process approval" }
-  }
-}
-
-export async function markExpenseAsPaid(
-  expenseId: string,
-  paymentMethod: string,
-  bankAccountId?: string
-): Promise<ExpenseActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const existing = await db.expense.findFirst({
-      where: { id: expenseId, userId: session.user.id },
-    })
-
-    if (!existing) {
-      return { success: false, error: "Expense not found" }
-    }
-
-    if (existing.status !== "APPROVED") {
-      return { success: false, error: "Expense must be approved before marking as paid" }
-    }
-
-    // Start a transaction
-    const result = await db.$transaction(async (tx) => {
-      // Update expense
-      const expense = await tx.expense.update({
-        where: { id: expenseId },
-        data: {
-          status: "PAID",
-          paidAt: new Date(),
-          paymentMethod: paymentMethod as any,
-        },
-        include: {
-          category: { select: { id: true, name: true } },
-          user: { select: { id: true, name: true } },
-        },
-      })
-
-      // Create transaction record if bank account provided
-      if (bankAccountId) {
-        await tx.transaction.create({
-          data: {
-            transactionDate: new Date(),
-            description: `Expense: ${expense.description}`,
-            type: "DEBIT",
-            category: "OTHER_EXPENSE",
-            amount: expense.totalAmount,
-            currency: expense.currency,
-            status: "COMPLETED",
-            expenseId: expense.id,
-            userId: session.user.id,
-            bankAccountId: bankAccountId,
-          },
-        })
-
-        // Update bank balance
-        await tx.bankAccount.update({
-          where: { id: bankAccountId },
-          data: {
-            currentBalance: { decrement: expense.totalAmount },
-          },
-        })
-      }
-
-      return expense
-    })
-
-    revalidatePath("/finance/expenses")
-    revalidatePath("/finance/banking")
-    revalidatePath("/finance/dashboard")
-
-    return {
-      success: true,
-      data: {
-        id: result.id,
-        amount: Number(result.amount),
-        description: result.description,
-        expenseDate: result.expenseDate,
-        status: result.status as any,
-        categoryId: result.categoryId,
-        submittedById: result.submittedBy || result.userId,
-        approvedById: result.approvedBy,
-        approvedAt: result.approvedAt,
-        receiptUrl: result.receiptUrl,
-        category: result.category,
-        submittedBy: result.user,
-        companyId: result.userId,
-      },
-    }
-  } catch (error) {
-    console.error("Error marking expense as paid:", error)
-    return { success: false, error: "Failed to process payment" }
-  }
-}
-
-// ============================================================================
-// EXPENSE CATEGORIES
-// ============================================================================
-
-export async function createExpenseCategory(
-  formData: FormData
-): Promise<{ success: boolean; data?: { id: string; name: string }; error?: string }> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const rawData = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string || undefined,
-      isActive: formData.get("isActive") === "true",
-    }
-
-    const validated = expenseCategorySchema.safeParse(rawData)
-    if (!validated.success) {
-      return { success: false, error: validated.error.errors[0].message }
-    }
-
-    const data = validated.data
-
-    // Generate code from name
-    const code = data.name.toUpperCase().replace(/\s+/g, "_").slice(0, 20)
-
-    const category = await db.expenseCategory.create({
-      data: {
-        name: data.name,
-        code: code,
-        description: data.description,
-        isActive: data.isActive,
-        userId: session.user.id,
-      },
-    })
-
-    revalidatePath("/finance/expenses")
-
-    return { success: true, data: { id: category.id, name: category.name } }
-  } catch (error) {
-    console.error("Error creating expense category:", error)
-    return { success: false, error: "Failed to create category" }
-  }
-}
-
-export async function getExpenseCategories() {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return []
-  }
-
-  try {
     const categories = await db.expenseCategory.findMany({
-      where: { userId: session.user.id, isActive: true },
-      select: { id: true, name: true, nameAr: true, code: true },
+      where: { isActive: true },
       orderBy: { name: "asc" },
     })
 
-    return categories
+    return {
+      success: true,
+      data: categories.map((c) => ({
+        ...c,
+        monthlyBudget: c.monthlyBudget ? Number(c.monthlyBudget) : null,
+      })),
+    }
   } catch (error) {
-    console.error("Error fetching expense categories:", error)
-    return []
+    console.error("Error fetching categories:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch categories",
+    }
   }
 }
 
-// ============================================================================
-// EXPENSE QUERIES
-// ============================================================================
+export async function createExpenseCategory(
+  input: CreateCategoryInput
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
 
-export async function getExpenses(filters?: {
-  status?: string
+    const validated = createCategorySchema.parse(input)
+
+    const category = await db.expenseCategory.create({
+      data: {
+        name: validated.name,
+        nameAr: validated.nameAr,
+        code: validated.code,
+        description: validated.description,
+        monthlyBudget: validated.monthlyBudget,
+        isActive: true,
+      },
+    })
+
+    revalidatePath("/finance/expenses")
+
+    return { success: true, data: { id: category.id } }
+  } catch (error) {
+    console.error("Error creating category:", error)
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.issues[0]?.message ?? "Validation error" }
+    }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create category",
+    }
+  }
+}
+
+// ============================================
+// EXPENSE MANAGEMENT
+// ============================================
+
+export async function getExpenses(params?: {
+  status?: ExpenseStatus
   categoryId?: string
+  shipmentId?: string
   startDate?: Date
   endDate?: Date
-  search?: string
   page?: number
-  limit?: number
-}): Promise<{
-  success: boolean
-  data: ExpenseWithDetails[]
+  pageSize?: number
+}): Promise<ActionResult<{
+  data: unknown[]
   total: number
   page: number
-  totalPages: number
-}> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, data: [], total: 0, page: 1, totalPages: 1 }
-  }
-
+  pageSize: number
+  hasMore: boolean
+}>> {
   try {
-    const page = filters?.page || 1
-    const limit = filters?.limit || 20
-    const skip = (page - 1) * limit
-
-    const where: any = { userId: session.user.id }
-
-    if (filters?.status) {
-      where.status = filters.status
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
     }
 
-    if (filters?.categoryId) {
-      where.categoryId = filters.categoryId
-    }
+    const page = params?.page || 1
+    const pageSize = params?.pageSize || 20
+    const skip = (page - 1) * pageSize
 
-    if (filters?.startDate || filters?.endDate) {
+    const where: Record<string, unknown> = {}
+
+    if (params?.status) where.status = params.status
+    if (params?.categoryId) where.categoryId = params.categoryId
+    if (params?.shipmentId) where.shipmentId = params.shipmentId
+
+    if (params?.startDate || params?.endDate) {
       where.expenseDate = {}
-      if (filters.startDate) where.expenseDate.gte = filters.startDate
-      if (filters.endDate) where.expenseDate.lte = filters.endDate
-    }
-
-    if (filters?.search) {
-      where.description = { contains: filters.search, mode: "insensitive" }
+      if (params.startDate) {
+        (where.expenseDate as Record<string, Date>).gte = params.startDate
+      }
+      if (params.endDate) {
+        (where.expenseDate as Record<string, Date>).lte = params.endDate
+      }
     }
 
     const [expenses, total] = await Promise.all([
       db.expense.findMany({
         where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
         include: {
-          category: { select: { id: true, name: true } },
-          user: { select: { id: true, name: true } },
+          category: true,
+          shipment: {
+            select: {
+              id: true,
+              shipmentNumber: true,
+              description: true,
+            },
+          },
+          submittedBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          approvedBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
         },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: pageSize,
       }),
       db.expense.count({ where }),
     ])
 
     return {
       success: true,
-      data: expenses.map((e) => ({
-        id: e.id,
-        amount: Number(e.amount),
-        description: e.description,
-        expenseDate: e.expenseDate,
-        status: e.status as any,
-        categoryId: e.categoryId,
-        submittedById: e.submittedBy || e.userId,
-        approvedById: e.approvedBy,
-        approvedAt: e.approvedAt,
-        receiptUrl: e.receiptUrl,
-        category: e.category,
-        submittedBy: e.user,
-        companyId: e.userId,
-      })),
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
+      data: {
+        data: expenses.map((e) => ({
+          ...e,
+          amount: Number(e.amount),
+        })),
+        total,
+        page,
+        pageSize,
+        hasMore: skip + expenses.length < total,
+      },
     }
   } catch (error) {
     console.error("Error fetching expenses:", error)
-    return { success: false, data: [], total: 0, page: 1, totalPages: 1 }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch expenses",
+    }
   }
 }
 
-export async function getExpenseById(
-  expenseId: string
-): Promise<ExpenseWithDetails | null> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return null
-  }
-
+export async function getExpense(expenseId: string): Promise<ActionResult<unknown>> {
   try {
-    const expense = await db.expense.findFirst({
-      where: { id: expenseId, userId: session.user.id },
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const expense = await db.expense.findUnique({
+      where: { id: expenseId },
       include: {
-        category: { select: { id: true, name: true } },
-        user: { select: { id: true, name: true } },
+        category: true,
+        shipment: {
+          select: {
+            id: true,
+            shipmentNumber: true,
+            description: true,
+          },
+        },
+        submittedBy: {
+          select: { id: true, name: true, email: true },
+        },
+        approvedBy: {
+          select: { id: true, name: true, email: true },
+        },
+        transaction: true,
+        bankAccount: {
+          select: { id: true, accountName: true, bankName: true },
+        },
       },
     })
 
-    if (!expense) return null
+    if (!expense) {
+      return { success: false, error: "Expense not found" }
+    }
 
     return {
-      id: expense.id,
-      amount: Number(expense.amount),
-      description: expense.description,
-      expenseDate: expense.expenseDate,
-      status: expense.status as any,
-      categoryId: expense.categoryId,
-      submittedById: expense.submittedBy || expense.userId,
-      approvedById: expense.approvedBy,
-      approvedAt: expense.approvedAt,
-      receiptUrl: expense.receiptUrl,
-      category: expense.category,
-      submittedBy: expense.user,
-      companyId: expense.userId,
+      success: true,
+      data: {
+        ...expense,
+        amount: Number(expense.amount),
+      },
     }
   } catch (error) {
     console.error("Error fetching expense:", error)
-    return null
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch expense",
+    }
   }
 }
 
-export async function getExpenseDashboardStats(): Promise<ExpenseDashboardStats> {
-  const session = await auth()
-  if (!session?.user?.id) {
+export async function createExpense(
+  input: CreateExpenseInput
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const validated = createExpenseSchema.parse(input)
+
+    const expense = await db.expense.create({
+      data: {
+        expenseNumber: generateExpenseNumber(),
+        amount: validated.amount,
+        description: validated.description,
+        vendor: validated.vendor,
+        expenseDate: validated.expenseDate || new Date(),
+        receiptUrl: validated.receiptUrl,
+        receiptNumber: validated.receiptNumber,
+        notes: validated.notes,
+        categoryId: validated.categoryId,
+        shipmentId: validated.shipmentId,
+        bankAccountId: validated.bankAccountId,
+        submittedById: session.user.id,
+        status: "PENDING",
+      },
+    })
+
+    revalidatePath("/finance/expenses")
+
+    return { success: true, data: { id: expense.id } }
+  } catch (error) {
+    console.error("Error creating expense:", error)
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.issues[0]?.message ?? "Validation error" }
+    }
     return {
-      categoriesCount: 0,
-      expensesCount: 0,
-      pendingExpensesCount: 0,
-      approvedExpensesCount: 0,
-      totalExpenses: 0,
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create expense",
     }
   }
+}
 
+export async function updateExpense(
+  expenseId: string,
+  input: Partial<CreateExpenseInput>
+): Promise<ActionResult> {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const expense = await db.expense.findUnique({
+      where: { id: expenseId },
+    })
+
+    if (!expense) {
+      return { success: false, error: "Expense not found" }
+    }
+
+    if (expense.status !== "PENDING") {
+      return { success: false, error: "Only pending expenses can be edited" }
+    }
+
+    await db.expense.update({
+      where: { id: expenseId },
+      data: input,
+    })
+
+    revalidatePath("/finance/expenses")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating expense:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update expense",
+    }
+  }
+}
+
+export async function deleteExpense(expenseId: string): Promise<ActionResult> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const expense = await db.expense.findUnique({
+      where: { id: expenseId },
+    })
+
+    if (!expense) {
+      return { success: false, error: "Expense not found" }
+    }
+
+    if (expense.status === "PAID") {
+      return { success: false, error: "Paid expenses cannot be deleted" }
+    }
+
+    await db.expense.delete({
+      where: { id: expenseId },
+    })
+
+    revalidatePath("/finance/expenses")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting expense:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete expense",
+    }
+  }
+}
+
+// ============================================
+// APPROVAL WORKFLOW
+// ============================================
+
+export async function approveExpense(expenseId: string): Promise<ActionResult> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const expense = await db.expense.findUnique({
+      where: { id: expenseId },
+    })
+
+    if (!expense) {
+      return { success: false, error: "Expense not found" }
+    }
+
+    if (expense.status !== "PENDING") {
+      return { success: false, error: "Expense is not pending approval" }
+    }
+
+    await db.expense.update({
+      where: { id: expenseId },
+      data: {
+        status: "APPROVED",
+        approvedById: session.user.id,
+        approvedAt: new Date(),
+      },
+    })
+
+    revalidatePath("/finance/expenses")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error approving expense:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to approve expense",
+    }
+  }
+}
+
+export async function rejectExpense(
+  expenseId: string,
+  reason: string
+): Promise<ActionResult> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const expense = await db.expense.findUnique({
+      where: { id: expenseId },
+    })
+
+    if (!expense) {
+      return { success: false, error: "Expense not found" }
+    }
+
+    if (expense.status !== "PENDING") {
+      return { success: false, error: "Expense is not pending approval" }
+    }
+
+    await db.expense.update({
+      where: { id: expenseId },
+      data: {
+        status: "REJECTED",
+        approvedById: session.user.id,
+        approvedAt: new Date(),
+        rejectedReason: reason,
+      },
+    })
+
+    revalidatePath("/finance/expenses")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error rejecting expense:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to reject expense",
+    }
+  }
+}
+
+// ============================================
+// PAYMENT PROCESSING
+// ============================================
+
+export async function markExpenseAsPaid(
+  expenseId: string,
+  bankAccountId: string
+): Promise<ActionResult> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const expense = await db.expense.findUnique({
+      where: { id: expenseId },
+    })
+
+    if (!expense) {
+      return { success: false, error: "Expense not found" }
+    }
+
+    if (expense.status !== "APPROVED") {
+      return { success: false, error: "Expense must be approved before payment" }
+    }
+
+    const bankAccount = await db.bankAccount.findFirst({
+      where: {
+        id: bankAccountId,
+        userId: session.user.id,
+        isActive: true,
+      },
+    })
+
+    if (!bankAccount) {
+      return { success: false, error: "Bank account not found" }
+    }
+
+    const amount = Number(expense.amount)
+    const currentBalance = Number(bankAccount.currentBalance)
+    const newBalance = currentBalance - amount
+
+    await db.$transaction(async (tx) => {
+      // Create bank transaction
+      const transaction = await tx.bankTransaction.create({
+        data: {
+          transactionRef: `EXP-${expense.expenseNumber}`,
+          type: "DEBIT",
+          amount,
+          balanceAfter: newBalance,
+          description: `Expense payment - ${expense.description}`,
+          reference: expense.expenseNumber,
+          transactionDate: new Date(),
+          sourceType: "EXPENSE",
+          sourceId: expense.id,
+          bankAccountId,
+        },
+      })
+
+      // Update expense
+      await tx.expense.update({
+        where: { id: expenseId },
+        data: {
+          status: "PAID",
+          transactionId: transaction.id,
+          bankAccountId,
+          paidAt: new Date(),
+        },
+      })
+
+      // Update bank account balance
+      await tx.bankAccount.update({
+        where: { id: bankAccountId },
+        data: { currentBalance: newBalance },
+      })
+    })
+
+    revalidatePath("/finance/expenses")
+    revalidatePath("/finance/banking")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error marking expense as paid:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to process payment",
+    }
+  }
+}
+
+// ============================================
+// REPORTING
+// ============================================
+
+export async function getExpenseSummary(params?: {
+  startDate?: Date
+  endDate?: Date
+}): Promise<ActionResult<{
+  totalExpenses: number
+  pendingExpenses: number
+  approvedExpenses: number
+  paidExpenses: number
+  totalPendingAmount: number
+  totalApprovedAmount: number
+  totalPaidAmount: number
+  byCategory: { categoryId: string; name: string; total: number }[]
+}>> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const dateFilter: Record<string, unknown> = {}
+    if (params?.startDate || params?.endDate) {
+      dateFilter.expenseDate = {}
+      if (params.startDate) {
+        (dateFilter.expenseDate as Record<string, Date>).gte = params.startDate
+      }
+      if (params.endDate) {
+        (dateFilter.expenseDate as Record<string, Date>).lte = params.endDate
+      }
+    }
+
     const [
-      categoriesCount,
-      expensesCount,
-      pendingExpensesCount,
-      approvedExpensesCount,
-      totalExpensesSum,
+      totalExpenses,
+      pendingExpenses,
+      approvedExpenses,
+      paidExpenses,
+      pendingAmount,
+      approvedAmount,
+      paidAmount,
+      byCategory,
     ] = await Promise.all([
-      db.expenseCategory.count({ where: { userId: session.user.id } }),
-      db.expense.count({ where: { userId: session.user.id } }),
-      db.expense.count({ where: { userId: session.user.id, status: "PENDING" } }),
-      db.expense.count({ where: { userId: session.user.id, status: "APPROVED" } }),
+      db.expense.count({ where: dateFilter }),
+      db.expense.count({ where: { ...dateFilter, status: "PENDING" } }),
+      db.expense.count({ where: { ...dateFilter, status: "APPROVED" } }),
+      db.expense.count({ where: { ...dateFilter, status: "PAID" } }),
       db.expense.aggregate({
-        where: { userId: session.user.id, status: { in: ["APPROVED", "PAID"] } },
-        _sum: { totalAmount: true },
+        where: { ...dateFilter, status: "PENDING" },
+        _sum: { amount: true },
+      }),
+      db.expense.aggregate({
+        where: { ...dateFilter, status: "APPROVED" },
+        _sum: { amount: true },
+      }),
+      db.expense.aggregate({
+        where: { ...dateFilter, status: "PAID" },
+        _sum: { amount: true },
+      }),
+      db.expense.groupBy({
+        by: ["categoryId"],
+        where: dateFilter,
+        _sum: { amount: true },
       }),
     ])
 
+    // Get category names
+    const categoryIds = byCategory
+      .map((c) => c.categoryId)
+      .filter((id): id is string => id !== null)
+
+    const categories = await db.expenseCategory.findMany({
+      where: { id: { in: categoryIds } },
+      select: { id: true, name: true },
+    })
+
+    const categoryMap = new Map(categories.map((c) => [c.id, c.name]))
+
     return {
-      categoriesCount,
-      expensesCount,
-      pendingExpensesCount,
-      approvedExpensesCount,
-      totalExpenses: Number(totalExpensesSum._sum.totalAmount || 0),
+      success: true,
+      data: {
+        totalExpenses,
+        pendingExpenses,
+        approvedExpenses,
+        paidExpenses,
+        totalPendingAmount: Number(pendingAmount._sum.amount || 0),
+        totalApprovedAmount: Number(approvedAmount._sum.amount || 0),
+        totalPaidAmount: Number(paidAmount._sum.amount || 0),
+        byCategory: byCategory.map((c) => ({
+          categoryId: c.categoryId || "uncategorized",
+          name: c.categoryId ? categoryMap.get(c.categoryId) || "Unknown" : "Uncategorized",
+          total: Number(c._sum.amount || 0),
+        })),
+      },
     }
   } catch (error) {
-    console.error("Error fetching expense dashboard stats:", error)
+    console.error("Error fetching expense summary:", error)
     return {
-      categoriesCount: 0,
-      expensesCount: 0,
-      pendingExpensesCount: 0,
-      approvedExpensesCount: 0,
-      totalExpenses: 0,
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch summary",
+    }
+  }
+}
+
+export async function getExpensesByShipment(
+  shipmentId: string
+): Promise<ActionResult<unknown[]>> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const expenses = await db.expense.findMany({
+      where: { shipmentId },
+      include: {
+        category: true,
+        submittedBy: {
+          select: { id: true, name: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    })
+
+    return {
+      success: true,
+      data: expenses.map((e) => ({
+        ...e,
+        amount: Number(e.amount),
+      })),
+    }
+  } catch (error) {
+    console.error("Error fetching shipment expenses:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch expenses",
     }
   }
 }

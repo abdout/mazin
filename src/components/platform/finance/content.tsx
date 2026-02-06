@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import {
   Anchor,
   ChevronRight,
@@ -15,50 +16,90 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Locale } from "@/components/internationalization/config"
+import type { Dictionary } from "@/components/internationalization/types"
 import {
   AreaChartStacked,
   InteractiveBarChart,
   RadialTextChart,
 } from "@/components/platform/dashboard/charts"
+import { getAccounts } from "./banking/actions/bank.actions"
+import { getPayrollSummary } from "./payroll/actions"
+import { getExpenseSummary } from "./expenses/actions"
 
 interface Props {
-  dictionary?: Record<string, any>
+  dictionary?: Dictionary
   lang: Locale
-  data?: {
-    totalRevenue: number
-    totalExpenses: number
-    pendingPayments: number
-    unpaidInvoices: number
-    invoicesCount: number
-    clientsWithChargesCount: number
-    employeesWithSalaryCount: number
-    pendingPayrollCount: number
-    reportsCount: number
-  }
 }
 
-export default function FinanceContent({ lang, dictionary, data }: Props) {
-  const isRTL = lang === "ar"
+interface FinanceData {
+  totalBalance: number
+  totalExpenses: number
+  pendingPayroll: number
+  unpaidInvoices: number
+  invoicesCount: number
+  clientsWithChargesCount: number
+  employeesWithSalaryCount: number
+  pendingPayrollCount: number
+  reportsCount: number
+}
+
+export default function FinanceContent({ dictionary, lang }: Props) {
   const d = dictionary?.finance
+  const [data, setData] = useState<FinanceData>({
+    totalBalance: 0,
+    totalExpenses: 0,
+    pendingPayroll: 0,
+    unpaidInvoices: 0,
+    invoicesCount: 0,
+    clientsWithChargesCount: 0,
+    employeesWithSalaryCount: 0,
+    pendingPayrollCount: 0,
+    reportsCount: 0,
+  })
+  const [loading, setLoading] = useState(true)
 
-  // Use provided data or defaults
-  const totalRevenue = data?.totalRevenue ?? 0
-  const totalExpenses = data?.totalExpenses ?? 0
-  const pendingPayments = data?.pendingPayments ?? 0
-  const unpaidInvoices = data?.unpaidInvoices ?? 0
-  const invoicesCount = data?.invoicesCount ?? 0
-  const clientsWithChargesCount = data?.clientsWithChargesCount ?? 0
-  const employeesWithSalaryCount = data?.employeesWithSalaryCount ?? 0
-  const pendingPayrollCount = data?.pendingPayrollCount ?? 0
-  const reportsCount = data?.reportsCount ?? 0
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [accountsResult, payrollResult, expenseResult] = await Promise.all([
+          getAccounts(),
+          getPayrollSummary(),
+          getExpenseSummary(),
+        ])
 
-  // Format currency
+        setData({
+          totalBalance: accountsResult.success && accountsResult.data
+            ? accountsResult.data.totalCurrentBalance
+            : 0,
+          totalExpenses: expenseResult.success && expenseResult.data
+            ? expenseResult.data.totalPaidAmount
+            : 0,
+          pendingPayroll: payrollResult.success && payrollResult.data
+            ? payrollResult.data.approvedRuns
+            : 0,
+          unpaidInvoices: 0, // Would need invoice actions
+          invoicesCount: 0,
+          clientsWithChargesCount: 0,
+          employeesWithSalaryCount: payrollResult.success && payrollResult.data
+            ? payrollResult.data.activeEmployees
+            : 0,
+          pendingPayrollCount: payrollResult.success && payrollResult.data
+            ? payrollResult.data.pendingApproval + payrollResult.data.draftRuns
+            : 0,
+          reportsCount: 0,
+        })
+      } catch (error) {
+        console.error("Error fetching finance data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD", {
-      style: "decimal",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
+    return amount.toLocaleString(lang === "ar" ? "ar-SD" : "en-US")
   }
 
   return (
@@ -82,16 +123,16 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.totalRevenue || (isRTL ? "إجمالي الإيرادات" : "Total Revenue")}
+                {d?.totalBalance ?? "Total Balance"}
               </CardTitle>
               <TrendingUp className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {formatCurrency(totalRevenue)} {d?.currency?.sdg || "SDG"}
+                {loading ? "..." : `${formatCurrency(data.totalBalance)} SDG`}
               </div>
               <p className="text-muted-foreground text-xs">
-                {isRTL ? "هذا الشهر" : "This month"}
+                {d?.allAccounts ?? "All accounts"}
               </p>
             </CardContent>
           </Card>
@@ -99,16 +140,16 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.totalExpenses || (isRTL ? "إجمالي المصروفات" : "Total Expenses")}
+                {d?.totalExpenses ?? "Total Expenses"}
               </CardTitle>
               <DollarSign className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {formatCurrency(totalExpenses)} {d?.currency?.sdg || "SDG"}
+                {loading ? "..." : `${formatCurrency(data.totalExpenses)} SDG`}
               </div>
               <p className="text-muted-foreground text-xs">
-                {isRTL ? "معتمد" : "Approved"}
+                {d?.paid ?? "Paid"}
               </p>
             </CardContent>
           </Card>
@@ -116,16 +157,16 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.pendingPayments || (isRTL ? "مدفوعات معلقة" : "Pending Payments")}
+                {d?.pendingPayroll ?? "Pending Payroll"}
               </CardTitle>
               <CircleAlert className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {formatCurrency(pendingPayments)} {d?.currency?.sdg || "SDG"}
+                {loading ? "..." : data.pendingPayrollCount}
               </div>
               <p className="text-muted-foreground text-xs">
-                {isRTL ? "في الانتظار" : "Awaiting"}
+                {d?.needApproval ?? "Need approval"}
               </p>
             </CardContent>
           </Card>
@@ -133,14 +174,16 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.unpaidInvoices || (isRTL ? "فواتير غير مدفوعة" : "Unpaid Invoices")}
+                {d?.activeEmployees ?? "Active Employees"}
               </CardTitle>
-              <FileText className="text-muted-foreground h-3.5 w-3.5" />
+              <Users className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold">{unpaidInvoices}</div>
+              <div className="text-lg font-bold">
+                {loading ? "..." : data.employeesWithSalaryCount}
+              </div>
               <p className="text-muted-foreground text-xs">
-                {d?.invoice?.title || (isRTL ? "فواتير" : "Invoices")}
+                {d?.employees ?? "Employees"}
               </p>
             </CardContent>
           </Card>
@@ -158,63 +201,32 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
 
       {/* Finance Quick Look */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {/* Invoicing */}
+        {/* Banking */}
         <Card className="p-4">
           <CardContent className="space-y-3 p-0">
             <div className="flex items-center gap-3">
               <div className="bg-primary/15 flex h-10 w-10 items-center justify-center rounded-lg">
-                <FileText className="text-primary h-5 w-5" />
+                <DollarSign className="text-primary h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {d?.invoice?.title || (isRTL ? "الفواتير" : "Invoicing")}
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-lg font-semibold">{invoicesCount}</p>
-                  {unpaidInvoices > 0 && (
-                    <span className="bg-destructive/10 text-destructive rounded px-1.5 py-0 text-[10px]">
-                      {unpaidInvoices} {isRTL ? "غير مدفوع" : "unpaid"}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <Link
-              href={`/${lang}/finance/invoice`}
-              className="text-primary inline-flex items-center text-xs hover:underline"
-            >
-              {isRTL ? "عرض الكل" : "View All"}{" "}
-              <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
-            </Link>
-          </CardContent>
-        </Card>
-
-        {/* Service Charges */}
-        <Card className="p-4">
-          <CardContent className="space-y-3 p-0">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15">
-                <Anchor className="h-5 w-5 text-emerald-500" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-muted-foreground text-xs">
-                  {d?.navigation?.fees || (isRTL ? "رسوم الخدمة" : "Service Charges")}
+                  {d?.navigation?.banking ?? "Banking"}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
-                    {clientsWithChargesCount}
+                    {loading ? "..." : formatCurrency(data.totalBalance)}
                   </p>
                   <span className="bg-muted text-muted-foreground rounded px-1.5 py-0 text-[10px]">
-                    {isRTL ? "عملاء" : "clients"}
+                    SDG
                   </span>
                 </div>
               </div>
             </div>
             <Link
-              href={`/${lang}/finance/fees`}
+              href={`/${lang}/finance/banking`}
               className="text-primary inline-flex items-center text-xs hover:underline"
             >
-              {isRTL ? "عرض الرسوم" : "View Charges"}{" "}
+              {d?.viewAccounts ?? "View Accounts"}{" "}
               <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
             </Link>
           </CardContent>
@@ -229,15 +241,15 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {d?.payroll?.title || (isRTL ? "الرواتب" : "Payroll")}
+                  {d?.navigation?.payroll ?? "Payroll"}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
-                    {employeesWithSalaryCount}
+                    {loading ? "..." : data.employeesWithSalaryCount}
                   </p>
-                  {pendingPayrollCount > 0 && (
+                  {data.pendingPayrollCount > 0 && (
                     <span className="rounded bg-amber-500/10 px-1.5 py-0 text-[10px] text-amber-600">
-                      {pendingPayrollCount} {isRTL ? "معلق" : "pending"}
+                      {data.pendingPayrollCount} {d?.pending ?? "pending"}
                     </span>
                   )}
                 </div>
@@ -247,36 +259,66 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
               href={`/${lang}/finance/payroll`}
               className="text-primary inline-flex items-center text-xs hover:underline"
             >
-              {isRTL ? "عرض الرواتب" : "View Payroll"}{" "}
+              {d?.viewPayroll ?? "View Payroll"}{" "}
               <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
             </Link>
           </CardContent>
         </Card>
 
-        {/* Reports */}
+        {/* Expenses */}
         <Card className="p-4">
           <CardContent className="space-y-3 p-0">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/15">
-                <FileBarChart className="h-5 w-5 text-blue-500" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15">
+                <FileText className="h-5 w-5 text-emerald-500" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {d?.reports?.title || (isRTL ? "التقارير" : "Reports")}
+                  {d?.navigation?.expenses ?? "Expenses"}
                 </p>
                 <div className="flex items-center gap-2">
-                  <p className="text-lg font-semibold">{reportsCount}</p>
+                  <p className="text-lg font-semibold">
+                    {loading ? "..." : formatCurrency(data.totalExpenses)}
+                  </p>
                   <span className="bg-muted text-muted-foreground rounded px-1.5 py-0 text-[10px]">
-                    {isRTL ? "منشأ" : "generated"}
+                    SDG
                   </span>
                 </div>
               </div>
             </div>
             <Link
-              href={`/${lang}/finance/reports`}
+              href={`/${lang}/finance/expenses`}
               className="text-primary inline-flex items-center text-xs hover:underline"
             >
-              {isRTL ? "عرض التقارير" : "View Reports"}{" "}
+              {d?.viewExpenses ?? "View Expenses"}{" "}
+              <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* Fees/Customs */}
+        <Card className="p-4">
+          <CardContent className="space-y-3 p-0">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/15">
+                <Anchor className="h-5 w-5 text-blue-500" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-muted-foreground text-xs">
+                  {d?.customsFees ?? "Customs Fees"}
+                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-semibold">
+                    {dictionary?.common?.view ?? "View"}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <Link
+              href={`/${lang}/finance/fees`}
+              className="text-primary inline-flex items-center text-xs hover:underline"
+            >
+              {d?.viewFees ?? "View Fees"}{" "}
               <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
             </Link>
           </CardContent>
@@ -285,19 +327,19 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
 
       {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Link href={`/${lang}/finance/invoice/new`}>
+        <Link href={`/${lang}/finance/banking/my-banks`}>
           <Card className="group hover:border-primary/30 cursor-pointer p-4 transition-all duration-300 hover:shadow-md">
             <CardContent className="p-0">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 text-primary group-hover:bg-primary/20 rounded-lg p-2 transition-colors">
-                  <FileText className="h-4 w-4" />
+                  <DollarSign className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.actions?.createInvoice || (isRTL ? "إنشاء فاتورة" : "Create Invoice")}
+                    {d?.addBankAccount ?? "Add Bank Account"}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {isRTL ? "فوترة العملاء" : "Bill clients"}
+                    {d?.manageAccounts ?? "Manage accounts"}
                   </p>
                 </div>
               </div>
@@ -305,7 +347,7 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
           </Card>
         </Link>
 
-        <Link href={`/${lang}/finance/payroll/new`}>
+        <Link href={`/${lang}/finance/payroll`}>
           <Card className="group hover:border-primary/30 cursor-pointer p-4 transition-all duration-300 hover:shadow-md">
             <CardContent className="p-0">
               <div className="flex items-center gap-3">
@@ -314,10 +356,10 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.actions?.runPayroll || (isRTL ? "معالجة الرواتب" : "Process Payroll")}
+                    {d?.processPayroll ?? "Process Payroll"}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {isRTL ? "رواتب شهرية" : "Monthly payroll"}
+                    {d?.monthlyPayroll ?? "Monthly payroll"}
                   </p>
                 </div>
               </div>
@@ -334,10 +376,10 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.actions?.submitExpense || (isRTL ? "تتبع المصروفات" : "Track Expenses")}
+                    {d?.addExpense ?? "Add Expense"}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {isRTL ? "اعتماد وتصنيف" : "Approve & categorize"}
+                    {d?.trackExpenses ?? "Track expenses"}
                   </p>
                 </div>
               </div>
@@ -354,10 +396,10 @@ export default function FinanceContent({ lang, dictionary, data }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.reports?.generate || (isRTL ? "إنشاء تقرير" : "Generate Report")}
+                    {d?.generateReport ?? "Generate Report"}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {isRTL ? "أرباح وخسائر، ميزانية" : "P&L, Balance Sheet"}
+                    {d?.financialReports ?? "Financial reports"}
                   </p>
                 </div>
               </div>

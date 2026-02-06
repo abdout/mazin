@@ -13,14 +13,10 @@ interface Params {
 }
 
 const Detail = ({ params }: { params: Params | Promise<Params> }) => {
-  console.log("Detail component rendering, params:", params);
-  
   // Properly unwrap params using React.use() for Next.js 15
   const unwrappedParams = params instanceof Promise ? React.use(params) : params;
-  console.log("Unwrapped params:", unwrappedParams);
-  
+
   const id = unwrappedParams.id;
-  console.log("Project ID:", id);
   
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +26,6 @@ const Detail = ({ params }: { params: Params | Promise<Params> }) => {
     const loadProject = async () => {
       try {
         setLoading(true);
-        console.log("Fetching project with ID:", id);
         const result = await getProject(id);
         
         if (result.success && result.project) {
@@ -49,7 +44,7 @@ const Detail = ({ params }: { params: Params | Promise<Params> }) => {
           toast.error(result.error || "Failed to load project");
         }
       } catch (err) {
-        console.error("Error fetching project:", err);
+        console.error("Error fetching project");
         setError("Failed to load project. Please try again.");
         toast.error("Failed to load project. Please try again.");
       } finally {

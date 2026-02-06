@@ -1,12 +1,13 @@
 import { AccountTabs } from "./account-tabs"
 import { RecentTransactionsList } from "./recent-transactions"
+import type { Dictionary } from "@/components/internationalization/types"
 
 interface DashboardMainContentProps {
   accounts: any[]
   transactions: any[]
   accountId: string
   currentPage: number
-  dictionary: any
+  dictionary: Dictionary
 }
 
 export function DashboardMainContent({
@@ -27,7 +28,7 @@ export function DashboardMainContent({
       <div className="bg-card rounded-lg border">
         <div className="border-b p-6">
           <h2 className="text-lg font-semibold">
-            {dictionary?.recentTransactions || "Recent Transactions"}
+            {dictionary?.finance?.recentTransactions || "Recent Transactions"}
           </h2>
         </div>
         <div className="p-6">

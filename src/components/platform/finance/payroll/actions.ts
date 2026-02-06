@@ -1,280 +1,435 @@
 "use server"
 
-/**
- * Payroll Module - Server Actions
- * Full Prisma implementation for payroll processing
- */
-
 import { revalidatePath } from "next/cache"
-
-import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { auth } from "@/auth"
+import { PayrollRunStatus, PayrollItemStatus, EmployeeStatus } from "@prisma/client"
+import { z } from "zod"
+import {
+  TAX_BRACKETS,
+  SOCIAL_SECURITY_RATE,
+  STANDARD_WORKING_DAYS,
+  OVERTIME_MULTIPLIERS,
+} from "./config"
 
+// Types
 type ActionResult<T = void> = {
   success: boolean
   data?: T
   error?: string
 }
 
-// ============================================================================
-// TYPES
-// ============================================================================
+// Validation schemas
+const createPayrollRunSchema = z.object({
+  periodMonth: z.number().min(1).max(12),
+  periodYear: z.number().min(2020).max(2100),
+  bankAccountId: z.string().optional(),
+})
 
-export interface PayrollRun {
-  id: string
-  payrollCode: string
-  name: string
-  period: string
-  status: string
-  periodStart: Date
-  periodEnd: Date
-  payDate: Date | null
-  totalGross: number
-  totalDeductions: number
-  totalNet: number
-  processedAt: Date | null
-  processedBy: string | null
-  approvedAt: Date | null
-  approvedBy: string | null
-  paidAt: Date | null
-  notes: string | null
-  employeeCount: number
-  createdAt: Date
+const createEmployeeSchema = z.object({
+  employeeNo: z.string().min(1, "Employee number is required"),
+  givenName: z.string().min(1, "Given name is required"),
+  surname: z.string().min(1, "Surname is required"),
+  email: z.string().email().optional().or(z.literal("")),
+  phone: z.string().optional(),
+  jobTitle: z.string().optional(),
+  department: z.string().optional(),
+  hireDate: z.date().optional(),
+  bankName: z.string().optional(),
+  bankBranch: z.string().optional(),
+  accountNumber: z.string().optional(),
+  basicSalary: z.number().positive("Basic salary must be positive"),
+})
+
+// Helper: Generate run number
+function generateRunNumber(month: number, year: number): string {
+  return `PR-${year}-${month.toString().padStart(2, "0")}`
 }
 
-export interface PayrollItem {
-  id: string
-  employeeId: string
-  employeeName: string
-  employeeCode: string
-  basicSalary: number
-  housingAllowance: number
-  transportAllowance: number
-  mealAllowance: number
-  otherAllowances: number
-  overtimeHours: number
-  overtimeAmount: number
-  socialSecurity: number
-  incomeTax: number
-  otherDeductions: number
-  loanDeduction: number
-  grossAmount: number
-  totalDeductions: number
-  netAmount: number
-  status: string
-  paidAt: Date | null
-  notes: string | null
+// Helper: Generate slip number
+function generateSlipNumber(runNumber: string, index: number): string {
+  return `${runNumber}-${(index + 1).toString().padStart(3, "0")}`
 }
 
-export interface Employee {
-  id: string
-  employeeCode: string
-  firstName: string
-  lastName: string
-  email: string | null
-  phone: string | null
-  department: string | null
-  position: string | null
-  status: string
-  hireDate: Date
-  employmentType: string
-  bankName: string | null
-  accountNumber: string | null
-  salary: {
-    basicSalary: number
-    grossSalary: number
-    netSalary: number
-  } | null
-}
+// Helper: Calculate progressive tax
+function calculateProgressiveTax(grossSalary: number): number {
+  let tax = 0
+  let remainingIncome = grossSalary
 
-export interface PayrollSummary {
-  totalRuns: number
-  completedRuns: number
-  pendingRuns: number
-  totalEmployees: number
-  monthlyPayroll: number
-  yearToDatePayroll: number
-  averageNetSalary: number
-}
+  for (const bracket of TAX_BRACKETS) {
+    if (remainingIncome <= 0) break
 
-// ============================================================================
-// PAYROLL RUN QUERIES
-// ============================================================================
+    const taxableInBracket = bracket.to
+      ? Math.min(remainingIncome, bracket.to - bracket.from)
+      : remainingIncome
 
-export async function getPayrollRuns(
-  status?: string
-): Promise<ActionResult<PayrollRun[]>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
+    tax += (taxableInBracket * bracket.rate) / 100
+    remainingIncome -= taxableInBracket
   }
 
+  return Math.round(tax * 100) / 100
+}
+
+// Helper: Calculate social security
+function calculateSocialSecurity(grossSalary: number): number {
+  return Math.round((grossSalary * SOCIAL_SECURITY_RATE) / 100 * 100) / 100
+}
+
+// ============================================
+// EMPLOYEE MANAGEMENT
+// ============================================
+
+export async function getEmployees(
+  status?: EmployeeStatus
+): Promise<ActionResult<unknown[]>> {
   try {
-    const where: any = { userId: session.user.id }
-    if (status) {
-      where.status = status
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
     }
 
-    const payrolls = await db.payroll.findMany({
-      where,
-      orderBy: { periodStart: "desc" },
+    const employees = await db.employee.findMany({
+      where: status ? { status } : undefined,
       include: {
-        _count: {
-          select: { items: true },
+        salaryStructures: {
+          where: { status: "ACTIVE" },
+          take: 1,
+          orderBy: { effectiveFrom: "desc" },
+        },
+      },
+      orderBy: { surname: "asc" },
+    })
+
+    return { success: true, data: employees }
+  } catch (error) {
+    console.error("Error fetching employees:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch employees",
+    }
+  }
+}
+
+export async function getEmployee(employeeId: string): Promise<ActionResult<unknown>> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const employee = await db.employee.findUnique({
+      where: { id: employeeId },
+      include: {
+        salaryStructures: {
+          include: {
+            allowances: true,
+            deductions: true,
+          },
+          orderBy: { effectiveFrom: "desc" },
+        },
+        payrollItems: {
+          take: 12,
+          orderBy: { createdAt: "desc" },
+          include: {
+            payrollRun: {
+              select: {
+                runNumber: true,
+                periodMonth: true,
+                periodYear: true,
+              },
+            },
+          },
         },
       },
     })
 
+    if (!employee) {
+      return { success: false, error: "Employee not found" }
+    }
+
+    return { success: true, data: employee }
+  } catch (error) {
+    console.error("Error fetching employee:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch employee",
+    }
+  }
+}
+
+export async function createEmployee(
+  input: z.infer<typeof createEmployeeSchema>
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const validated = createEmployeeSchema.parse(input)
+
+    const result = await db.$transaction(async (tx) => {
+      // Create employee
+      const employee = await tx.employee.create({
+        data: {
+          employeeNo: validated.employeeNo,
+          givenName: validated.givenName,
+          surname: validated.surname,
+          email: validated.email || null,
+          phone: validated.phone,
+          jobTitle: validated.jobTitle,
+          department: validated.department,
+          hireDate: validated.hireDate || new Date(),
+          bankName: validated.bankName,
+          bankBranch: validated.bankBranch,
+          accountNumber: validated.accountNumber,
+          status: "ACTIVE",
+        },
+      })
+
+      // Create initial salary structure
+      await tx.salaryStructure.create({
+        data: {
+          employeeId: employee.id,
+          basicSalary: validated.basicSalary,
+          status: "ACTIVE",
+          effectiveFrom: new Date(),
+        },
+      })
+
+      return employee
+    })
+
+    revalidatePath("/finance/payroll")
+
+    return { success: true, data: { id: result.id } }
+  } catch (error) {
+    console.error("Error creating employee:", error)
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.issues[0]?.message ?? "Validation error" }
+    }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create employee",
+    }
+  }
+}
+
+export async function updateEmployee(
+  employeeId: string,
+  input: Partial<z.infer<typeof createEmployeeSchema>>
+): Promise<ActionResult> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const { basicSalary, ...employeeData } = input
+
+    await db.$transaction(async (tx) => {
+      // Update employee info
+      if (Object.keys(employeeData).length > 0) {
+        await tx.employee.update({
+          where: { id: employeeId },
+          data: employeeData,
+        })
+      }
+
+      // Update salary if provided
+      if (basicSalary !== undefined) {
+        // Deactivate current structure
+        await tx.salaryStructure.updateMany({
+          where: {
+            employeeId,
+            status: "ACTIVE",
+          },
+          data: {
+            status: "INACTIVE",
+            effectiveTo: new Date(),
+          },
+        })
+
+        // Create new structure
+        await tx.salaryStructure.create({
+          data: {
+            employeeId,
+            basicSalary,
+            status: "ACTIVE",
+            effectiveFrom: new Date(),
+          },
+        })
+      }
+    })
+
+    revalidatePath("/finance/payroll")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating employee:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update employee",
+    }
+  }
+}
+
+// ============================================
+// PAYROLL RUN ACTIONS
+// ============================================
+
+export async function getPayrollRuns(
+  status?: PayrollRunStatus
+): Promise<ActionResult<unknown[]>> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const runs = await db.payrollRun.findMany({
+      where: status ? { status } : undefined,
+      include: {
+        _count: {
+          select: { items: true },
+        },
+        bankAccount: {
+          select: {
+            id: true,
+            accountName: true,
+            bankName: true,
+          },
+        },
+      },
+      orderBy: [{ periodYear: "desc" }, { periodMonth: "desc" }],
+    })
+
     return {
       success: true,
-      data: payrolls.map((p) => ({
-        id: p.id,
-        payrollCode: p.payrollCode,
-        name: p.name,
-        period: p.period,
-        status: p.status,
-        periodStart: p.periodStart,
-        periodEnd: p.periodEnd,
-        payDate: p.payDate,
-        totalGross: Number(p.totalGross),
-        totalDeductions: Number(p.totalDeductions),
-        totalNet: Number(p.totalNet),
-        processedAt: p.processedAt,
-        processedBy: p.processedBy,
-        approvedAt: p.approvedAt,
-        approvedBy: p.approvedBy,
-        paidAt: p.paidAt,
-        notes: p.notes,
-        employeeCount: p._count.items,
-        createdAt: p.createdAt,
+      data: runs.map((r) => ({
+        ...r,
+        totalGross: Number(r.totalGross),
+        totalNet: Number(r.totalNet),
+        employeeCount: r._count.items,
       })),
     }
   } catch (error) {
     console.error("Error fetching payroll runs:", error)
-    return { success: false, error: "Failed to fetch payroll runs" }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch payroll runs",
+    }
   }
 }
 
-export async function getPayrollRun(
-  runId: string
-): Promise<ActionResult<PayrollRun & { items: PayrollItem[] }>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
+export async function getPayrollRun(runId: string): Promise<ActionResult<unknown>> {
   try {
-    const payroll = await db.payroll.findFirst({
-      where: { id: runId, userId: session.user.id },
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const run = await db.payrollRun.findUnique({
+      where: { id: runId },
       include: {
         items: {
           include: {
             employee: {
               select: {
                 id: true,
-                employeeCode: true,
-                firstName: true,
-                lastName: true,
+                employeeNo: true,
+                givenName: true,
+                surname: true,
+                jobTitle: true,
+                bankName: true,
+                accountNumber: true,
               },
             },
           },
+          orderBy: { employee: { surname: "asc" } },
         },
-        _count: {
-          select: { items: true },
+        bankAccount: true,
+        processedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
         },
       },
     })
 
-    if (!payroll) {
+    if (!run) {
       return { success: false, error: "Payroll run not found" }
     }
 
     return {
       success: true,
       data: {
-        id: payroll.id,
-        payrollCode: payroll.payrollCode,
-        name: payroll.name,
-        period: payroll.period,
-        status: payroll.status,
-        periodStart: payroll.periodStart,
-        periodEnd: payroll.periodEnd,
-        payDate: payroll.payDate,
-        totalGross: Number(payroll.totalGross),
-        totalDeductions: Number(payroll.totalDeductions),
-        totalNet: Number(payroll.totalNet),
-        processedAt: payroll.processedAt,
-        processedBy: payroll.processedBy,
-        approvedAt: payroll.approvedAt,
-        approvedBy: payroll.approvedBy,
-        paidAt: payroll.paidAt,
-        notes: payroll.notes,
-        employeeCount: payroll._count.items,
-        createdAt: payroll.createdAt,
-        items: payroll.items.map((item) => ({
-          id: item.id,
-          employeeId: item.employeeId,
-          employeeName: `${item.employee.firstName} ${item.employee.lastName}`,
-          employeeCode: item.employee.employeeCode,
+        ...run,
+        totalGross: Number(run.totalGross),
+        totalNet: Number(run.totalNet),
+        items: run.items.map((item) => ({
+          ...item,
           basicSalary: Number(item.basicSalary),
-          housingAllowance: Number(item.housingAllowance),
-          transportAllowance: Number(item.transportAllowance),
-          mealAllowance: Number(item.mealAllowance),
-          otherAllowances: Number(item.otherAllowances),
-          overtimeHours: Number(item.overtimeHours),
-          overtimeAmount: Number(item.overtimeAmount),
-          socialSecurity: Number(item.socialSecurity),
-          incomeTax: Number(item.incomeTax),
-          otherDeductions: Number(item.otherDeductions),
-          loanDeduction: Number(item.loanDeduction),
-          grossAmount: Number(item.grossAmount),
+          totalAllowances: Number(item.totalAllowances),
+          grossSalary: Number(item.grossSalary),
           totalDeductions: Number(item.totalDeductions),
-          netAmount: Number(item.netAmount),
-          status: item.status,
-          paidAt: item.paidAt,
-          notes: item.notes,
+          netSalary: Number(item.netSalary),
+          incomeTax: Number(item.incomeTax),
+          socialSecurity: Number(item.socialSecurity),
+          overtimeAmount: Number(item.overtimeAmount),
+          overtimeHours: Number(item.overtimeHours),
         })),
       },
     }
   } catch (error) {
     console.error("Error fetching payroll run:", error)
-    return { success: false, error: "Failed to fetch payroll run" }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch payroll run",
+    }
   }
 }
 
-// ============================================================================
-// PAYROLL RUN CRUD
-// ============================================================================
-
-export async function createPayrollRun(params: {
-  name: string
-  period: string
-  periodStart: Date
-  periodEnd: Date
-  payDate?: Date
-  employeeIds?: string[]
-  notes?: string
-}): Promise<ActionResult<string>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
+export async function createPayrollRun(
+  input: z.infer<typeof createPayrollRunSchema>
+): Promise<ActionResult<{ id: string }>> {
   try {
-    // Generate payroll code
-    const count = await db.payroll.count({ where: { userId: session.user.id } })
-    const payrollCode = `PR-${params.period}-${String(count + 1).padStart(3, "0")}`
-
-    // Get employees (either specified or all active)
-    const employeeWhere: any = { userId: session.user.id, status: "ACTIVE" }
-    if (params.employeeIds && params.employeeIds.length > 0) {
-      employeeWhere.id = { in: params.employeeIds }
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
     }
 
+    const validated = createPayrollRunSchema.parse(input)
+
+    // Check if run already exists for this period
+    const existing = await db.payrollRun.findFirst({
+      where: {
+        periodMonth: validated.periodMonth,
+        periodYear: validated.periodYear,
+      },
+    })
+
+    if (existing) {
+      return {
+        success: false,
+        error: `Payroll run for ${validated.periodMonth}/${validated.periodYear} already exists`,
+      }
+    }
+
+    // Get active employees with salary structures
     const employees = await db.employee.findMany({
-      where: employeeWhere,
+      where: { status: "ACTIVE" },
       include: {
-        salary: true,
+        salaryStructures: {
+          where: { status: "ACTIVE" },
+          take: 1,
+          include: {
+            allowances: true,
+            deductions: true,
+          },
+        },
       },
     })
 
@@ -282,300 +437,224 @@ export async function createPayrollRun(params: {
       return { success: false, error: "No active employees found" }
     }
 
-    // Calculate payroll items
-    let totalGross = 0
-    let totalDeductions = 0
-    let totalNet = 0
+    const runNumber = generateRunNumber(validated.periodMonth, validated.periodYear)
+    const periodStart = new Date(validated.periodYear, validated.periodMonth - 1, 1)
+    const periodEnd = new Date(validated.periodYear, validated.periodMonth, 0)
 
-    const itemsData = employees.map((emp) => {
-      const salary = emp.salary
-      if (!salary) {
-        // Use defaults if no salary record
-        const basicSalary = 0
-        return {
-          employeeId: emp.id,
-          basicSalary,
-          housingAllowance: 0,
-          transportAllowance: 0,
-          mealAllowance: 0,
-          otherAllowances: 0,
-          overtimeHours: 0,
-          overtimeAmount: 0,
-          socialSecurity: 0,
-          incomeTax: 0,
-          otherDeductions: 0,
-          loanDeduction: 0,
-          grossAmount: basicSalary,
-          totalDeductions: 0,
-          netAmount: basicSalary,
-          status: "PENDING",
-        }
-      }
-
-      const basicSalary = Number(salary.basicSalary)
-      const housingAllowance = Number(salary.housingAllowance)
-      const transportAllowance = Number(salary.transportAllowance)
-      const mealAllowance = Number(salary.mealAllowance)
-      const otherAllowances = Number(salary.otherAllowances)
-
-      const grossAmount = basicSalary + housingAllowance + transportAllowance + mealAllowance + otherAllowances
-
-      // Calculate deductions
-      const socialSecurityRate = Number(salary.socialSecurityRate) / 100
-      const taxRate = Number(salary.taxRate) / 100
-      const socialSecurity = grossAmount * socialSecurityRate
-      const incomeTax = grossAmount * taxRate
-      const otherDeductions = Number(salary.otherDeductions)
-      const deductions = socialSecurity + incomeTax + otherDeductions
-
-      const netAmount = grossAmount - deductions
-
-      totalGross += grossAmount
-      totalDeductions += deductions
-      totalNet += netAmount
-
-      return {
-        employeeId: emp.id,
-        basicSalary,
-        housingAllowance,
-        transportAllowance,
-        mealAllowance,
-        otherAllowances,
-        overtimeHours: 0,
-        overtimeAmount: 0,
-        socialSecurity,
-        incomeTax,
-        otherDeductions,
-        loanDeduction: 0,
-        grossAmount,
-        totalDeductions: deductions,
-        netAmount,
-        status: "PENDING",
-      }
-    })
-
-    // Create payroll with items
-    const payroll = await db.payroll.create({
-      data: {
-        payrollCode,
-        name: params.name,
-        period: params.period,
-        status: "DRAFT",
-        periodStart: params.periodStart,
-        periodEnd: params.periodEnd,
-        payDate: params.payDate,
-        totalGross,
-        totalDeductions,
-        totalNet,
-        notes: params.notes,
-        userId: session.user.id,
-        items: {
-          create: itemsData,
+    const result = await db.$transaction(async (tx) => {
+      // Create payroll run
+      const run = await tx.payrollRun.create({
+        data: {
+          runNumber,
+          periodMonth: validated.periodMonth,
+          periodYear: validated.periodYear,
+          periodStart,
+          periodEnd,
+          bankAccountId: validated.bankAccountId,
+          status: "DRAFT",
         },
-      },
+      })
+
+      let totalGross = 0
+      let totalNet = 0
+
+      // Generate payroll items for each employee
+      for (let i = 0; i < employees.length; i++) {
+        const emp = employees[i]
+        if (!emp) continue
+        const salary = emp.salaryStructures[0]
+
+        if (!salary) continue
+
+        const basicSalary = Number(salary.basicSalary)
+
+        // Calculate allowances
+        let totalAllowances = 0
+        for (const allowance of salary.allowances) {
+          if (allowance.isPercentage) {
+            totalAllowances += basicSalary * (Number(allowance.amount) / 100)
+          } else {
+            totalAllowances += Number(allowance.amount)
+          }
+        }
+
+        const grossSalary = basicSalary + totalAllowances
+
+        // Calculate deductions
+        const incomeTax = calculateProgressiveTax(grossSalary)
+        const socialSecurity = calculateSocialSecurity(grossSalary)
+
+        let totalDeductions = incomeTax + socialSecurity
+        for (const deduction of salary.deductions) {
+          if (deduction.isPercentage) {
+            totalDeductions += grossSalary * (Number(deduction.amount) / 100)
+          } else {
+            totalDeductions += Number(deduction.amount)
+          }
+        }
+
+        const netSalary = grossSalary - totalDeductions
+
+        await tx.payrollItem.create({
+          data: {
+            slipNumber: generateSlipNumber(runNumber, i),
+            payrollRunId: run.id,
+            employeeId: emp.id,
+            basicSalary,
+            totalAllowances,
+            grossSalary,
+            incomeTax,
+            socialSecurity,
+            totalDeductions,
+            netSalary,
+            workingDays: STANDARD_WORKING_DAYS,
+            status: "PENDING",
+          },
+        })
+
+        totalGross += grossSalary
+        totalNet += netSalary
+      }
+
+      // Update run totals
+      await tx.payrollRun.update({
+        where: { id: run.id },
+        data: { totalGross, totalNet },
+      })
+
+      return run
     })
 
     revalidatePath("/finance/payroll")
 
-    return { success: true, data: payroll.id }
+    return { success: true, data: { id: result.id } }
   } catch (error) {
     console.error("Error creating payroll run:", error)
-    return { success: false, error: "Failed to create payroll run" }
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.issues[0]?.message ?? "Validation error" }
+    }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create payroll run",
+    }
   }
 }
 
-export async function deletePayrollRun(runId: string): Promise<ActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const payroll = await db.payroll.findFirst({
-      where: { id: runId, userId: session.user.id },
-    })
-
-    if (!payroll) {
-      return { success: false, error: "Payroll run not found" }
-    }
-
-    if (payroll.status === "PAID") {
-      return { success: false, error: "Cannot delete a paid payroll run" }
-    }
-
-    // Delete payroll (items cascade delete)
-    await db.payroll.delete({ where: { id: runId } })
-
-    revalidatePath("/finance/payroll")
-
-    return { success: true }
-  } catch (error) {
-    console.error("Error deleting payroll run:", error)
-    return { success: false, error: "Failed to delete payroll run" }
-  }
-}
-
-// ============================================================================
-// SALARY SLIP GENERATION
-// ============================================================================
-
-export async function generateSalarySlips(
-  payrollRunId: string,
-  employeeIds?: string[]
-): Promise<ActionResult<number>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const payroll = await db.payroll.findFirst({
-      where: { id: payrollRunId, userId: session.user.id },
-      include: { items: true },
-    })
-
-    if (!payroll) {
-      return { success: false, error: "Payroll run not found" }
-    }
-
-    // Filter items by employee IDs if provided
-    let itemsToProcess = payroll.items
-    if (employeeIds && employeeIds.length > 0) {
-      itemsToProcess = payroll.items.filter((item) =>
-        employeeIds.includes(item.employeeId)
-      )
-    }
-
-    // Mark items as processing (salary slips generated)
-    await db.payrollItem.updateMany({
-      where: {
-        id: { in: itemsToProcess.map((i) => i.id) },
-      },
-      data: {
-        status: "PENDING",
-      },
-    })
-
-    // Update payroll status
-    await db.payroll.update({
-      where: { id: payrollRunId },
-      data: { status: "PROCESSING" },
-    })
-
-    revalidatePath("/finance/payroll")
-
-    return { success: true, data: itemsToProcess.length }
-  } catch (error) {
-    console.error("Error generating salary slips:", error)
-    return { success: false, error: "Failed to generate salary slips" }
-  }
-}
-
-// ============================================================================
+// ============================================
 // APPROVAL WORKFLOW
-// ============================================================================
+// ============================================
 
 export async function approvePayroll(
-  payrollRunId: string,
-  notes?: string
+  payrollRunId: string
 ): Promise<ActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
   try {
-    const payroll = await db.payroll.findFirst({
-      where: { id: payrollRunId, userId: session.user.id },
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const run = await db.payrollRun.findUnique({
+      where: { id: payrollRunId },
     })
 
-    if (!payroll) {
+    if (!run) {
       return { success: false, error: "Payroll run not found" }
     }
 
-    if (payroll.status !== "PROCESSING" && payroll.status !== "PENDING_APPROVAL") {
-      return { success: false, error: "Payroll is not in a state that can be approved" }
+    if (run.status !== "DRAFT" && run.status !== "PENDING_APPROVAL") {
+      return { success: false, error: `Cannot approve payroll in ${run.status} status` }
     }
 
-    await db.$transaction([
-      // Update payroll status
-      db.payroll.update({
+    await db.$transaction(async (tx) => {
+      await tx.payrollRun.update({
         where: { id: payrollRunId },
         data: {
           status: "APPROVED",
           approvedAt: new Date(),
-          approvedBy: session.user.id,
-          notes: notes ? `${payroll.notes || ""}\nApproval notes: ${notes}` : payroll.notes,
         },
-      }),
-      // Update all items to approved
-      db.payrollItem.updateMany({
-        where: { payrollId: payrollRunId },
+      })
+
+      await tx.payrollItem.updateMany({
+        where: { payrollRunId },
         data: { status: "APPROVED" },
-      }),
-    ])
+      })
+    })
 
     revalidatePath("/finance/payroll")
 
     return { success: true }
   } catch (error) {
     console.error("Error approving payroll:", error)
-    return { success: false, error: "Failed to approve payroll" }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to approve payroll",
+    }
   }
 }
 
-export async function rejectPayroll(
+export async function cancelPayroll(
   payrollRunId: string,
-  reason: string
+  reason?: string
 ): Promise<ActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
   try {
-    const payroll = await db.payroll.findFirst({
-      where: { id: payrollRunId, userId: session.user.id },
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const run = await db.payrollRun.findUnique({
+      where: { id: payrollRunId },
     })
 
-    if (!payroll) {
+    if (!run) {
       return { success: false, error: "Payroll run not found" }
     }
 
-    await db.payroll.update({
-      where: { id: payrollRunId },
-      data: {
-        status: "CANCELLED",
-        notes: `${payroll.notes || ""}\nRejection reason: ${reason}`,
-      },
+    if (run.status === "COMPLETED") {
+      return { success: false, error: "Cannot cancel completed payroll" }
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.payrollRun.update({
+        where: { id: payrollRunId },
+        data: { status: "CANCELLED" },
+      })
+
+      await tx.payrollItem.updateMany({
+        where: { payrollRunId },
+        data: { status: "CANCELLED" },
+      })
     })
 
     revalidatePath("/finance/payroll")
 
     return { success: true }
   } catch (error) {
-    console.error("Error rejecting payroll:", error)
-    return { success: false, error: "Failed to reject payroll" }
+    console.error("Error cancelling payroll:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to cancel payroll",
+    }
   }
 }
 
-// ============================================================================
+// ============================================
 // PAYMENT PROCESSING
-// ============================================================================
+// ============================================
 
 export async function processPayments(
-  payrollRunId: string,
-  bankAccountId?: string
-): Promise<ActionResult<number>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
+  payrollRunId: string
+): Promise<ActionResult<{ processedCount: number; totalAmount: number }>> {
   try {
-    const payroll = await db.payroll.findFirst({
-      where: { id: payrollRunId, userId: session.user.id },
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const run = await db.payrollRun.findUnique({
+      where: { id: payrollRunId },
       include: {
+        bankAccount: true,
         items: {
           where: { status: "APPROVED" },
           include: {
@@ -585,514 +664,238 @@ export async function processPayments(
       },
     })
 
-    if (!payroll) {
+    if (!run) {
       return { success: false, error: "Payroll run not found" }
     }
 
-    if (payroll.status !== "APPROVED") {
-      return { success: false, error: "Payroll must be approved before processing payments" }
+    if (run.status !== "APPROVED") {
+      return { success: false, error: "Payroll must be approved before processing" }
     }
 
-    const now = new Date()
-    let processedCount = 0
+    if (!run.bankAccountId || !run.bankAccount) {
+      return { success: false, error: "No bank account assigned to payroll" }
+    }
 
-    // Process each item
+    let processedCount = 0
+    let totalAmount = 0
+
     await db.$transaction(async (tx) => {
-      for (const item of payroll.items) {
-        // Mark item as paid
+      // Update run status to processing
+      await tx.payrollRun.update({
+        where: { id: payrollRunId },
+        data: {
+          status: "PROCESSING",
+          processedById: session.user!.id,
+        },
+      })
+
+      let currentBalance = Number(run.bankAccount!.currentBalance)
+
+      for (const item of run.items) {
+        const netSalary = Number(item.netSalary)
+
+        // Create bank transaction
+        const transaction = await tx.bankTransaction.create({
+          data: {
+            transactionRef: `PAY-${item.slipNumber}`,
+            type: "DEBIT",
+            amount: netSalary,
+            balanceAfter: currentBalance - netSalary,
+            description: `Salary payment - ${item.employee.givenName} ${item.employee.surname}`,
+            reference: item.slipNumber,
+            transactionDate: new Date(),
+            sourceType: "PAYROLL",
+            sourceId: item.id,
+            bankAccountId: run.bankAccountId!,
+          },
+        })
+
+        currentBalance -= netSalary
+
+        // Update payroll item
         await tx.payrollItem.update({
           where: { id: item.id },
           data: {
             status: "PAID",
-            paidAt: now,
+            transactionId: transaction.id,
+            paidAt: new Date(),
           },
         })
 
-        // Create transaction if bank account provided
-        if (bankAccountId) {
-          const bankAccount = await tx.bankAccount.findFirst({
-            where: { id: bankAccountId, userId: session.user.id },
-          })
-
-          if (bankAccount) {
-            const newBalance = Number(bankAccount.currentBalance) - Number(item.netAmount)
-
-            await tx.transaction.create({
-              data: {
-                transactionDate: now,
-                description: `Salary payment: ${item.employee.firstName} ${item.employee.lastName} - ${payroll.period}`,
-                reference: payroll.payrollCode,
-                type: "DEBIT",
-                category: "SALARY",
-                amount: item.netAmount,
-                currency: "SDG",
-                balanceAfter: newBalance,
-                status: "COMPLETED",
-                payrollId: payroll.id,
-                userId: session.user.id,
-                bankAccountId,
-              },
-            })
-
-            await tx.bankAccount.update({
-              where: { id: bankAccountId },
-              data: {
-                currentBalance: newBalance,
-                availableBalance: newBalance,
-              },
-            })
-          }
-        }
-
         processedCount++
+        totalAmount += netSalary
       }
 
-      // Update payroll as paid
-      await tx.payroll.update({
+      // Update bank account balance
+      await tx.bankAccount.update({
+        where: { id: run.bankAccountId! },
+        data: { currentBalance },
+      })
+
+      // Mark run as completed
+      await tx.payrollRun.update({
         where: { id: payrollRunId },
         data: {
-          status: "PAID",
-          paidAt: now,
-          payDate: now,
+          status: "COMPLETED",
+          processedAt: new Date(),
         },
       })
     })
 
     revalidatePath("/finance/payroll")
     revalidatePath("/finance/banking")
-    revalidatePath("/finance/dashboard")
-
-    return { success: true, data: processedCount }
-  } catch (error) {
-    console.error("Error processing payments:", error)
-    return { success: false, error: "Failed to process payments" }
-  }
-}
-
-// ============================================================================
-// INDIVIDUAL SLIP QUERIES
-// ============================================================================
-
-export async function getEmployeeSalarySlips(
-  employeeId: string,
-  limit?: number
-): Promise<ActionResult<PayrollItem[]>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const items = await db.payrollItem.findMany({
-      where: {
-        employeeId,
-        payroll: { userId: session.user.id },
-      },
-      take: limit || 10,
-      orderBy: { createdAt: "desc" },
-      include: {
-        employee: {
-          select: {
-            id: true,
-            employeeCode: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-        payroll: {
-          select: { period: true, payrollCode: true },
-        },
-      },
-    })
 
     return {
       success: true,
-      data: items.map((item) => ({
-        id: item.id,
-        employeeId: item.employeeId,
-        employeeName: `${item.employee.firstName} ${item.employee.lastName}`,
-        employeeCode: item.employee.employeeCode,
-        basicSalary: Number(item.basicSalary),
-        housingAllowance: Number(item.housingAllowance),
-        transportAllowance: Number(item.transportAllowance),
-        mealAllowance: Number(item.mealAllowance),
-        otherAllowances: Number(item.otherAllowances),
-        overtimeHours: Number(item.overtimeHours),
-        overtimeAmount: Number(item.overtimeAmount),
-        socialSecurity: Number(item.socialSecurity),
-        incomeTax: Number(item.incomeTax),
-        otherDeductions: Number(item.otherDeductions),
-        loanDeduction: Number(item.loanDeduction),
-        grossAmount: Number(item.grossAmount),
-        totalDeductions: Number(item.totalDeductions),
-        netAmount: Number(item.netAmount),
-        status: item.status,
-        paidAt: item.paidAt,
-        notes: item.notes,
-      })),
+      data: { processedCount, totalAmount },
     }
   } catch (error) {
-    console.error("Error fetching employee salary slips:", error)
-    return { success: false, error: "Failed to fetch salary slips" }
+    console.error("Error processing payments:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to process payments",
+    }
   }
 }
 
-export async function getSalarySlip(
-  slipId: string
-): Promise<ActionResult<PayrollItem>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
+// ============================================
+// INDIVIDUAL SLIP ACTIONS
+// ============================================
 
+export async function getSalarySlip(slipId: string): Promise<ActionResult<unknown>> {
   try {
-    const item = await db.payrollItem.findFirst({
-      where: {
-        id: slipId,
-        payroll: { userId: session.user.id },
-      },
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const slip = await db.payrollItem.findUnique({
+      where: { id: slipId },
       include: {
-        employee: {
-          select: {
-            id: true,
-            employeeCode: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
+        employee: true,
+        payrollRun: true,
+        transaction: true,
       },
     })
 
-    if (!item) {
+    if (!slip) {
       return { success: false, error: "Salary slip not found" }
     }
 
     return {
       success: true,
       data: {
-        id: item.id,
-        employeeId: item.employeeId,
-        employeeName: `${item.employee.firstName} ${item.employee.lastName}`,
-        employeeCode: item.employee.employeeCode,
-        basicSalary: Number(item.basicSalary),
-        housingAllowance: Number(item.housingAllowance),
-        transportAllowance: Number(item.transportAllowance),
-        mealAllowance: Number(item.mealAllowance),
-        otherAllowances: Number(item.otherAllowances),
-        overtimeHours: Number(item.overtimeHours),
-        overtimeAmount: Number(item.overtimeAmount),
-        socialSecurity: Number(item.socialSecurity),
-        incomeTax: Number(item.incomeTax),
-        otherDeductions: Number(item.otherDeductions),
-        loanDeduction: Number(item.loanDeduction),
-        grossAmount: Number(item.grossAmount),
-        totalDeductions: Number(item.totalDeductions),
-        netAmount: Number(item.netAmount),
-        status: item.status,
-        paidAt: item.paidAt,
-        notes: item.notes,
+        ...slip,
+        basicSalary: Number(slip.basicSalary),
+        totalAllowances: Number(slip.totalAllowances),
+        grossSalary: Number(slip.grossSalary),
+        totalDeductions: Number(slip.totalDeductions),
+        netSalary: Number(slip.netSalary),
+        incomeTax: Number(slip.incomeTax),
+        socialSecurity: Number(slip.socialSecurity),
+        overtimeAmount: Number(slip.overtimeAmount),
+        overtimeHours: Number(slip.overtimeHours),
       },
     }
   } catch (error) {
     console.error("Error fetching salary slip:", error)
-    return { success: false, error: "Failed to fetch salary slip" }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch salary slip",
+    }
   }
 }
 
-// ============================================================================
-// EMPLOYEE MANAGEMENT
-// ============================================================================
-
-export async function getEmployees(): Promise<ActionResult<Employee[]>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
+export async function getEmployeeSalarySlips(
+  employeeId: string,
+  limit: number = 12
+): Promise<ActionResult<unknown[]>> {
   try {
-    const employees = await db.employee.findMany({
-      where: { userId: session.user.id },
-      orderBy: [{ status: "asc" }, { firstName: "asc" }],
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const slips = await db.payrollItem.findMany({
+      where: { employeeId },
       include: {
-        salary: {
+        payrollRun: {
           select: {
-            basicSalary: true,
-            grossSalary: true,
-            netSalary: true,
+            runNumber: true,
+            periodMonth: true,
+            periodYear: true,
           },
         },
       },
+      orderBy: { createdAt: "desc" },
+      take: limit,
     })
 
     return {
       success: true,
-      data: employees.map((emp) => ({
-        id: emp.id,
-        employeeCode: emp.employeeCode,
-        firstName: emp.firstName,
-        lastName: emp.lastName,
-        email: emp.email,
-        phone: emp.phone,
-        department: emp.department,
-        position: emp.position,
-        status: emp.status,
-        hireDate: emp.hireDate,
-        employmentType: emp.employmentType,
-        bankName: emp.bankName,
-        accountNumber: emp.accountNumber,
-        salary: emp.salary
-          ? {
-              basicSalary: Number(emp.salary.basicSalary),
-              grossSalary: Number(emp.salary.grossSalary),
-              netSalary: Number(emp.salary.netSalary),
-            }
-          : null,
+      data: slips.map((s) => ({
+        ...s,
+        basicSalary: Number(s.basicSalary),
+        totalAllowances: Number(s.totalAllowances),
+        grossSalary: Number(s.grossSalary),
+        totalDeductions: Number(s.totalDeductions),
+        netSalary: Number(s.netSalary),
       })),
     }
   } catch (error) {
-    console.error("Error fetching employees:", error)
-    return { success: false, error: "Failed to fetch employees" }
+    console.error("Error fetching employee slips:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch salary slips",
+    }
   }
 }
 
-export async function createEmployee(params: {
-  employeeCode: string
-  firstName: string
-  lastName: string
-  email?: string
-  phone?: string
-  department?: string
-  position?: string
-  hireDate: Date
-  employmentType?: "FULL_TIME" | "PART_TIME" | "CONTRACT" | "TEMPORARY"
-  bankName?: string
-  bankBranch?: string
-  accountNumber?: string
-  iban?: string
-  salary?: {
-    basicSalary: number
-    housingAllowance?: number
-    transportAllowance?: number
-    mealAllowance?: number
-    otherAllowances?: number
-    socialSecurityRate?: number
-    taxRate?: number
-  }
-}): Promise<ActionResult<string>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
+// ============================================
+// REPORTING ACTIONS
+// ============================================
 
+export async function getPayrollSummary(): Promise<ActionResult<{
+  totalRuns: number
+  draftRuns: number
+  pendingApproval: number
+  approvedRuns: number
+  completedRuns: number
+  totalEmployees: number
+  activeEmployees: number
+  totalPaidThisYear: number
+}>> {
   try {
-    const employee = await db.employee.create({
-      data: {
-        employeeCode: params.employeeCode,
-        firstName: params.firstName,
-        lastName: params.lastName,
-        email: params.email,
-        phone: params.phone,
-        department: params.department,
-        position: params.position,
-        hireDate: params.hireDate,
-        employmentType: params.employmentType || "FULL_TIME",
-        bankName: params.bankName,
-        bankBranch: params.bankBranch,
-        accountNumber: params.accountNumber,
-        iban: params.iban,
-        userId: session.user.id,
-        salary: params.salary
-          ? {
-              create: {
-                basicSalary: params.salary.basicSalary,
-                housingAllowance: params.salary.housingAllowance || 0,
-                transportAllowance: params.salary.transportAllowance || 0,
-                mealAllowance: params.salary.mealAllowance || 0,
-                otherAllowances: params.salary.otherAllowances || 0,
-                socialSecurityRate: params.salary.socialSecurityRate || 8,
-                taxRate: params.salary.taxRate || 0,
-                grossSalary:
-                  params.salary.basicSalary +
-                  (params.salary.housingAllowance || 0) +
-                  (params.salary.transportAllowance || 0) +
-                  (params.salary.mealAllowance || 0) +
-                  (params.salary.otherAllowances || 0),
-                totalDeductions:
-                  ((params.salary.basicSalary +
-                    (params.salary.housingAllowance || 0) +
-                    (params.salary.transportAllowance || 0) +
-                    (params.salary.mealAllowance || 0) +
-                    (params.salary.otherAllowances || 0)) *
-                    ((params.salary.socialSecurityRate || 8) +
-                      (params.salary.taxRate || 0))) /
-                  100,
-                netSalary:
-                  params.salary.basicSalary +
-                  (params.salary.housingAllowance || 0) +
-                  (params.salary.transportAllowance || 0) +
-                  (params.salary.mealAllowance || 0) +
-                  (params.salary.otherAllowances || 0) -
-                  ((params.salary.basicSalary +
-                    (params.salary.housingAllowance || 0) +
-                    (params.salary.transportAllowance || 0) +
-                    (params.salary.mealAllowance || 0) +
-                    (params.salary.otherAllowances || 0)) *
-                    ((params.salary.socialSecurityRate || 8) +
-                      (params.salary.taxRate || 0))) /
-                    100,
-              },
-            }
-          : undefined,
-      },
-    })
-
-    revalidatePath("/finance/payroll")
-
-    return { success: true, data: employee.id }
-  } catch (error) {
-    console.error("Error creating employee:", error)
-    return { success: false, error: "Failed to create employee" }
-  }
-}
-
-export async function updateEmployeeSalary(
-  employeeId: string,
-  params: {
-    basicSalary: number
-    housingAllowance?: number
-    transportAllowance?: number
-    mealAllowance?: number
-    otherAllowances?: number
-    socialSecurityRate?: number
-    taxRate?: number
-  }
-): Promise<ActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const employee = await db.employee.findFirst({
-      where: { id: employeeId, userId: session.user.id },
-    })
-
-    if (!employee) {
-      return { success: false, error: "Employee not found" }
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
     }
 
-    const grossSalary =
-      params.basicSalary +
-      (params.housingAllowance || 0) +
-      (params.transportAllowance || 0) +
-      (params.mealAllowance || 0) +
-      (params.otherAllowances || 0)
-
-    const totalDeductions =
-      (grossSalary *
-        ((params.socialSecurityRate || 8) + (params.taxRate || 0))) /
-      100
-
-    const netSalary = grossSalary - totalDeductions
-
-    await db.salary.upsert({
-      where: { employeeId },
-      create: {
-        employeeId,
-        basicSalary: params.basicSalary,
-        housingAllowance: params.housingAllowance || 0,
-        transportAllowance: params.transportAllowance || 0,
-        mealAllowance: params.mealAllowance || 0,
-        otherAllowances: params.otherAllowances || 0,
-        socialSecurityRate: params.socialSecurityRate || 8,
-        taxRate: params.taxRate || 0,
-        grossSalary,
-        totalDeductions,
-        netSalary,
-      },
-      update: {
-        basicSalary: params.basicSalary,
-        housingAllowance: params.housingAllowance || 0,
-        transportAllowance: params.transportAllowance || 0,
-        mealAllowance: params.mealAllowance || 0,
-        otherAllowances: params.otherAllowances || 0,
-        socialSecurityRate: params.socialSecurityRate || 8,
-        taxRate: params.taxRate || 0,
-        grossSalary,
-        totalDeductions,
-        netSalary,
-      },
-    })
-
-    revalidatePath("/finance/payroll")
-
-    return { success: true }
-  } catch (error) {
-    console.error("Error updating employee salary:", error)
-    return { success: false, error: "Failed to update salary" }
-  }
-}
-
-// ============================================================================
-// REPORTING ACTIONS
-// ============================================================================
-
-export async function getPayrollSummary(): Promise<ActionResult<PayrollSummary>> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" }
-  }
-
-  try {
-    const now = new Date()
-    const startOfYear = new Date(now.getFullYear(), 0, 1)
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const currentYear = new Date().getFullYear()
 
     const [
       totalRuns,
+      draftRuns,
+      pendingApproval,
+      approvedRuns,
       completedRuns,
-      pendingRuns,
       totalEmployees,
-      monthlyPayroll,
-      yearToDatePayroll,
-      avgSalary,
+      activeEmployees,
+      yearPayments,
     ] = await Promise.all([
-      db.payroll.count({ where: { userId: session.user.id } }),
-      db.payroll.count({
-        where: { userId: session.user.id, status: "PAID" },
-      }),
-      db.payroll.count({
+      db.payrollRun.count(),
+      db.payrollRun.count({ where: { status: "DRAFT" } }),
+      db.payrollRun.count({ where: { status: "PENDING_APPROVAL" } }),
+      db.payrollRun.count({ where: { status: "APPROVED" } }),
+      db.payrollRun.count({ where: { status: "COMPLETED" } }),
+      db.employee.count(),
+      db.employee.count({ where: { status: "ACTIVE" } }),
+      db.payrollRun.aggregate({
         where: {
-          userId: session.user.id,
-          status: { in: ["DRAFT", "PROCESSING", "PENDING_APPROVAL", "APPROVED"] },
-        },
-      }),
-      db.employee.count({
-        where: { userId: session.user.id, status: "ACTIVE" },
-      }),
-      db.payroll.aggregate({
-        where: {
-          userId: session.user.id,
-          status: "PAID",
-          periodStart: { gte: startOfMonth },
-          periodEnd: { lte: endOfMonth },
+          periodYear: currentYear,
+          status: "COMPLETED",
         },
         _sum: { totalNet: true },
-      }),
-      db.payroll.aggregate({
-        where: {
-          userId: session.user.id,
-          status: "PAID",
-          periodStart: { gte: startOfYear },
-        },
-        _sum: { totalNet: true },
-      }),
-      db.salary.aggregate({
-        where: {
-          employee: { userId: session.user.id, status: "ACTIVE" },
-        },
-        _avg: { netSalary: true },
       }),
     ])
 
@@ -1100,27 +903,61 @@ export async function getPayrollSummary(): Promise<ActionResult<PayrollSummary>>
       success: true,
       data: {
         totalRuns,
+        draftRuns,
+        pendingApproval,
+        approvedRuns,
         completedRuns,
-        pendingRuns,
         totalEmployees,
-        monthlyPayroll: Number(monthlyPayroll._sum.totalNet || 0),
-        yearToDatePayroll: Number(yearToDatePayroll._sum.totalNet || 0),
-        averageNetSalary: Number(avgSalary._avg.netSalary || 0),
+        activeEmployees,
+        totalPaidThisYear: Number(yearPayments._sum.totalNet || 0),
       },
     }
   } catch (error) {
     console.error("Error fetching payroll summary:", error)
     return {
       success: false,
-      error: "Failed to fetch payroll summary",
+      error: error instanceof Error ? error.message : "Failed to fetch summary",
     }
   }
 }
 
-// Legacy function name for compatibility
-export async function getTeacherSalarySlips(
-  teacherId: string,
-  limit?: number
-): Promise<ActionResult<PayrollItem[]>> {
-  return getEmployeeSalarySlips(teacherId, limit)
+export async function deletePayrollRun(runId: string): Promise<ActionResult> {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" }
+    }
+
+    const run = await db.payrollRun.findUnique({
+      where: { id: runId },
+    })
+
+    if (!run) {
+      return { success: false, error: "Payroll run not found" }
+    }
+
+    if (run.status === "COMPLETED" || run.status === "PROCESSING") {
+      return { success: false, error: "Cannot delete processed payroll run" }
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.payrollItem.deleteMany({
+        where: { payrollRunId: runId },
+      })
+
+      await tx.payrollRun.delete({
+        where: { id: runId },
+      })
+    })
+
+    revalidatePath("/finance/payroll")
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting payroll run:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete payroll run",
+    }
+  }
 }

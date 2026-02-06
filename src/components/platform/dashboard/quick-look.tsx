@@ -11,6 +11,8 @@ import {
 
 import { cn } from "@/lib/utils"
 import type { TrendingStatsData } from "./actions"
+import type { Dictionary } from "@/components/internationalization"
+import { useDictionary } from "@/components/internationalization/use-dictionary"
 
 /**
  * QuickLook Component
@@ -20,46 +22,51 @@ import type { TrendingStatsData } from "./actions"
 
 interface QuickLookProps {
   stats: TrendingStatsData
+  dictionary?: Dictionary
   className?: string
 }
 
-// Original QuickActions colors (Anthropic design colors)
-const statConfigs = [
-  {
-    key: "totalShipments" as const,
-    label: "Total Shipments",
-    icon: Ship,
-    bg: "bg-[#D97757]", // Coral/orange
-    text: "text-white",
-    format: (value: number) => value.toString(),
-  },
-  {
-    key: "totalRevenue" as const,
-    label: "Total Revenue",
-    icon: DollarSign,
-    bg: "bg-[#6A9BCC]", // Blue
-    text: "text-white",
-    format: (value: number) => `SDG ${value.toLocaleString()}`,
-  },
-  {
-    key: "pendingDeclarations" as const,
-    label: "Pending Declarations",
-    icon: FileText,
-    bg: "bg-[#CBCADB]", // Lavender
-    text: "text-gray-800",
-    format: (value: number) => value.toString(),
-  },
-  {
-    key: "completionRate" as const,
-    label: "Completion Rate",
-    icon: CheckCircle,
-    bg: "bg-[#BCD1CA]", // Mint
-    text: "text-gray-800",
-    format: (value: number) => `${value}%`,
-  },
-]
+export function QuickLook({ stats, dictionary: propDictionary, className }: QuickLookProps) {
+  const hookDictionary = useDictionary()
+  const dictionary = propDictionary ?? hookDictionary
+  const d = dictionary.dashboard
 
-export function QuickLook({ stats, className }: QuickLookProps) {
+  // Original QuickActions colors (Anthropic design colors)
+  const statConfigs = [
+    {
+      key: "totalShipments" as const,
+      label: d?.totalShipments || "Total Shipments",
+      icon: Ship,
+      bg: "bg-[#D97757]", // Coral/orange
+      text: "text-white",
+      format: (value: number) => value.toString(),
+    },
+    {
+      key: "totalRevenue" as const,
+      label: dictionary.finance?.totalRevenue || "Total Revenue",
+      icon: DollarSign,
+      bg: "bg-[#6A9BCC]", // Blue
+      text: "text-white",
+      format: (value: number) => `SDG ${value.toLocaleString()}`,
+    },
+    {
+      key: "pendingDeclarations" as const,
+      label: d?.pendingDeclarations || "Pending Declarations",
+      icon: FileText,
+      bg: "bg-[#CBCADB]", // Lavender
+      text: "text-gray-800",
+      format: (value: number) => value.toString(),
+    },
+    {
+      key: "completionRate" as const,
+      label: d?.completionRate || "Completion Rate",
+      icon: CheckCircle,
+      bg: "bg-[#BCD1CA]", // Mint
+      text: "text-gray-800",
+      format: (value: number) => `${value}%`,
+    },
+  ]
+
   return (
     <div className={cn("w-full", className)}>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

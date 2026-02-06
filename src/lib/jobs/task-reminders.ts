@@ -233,7 +233,7 @@ export async function sendStageAttentionAlerts(hoursThreshold: number = 48): Pro
       });
       alertsSent++;
     } catch (error) {
-      console.error('Failed to send stage attention alert:', error);
+      console.error('Failed to send stage attention alert');
     }
   }
 
@@ -293,7 +293,7 @@ export async function sendPaymentOverdueReminders(): Promise<number> {
       });
       remindersSent++;
     } catch (error) {
-      console.error('Failed to send payment overdue reminder:', error);
+      console.error('Failed to send payment overdue reminder');
     }
   }
 
@@ -311,13 +311,6 @@ export async function runAllReminderJobs() {
     paymentReminders: await sendPaymentOverdueReminders(),
     timestamp: new Date().toISOString(),
   };
-
-  console.log('Reminder jobs completed:', {
-    dueSoon: results.dueSoonReminders.length,
-    overdue: results.overdueAlerts.length,
-    stages: results.stageAlerts,
-    payments: results.paymentReminders,
-  });
 
   return results;
 }

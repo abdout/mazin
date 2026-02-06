@@ -15,6 +15,7 @@ import {
 import { DataTableLoadMore } from "@/components/table/data-table-load-more"
 import { DataTablePagination } from "@/components/table/data-table-pagination"
 import { getCommonPinningStyles } from "@/components/table/utils"
+import type { Dictionary } from "@/components/internationalization"
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>
@@ -23,6 +24,7 @@ interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   hasMore?: boolean
   isLoading?: boolean
   onLoadMore?: () => void
+  dictionary?: Dictionary
 }
 
 function DataTableInner<TData>({
@@ -34,8 +36,10 @@ function DataTableInner<TData>({
   hasMore = false,
   isLoading = false,
   onLoadMore,
+  dictionary,
   ...props
 }: DataTableProps<TData>) {
+  const t = dictionary?.table
   return (
     <div className={cn("flex w-full flex-col gap-2.5", className)} {...props}>
       {children}
@@ -115,7 +119,7 @@ function DataTableInner<TData>({
                   colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {t?.noResults || "No results."}
                 </TableCell>
               </TableRow>
             )}
@@ -124,7 +128,7 @@ function DataTableInner<TData>({
       </div>
       <div className="flex flex-col gap-2.5">
         {paginationMode === "pagination" ? (
-          <DataTablePagination table={table} />
+          <DataTablePagination table={table} dictionary={dictionary} />
         ) : (
           <DataTableLoadMore
             table={table}

@@ -30,7 +30,6 @@ export async function generateEntryNumber(
   companyId: string,
   fiscalYearId: string
 ): Promise<string> {
-  console.log("generateEntryNumber called:", { companyId, fiscalYearId })
   const yearCode = new Date().getFullYear().toString()
   const sequence = String(Math.floor(Math.random() * 999999)).padStart(6, "0")
   return `JE-${yearCode}-${sequence}`
@@ -53,13 +52,12 @@ export async function createJournalEntry(
       }
     }
 
-    console.log("createJournalEntry called:", { companyId, input, createdBy })
     return {
       success: true,
       journalEntryId: `stub-journal-${Date.now()}`,
     }
   } catch (error) {
-    console.error("Error creating journal entry:", error)
+    console.error("Failed to create journal entry")
     return {
       success: false,
       errors: [
@@ -76,7 +74,6 @@ export async function postJournalEntry(
   journalEntryId: string,
   postedBy: string
 ): Promise<PostingResult> {
-  console.log("postJournalEntry called:", { journalEntryId, postedBy })
   return {
     success: true,
     journalEntryId,
@@ -91,11 +88,6 @@ export async function reverseJournalEntry(
   reversedBy: string,
   reason: string
 ): Promise<PostingResult> {
-  console.log("reverseJournalEntry called:", {
-    journalEntryId,
-    reversedBy,
-    reason,
-  })
   return {
     success: true,
     journalEntryId: `reversed-${journalEntryId}`,
@@ -110,11 +102,6 @@ export async function getAccountBalance(
   accountId: string,
   fiscalYearId: string
 ): Promise<number> {
-  console.log("getAccountBalance called:", {
-    companyId,
-    accountId,
-    fiscalYearId,
-  })
   return 0
 }
 
@@ -125,7 +112,6 @@ export async function calculateTrialBalance(
   companyId: string,
   fiscalYearId: string
 ): Promise<AccountBalance[]> {
-  console.log("calculateTrialBalance called:", { companyId, fiscalYearId })
   return []
 }
 

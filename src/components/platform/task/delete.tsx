@@ -14,56 +14,53 @@ import {
 import { toast } from 'sonner';
 import { deleteTask } from './actions';
 import { Task } from './type';
+import type { Dictionary } from "@/components/internationalization";
+import { useDictionary } from "@/components/internationalization/use-dictionary";
 
-interface DeleteTaskProps {
+export interface DeleteTaskProps {
   task: Task;
   onSuccess?: () => Promise<void>;
+  dictionary?: Dictionary;
 }
 
-const DeleteTask = ({ task, onSuccess }: DeleteTaskProps) => {
+const DeleteTask = ({ task, onSuccess, dictionary: propDictionary }: DeleteTaskProps) => {
+  const hookDictionary = useDictionary();
+  const dictionary = propDictionary ?? hookDictionary;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const t = dictionary.task;
+
   const handleDelete = async () => {
-    console.log('=== Client: Delete Task ===');
-    console.log('Task to delete:', JSON.stringify(task, null, 2));
-    
     // Use task.id (Prisma) if available, otherwise fall back to task._id (MongoDB)
     const taskId = task.id || task._id;
-    
+
     if (!taskId) {
       console.error('Cannot delete task: No task ID provided');
       return;
     }
-    
+
     try {
-      console.log('Setting isDeleting to true');
       setIsDeleting(true);
-      
-      console.log('Calling deleteTask API with ID:', taskId);
+
       const result = await deleteTask(taskId);
-      console.log('API response:', JSON.stringify(result, null, 2));
-      
+
       if (result.error) {
-        console.error('Error from API:', result.error);
         toast.error(result.error);
         return;
       }
-      
-      console.log('Task deletion successful');
-      toast.success('Task deleted successfully');
-      
+
+      toast.success(t?.taskDeletedSuccess || 'Task deleted successfully');
+
       setIsOpen(false);
       if (onSuccess) {
-        console.log('Calling onSuccess callback');
         await onSuccess();
       }
-    } catch (error: any) {
-      console.error('Exception in task deletion:', error);
-      console.error('Error stack:', error.stack);
-      toast.error(error.message || 'Failed to delete task');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : (dictionary.common.error || 'Failed to delete task');
+      toast.error(message);
     } finally {
-      console.log('Setting isDeleting to false');
       setIsDeleting(false);
     }
   };
@@ -79,24 +76,25 @@ const DeleteTask = ({ task, onSuccess }: DeleteTaskProps) => {
         }}
         className="h-8 w-8 p-0 text-destructive hover:text-destructive"
         data-action="no-navigate"
+        title={dictionary.common.delete}
       >
         <Trash2 className="h-4 w-4" />
       </Button>
-      
+
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[425px]" data-action="no-navigate">
           <DialogHeader>
-            <DialogTitle>Delete Task</DialogTitle>
+            <DialogTitle>{t?.deleteTask || 'Delete Task'}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this task? This action cannot be undone.
+              {t?.deleteConfirmation || 'Are you sure you want to delete this task? This action cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <p className="font-medium">{task.task}</p>
             {task.desc && <p className="text-sm text-muted-foreground mt-1">{task.desc}</p>}
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -107,7 +105,7 @@ const DeleteTask = ({ task, onSuccess }: DeleteTaskProps) => {
               disabled={isDeleting}
               data-action="no-navigate"
             >
-              Cancel
+              {dictionary.common.cancel}
             </Button>
             <Button
               variant="destructive"
@@ -118,7 +116,7 @@ const DeleteTask = ({ task, onSuccess }: DeleteTaskProps) => {
               disabled={isDeleting}
               data-action="no-navigate"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? (t?.deleting || 'Deleting...') : dictionary.common.delete}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -127,4 +125,4 @@ const DeleteTask = ({ task, onSuccess }: DeleteTaskProps) => {
   );
 };
 
-export default DeleteTask; 
+export default DeleteTask;

@@ -39,11 +39,18 @@ model Shipment {
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id])
 
+  // Demurrage tracking
+  freeDays           Int?      @default(14)  // Free storage days at port
+  demurrageDailyRate Decimal?  @db.Decimal(10, 2)  // Daily rate after free days
+  demurrageStartDate DateTime?  // When demurrage counting starts (usually arrival + unloading)
+
   declarations   CustomsDeclaration[]
   invoices       Invoice[]
   trackingStages TrackingStage[]
   stageInvoices  StageInvoice[]
   notifications  Notification[]
+  expenses       Expense[]
+  acds           AdvanceCargoDeclaration[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

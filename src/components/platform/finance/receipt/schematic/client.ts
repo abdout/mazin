@@ -14,10 +14,9 @@ interface StubSchematicClient {
 // Stub implementation
 export const schematicClient: StubSchematicClient = {
   checkFlag: async (flagKey: string, context: Record<string, unknown>) => {
-    console.log("schematicClient.checkFlag called (stubbed):", { flagKey, context })
     return true // Return true for all feature flags in development
   },
   identify: async (context: Record<string, unknown>) => {
-    console.log("schematicClient.identify called (stubbed):", { context })
+    // TODO: Implement with Schematic SDK
   },
 }
