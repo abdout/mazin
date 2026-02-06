@@ -42,6 +42,17 @@ model User {
   submittedExpenses     Expense[]          @relation("SubmittedExpenses")
   approvedExpenses      Expense[]          @relation("ApprovedExpenses")
   createdCustomsPayments CustomsPayment[]  @relation("CreatedCustomsPayments")
+  transactions          Transaction[]
+  expenseCategories     ExpenseCategory[]
+  expenses              Expense[]
+  budgets               Budget[]
+  payrolls              Payroll[]
+  chartOfAccounts       ChartOfAccount[]
+  journalEntries        JournalEntry[]
+  fiscalYears           FiscalYear[]
+  receipts              Receipt[]
+  feeTemplates          FeeTemplate[]
+  statementsOfAccount   StatementOfAccount[]
 
   // Notification relations
   notifications          Notification[]         @relation("UserNotifications")
@@ -53,21 +64,6 @@ model User {
   // Marketplace relations
   vendor          Vendor?
   serviceRequests ServiceRequest[]
-
-  // Finance relations
-  bankAccounts        BankAccount[]
-  transactions        Transaction[]
-  expenseCategories   ExpenseCategory[]
-  expenses            Expense[]
-  budgets             Budget[]
-  employees           Employee[]
-  payrolls            Payroll[]
-  chartOfAccounts     ChartOfAccount[]
-  journalEntries      JournalEntry[]
-  fiscalYears         FiscalYear[]
-  receipts            Receipt[]
-  feeTemplates        FeeTemplate[]
-  statementsOfAccount StatementOfAccount[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

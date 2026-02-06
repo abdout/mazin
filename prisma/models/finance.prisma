@@ -768,6 +768,7 @@ model Payroll {
   // Relations
   userId String
   user   User          @relation(fields: [userId], references: [id])
+  items  PayrollItem[]
 
   // Journal entry
   journalEntryId String?

@@ -550,6 +550,7 @@ export async function seedMarketplace(prisma: PrismaClient, users: UserRef[]) {
   const requests = await Promise.all(
     sampleRequests.map(async (req) => {
       const service = listings[req.serviceIndex]
+      if (!service) throw new Error("Service not found")
       const vendor = vendors.find((v) => v.id === service.vendorId)
 
       if (!vendor) throw new Error("Vendor not found")

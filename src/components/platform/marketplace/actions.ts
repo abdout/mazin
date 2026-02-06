@@ -321,7 +321,7 @@ export async function createServiceListing(data: ServiceListingData) {
         isActive: validated.isActive,
         serviceArea: validated.serviceArea,
         capacity: validated.capacity,
-        specifications: validated.specifications,
+        specifications: validated.specifications as Parameters<typeof db.serviceListing.create>[0]["data"]["specifications"],
         vendorId: vendor.id,
         categoryId: validated.categoryId,
       },
@@ -359,7 +359,7 @@ export async function updateServiceListing(id: string, data: Partial<ServiceList
 
     const listing = await db.serviceListing.update({
       where: { id },
-      data,
+      data: data as Parameters<typeof db.serviceListing.update>[0]["data"],
       include: { category: true },
     });
 

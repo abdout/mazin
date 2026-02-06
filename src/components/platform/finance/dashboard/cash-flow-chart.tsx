@@ -25,6 +25,7 @@ interface CashFlowChartProps {
   outflowData: number[]
   balanceData: number[]
   labels?: string[]
+  locale?: string
   className?: string
 }
 

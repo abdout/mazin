@@ -720,11 +720,9 @@ export async function createQuickInvoice(
       total,
       totalInWordsAr,
       // Auto-populate from shipment
-      blNumber: shipment.blNumber,
       containerNumbers: shipment.containerNumber ? [shipment.containerNumber] : [],
       vesselName: shipment.vesselName,
-      voyageNumber: shipment.voyageNumber,
-      commodityType: shipment.goodsDescription,
+      commodityType: shipment.description,
       supplierName: shipment.client?.companyName,
       items: {
         create: nonZeroItems.map((item) => ({

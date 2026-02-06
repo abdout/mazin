@@ -174,6 +174,7 @@ export function InvoiceForm({
     const config = FEE_CATEGORIES[categoryKey as FeeCategory]
     if (config) {
       const currentItem = watchItems[index]
+      if (!currentItem) return
       update(index, {
         ...currentItem,
         feeCategory: categoryKey,

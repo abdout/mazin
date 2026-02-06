@@ -84,6 +84,8 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
             invoiceNumber={invoice.invoiceNumber}
             invoiceStatus={invoice.status}
             clientEmail={invoice.client?.email}
+            total={Number(invoice.total)}
+            currency={invoice.currency}
             dictionary={dictionary}
             locale={locale}
           />

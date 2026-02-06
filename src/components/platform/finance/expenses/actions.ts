@@ -172,14 +172,14 @@ export async function getExpenses(params?: {
               description: true,
             },
           },
-          submittedBy: {
+          submittedByUser: {
             select: {
               id: true,
               name: true,
               email: true,
             },
           },
-          approvedBy: {
+          approvedByUser: {
             select: {
               id: true,
               name: true,
@@ -234,10 +234,10 @@ export async function getExpense(expenseId: string): Promise<ActionResult<unknow
             description: true,
           },
         },
-        submittedBy: {
+        submittedByUser: {
           select: { id: true, name: true, email: true },
         },
-        approvedBy: {
+        approvedByUser: {
           select: { id: true, name: true, email: true },
         },
         transaction: true,
@@ -282,6 +282,7 @@ export async function createExpense(
       data: {
         expenseNumber: generateExpenseNumber(),
         amount: validated.amount,
+        totalAmount: validated.amount,
         description: validated.description,
         vendor: validated.vendor,
         expenseDate: validated.expenseDate || new Date(),
@@ -681,7 +682,7 @@ export async function getExpensesByShipment(
       where: { shipmentId },
       include: {
         category: true,
-        submittedBy: {
+        submittedByUser: {
           select: { id: true, name: true },
         },
       },

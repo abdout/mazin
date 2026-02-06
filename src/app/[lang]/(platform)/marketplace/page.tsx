@@ -18,7 +18,7 @@ export default async function MarketplacePage({
 
   // Fetch services with pagination (large page for initial load, client filters in-memory)
   const servicesResult = await getServices(undefined, { page: 1, pageSize: 100 });
-  const services = (servicesResult.success ? servicesResult.listings : []) as ServiceListingWithRelations[];
+  const services = (servicesResult.success ? servicesResult.listings : []) as unknown as ServiceListingWithRelations[];
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

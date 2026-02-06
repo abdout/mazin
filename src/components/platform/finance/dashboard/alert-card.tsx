@@ -10,6 +10,7 @@ import type { FinancialAlert } from "./types"
 
 interface AlertCardProps {
   alert: FinancialAlert
+  locale?: string
   onDismiss?: (id: string) => void
 }
 

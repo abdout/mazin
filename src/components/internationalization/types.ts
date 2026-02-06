@@ -50,6 +50,7 @@ export interface Dictionary {
     areYouSure?: string
     openMenu?: string
     viewAll?: string
+    navigation?: string
   }
   header: {
     services: string
@@ -414,6 +415,8 @@ export interface Dictionary {
       status?: string
       uploaded?: string
     }
+    dashboard?: string
+    banking?: string
     navigation?: {
       overview?: string
       invoice?: string
@@ -428,6 +431,10 @@ export interface Dictionary {
       budget?: string
       expenses?: string
       accounts?: string
+      dashboard?: string
+      myBanks?: string
+      paymentTransfer?: string
+      transactionHistory?: string
     }
     receipt?: {
       fileName?: string

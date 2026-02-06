@@ -235,7 +235,7 @@ export function QuickInvoiceDialog({
               <SelectContent>
                 {shipments.map((shipment) => (
                   <SelectItem key={shipment.id} value={shipment.id}>
-                    {shipment.shipmentNumber} - {shipment.blNumber || shipment.goodsDescription}
+                    {shipment.shipmentNumber} - {shipment.containerNumber || shipment.description}
                   </SelectItem>
                 ))}
               </SelectContent>

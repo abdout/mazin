@@ -27,9 +27,12 @@ import {
 import type { Dictionary } from '@/components/internationalization';
 import { isRTL } from '@/components/internationalization/config';
 import type { Locale } from '@/components/internationalization';
+import type { z } from 'zod';
 import { createServiceRequest } from './actions';
 import { serviceRequestSchema, type ServiceRequestData } from './validation';
 import type { ServiceListingWithRelations } from './types';
+
+type ServiceRequestFormValues = z.input<typeof serviceRequestSchema>;
 
 // Normalize phone for WhatsApp (Sudan country code)
 function normalizePhone(phone: string): string {
@@ -60,8 +63,8 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
   } | null>(null);
   const rtl = isRTL(locale);
 
-  const form = useForm<ServiceRequestData>({
-    resolver: zodResolver(serviceRequestSchema),
+  const form = useForm<ServiceRequestFormValues>({
+    resolver: zodResolver(serviceRequestSchema) as never,
     defaultValues: {
       serviceId: service.id,
       requesterName: '',
@@ -73,9 +76,9 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
     },
   });
 
-  const onSubmit = (data: ServiceRequestData) => {
+  const onSubmit = (data: ServiceRequestFormValues) => {
     startTransition(async () => {
-      const result = await createServiceRequest(data);
+      const result = await createServiceRequest(data as ServiceRequestData);
 
       if (result.success && result.request) {
         setSubmitted(true);

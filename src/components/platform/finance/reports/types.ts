@@ -73,14 +73,14 @@ export interface TrialBalanceData {
 export interface AccountSummary {
   accountCode: string
   accountName: string
-  accountType: AccountType
+  accountType: AccountType | string
   balance: number
 }
 
 export interface TrialBalanceEntry {
   accountCode: string
   accountName: string
-  accountType: AccountType
+  accountType: AccountType | string
   debitBalance: number
   creditBalance: number
 }

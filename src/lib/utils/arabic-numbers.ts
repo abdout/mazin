@@ -127,7 +127,7 @@ function convertHundreds(num: number): string {
   // Hundreds place
   const hundreds = Math.floor(num / 100);
   if (hundreds > 0) {
-    parts.push(HUNDREDS[hundreds]);
+    parts.push(HUNDREDS[hundreds]!);
   }
 
   // Remaining (0-99)
@@ -135,17 +135,17 @@ function convertHundreds(num: number): string {
 
   if (remainder > 0) {
     if (remainder < 20) {
-      parts.push(ONES[remainder]);
+      parts.push(ONES[remainder]!);
     } else {
       const tens = Math.floor(remainder / 10);
       const ones = remainder % 10;
 
       if (ones > 0) {
         // "واحد وعشرون" format (ones before tens with و)
-        parts.push(ONES[ones]);
-        parts.push("و" + TENS[tens]);
+        parts.push(ONES[ones]!);
+        parts.push("و" + TENS[tens]!);
       } else {
-        parts.push(TENS[tens]);
+        parts.push(TENS[tens]!);
       }
     }
   }
@@ -226,7 +226,7 @@ export function numberToArabicWords(
   currency: string = "SDG"
 ): string {
   // Get currency info
-  const currencyInfo = CURRENCIES[currency] || CURRENCIES.SDG;
+  const currencyInfo = CURRENCIES[currency] ?? CURRENCIES["SDG"]!;
 
   // Split into integer and decimal parts
   const integerPart = Math.floor(Math.abs(amount));
@@ -278,7 +278,7 @@ export function formatArabicNumerals(num: number): string {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
-    .replace(/\d/g, (digit) => arabicNumerals[parseInt(digit)])
+    .replace(/\d/g, (digit) => arabicNumerals[parseInt(digit)]!)
     .replace(/,/g, "٬") // Arabic thousands separator
     .replace(/\./g, "٫"); // Arabic decimal separator
 }
@@ -306,7 +306,7 @@ export function formatCurrency(
     SAR: { ar: "ر.س", en: "SAR" },
   };
 
-  const symbol = currencySymbols[currency] || currencySymbols.SDG;
+  const symbol = currencySymbols[currency] ?? currencySymbols["SDG"]!;
 
   if (locale === "ar") {
     return formatArabicNumerals(amount) + " " + symbol.ar;
@@ -334,7 +334,7 @@ export function amountInWords(
   amount: number,
   currency: string = "SDG"
 ): string {
-  const currencyInfo = CURRENCIES[currency] || CURRENCIES.SDG;
+  const currencyInfo = CURRENCIES[currency] ?? CURRENCIES["SDG"]!;
   const integerPart = Math.floor(Math.abs(amount));
   const integerWords = integerToArabicWords(integerPart);
 

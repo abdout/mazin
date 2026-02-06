@@ -20,7 +20,7 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
-  const service = result.listing as ServiceListingWithRelations;
+  const service = result.listing as unknown as ServiceListingWithRelations;
 
   return <ServiceDetail service={service} dictionary={dict} locale={locale} />;
 }

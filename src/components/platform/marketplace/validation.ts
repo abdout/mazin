@@ -45,7 +45,7 @@ export const serviceListingSchema = z.object({
   isActive: z.boolean().default(true),
   serviceArea: z.string().default('Port Sudan'),
   capacity: z.string().optional(),
-  specifications: z.record(z.unknown()).optional(),
+  specifications: z.record(z.string(), z.unknown()).optional(),
 }).refine(
   (data) => {
     if (data.priceMax && data.priceMax < data.priceMin) {

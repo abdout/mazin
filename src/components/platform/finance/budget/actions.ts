@@ -299,7 +299,7 @@ export async function createBudget(params: {
                 allocated: item.allocated,
                 spent: 0,
                 remaining: item.allocated,
-                monthlyAllocations: item.monthlyAllocations || null,
+                monthlyAllocations: (item.monthlyAllocations || null) as Parameters<typeof db.budgetItem.create>[0]["data"]["monthlyAllocations"],
               })),
             }
           : undefined,
@@ -469,7 +469,7 @@ export async function createBudgetAllocation(params: {
           allocated: params.allocated,
           spent: 0,
           remaining: params.allocated,
-          monthlyAllocations: params.monthlyAllocations || null,
+          monthlyAllocations: (params.monthlyAllocations || null) as Parameters<typeof db.budgetItem.create>[0]["data"]["monthlyAllocations"],
         },
       }),
       db.budget.update({

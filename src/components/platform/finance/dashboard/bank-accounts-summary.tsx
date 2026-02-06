@@ -18,8 +18,10 @@ interface BankAccountsSummaryProps {
   accounts: {
     name: string
     balance: number
+    currency?: string
     type: string
   }[]
+  locale?: string
   className?: string
 }
 

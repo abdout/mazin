@@ -29,6 +29,7 @@ interface ExpenseChartProps {
     amount: number
     percentage: number
   }[]
+  locale?: string
   className?: string
 }
 
