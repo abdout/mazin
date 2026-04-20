@@ -60,7 +60,7 @@ export function ClientActionBar({
     startTransition(async () => {
       const ids = rows.map((row) => row.original.id)
       await onActivate?.(ids)
-      toast.success(`${ids.length} customer(s) activated`)
+      toast.success(dictionary.common?.success ?? "")
       table.toggleAllRowsSelected(false)
     })
   }
@@ -69,7 +69,7 @@ export function ClientActionBar({
     startTransition(async () => {
       const ids = rows.map((row) => row.original.id)
       await onDeactivate?.(ids)
-      toast.success(`${ids.length} customer(s) deactivated`)
+      toast.success(dictionary.common?.success ?? "")
       table.toggleAllRowsSelected(false)
     })
   }
@@ -80,12 +80,12 @@ export function ClientActionBar({
         (row) => row.original.invoices.length === 0
       )
       if (deletableRows.length === 0) {
-        toast.error("Selected customers have invoices and cannot be deleted")
+        toast.error(dictionary.common?.error ?? "")
         return
       }
       const ids = deletableRows.map((row) => row.original.id)
       await onDelete?.(ids)
-      toast.success(`${ids.length} customer(s) deleted`)
+      toast.success(dictionary.common?.success ?? "")
       table.toggleAllRowsSelected(false)
     })
   }
@@ -96,14 +96,14 @@ export function ClientActionBar({
       excludeColumns: ["select", "actions"],
       onlySelected: true,
     })
-    toast.success("Exported successfully")
+    toast.success(dictionary.common?.success ?? "")
   }
 
   return (
     <DataTableActionBar table={table} visible={rows.length > 0}>
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">
-          {rows.length} {dictionary.common?.selected || "selected"}
+          {rows.length} {dictionary.common?.selected ?? ""}
         </span>
         <Separator orientation="vertical" className="h-4" />
 
@@ -116,11 +116,11 @@ export function ClientActionBar({
               disabled={isPending}
             >
               <IconUserCheck className="size-4 me-1" />
-              Activate
+              {dictionary.customer?.active ?? ""}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Activate selected customers</p>
+            <p>{dictionary.customer?.active ?? ""}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -133,11 +133,11 @@ export function ClientActionBar({
               disabled={isPending}
             >
               <IconUserOff className="size-4 me-1" />
-              Deactivate
+              {dictionary.customer?.inactive ?? ""}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Deactivate selected customers</p>
+            <p>{dictionary.customer?.inactive ?? ""}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -150,11 +150,11 @@ export function ClientActionBar({
               disabled={isPending}
             >
               <IconDownload className="size-4 me-1" />
-              {dictionary.common?.export || "Export"}
+              {dictionary.common?.export ?? ""}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Export selected to CSV</p>
+            <p>{dictionary.common?.exportAsCsv ?? ""}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -170,11 +170,11 @@ export function ClientActionBar({
               disabled={isPending}
             >
               <IconTrash className="size-4 me-1" />
-              {dictionary.common?.delete || "Delete"}
+              {dictionary.common?.delete ?? ""}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Delete selected (only customers without invoices)</p>
+            <p>{dictionary.common?.delete ?? ""}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -190,7 +190,7 @@ export function ClientActionBar({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Clear selection (Esc)</p>
+            <p>{dictionary.common?.clear ?? ""}</p>
           </TooltipContent>
         </Tooltip>
       </div>

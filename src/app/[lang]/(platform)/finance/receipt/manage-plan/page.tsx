@@ -3,13 +3,21 @@ import { auth } from "@/auth"
 
 import { getTemporaryAccessToken } from "@/components/platform/finance/receipt/schematic/get-temporary-access-token"
 import SchematicEmbed from "@/components/platform/finance/receipt/schematic/schematic-embed"
+import { logger } from "@/lib/logger"
 
-export default async function ManagePlanPage() {
+const log = logger.forModule("finance.manage-plan")
+
+export default async function ManagePlanPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
   // 1. Authenticate
   const session = await auth()
 
   if (!session?.user) {
-    redirect("/auth/signin")
+    redirect(`/${lang}/login`)
   }
 
   // 2. Get Schematic access token
@@ -33,7 +41,7 @@ export default async function ManagePlanPage() {
     process.env.NEXT_PUBLIC_SCHEMATIC_CUSTOMER_PORTAL_COMPONENT_ID
 
   if (!componentId) {
-    console.error("NEXT_PUBLIC_SCHEMATIC_CUSTOMER_PORTAL_COMPONENT_ID not set")
+    log.error("NEXT_PUBLIC_SCHEMATIC_CUSTOMER_PORTAL_COMPONENT_ID not set")
     return (
       <div className="py-16 text-center">
         <h1 className="mb-4 text-2xl font-bold">Configuration Error</h1>

@@ -5,11 +5,16 @@ import { useChatbot } from './use-chatbot';
 import { ChatButton } from './chat-button';
 import { ChatWindow } from './chat-window';
 import { DEFAULT_CONFIG, DEFAULT_DICTIONARY } from './constant';
-import type { ChatbotProps, ChatbotDictionary } from './type';
+import type { ChatbotProps, ChatbotDictionary, PromptType } from './type';
+import type { MazinQuickAskFlags } from './prompts';
 import { useLocale } from '@/components/internationalization/use-locale';
 
 interface ChatbotContentProps extends ChatbotProps {
   dictionary?: Partial<ChatbotDictionary>;
+  promptType?: PromptType;
+  trackingIdentifier?: string;
+  projectId?: string;
+  quickAskFlags?: MazinQuickAskFlags | null;
 }
 
 export const ChatbotContent = forwardRef<
@@ -21,6 +26,10 @@ export const ChatbotContent = forwardRef<
   onChatOpen,
   onChatClose,
   dictionary = {},
+  promptType = 'marketing',
+  trackingIdentifier,
+  projectId,
+  quickAskFlags,
 }, ref) => {
   const { locale } = useLocale();
   const chatbotConfig = { ...DEFAULT_CONFIG, ...config, locale: locale as 'en' | 'ar' };
@@ -32,11 +41,14 @@ export const ChatbotContent = forwardRef<
     openChat,
     closeChat,
     sendMessage,
-  } = useChatbot();
+  } = useChatbot({
+    promptType,
+    trackingIdentifier,
+    projectId,
+    locale,
+  });
 
-  useImperativeHandle(ref, () => ({
-    openChat,
-  }), [openChat]);
+  useImperativeHandle(ref, () => ({ openChat }), [openChat]);
 
   useEffect(() => {
     if (state.isOpen && onChatOpen) {
@@ -46,13 +58,18 @@ export const ChatbotContent = forwardRef<
     }
   }, [state.isOpen, onChatOpen, onChatClose]);
 
+  useEffect(() => {
+    const handleOpenChatbot = () => openChat();
+    window.addEventListener('open-chatbot', handleOpenChatbot);
+    return () => window.removeEventListener('open-chatbot', handleOpenChatbot);
+  }, [openChat]);
+
   const handleSendMessage = async (message: string) => {
     await sendMessage(message);
     if (onMessageSend) {
       onMessageSend(message);
     }
   };
-
 
   return (
     <>
@@ -74,6 +91,8 @@ export const ChatbotContent = forwardRef<
         placeholder={chatbotConfig.placeholder}
         locale={chatbotConfig.locale}
         dictionary={fullDictionary}
+        promptType={promptType}
+        quickAskFlags={quickAskFlags ?? null}
       />
     </>
   );

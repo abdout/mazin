@@ -1,10 +1,8 @@
 "use client"
 
-import { useMemo, useState, useEffect, useCallback } from "react"
-import { usePathname } from "next/navigation"
+import { useMemo } from "react"
 import { Search } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,7 +13,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { useLocale, type Dictionary, type Locale } from "@/components/internationalization"
+import type { Dictionary, Locale } from "@/components/internationalization"
 import { LanguageSwitcher } from "@/components/atom/language-switcher"
 import { ModeSwitcher } from "@/components/template/site-header/mode-switcher"
 import { UserButton } from "@/components/auth/user-button"
@@ -23,9 +21,7 @@ import { MobileNav } from "@/components/template/mobile-nav"
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs"
 import { platformNav, type Role } from "@/components/template/platform-sidebar/config"
 import { usePageHeading } from "@/components/platform/context/page-heading-context"
-import { NotificationCenter } from "@/components/platform/notification/notification-center"
-import { getNotifications, markRead, markAllRead } from "@/actions/notifications"
-import type { Notification } from "@prisma/client"
+import { NotificationBellIcon } from "@/components/platform/notifications"
 
 interface PlatformHeaderProps {
   dictionary: Dictionary
@@ -39,8 +35,6 @@ export default function PlatformHeader({
   userRole = "USER",
 }: PlatformHeaderProps) {
   const breadcrumbItems = useBreadcrumbs()
-  const { isRTL } = useLocale()
-  const pathname = usePathname()
   const role = userRole as Role
 
   let pageHeading = null
@@ -50,23 +44,6 @@ export default function PlatformHeader({
   } catch {
     // PageHeading context not available
   }
-
-  // Notification state and handlers
-  const [notifications, setNotifications] = useState<Notification[]>([])
-
-  useEffect(() => {
-    getNotifications(20).then(setNotifications).catch(() => {})
-  }, [])
-
-  const handleMarkRead = useCallback(async (id: string) => {
-    await markRead(id)
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, readAt: new Date() } : n))
-  }, [])
-
-  const handleMarkAllRead = useCallback(async () => {
-    await markAllRead()
-    setNotifications(prev => prev.map(n => ({ ...n, readAt: new Date() })))
-  }, [])
 
   const mobileNavItems = useMemo(() => {
     return platformNav
@@ -177,13 +154,7 @@ export default function PlatformHeader({
             <Search className="size-5" />
             <span className="sr-only">{dictionary.common.search}</span>
           </Button>
-          <NotificationCenter
-            notifications={notifications}
-            dictionary={dictionary}
-            locale={locale}
-            onMarkRead={handleMarkRead}
-            onMarkAllRead={handleMarkAllRead}
-          />
+          <NotificationBellIcon dictionary={dictionary} locale={locale} />
           <LanguageSwitcher variant="icon" />
           <ModeSwitcher />
           <UserButton dictionary={dictionary} />

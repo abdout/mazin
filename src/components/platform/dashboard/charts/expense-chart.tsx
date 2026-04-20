@@ -1,5 +1,6 @@
 "use client"
 
+import type { TooltipProps } from "recharts"
 import {
   Bar,
   BarChart,
@@ -22,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { Dictionary } from "@/components/internationalization/types"
 
 interface ExpenseChartProps {
   expenseCategories: {
@@ -30,6 +32,7 @@ interface ExpenseChartProps {
     percentage: number
   }[]
   className?: string
+  dict?: Dictionary
 }
 
 const COLORS = [
@@ -45,10 +48,46 @@ const COLORS = [
   "#84cc16", // lime
 ]
 
+// Custom tooltip — defined at module scope so it's not recreated on every render.
+function CustomTooltip({
+  active,
+  payload,
+  amountLabel = "Amount",
+  percentageLabel = "Percentage",
+}: TooltipProps<number, string> & {
+  amountLabel?: string
+  percentageLabel?: string
+}) {
+  if (!active || !payload || !payload[0]) return null
+
+  const data = payload[0]
+  return (
+    <div className="bg-background rounded-lg border p-3 shadow-lg">
+      <p className="font-semibold">{data.name || (data.payload as Record<string, unknown>)?.category as string}</p>
+      <p className="text-sm">
+        {amountLabel}: SDG {new Intl.NumberFormat("en-SD").format(data.value ?? 0)}
+      </p>
+      <p className="text-sm">
+        {percentageLabel}: {((data.payload as Record<string, number>)?.percentage ?? 0).toFixed(1)}%
+      </p>
+    </div>
+  )
+}
+
 export function ExpenseChart({
   expenseCategories,
   className,
+  dict,
 }: ExpenseChartProps) {
+  const e = dict?.dashboard?.charts?.expense
+  const amountLabel = e?.amount ?? "Amount"
+  const percentageLabel = e?.percentage ?? "Percentage"
+
+  // Render tooltip bound to current labels
+  const renderTooltip = (props: TooltipProps<number, string>) => (
+    <CustomTooltip {...props} amountLabel={amountLabel} percentageLabel={percentageLabel} />
+  )
+
   // Sort categories by amount for better visualization
   const sortedCategories = [...expenseCategories].sort(
     (a, b) => b.amount - a.amount
@@ -68,28 +107,10 @@ export function ExpenseChart({
       0
     )
     topCategories.push({
-      category: "Other",
+      category: e?.other ?? "Other",
       amount: otherAmount,
       percentage: otherPercentage,
     })
-  }
-
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload || !payload[0]) return null
-
-    const data = payload[0]
-    return (
-      <div className="bg-background rounded-lg border p-3 shadow-lg">
-        <p className="font-semibold">{data.name || data.payload.category}</p>
-        <p className="text-sm">
-          Amount: SDG {new Intl.NumberFormat("en-SD").format(data.value)}
-        </p>
-        <p className="text-sm">
-          Percentage: {data.payload.percentage.toFixed(1)}%
-        </p>
-      </div>
-    )
   }
 
   // Custom label for pie chart
@@ -100,7 +121,14 @@ export function ExpenseChart({
     innerRadius,
     outerRadius,
     percentage,
-  }: any) => {
+  }: {
+    cx: number
+    cy: number
+    midAngle: number
+    innerRadius: number
+    outerRadius: number
+    percentage: number
+  }) => {
     if (percentage < 5) return null // Don't show label for small slices
 
     const RADIAN = Math.PI / 180
@@ -139,14 +167,16 @@ export function ExpenseChart({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Expense Breakdown</CardTitle>
-        <CardDescription>Distribution of expenses by category</CardDescription>
+        <CardTitle>{e?.title ?? "Expense Breakdown"}</CardTitle>
+        <CardDescription>
+          {e?.description ?? "Distribution of expenses by category"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="pie" className="w-full">
           <TabsList className="grid w-full max-w-[200px] grid-cols-2">
-            <TabsTrigger value="pie">Pie Chart</TabsTrigger>
-            <TabsTrigger value="bar">Bar Chart</TabsTrigger>
+            <TabsTrigger value="pie">{e?.pieChart ?? "Pie Chart"}</TabsTrigger>
+            <TabsTrigger value="bar">{e?.barChart ?? "Bar Chart"}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="pie" className="mt-4">
@@ -170,7 +200,7 @@ export function ExpenseChart({
                     />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={renderTooltip} />
                 <Legend
                   verticalAlign="middle"
                   align="right"
@@ -203,7 +233,7 @@ export function ExpenseChart({
                   tick={{ fill: "currentColor", fontSize: 12 }}
                   width={90}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={renderTooltip} />
                 <Bar dataKey="amount" fill="#3b82f6">
                   {topCategories.map((entry, index) => (
                     <Cell
@@ -220,7 +250,9 @@ export function ExpenseChart({
         {/* Summary Stats */}
         <div className="mt-6 border-t pt-6">
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-medium">Total Expenses</span>
+            <span className="text-sm font-medium">
+              {e?.totalExpenses ?? "Total Expenses"}
+            </span>
             <span className="text-lg font-bold">
               SDG {new Intl.NumberFormat("en-SD").format(totalExpenses)}
             </span>
@@ -228,7 +260,9 @@ export function ExpenseChart({
 
           {/* Top 3 Categories */}
           <div className="space-y-2">
-            <p className="text-muted-foreground text-sm">Top Categories</p>
+            <p className="text-muted-foreground text-sm">
+              {e?.topCategories ?? "Top Categories"}
+            </p>
             {topCategories.slice(0, 3).map((cat, index) => (
               <div
                 key={cat.category}
@@ -241,11 +275,11 @@ export function ExpenseChart({
                   />
                   <span className="text-sm">{cat.category}</span>
                 </div>
-                <div className="text-right">
+                <div className="text-end">
                   <span className="text-sm font-medium">
                     SDG {new Intl.NumberFormat("en-SD").format(cat.amount)}
                   </span>
-                  <span className="text-muted-foreground ml-2 text-xs">
+                  <span className="text-muted-foreground ms-2 text-xs">
                     ({cat.percentage.toFixed(1)}%)
                   </span>
                 </div>

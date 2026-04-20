@@ -76,7 +76,7 @@ export function getClientColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.customer?.companyName || "Company Name"}
+          title={dictionary.customer?.companyName ?? ""}
         />
       ),
       cell: ({ row }) => (
@@ -88,8 +88,8 @@ export function getClientColumns({
         </Link>
       ),
       meta: {
-        label: dictionary.customer?.companyName || "Company Name",
-        placeholder: dictionary.customer?.searchPlaceholder || "Search customers...",
+        label: dictionary.customer?.companyName ?? "",
+        placeholder: dictionary.customer?.searchPlaceholder ?? "",
         variant: "text",
       },
       enableColumnFilter: true,
@@ -102,7 +102,7 @@ export function getClientColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.customer?.contactName || "Contact"}
+          title={dictionary.customer?.contactName ?? ""}
         />
       ),
       cell: ({ row }) => (
@@ -111,7 +111,7 @@ export function getClientColumns({
         </span>
       ),
       meta: {
-        label: dictionary.customer?.contactName || "Contact",
+        label: dictionary.customer?.contactName ?? "",
         variant: "text",
       },
       enableColumnFilter: true,
@@ -124,7 +124,7 @@ export function getClientColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.common?.email || "Email"}
+          title={dictionary.common?.email ?? ""}
         />
       ),
       cell: ({ row }) => {
@@ -141,7 +141,7 @@ export function getClientColumns({
         )
       },
       meta: {
-        label: dictionary.common?.email || "Email",
+        label: dictionary.common?.email ?? "",
         variant: "text",
       },
       enableColumnFilter: true,
@@ -154,7 +154,7 @@ export function getClientColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.common?.phone || "Phone"}
+          title={dictionary.common?.phone ?? ""}
         />
       ),
       cell: ({ row }) => {
@@ -171,7 +171,7 @@ export function getClientColumns({
         )
       },
       meta: {
-        label: dictionary.common?.phone || "Phone",
+        label: dictionary.common?.phone ?? "",
         variant: "text",
       },
     },
@@ -183,7 +183,7 @@ export function getClientColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.customer?.isActive || "Status"}
+          title={dictionary.customer?.isActive ?? ""}
         />
       ),
       cell: ({ row }) => {
@@ -191,8 +191,8 @@ export function getClientColumns({
         const config = isActive ? clientStatusConfig.active : clientStatusConfig.inactive
         const StatusIcon = config.icon
         const label = isActive
-          ? dictionary.customer?.active || "Active"
-          : dictionary.customer?.inactive || "Inactive"
+          ? dictionary.customer?.active ?? ""
+          : dictionary.customer?.inactive ?? ""
         return (
           <Badge className={config.className}>
             <StatusIcon className="size-3 me-1" />
@@ -201,13 +201,13 @@ export function getClientColumns({
         )
       },
       meta: {
-        label: dictionary.customer?.isActive || "Status",
+        label: dictionary.customer?.isActive ?? "",
         variant: "multiSelect",
         options: clientStatusOptions.map((option) => ({
           ...option,
           label: option.value === "true"
-            ? dictionary.customer?.active || "Active"
-            : dictionary.customer?.inactive || "Inactive",
+            ? dictionary.customer?.active ?? ""
+            : dictionary.customer?.inactive ?? "",
           count: statusCounts[option.value] || 0,
         })),
       },
@@ -224,7 +224,7 @@ export function getClientColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.customer?.invoiceCount || "Invoices"}
+          title={dictionary.customer?.invoiceCount ?? ""}
         />
       ),
       cell: ({ row }) => (
@@ -239,7 +239,7 @@ export function getClientColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.common?.createdAt || "Created"}
+          title={dictionary.common?.createdAt ?? ""}
         />
       ),
       cell: ({ row }) => (
@@ -250,7 +250,7 @@ export function getClientColumns({
         </span>
       ),
       meta: {
-        label: dictionary.common?.createdAt || "Created",
+        label: dictionary.common?.createdAt ?? "",
         variant: "dateRange",
       },
       enableColumnFilter: true,
@@ -268,22 +268,24 @@ export function getClientColumns({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
                 <IconDotsVertical className="size-4" />
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{dictionary.common?.actions ?? ""}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link href={`/${locale}/customer/${client.id}`}>
-                  {dictionary.common?.view || "View"}
+                  {dictionary.common?.view ?? ""}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href={`/${locale}/customer/${client.id}/edit`}>
-                  {dictionary.common?.edit || "Edit"}
+                  {dictionary.common?.edit ?? ""}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onToggleStatus?.(client.id)}>
-                {client.isActive ? "Deactivate" : "Activate"}
+                {client.isActive
+                  ? (dictionary.customer?.inactive ?? "")
+                  : (dictionary.customer?.active ?? "")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -293,8 +295,7 @@ export function getClientColumns({
                   setRowAction({ row, variant: "delete" })
                 }
               >
-                {dictionary.common?.delete || "Delete"}
-                {hasInvoices && " (has invoices)"}
+                {dictionary.common?.delete ?? ""}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

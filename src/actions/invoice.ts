@@ -14,6 +14,9 @@ import {
   formatInvoiceNumber,
 } from "@/components/platform/invoice/config"
 import { numberToArabicWords } from "@/lib/utils/arabic-numbers"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("invoice")
 
 // =============================================================================
 // SCHEMAS
@@ -151,6 +154,13 @@ export async function updateInvoiceStatus(id: string, status: InvoiceStatus) {
     throw new Error("Unauthorized")
   }
 
+  const existing = await db.invoice.findFirst({
+    where: { id, userId: session.user.id },
+  })
+  if (!existing) {
+    throw new Error("Invoice not found")
+  }
+
   const invoice = await db.invoice.update({
     where: { id },
     data: {
@@ -168,6 +178,13 @@ export async function deleteInvoice(id: string) {
   const session = await auth()
   if (!session?.user?.id) {
     throw new Error("Unauthorized")
+  }
+
+  const existing = await db.invoice.findFirst({
+    where: { id, userId: session.user.id },
+  })
+  if (!existing) {
+    throw new Error("Invoice not found")
   }
 
   await db.invoice.delete({ where: { id } })
@@ -242,12 +259,14 @@ export async function updateInvoice(
       })
     }
 
-    // Update existing items and create new ones
-    for (const item of validated.items) {
-      if (item.id) {
-        // Update existing item
-        await tx.invoiceItem.update({
-          where: { id: item.id },
+    // Update existing items (batched)
+    const existingItems = validated.items.filter(i => i.id)
+    const newItems = validated.items.filter(i => !i.id)
+
+    await Promise.all(
+      existingItems.map(item =>
+        tx.invoiceItem.update({
+          where: { id: item.id! },
           data: {
             description: item.description,
             quantity: item.quantity,
@@ -255,18 +274,20 @@ export async function updateInvoice(
             total: item.quantity * item.unitPrice,
           },
         })
-      } else {
-        // Create new item
-        await tx.invoiceItem.create({
-          data: {
-            invoiceId: id,
-            description: item.description,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            total: item.quantity * item.unitPrice,
-          },
-        })
-      }
+      )
+    )
+
+    // Create new items (single INSERT)
+    if (newItems.length > 0) {
+      await tx.invoiceItem.createMany({
+        data: newItems.map(item => ({
+          invoiceId: id,
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          total: item.quantity * item.unitPrice,
+        })),
+      })
     }
 
     // Update invoice totals and other fields
@@ -404,7 +425,7 @@ export async function sendInvoiceEmail(
   })
 
   if (error) {
-    console.error("Failed to send invoice email:", error)
+    log.error("Failed to send invoice email", error as Error)
     throw new Error(`Failed to send email: ${error.message}`)
   }
 

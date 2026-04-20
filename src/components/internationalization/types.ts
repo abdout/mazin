@@ -153,6 +153,53 @@ export interface Dictionary {
     completionRate?: string
     clients?: string
     shipment?: string
+    charts?: {
+      cashFlow?: {
+        title?: string
+        description?: string
+        cashInflow?: string
+        cashOutflow?: string
+        netCashFlow?: string
+        currentBalance?: string
+      }
+      revenue?: {
+        title?: string
+        description?: string
+        areaChart?: string
+        barChart?: string
+        lineChart?: string
+        revenue?: string
+        expenses?: string
+        profit?: string
+        avgMonthlyRevenue?: string
+        avgMonthlyExpenses?: string
+        avgMonthlyProfit?: string
+      }
+      expense?: {
+        title?: string
+        description?: string
+        pieChart?: string
+        barChart?: string
+        totalExpenses?: string
+        topCategories?: string
+        other?: string
+        amount?: string
+        percentage?: string
+      }
+    }
+    transactions?: {
+      title?: string
+      noTransactions?: string
+      viewAll?: string
+      income?: string
+      expenses?: string
+      pending?: string
+      statuses?: {
+        completed?: string
+        pending?: string
+        failed?: string
+      }
+    }
   }
   shipments: {
     title: string
@@ -281,6 +328,35 @@ export interface Dictionary {
     quantity?: string
     currency?: string
     createInvoice?: string
+    invoiceType?: string
+    supplier?: string
+    supplierName?: string
+    documentReferencesTitle?: string
+    documentReferencesDescription?: string
+    basicInfo?: string
+    quickAddFees?: string
+    quickAddFeesDescription?: string
+    invoiceItemsDescription?: string
+    feeType?: string
+    vat?: string
+    editInvoiceModalDesc?: string
+    newInvoiceModalDesc?: string
+    noSettings?: string
+    companyNameEn?: string
+    companyNameAr?: string
+    website?: string
+    address?: string
+    city?: string
+    country?: string
+    bank?: string
+    branch?: string
+    accountName?: string
+    accountNumber?: string
+    noBankDetails?: string
+    days?: string
+    failedToSendEmail?: string
+    invalidEmailAddress?: string
+    due?: string
     statuses: {
       DRAFT: string
       SENT: string
@@ -313,6 +389,16 @@ export interface Dictionary {
       downloadPdf: string
       printTemplate: string
       sampleInvoice: string
+    }
+    documentReferences?: {
+      blNumber?: string
+      containerNo?: string
+      deliveryOrderNo?: string
+      declarationNo?: string
+      vesselName?: string
+      voyageNumber?: string
+      commodityType?: string
+      supplier?: string
     }
   }
   settings: {
@@ -451,6 +537,216 @@ export interface Dictionary {
         processed?: string
         error?: string
       }
+      header?: {
+        title?: string
+        description?: string
+        uploadReceipt?: string
+        uploadNewReceipt?: string
+        uploadDescription?: string
+      }
+      stats?: {
+        total?: string
+        processed?: string
+        processing?: string
+        errors?: string
+      }
+      view?: {
+        grid?: string
+        table?: string
+      }
+      empty?: {
+        noReceipts?: string
+        uploadFirst?: string
+        noReceiptsFound?: string
+      }
+      detail?: {
+        uploadedAt?: string
+        receiptImage?: string
+        pdfDocument?: string
+        viewPdf?: string
+        extractedData?: string
+        merchant?: string
+        contact?: string
+        date?: string
+        amount?: string
+        summary?: string
+        aiInProgress?: string
+        extractionFailed?: string
+        waitingExtraction?: string
+        lineItems?: string
+        qty?: string
+        retry?: string
+        backToList?: string
+        delete?: string
+        deleteConfirm?: string
+        deleteSuccess?: string
+        deleteFailed?: string
+        retrySuccess?: string
+        retryFailed?: string
+        unexpectedError?: string
+      }
+      upload?: {
+        receiptFile?: string
+        selectedFile?: string
+        invalidType?: string
+        sizeExceeded?: string
+        fileSelected?: string
+        selectFirst?: string
+        processedSuccess?: string
+        processingFailed?: string
+        unexpectedError?: string
+        processingReceipt?: string
+        processReceipt?: string
+      }
+      table?: {
+        filterByMerchant?: string
+        previous?: string
+        next?: string
+      }
+    }
+    alerts?: {
+      overdueInvoices?: string
+      lowCashReserve?: string
+      pendingPayroll?: string
+      pendingExpenses?: string
+      overdueInvoicesTitle?: string
+      overdueInvoicesBody?: string
+      pendingExpensesTitle?: string
+      pendingExpensesBody?: string
+      viewInvoicesAction?: string
+      reviewAction?: string
+    }
+    titles?: {
+      accounts?: string
+      banking?: string
+      budget?: string
+      expenses?: string
+      fees?: string
+      payroll?: string
+      receipt?: string
+      reports?: string
+      salary?: string
+      timesheet?: string
+      wallet?: string
+    }
+    bankingSection?: {
+      title?: string
+      nav?: {
+        dashboard?: string
+        myBanks?: string
+        paymentTransfer?: string
+        transactionHistory?: string
+      }
+    }
+    accounts?: {
+      title?: string
+      nav?: {
+        overview?: string
+        chart?: string
+        journal?: string
+        ledger?: string
+        reconciliation?: string
+        settings?: string
+      }
+    }
+    fees?: {
+      title?: string
+      nav?: {
+        overview?: string
+        structure?: string
+        collection?: string
+        pending?: string
+        discounts?: string
+        reports?: string
+      }
+    }
+    receiptNav?: {
+      title?: string
+      nav?: {
+        overview?: string
+        generate?: string
+        history?: string
+        templates?: string
+        managePlan?: string
+      }
+    }
+    salary?: {
+      title?: string
+      nav?: {
+        overview?: string
+        structure?: string
+        slips?: string
+        increments?: string
+        advances?: string
+        reports?: string
+      }
+    }
+    timesheet?: {
+      title?: string
+      nav?: {
+        overview?: string
+        entry?: string
+        approval?: string
+        calendar?: string
+        reports?: string
+        settings?: string
+      }
+    }
+    wallet?: {
+      title?: string
+      nav?: {
+        overview?: string
+        balance?: string
+        transactions?: string
+        topUp?: string
+        withdraw?: string
+        reports?: string
+      }
+    }
+    expenses?: {
+      title?: string
+      nav?: {
+        overview?: string
+        submit?: string
+        pending?: string
+        approved?: string
+        reports?: string
+        categories?: string
+      }
+    }
+    payroll?: {
+      title?: string
+      nav?: {
+        overview?: string
+        processing?: string
+        history?: string
+        deductions?: string
+        benefits?: string
+        reports?: string
+      }
+    }
+    budget?: {
+      title?: string
+      nav?: {
+        overview?: string
+        planning?: string
+        tracking?: string
+        variance?: string
+        forecasting?: string
+        approval?: string
+      }
+    }
+    reports?: {
+      title?: string
+      nav?: {
+        overview?: string
+        financial?: string
+        cashflow?: string
+        profitloss?: string
+        balanceSheet?: string
+        custom?: string
+        schedule?: string
+      }
     }
   }
   project?: {
@@ -469,6 +765,298 @@ export interface Dictionary {
       active?: string
       completed?: string
       archived?: string
+    }
+    tabs?: {
+      overview?: string
+      docs?: string
+      invoices?: string
+      acd?: string
+      containers?: string
+      payments?: string
+      duty?: string
+      quote?: string
+      itp?: string
+      mos?: string
+    }
+    notFound?: string
+    failedToLoad?: string
+    loadError?: string
+    shipmentFallback?: string
+    acd?: {
+      title?: string
+      description?: string
+      acnNumber?: string
+      validationDeadline?: string
+      status?: string
+      pending?: string
+      requiredDocuments?: string
+      draftBillOfLading?: string
+      commercialInvoice?: string
+      freightInvoice?: string
+      notUploaded?: string
+      complianceTitle?: string
+      complianceBody?: string
+      complianceNote?: string
+    }
+    containers?: {
+      title?: string
+      description?: string
+      totalContainers?: string
+      freeTime?: string
+      warning?: string
+      demurrage?: string
+      containerList?: string
+      noContainers?: string
+      noContainersHint?: string
+      containerNumbers?: string
+      demurragePrevention?: string
+      demurragePreventionTitle?: string
+      demurragePreventionNote?: string
+      demurragePreventionBody?: string
+      projectNotFound?: string
+      noShipmentLinked?: string
+      noShipmentHint?: string
+      columns?: {
+        containerNo?: string
+        size?: string
+        status?: string
+        daysRemaining?: string
+        dailyRate?: string
+        arrivalDate?: string
+        accrued?: string
+        accruedDemurrage?: string
+      }
+      statuses?: {
+        pending?: string
+        free?: string
+        warning?: string
+        demurrage?: string
+        released?: string
+        returned?: string
+      }
+      units?: {
+        day?: string
+        daysOverdue?: string
+        daysOverdueAr?: string
+        daysRemaining?: string
+      }
+    }
+    payments?: {
+      title?: string
+      description?: string
+      totalAmount?: string
+      paid?: string
+      partial?: string
+      pending?: string
+      unpaid?: string
+      paymentCount?: string
+      breakdownByPayee?: string
+      noPayeeBreakdown?: string
+      paymentsList?: string
+      noPayments?: string
+      noPaymentsHint?: string
+      total?: string
+      payment?: string
+      payments?: string
+      payees?: {
+        CUSTOMS?: string
+        SEA_PORTS?: string
+        SHIPPING_LINE?: string
+        SSMO?: string
+        MINISTRY_OF_TRADE?: string
+        TRANSPORT?: string
+        CLEARING_AGENT?: string
+        OTHER?: string
+      }
+      statuses?: {
+        PENDING?: string
+        PARTIAL?: string
+        PAID?: string
+        CONFIRMED?: string
+        CANCELLED?: string
+      }
+    }
+    duty?: {
+      title?: string
+      description?: string
+      hsCode?: string
+      hsCodePlaceholder?: string
+      cifValue?: string
+      cifPlaceholder?: string
+      customsDuty?: string
+      dutyRate?: string
+      vat?: string
+      vatRate?: string
+      excise?: string
+      developmentFee?: string
+      totalDuty?: string
+      totalDue?: string
+      calculate?: string
+      calculationResult?: string
+      inputValues?: string
+      result?: string
+      formula?: string
+      formulaTitle?: string
+      formulaText?: string
+    }
+    docs?: {
+      title?: string
+      description?: string
+      checklist?: string
+      validationTitle?: string
+      validationNote?: string
+      totalRequired?: string
+      uploaded?: string
+      pending?: string
+      expired?: string
+      documentChecklist?: string
+      required?: string
+      notUploaded?: string
+      documentValidation?: string
+      documentValidationBody?: string
+      manageDescription?: string
+      noShipmentLinked?: string
+      noShipmentHint?: string
+      ready?: string
+      missing?: string
+      readyForDeclaration?: string
+      readyForDeclarationBody?: string
+      notReady?: string
+      notReadyBody?: string
+      docNumber?: string
+      yes?: string
+      docTypes?: {
+        BILL_OF_LADING?: string
+        COMMERCIAL_INVOICE?: string
+        PACKING_LIST?: string
+        CERTIFICATE_OF_ORIGIN?: string
+        INSURANCE_CERTIFICATE?: string
+        IM_FORM?: string
+        ACD_CERTIFICATE?: string
+        SSMO_RELEASE?: string
+        PROFORMA_INVOICE?: string
+        DELIVERY_ORDER?: string
+        CUSTOMS_DECLARATION?: string
+        CUSTOMS_RECEIPT?: string
+        PORT_RECEIPT?: string
+        WORKING_ORDER?: string
+        OTHER?: string
+      }
+      docStatuses?: {
+        MISSING?: string
+        UPLOADED?: string
+        VERIFIED?: string
+        REJECTED?: string
+        EXPIRED?: string
+      }
+      docs?: {
+        billOfLading?: string
+        commercialInvoice?: string
+        packingList?: string
+        certificateOfOrigin?: string
+        imForm?: string
+        ssmoCertificate?: string
+        insuranceCertificate?: string
+        phytosanitaryCertificate?: string
+      }
+      requiredList?: {
+        billOfLading?: string
+        commercialInvoice?: string
+        packingList?: string
+        certificateOfOrigin?: string
+        insuranceCertificate?: string
+        importPermit?: string
+        customsDeclaration?: string
+        deliveryOrder?: string
+      }
+    }
+    info?: {
+      sectionTitle?: string
+      emptyPlaceholder?: string
+      portOfOrigin?: { label?: string }
+      portOfDestination?: { label?: string }
+      teamLead?: { label?: string }
+      consignee?: { label?: string }
+      consignor?: { label?: string }
+      vessel?: { label?: string }
+      blAwbNumber?: { label?: string }
+      customer?: { label?: string }
+      description?: { label?: string }
+      startDate?: { label?: string }
+      endDate?: { label?: string }
+    }
+    invoicesSection?: {
+      title?: string
+      description?: string
+      expenseRecords?: string
+      noExpenseRecords?: string
+      customsDuty?: string
+      vat?: string
+      portCharges?: string
+      total?: string
+      filters?: {
+        all?: string
+        draft?: string
+        sent?: string
+        paid?: string
+        overdue?: string
+        cancelled?: string
+      }
+      columns?: {
+        invoiceNumber?: string
+        status?: string
+        amount?: string
+        createdAt?: string
+      }
+    }
+    report?: {
+      title?: string
+      description?: string
+      exportPdf?: string
+      kpis?: {
+        dutyPaid?: string
+        demurrageDays?: string
+        stagesCompleted?: string
+        daysInPort?: string
+        totalInvoiced?: string
+        stageCountSuffix?: string
+      }
+      noShipment?: string
+      generatedOn?: string
+    }
+    acdForm?: {
+      title?: string
+      description?: string
+      noShipment?: string
+      statusBadge?: string
+      statusPending?: string
+      acnNumber?: string
+      consignee?: string
+      consignor?: string
+      hsCode?: string
+      cargoDescription?: string
+      estimatedWeight?: string
+      quantity?: string
+      vesselName?: string
+      voyageNumber?: string
+      portOfLoading?: string
+      portOfDischarge?: string
+      estimatedArrival?: string
+      create?: string
+      update?: string
+      saving?: string
+      lockedNotice?: string
+      errorGeneric?: string
+    }
+    itp?: {
+      title?: string
+      documentChecklist?: string
+    }
+    mos?: {
+      title?: string
+      description?: string
+      clearanceProcedures?: string
+      sopDescription?: string
     }
     statuses?: {
       PENDING?: string
@@ -550,6 +1138,7 @@ export interface Dictionary {
       LOW?: string
       NEUTRAL?: string
     }
+    notFound?: string
   }
   team?: {
     title?: string
@@ -822,6 +1411,30 @@ export interface Dictionary {
         trackButton: string
       }
     }
+    servicePage?: {
+      sections: {
+        overview: string
+        features: string
+        process: string
+        advantages: string
+        whyChoose: string
+        onThisPage: string
+        otherServices: string
+        readyTitle: string
+        readyBody: string
+        getQuote: string
+        learnMore: string
+      }
+      catalog: Record<string, {
+        title: { firstLine: string; secondLine: string }
+        description: { firstLine: string; secondLine: string }
+        detailedDescription: string
+        features: string[]
+        advantages: string[]
+        advantagesDescriptions: string[]
+        process: Array<{ title: string; body: string }>
+      }>
+    }
   }
   chatbot: {
     openChat: string
@@ -838,7 +1451,42 @@ export interface Dictionary {
     chooseQuestion: string
     speechNotSupported: string
     speechError: string
-    quickActions: {
+    listening?: string
+    ttsEnabled?: string
+    ttsDisabled?: string
+    // Marketing quick-asks (customs clearance)
+    marketingDocuments?: string
+    marketingDocumentsQuestion?: string
+    marketingAcd?: string
+    marketingAcdQuestion?: string
+    marketingTimeline?: string
+    marketingTimelineQuestion?: string
+    marketingQuote?: string
+    marketingQuoteQuestion?: string
+    marketingSsmo?: string
+    marketingSsmoQuestion?: string
+    marketingFees?: string
+    marketingFeesQuestion?: string
+    // Tracking quick-asks
+    trackingCurrentStage?: string
+    trackingCurrentStageQuestion?: string
+    trackingNext?: string
+    trackingNextQuestion?: string
+    trackingDocs?: string
+    trackingDocsQuestion?: string
+    trackingEta?: string
+    trackingEtaQuestion?: string
+    // Platform quick-asks
+    platformAcd?: string
+    platformAcdQuestion?: string
+    platformDuty?: string
+    platformDutyQuestion?: string
+    platformInvoices?: string
+    platformInvoicesQuestion?: string
+    platformCompliance?: string
+    platformComplianceQuestion?: string
+    // Legacy (kept for compatibility)
+    quickActions?: {
       track: string
       trackQuestion: string
       rates: string
@@ -957,6 +1605,9 @@ export interface Dictionary {
     paymentReceived: string
     requestPayment: string
     paymentPending: string
+    initializeSuccess?: string
+    initializeFailed?: string
+    advanceFailed?: string
   }
   marketplace?: {
     title?: string
@@ -1018,6 +1669,27 @@ export interface Dictionary {
       COMPLETED?: string
       CANCELLED?: string
     }
+    serviceNotFound?: {
+      title?: string
+      description?: string
+      back?: string
+    }
+  }
+  reportIssue?: {
+    link?: string
+    title?: string
+    categoryPlaceholder?: string
+    categoryVisual?: string
+    categoryBroken?: string
+    categoryData?: string
+    categorySlow?: string
+    categoryConfusing?: string
+    categoryOther?: string
+    placeholder?: string
+    submit?: string
+    submitting?: string
+    success?: string
+    error?: string
   }
   errorPage: {
     title: string

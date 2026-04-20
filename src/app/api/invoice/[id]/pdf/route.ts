@@ -8,6 +8,9 @@ import {
   shouldUseClearanceFormat,
 } from "@/components/platform/invoice/clearance-invoice-pdf"
 import type { Locale } from "@/components/internationalization"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("api.invoice-pdf")
 
 export async function GET(
   request: NextRequest,
@@ -53,7 +56,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error("PDF generation error:", error)
+    log.error("PDF generation error", error as Error)
     return NextResponse.json(
       { error: "Failed to generate PDF" },
       { status: 500 }

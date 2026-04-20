@@ -12,6 +12,9 @@ import { getTwoFactorConfirmationByUserId } from "@/components/auth/verification
 import { db } from "@/lib/db";
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { logger } from "@/lib/logger";
+
+const log = logger.forModule("auth.login");
 
 export const login = async (
   values: z.infer<typeof LoginSchema>,
@@ -115,13 +118,13 @@ export const login = async (
         case "AccessDenied":
           return { error: "Access denied. Your account may not be verified." }
         default:
-          console.error("AuthError:", error.type, error.message);
+          log.error("AuthError", error, { type: error.type, message: error.message });
           return { error: "Something went wrong!" }
       }
     }
 
     // Log unexpected errors for debugging
-    console.error("Login error:", error);
+    log.error("Login error", error as Error);
     return { error: "Something went wrong!" };
   }
 

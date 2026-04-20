@@ -28,12 +28,10 @@ import { sendInvoiceEmail } from "@/actions/invoice"
 import type { Dictionary } from "@/components/internationalization/types"
 import type { Locale } from "@/components/internationalization"
 
-const emailFormSchema = z.object({
-  recipientEmail: z.string().email("Invalid email address"),
-  message: z.string().optional(),
-})
-
-type EmailFormValues = z.infer<typeof emailFormSchema>
+type EmailFormValues = {
+  recipientEmail: string
+  message?: string
+}
 
 interface SendEmailDialogProps {
   invoiceId: string
@@ -57,6 +55,11 @@ export function SendEmailDialog({
   const [errorMessage, setErrorMessage] = useState("")
 
   const t = dictionary.invoices
+
+  const emailFormSchema = z.object({
+    recipientEmail: z.string().email(dictionary.invoices?.invalidEmailAddress),
+    message: z.string().optional(),
+  })
 
   const form = useForm<EmailFormValues>({
     resolver: zodResolver(emailFormSchema),
@@ -86,7 +89,7 @@ export function SendEmailDialog({
     } catch (error) {
       setStatus("error")
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to send email"
+        error instanceof Error ? error.message : (dictionary.invoices?.failedToSendEmail ?? "")
       )
     }
   }
@@ -115,8 +118,7 @@ export function SendEmailDialog({
         <DialogHeader>
           <DialogTitle>{t.sendEmail}</DialogTitle>
           <DialogDescription>
-            {t.sendEmailDescription?.replace("{invoiceNumber}", invoiceNumber) ||
-              `Send invoice ${invoiceNumber} via email`}
+            {t.sendEmailDescription?.replace("{invoiceNumber}", invoiceNumber)}
           </DialogDescription>
         </DialogHeader>
 
@@ -152,10 +154,10 @@ export function SendEmailDialog({
                 name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t.emailMessage || "Message (Optional)"}</FormLabel>
+                    <FormLabel>{t.emailMessage}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder={t.emailMessagePlaceholder || "Add a personal message..."}
+                        placeholder={t.emailMessagePlaceholder}
                         className="resize-none"
                         rows={3}
                         {...field}
@@ -178,13 +180,13 @@ export function SendEmailDialog({
                   onClick={() => handleOpenChange(false)}
                   disabled={status === "sending"}
                 >
-                  {dictionary.common.cancel || "Cancel"}
+                  {dictionary.common.cancel}
                 </Button>
                 <Button type="submit" disabled={status === "sending"}>
                   {status === "sending" ? (
                     <>
                       <Loader2 className="h-4 w-4 me-2 animate-spin" />
-                      {t.sending || "Sending..."}
+                      {t.sending}
                     </>
                   ) : (
                     <>

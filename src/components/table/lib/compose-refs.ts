@@ -59,7 +59,9 @@ function composeRefs<T>(...refs: PossibleRef<T>[]): React.RefCallback<T> {
  * Accepts callback refs and RefObject(s)
  */
 function useComposedRefs<T>(...refs: PossibleRef<T>[]): React.RefCallback<T> {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Radix-inherited: rest params flow directly into the dependency list. We cannot
+  // pass a literal array here without changing the public API of the hook.
+  // eslint-disable-next-line react-hooks/use-memo, react-hooks/exhaustive-deps
   return React.useCallback(composeRefs(...refs), refs)
 }
 

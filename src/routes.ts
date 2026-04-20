@@ -13,15 +13,18 @@ export const publicRoutes = [
   // Marketing pages
   "/about",
   "/services",
+  "/service",
   "/contact",
   // Internationalized routes
   "/en",
   "/en/about",
   "/en/services",
+  "/en/service",
   "/en/contact",
   "/ar",
   "/ar/about",
   "/ar/services",
+  "/ar/service",
   "/ar/contact",
 ]
 

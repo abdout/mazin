@@ -9,6 +9,9 @@
 import { revalidatePath } from "next/cache"
 
 import { auth } from "@/auth"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("permissions")
 
 import type {
   FinanceAction,
@@ -53,7 +56,7 @@ export async function getAllUsersWithPermissions(): Promise<{
 
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Failed to get users with permissions")
+    log.error("Failed to get users with permissions", error as Error)
     return { success: false, error: "Failed to fetch users" }
   }
 }
@@ -74,7 +77,7 @@ export async function getPermissionsByModule(): Promise<{
 
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Failed to get permissions by module")
+    log.error("Failed to get permissions by module", error as Error)
     return { success: false, error: "Failed to fetch module permissions" }
   }
 }
@@ -96,7 +99,7 @@ export async function grantPermission(
     revalidatePath("/finance/permissions")
     return { success: true }
   } catch (error) {
-    console.error("Failed to grant permission")
+    log.error("Failed to grant permission", error as Error)
     return { success: false, error: "Failed to grant permission" }
   }
 }
@@ -118,7 +121,7 @@ export async function revokePermission(
     revalidatePath("/finance/permissions")
     return { success: true }
   } catch (error) {
-    console.error("Failed to revoke permission")
+    log.error("Failed to revoke permission", error as Error)
     return { success: false, error: "Failed to revoke permission" }
   }
 }
@@ -144,7 +147,7 @@ export async function bulkGrantPermissions(
     revalidatePath("/finance/permissions")
     return { success: true, granted: permissions.length, failed: 0 }
   } catch (error) {
-    console.error("Failed to bulk grant permissions")
+    log.error("Failed to bulk grant permissions", error as Error)
     return {
       success: false,
       granted: 0,
@@ -175,7 +178,7 @@ export async function bulkRevokePermissions(
     revalidatePath("/finance/permissions")
     return { success: true, revoked: permissions.length, failed: 0 }
   } catch (error) {
-    console.error("Failed to bulk revoke permissions")
+    log.error("Failed to bulk revoke permissions", error as Error)
     return {
       success: false,
       revoked: 0,
@@ -201,7 +204,7 @@ export async function copyPermissions(
     revalidatePath("/finance/permissions")
     return { success: true, copied: 0 }
   } catch (error) {
-    console.error("Failed to copy permissions")
+    log.error("Failed to copy permissions", error as Error)
     return { success: false, copied: 0, error: "Failed to copy permissions" }
   }
 }

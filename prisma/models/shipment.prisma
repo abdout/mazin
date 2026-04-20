@@ -51,6 +51,10 @@ model Shipment {
   notifications  Notification[]
   expenses       Expense[]
   acds           AdvanceCargoDeclaration[]
+  containers     Container[]
+  imForms        IMForm[]
+  payments       ShipmentPayment[]
+  documents      ShipmentDocument[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

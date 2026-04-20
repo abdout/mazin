@@ -124,11 +124,11 @@ export function TemplatePreview({ settings, dictionary, locale }: TemplatePrevie
           ) : (
             <IconDownload className="size-4" />
           )}
-          {dict.templatesPage?.downloadPdf || "Download PDF"}
+          {dict.templatesPage?.downloadPdf ?? ""}
         </Button>
         <Button variant="outline" onClick={handlePrint}>
           <IconPrinter className="size-4" />
-          {dict.templatesPage?.printTemplate || "Print Template"}
+          {dict.templatesPage?.printTemplate ?? ""}
         </Button>
       </div>
 
@@ -137,10 +137,10 @@ export function TemplatePreview({ settings, dictionary, locale }: TemplatePrevie
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">
-              {dict.templatesPage?.sampleInvoice || "Sample Invoice"}
+              {dict.templatesPage?.sampleInvoice ?? ""}
             </CardTitle>
             <span className="bg-muted rounded px-2 py-1 text-xs font-medium">
-              {dict.templatesPage?.preview || "Preview"}
+              {dict.templatesPage?.preview ?? ""}
             </span>
           </div>
         </CardHeader>
@@ -259,7 +259,7 @@ export function TemplatePreview({ settings, dictionary, locale }: TemplatePrevie
           {settings?.bankName && (
             <div className="bg-muted/30 mt-8 rounded-lg p-4">
               <h3 className="mb-2 font-semibold">
-                {dictionary.invoices.settingsPage?.bankDetails || "Bank Details"}
+                {dictionary.invoices.settingsPage?.bankDetails ?? ""}
               </h3>
               <div className="text-muted-foreground grid gap-1 text-sm">
                 <p><strong>{locale === "ar" ? "البنك" : "Bank"}:</strong> {settings.bankName}</p>

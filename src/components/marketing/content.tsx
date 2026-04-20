@@ -35,7 +35,7 @@ export async function MarketingContent({ dictionary, lang }: MarketingContentPro
         <ReadyToBuildSection dictionary={dictionary} />
       </main>
       <Footer dictionary={dictionary} lang={lang} />
-      <Chatbot lang={lang as Locale} />
+      <Chatbot lang={lang as Locale} promptType="marketing" />
     </LoadingWrapper>
   )
 }

@@ -73,7 +73,7 @@ export function formatAmount(amount: number): string {
   return formatter.format(amount)
 }
 
-export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value))
+export const parseStringify = (value: unknown) => JSON.parse(JSON.stringify(value))
 
 export const removeSpecialCharacters = (value: string) => {
   return value.replace(/[^\w\s]/gi, "")
@@ -108,7 +108,7 @@ export function getAccountTypeColors(type: string) {
 }
 
 export function countTransactionCategories(
-  transactions: any[]
+  transactions: { category: string }[]
 ): { name: string; count: number; totalCount: number }[] {
   const categoryCounts: { [category: string]: number } = {}
   let totalCount = 0

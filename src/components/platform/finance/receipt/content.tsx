@@ -35,6 +35,9 @@ import { UploadForm } from "./upload-form"
 import { useDictionary } from "@/components/internationalization/use-dictionary"
 import { useLocale } from "@/components/internationalization/use-locale"
 import type { Locale } from "@/components/internationalization"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("receipt.content")
 
 interface ReceiptsContentProps {
   initialReceipts?: ExpenseReceipt[]
@@ -55,6 +58,12 @@ export function ReceiptsContent({
 
   const columns = React.useMemo(() => getColumns({ dictionary, locale: locale as Locale }), [dictionary, locale])
 
+  const r = dictionary?.finance?.receipt
+  const header = r?.header
+  const statsDict = r?.stats
+  const view = r?.view
+  const empty = r?.empty
+
   const loadReceipts = React.useCallback(async () => {
     setIsLoading(true)
     try {
@@ -63,7 +72,7 @@ export function ReceiptsContent({
         setReceipts(result.data.receipts)
       }
     } catch (error) {
-      console.error("Failed to load receipts:", error)
+      log.error("Failed to load receipts", error as Error)
     } finally {
       setIsLoading(false)
     }
@@ -105,27 +114,30 @@ export function ReceiptsContent({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold">Receipts</h2>
+          <h2 className="text-3xl font-bold">{header?.title ?? "Receipts"}</h2>
           <p className="text-muted-foreground">
-            Manage and track your expense receipts with AI-powered extraction
+            {header?.description ??
+              "Manage and track your expense receipts with AI-powered extraction"}
           </p>
         </div>
         <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Upload Receipt
+              <Plus className="me-2 h-4 w-4" />
+              {header?.uploadReceipt ?? "Upload Receipt"}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Upload New Receipt</DialogTitle>
+              <DialogTitle>
+                {header?.uploadNewReceipt ?? "Upload New Receipt"}
+              </DialogTitle>
               <DialogDescription>
-                Upload a receipt image or PDF. AI will automatically extract the
-                data.
+                {header?.uploadDescription ??
+                  "Upload a receipt image or PDF. AI will automatically extract the data."}
               </DialogDescription>
             </DialogHeader>
-            <UploadForm locale={locale} />
+            <UploadForm locale={locale} dict={dictionary} />
           </DialogContent>
         </Dialog>
       </div>
@@ -135,7 +147,7 @@ export function ReceiptsContent({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Receipts
+              {statsDict?.total ?? "Total Receipts"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -144,7 +156,9 @@ export function ReceiptsContent({
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Processed</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {statsDict?.processed ?? "Processed"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-chart-2 text-2xl font-bold">
@@ -154,7 +168,9 @@ export function ReceiptsContent({
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Processing</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {statsDict?.processing ?? "Processing"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-primary text-2xl font-bold">
@@ -164,7 +180,9 @@ export function ReceiptsContent({
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Errors</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {statsDict?.errors ?? "Errors"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-destructive text-2xl font-bold">
@@ -183,11 +201,11 @@ export function ReceiptsContent({
           <TabsList>
             <TabsTrigger value="grid" className="gap-2">
               <Grid3X3 className="h-4 w-4" />
-              Grid
+              {view?.grid ?? "Grid"}
             </TabsTrigger>
             <TabsTrigger value="table" className="gap-2">
               <List className="h-4 w-4" />
-              Table
+              {view?.table ?? "Table"}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -202,11 +220,11 @@ export function ReceiptsContent({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-muted-foreground mb-4">
-              No receipts uploaded yet
+              {empty?.noReceipts ?? "No receipts uploaded yet"}
             </p>
             <Button onClick={() => setIsUploadDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Upload Your First Receipt
+              <Plus className="me-2 h-4 w-4" />
+              {empty?.uploadFirst ?? "Upload Your First Receipt"}
             </Button>
           </CardContent>
         </Card>
@@ -223,7 +241,7 @@ export function ReceiptsContent({
               ))}
             </div>
           ) : (
-            <DataTable columns={columns} data={receipts} />
+            <DataTable columns={columns} data={receipts} dict={dictionary} />
           )}
         </>
       )}

@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
+import type { TooltipProps } from "recharts"
 
 import {
   Card,
@@ -46,6 +47,25 @@ const COLORS = [
   "#84cc16", // lime
 ]
 
+// Custom tooltip — defined at module scope so it's not recreated on every render.
+function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+  if (!active || !payload || !payload[0]) return null
+
+  const data = payload[0]
+  const entryPayload = data.payload as Record<string, unknown>
+  return (
+    <div className="bg-background rounded-lg border p-3 shadow-lg">
+      <p className="font-semibold">{data.name || (entryPayload.category as string)}</p>
+      <p className="text-sm">
+        Amount: SDG {new Intl.NumberFormat("en-SD").format(data.value as number)}
+      </p>
+      <p className="text-sm">
+        Percentage: {(entryPayload.percentage as number).toFixed(1)}%
+      </p>
+    </div>
+  )
+}
+
 export function ExpenseChart({
   expenseCategories,
   className,
@@ -75,24 +95,6 @@ export function ExpenseChart({
     })
   }
 
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload || !payload[0]) return null
-
-    const data = payload[0]
-    return (
-      <div className="bg-background rounded-lg border p-3 shadow-lg">
-        <p className="font-semibold">{data.name || data.payload.category}</p>
-        <p className="text-sm">
-          Amount: SDG {new Intl.NumberFormat("en-SD").format(data.value)}
-        </p>
-        <p className="text-sm">
-          Percentage: {data.payload.percentage.toFixed(1)}%
-        </p>
-      </div>
-    )
-  }
-
   // Custom label for pie chart
   const renderCustomLabel = ({
     cx,
@@ -101,7 +103,14 @@ export function ExpenseChart({
     innerRadius,
     outerRadius,
     percentage,
-  }: any) => {
+  }: {
+    cx: number
+    cy: number
+    midAngle: number
+    innerRadius: number
+    outerRadius: number
+    percentage: number
+  }) => {
     if (percentage < 5) return null // Don't show label for small slices
 
     const RADIAN = Math.PI / 180
@@ -242,11 +251,11 @@ export function ExpenseChart({
                   />
                   <span className="text-sm">{cat.category}</span>
                 </div>
-                <div className="text-right">
+                <div className="text-end">
                   <span className="text-sm font-medium">
                     SDG {new Intl.NumberFormat("en-SD").format(cat.amount)}
                   </span>
-                  <span className="text-muted-foreground ml-2 text-xs">
+                  <span className="text-muted-foreground ms-2 text-xs">
                     ({cat.percentage.toFixed(1)}%)
                   </span>
                 </div>

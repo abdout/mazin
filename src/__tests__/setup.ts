@@ -32,17 +32,123 @@ vi.mock("next-auth/react", () => ({
   signOut: vi.fn(),
 }))
 
-// Mock Prisma client
-vi.mock("@/lib/db", () => ({
-  db: {
-    user: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
-    shipment: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
-    project: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
-    invoice: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
-    task: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
-    expense: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn(), groupBy: vi.fn() },
-    notification: { findMany: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
-    verificationToken: { findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn(), delete: vi.fn() },
-    $transaction: vi.fn((fn: unknown) => typeof fn === "function" ? fn({}) : fn),
-  },
-}))
+// ---------------------------------------------------------------------------
+// Prisma client mock — comprehensive model coverage
+// ---------------------------------------------------------------------------
+
+/** Standard Prisma model mock shape with all CRUD + aggregate operations */
+function createModelMock() {
+  return {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    createMany: vi.fn(),
+    update: vi.fn(),
+    updateMany: vi.fn(),
+    delete: vi.fn(),
+    deleteMany: vi.fn(),
+    count: vi.fn(),
+    groupBy: vi.fn(),
+    upsert: vi.fn(),
+    aggregate: vi.fn(),
+  }
+}
+
+const db = {
+  // --- Auth models ---
+  user: createModelMock(),
+  account: createModelMock(),
+  session: createModelMock(),
+  verificationToken: createModelMock(),
+  passwordResetToken: createModelMock(),
+  twoFactorToken: createModelMock(),
+  twoFactorConfirmation: createModelMock(),
+
+  // --- Shipment models ---
+  shipment: createModelMock(),
+  trackingStage: createModelMock(),
+  stageInvoice: createModelMock(),
+  shipmentDocument: createModelMock(),
+
+  // --- Invoice models ---
+  invoice: createModelMock(),
+  invoiceItem: createModelMock(),
+  statementOfAccount: createModelMock(),
+  statementEntry: createModelMock(),
+
+  // --- Client ---
+  client: createModelMock(),
+
+  // --- Project & Task models ---
+  project: createModelMock(),
+  task: createModelMock(),
+  taskAssignmentRule: createModelMock(),
+
+  // --- Customs models ---
+  customsDeclaration: createModelMock(),
+  document: createModelMock(),
+  advanceCargoDeclaration: createModelMock(),
+  hsCode: createModelMock(),
+
+  // --- Notification models ---
+  notification: createModelMock(),
+  notificationPreference: createModelMock(),
+  whatsAppMessage: createModelMock(),
+
+  // --- Company ---
+  companySettings: createModelMock(),
+
+  // --- Finance models ---
+  expense: createModelMock(),
+  expenseCategory: createModelMock(),
+  bankAccount: createModelMock(),
+  bankTransaction: createModelMock(),
+  bankStatement: createModelMock(),
+
+  // --- Payroll & Budget models ---
+  budget: createModelMock(),
+  budgetItem: createModelMock(),
+  salary: createModelMock(),
+  salaryStructure: createModelMock(),
+  payrollRun: createModelMock(),
+  payroll: createModelMock(),
+  payrollItem: createModelMock(),
+
+  // --- Timesheet & Wallet models ---
+  timesheet: createModelMock(),
+  timesheetEntry: createModelMock(),
+  wallet: createModelMock(),
+  walletTransaction: createModelMock(),
+
+  // --- Accounting models ---
+  chartOfAccount: createModelMock(),
+  journalEntry: createModelMock(),
+  journalLine: createModelMock(),
+  fiscalYear: createModelMock(),
+
+  // --- Additional models ---
+  receipt: createModelMock(),
+  feeTemplate: createModelMock(),
+  customsPayment: createModelMock(),
+  transaction: createModelMock(),
+  employee: createModelMock(),
+
+  // --- Marketplace models ---
+  vendor: createModelMock(),
+  serviceCategory: createModelMock(),
+  serviceListing: createModelMock(),
+  serviceRequest: createModelMock(),
+
+  // --- Client-level utilities ---
+  $transaction: vi.fn((arg: unknown) => {
+    if (typeof arg === "function") {
+      return arg(db) // pass db itself as the transaction client
+    }
+    return Promise.resolve(arg)
+  }),
+  $queryRaw: vi.fn().mockResolvedValue([{ 1: 1 }]),
+  $queryRawUnsafe: vi.fn().mockResolvedValue([{ 1: 1 }]),
+}
+
+vi.mock("@/lib/db", () => ({ db }))

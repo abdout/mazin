@@ -78,7 +78,7 @@ export function Upcoming({ data, locale, className }: UpcomingProps) {
             </div>
           </div>
 
-          <div className="absolute right-0 bottom-0 left-0 p-5">
+          <div className="absolute inset-x-0 bottom-0 p-5">
             <div className="flex items-center justify-between gap-3">
               <div className="space-y-1.5">
                 <h3 className="text-foreground text-lg leading-snug font-semibold tracking-tighter transition-all duration-500 ease-out group-hover:translate-y-[-4px]">

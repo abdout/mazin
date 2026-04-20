@@ -239,11 +239,11 @@ export function InvoiceForm({
           <CardHeader>
             <CardTitle>
               {isEditMode
-                ? dictionary.invoices?.editInvoice || "Edit Invoice"
-                : dictionary.invoices?.newInvoice || "New Invoice"}
+                ? dictionary.invoices?.editInvoice
+                : dictionary.invoices?.newInvoice}
             </CardTitle>
             <CardDescription>
-              {isRtl ? "معلومات الفاتورة الأساسية" : "Basic invoice information"}
+              {dictionary.invoices?.basicInfo}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -253,7 +253,7 @@ export function InvoiceForm({
                 name="invoiceType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "نوع الفاتورة" : "Invoice Type"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.invoiceType}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -277,11 +277,11 @@ export function InvoiceForm({
                 name="shipmentId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{dictionary.navigation?.shipments || "Shipment"}</FormLabel>
+                    <FormLabel>{dictionary.navigation?.shipments}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={dictionary.common?.select || "Select"} />
+                          <SelectValue placeholder={dictionary.common?.select} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -301,11 +301,11 @@ export function InvoiceForm({
                 name="clientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "العميل" : "Client"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.client}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={dictionary.common?.select || "Select"} />
+                          <SelectValue placeholder={dictionary.common?.select} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -325,7 +325,7 @@ export function InvoiceForm({
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{dictionary.customs?.currency || "Currency"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.currency}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -355,7 +355,7 @@ export function InvoiceForm({
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{dictionary.invoices?.dueDate || "Due Date"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.dueDate}</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -368,9 +368,9 @@ export function InvoiceForm({
                 name="supplierName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "المورد" : "Supplier"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.supplier}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder={isRtl ? "اسم المورد" : "Supplier name"} />
+                      <Input {...field} placeholder={dictionary.invoices?.supplierName} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -383,9 +383,9 @@ export function InvoiceForm({
         {/* Document References Card */}
         <Card>
           <CardHeader>
-            <CardTitle>{isRtl ? "مراجع المستندات" : "Document References"}</CardTitle>
+            <CardTitle>{dictionary.invoices?.documentReferencesTitle}</CardTitle>
             <CardDescription>
-              {isRtl ? "رقم بوليصة الشحن والحاويات والوثائق الجمركية" : "B/L, container, and customs document numbers"}
+              {dictionary.invoices?.documentReferencesDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -395,7 +395,7 @@ export function InvoiceForm({
                 name="blNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "رقم بوليصة الشحن" : "B/L Number"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.documentReferences?.blNumber}</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="VCLPKGPZU4332125" />
                     </FormControl>
@@ -408,7 +408,7 @@ export function InvoiceForm({
                 name="containerNumbers"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "رقم الحاوية" : "Container No(s)"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.documentReferences?.containerNo}</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="5*20, MSKU1234567" />
                     </FormControl>
@@ -421,7 +421,7 @@ export function InvoiceForm({
                 name="vesselName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "اسم السفينة" : "Vessel Name"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.documentReferences?.vesselName}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -436,7 +436,7 @@ export function InvoiceForm({
                 name="deliveryOrderNo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "اذن تسليم رقم" : "Delivery Order No"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.documentReferences?.deliveryOrderNo}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -449,7 +449,7 @@ export function InvoiceForm({
                 name="declarationNo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "شهادة جمركية رقم" : "Declaration No"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.documentReferences?.declarationNo}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -462,9 +462,9 @@ export function InvoiceForm({
                 name="commodityType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isRtl ? "الصنف" : "Commodity"}</FormLabel>
+                    <FormLabel>{dictionary.invoices?.documentReferences?.commodityType}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder={isRtl ? "نوع البضاعة" : "Goods type"} />
+                      <Input {...field} placeholder={dictionary.invoices?.documentReferences?.commodityType} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -477,9 +477,9 @@ export function InvoiceForm({
         {/* Quick Add Fee Categories */}
         <Card>
           <CardHeader>
-            <CardTitle>{isRtl ? "إضافة رسوم سريعة" : "Quick Add Fees"}</CardTitle>
+            <CardTitle>{dictionary.invoices?.quickAddFees}</CardTitle>
             <CardDescription>
-              {isRtl ? "انقر لإضافة رسوم شائعة" : "Click to add common fees"}
+              {dictionary.invoices?.quickAddFeesDescription}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -502,9 +502,9 @@ export function InvoiceForm({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>{dictionary.invoices?.lineItems || "Line Items"}</CardTitle>
+              <CardTitle>{dictionary.invoices?.lineItems}</CardTitle>
               <CardDescription>
-                {isRtl ? "بنود الفاتورة والرسوم" : "Invoice items and fees"}
+                {dictionary.invoices?.invoiceItemsDescription}
               </CardDescription>
             </div>
             <Button
@@ -514,7 +514,7 @@ export function InvoiceForm({
               onClick={() => append({ description: "", quantity: 1, unitPrice: 0 })}
             >
               <IconPlus className="size-4 me-1" />
-              {dictionary.invoices?.addItem || "Add Item"}
+              {dictionary.invoices?.addItem}
             </Button>
           </CardHeader>
           <CardContent>
@@ -527,14 +527,14 @@ export function InvoiceForm({
                   {/* Fee Category Select */}
                   <FormItem>
                     {index === 0 && (
-                      <FormLabel>{isRtl ? "نوع الرسم" : "Fee Type"}</FormLabel>
+                      <FormLabel>{dictionary.invoices?.feeType}</FormLabel>
                     )}
                     <Select
                       value={watchItems[index]?.feeCategory || ""}
                       onValueChange={(val) => handleFeeCategoryChange(index, val)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={isRtl ? "اختر..." : "Select..."} />
+                        <SelectValue placeholder={dictionary.common?.select} />
                       </SelectTrigger>
                       <SelectContent>
                         {feeCategoryOptions.map((option) => (
@@ -554,7 +554,7 @@ export function InvoiceForm({
                       <FormItem>
                         {index === 0 && (
                           <FormLabel>
-                            {dictionary.invoices?.itemDescription || "Description"}
+                            {dictionary.invoices?.itemDescription}
                           </FormLabel>
                         )}
                         <FormControl>
@@ -572,7 +572,7 @@ export function InvoiceForm({
                     render={({ field }) => (
                       <FormItem>
                         {index === 0 && (
-                          <FormLabel>{dictionary.shipments?.quantity || "Qty"}</FormLabel>
+                          <FormLabel>{dictionary.shipments?.quantity}</FormLabel>
                         )}
                         <FormControl>
                           <Input type="number" min={1} {...field} />
@@ -590,7 +590,7 @@ export function InvoiceForm({
                       <FormItem>
                         {index === 0 && (
                           <FormLabel>
-                            {dictionary.invoices?.unitPrice || "Unit Price"}
+                            {dictionary.invoices?.unitPrice}
                           </FormLabel>
                         )}
                         <FormControl>
@@ -626,7 +626,7 @@ export function InvoiceForm({
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{dictionary.invoices?.notes || "Notes"}</FormLabel>
+                  <FormLabel>{dictionary.invoices?.notes}</FormLabel>
                   <FormControl>
                     <Textarea rows={3} {...field} />
                   </FormControl>
@@ -643,7 +643,7 @@ export function InvoiceForm({
             <div className="flex flex-col items-end gap-2 text-sm">
               <div className="flex gap-4">
                 <span className="text-muted-foreground">
-                  {dictionary.invoices?.subtotal || "Subtotal"}:
+                  {dictionary.invoices?.subtotal}:
                 </span>
                 <span className="font-medium tabular-nums">
                   {watchCurrency} {subtotal.toLocaleString(locale === "ar" ? "ar-SA" : "en-US")}
@@ -651,14 +651,14 @@ export function InvoiceForm({
               </div>
               <div className="flex gap-4">
                 <span className="text-muted-foreground">
-                  {isRtl ? "قيمه مضافة" : "VAT"} (17%):
+                  {dictionary.invoices?.vat} (17%):
                 </span>
                 <span className="font-medium tabular-nums">
                   {watchCurrency} {tax.toLocaleString(locale === "ar" ? "ar-SA" : "en-US")}
                 </span>
               </div>
               <div className="flex gap-4 text-lg font-bold border-t pt-2 mt-2">
-                <span>{dictionary.invoices?.total || "Total"}:</span>
+                <span>{dictionary.invoices?.total}:</span>
                 <span className="tabular-nums">
                   {watchCurrency} {total.toLocaleString(locale === "ar" ? "ar-SA" : "en-US")}
                 </span>
@@ -674,14 +674,14 @@ export function InvoiceForm({
             variant="outline"
             onClick={isModal && onCancel ? onCancel : () => router.back()}
           >
-            {dictionary.common?.cancel || "Cancel"}
+            {dictionary.common?.cancel}
           </Button>
           <Button type="submit" disabled={isPending}>
             {isPending
-              ? dictionary.common?.loading || "Loading..."
+              ? dictionary.common?.loading
               : isEditMode
-                ? dictionary.common?.update || "Update"
-                : dictionary.common?.create || "Create"}
+                ? dictionary.common?.update
+                : dictionary.common?.create}
           </Button>
         </div>
       </form>

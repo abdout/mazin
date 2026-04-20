@@ -131,7 +131,7 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>, dictionary?: Dict
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          {dictionary?.task?.task ?? 'Task'}
+          {dictionary?.task?.task ?? ""}
           <ArrowUpDown className='ms-2 h-4 w-4' />
         </Button>
       )
@@ -161,7 +161,7 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>, dictionary?: Dict
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          {dictionary?.task?.project ?? 'Project'}
+          {dictionary?.task?.project ?? ""}
           <ArrowUpDown className='ms-2 h-4 w-4' />
         </Button>
       )
@@ -169,11 +169,11 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>, dictionary?: Dict
   },
   {
     accessorKey: 'linkedActivity',
-    header: () => <div>{dictionary?.task?.stage ?? 'Stage'}</div>,
+    header: () => <div>{dictionary?.task?.stage ?? ""}</div>,
     cell: ({ row }) => {
       const linkedActivity = row.original.linkedActivity;
       if (!linkedActivity) {
-        return <span className="text-muted-foreground text-xs">{dictionary?.task?.manual ?? 'Manual'}</span>;
+        return <span className="text-muted-foreground text-xs">{dictionary?.task?.manual ?? ""}</span>;
       }
       return (
         <div className="flex flex-col gap-0.5">
@@ -185,12 +185,12 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>, dictionary?: Dict
   },
   {
     accessorKey: 'club',
-    header: () => <div>{dictionary?.task?.team ?? 'Team'}</div>,
+    header: () => <div>{dictionary?.task?.team ?? ""}</div>,
     cell: () => <TeamCell />
   },
   {
     accessorKey: 'status',
-    header: () => <div>{dictionary?.task?.status ?? 'Status'}</div>,
+    header: () => <div>{dictionary?.task?.status ?? ""}</div>,
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
       const statusLabel = TASK_STATUS_LABELS[status as keyof typeof TASK_STATUS_LABELS] || status;
@@ -205,7 +205,7 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>, dictionary?: Dict
   },
   {
     accessorKey: 'priority',
-    header: () => <div>{dictionary?.task?.priority ?? 'Priority'}</div>,
+    header: () => <div>{dictionary?.task?.priority ?? ""}</div>,
     cell: ({ row }) => {
       const priority = row.getValue('priority') as string;
       const priorityLabel = TASK_PRIORITY_LABELS[priority as keyof typeof TASK_PRIORITY_LABELS] || priority;
@@ -220,24 +220,24 @@ export const getColumns = (onTaskUpdate?: () => Promise<void>, dictionary?: Dict
   },
   {
     accessorKey: 'duration',
-    header: () => <div className="text-center">{dictionary?.task?.duration ?? 'Duration'}</div>,
+    header: () => <div className="text-center">{dictionary?.task?.duration ?? ""}</div>,
     cell: ({ row }) => (
       <div className="flex justify-center w-full">
-        <span>{row.getValue('duration')} {dictionary?.task?.hours ?? 'hr'}</span>
+        <span>{row.getValue('duration')} {dictionary?.task?.hours ?? ""}</span>
       </div>
     ),
   },
   {
     accessorKey: 'remark',
-    header: () => <div>{dictionary?.task?.remarks ?? 'Remarks'}</div>,
+    header: () => <div>{dictionary?.task?.remarks ?? ""}</div>,
   },
   {
     accessorKey: 'actions',
-    header: () => <div className="text-center w-full ps-8">{dictionary?.common?.actions ?? 'Actions'}</div>,
+    header: () => <div className="text-center w-full ps-8">{dictionary?.common?.actions ?? ""}</div>,
     cell: ({ row }) => (
       <div className="ps-8">
         <ActionsCell row={row} onTaskUpdate={onTaskUpdate} />
       </div>
     ),
   }
-]; 
+];

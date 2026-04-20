@@ -12,15 +12,21 @@ import {
   recalculateRemainingETAs,
   toPublicTrackingData,
 } from "@/lib/tracking"
-import { notifyShipmentMilestone } from "@/lib/services/notification"
+import { notifyShipmentMilestone, type ShipmentMilestone } from "@/lib/services/notification"
 
-// Map completed stage types to notification milestones
-const STAGE_MILESTONE_MAP: Partial<
-  Record<TrackingStageType, "arrival" | "cleared" | "released" | "delivered">
-> = {
+// Map each of the 11 tracking stages to a client-visible milestone so the
+// notification dispatcher fires on every transition, not just a handful.
+const STAGE_MILESTONE_MAP: Partial<Record<TrackingStageType, ShipmentMilestone>> = {
+  PRE_ARRIVAL_DOCS: "pre-arrival",
   VESSEL_ARRIVAL: "arrival",
+  CUSTOMS_DECLARATION: "declaration",
+  CUSTOMS_PAYMENT: "payment",
+  INSPECTION: "inspection",
+  PORT_FEES: "port-fees",
   QUALITY_STANDARDS: "cleared",
   RELEASE: "released",
+  LOADING: "loading",
+  IN_TRANSIT: "in-transit",
   DELIVERED: "delivered",
 }
 
@@ -282,18 +288,20 @@ export async function updateTrackingStage(
       validated.stageType as TrackingStageType
     )
 
-    // Update ETAs for remaining stages
-    for (const [stageType, eta] of newEtas) {
-      await db.trackingStage.update({
-        where: {
-          shipmentId_stageType: {
-            shipmentId: validated.shipmentId,
-            stageType,
+    // Update ETAs for remaining stages (batched)
+    await Promise.all(
+      Array.from(newEtas.entries()).map(([stageType, eta]) =>
+        db.trackingStage.update({
+          where: {
+            shipmentId_stageType: {
+              shipmentId: validated.shipmentId,
+              stageType,
+            },
           },
-        },
-        data: { estimatedAt: eta },
-      })
-    }
+          data: { estimatedAt: eta },
+        })
+      )
+    )
 
     // Fire-and-forget notification for completed stage milestone
     fireStageNotification(
@@ -409,17 +417,20 @@ export async function advanceToNextStage(shipmentId: string) {
     currentStage.stageType
   )
 
-  for (const [stageType, eta] of newEtas) {
-    await db.trackingStage.update({
-      where: {
-        shipmentId_stageType: {
-          shipmentId,
-          stageType,
+  // Update ETAs for remaining stages (batched)
+  await Promise.all(
+    Array.from(newEtas.entries()).map(([stageType, eta]) =>
+      db.trackingStage.update({
+        where: {
+          shipmentId_stageType: {
+            shipmentId,
+            stageType,
+          },
         },
-      },
-      data: { estimatedAt: eta },
-    })
-  }
+        data: { estimatedAt: eta },
+      })
+    )
+  )
 
   // Fire-and-forget notification for completed stage milestone
   fireStageNotification(

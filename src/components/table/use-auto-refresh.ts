@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 export interface UseAutoRefreshOptions {
   /** Whether auto-refresh is enabled */
@@ -40,6 +40,8 @@ export function useAutoRefresh({
   pauseOnBlur = true,
 }: UseAutoRefreshOptions): UseAutoRefreshReturn {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [isRunning, setIsRunning] = useState(false)
+  // Mirror of isRunning for use inside effects without retriggering on state change
   const isRunningRef = useRef(false)
 
   const refresh = useCallback(async () => {
@@ -54,6 +56,7 @@ export function useAutoRefresh({
     if (intervalRef.current || !enabled) return
 
     isRunningRef.current = true
+    setIsRunning(true)
     intervalRef.current = setInterval(() => {
       refresh()
     }, interval)
@@ -64,6 +67,7 @@ export function useAutoRefresh({
       clearInterval(intervalRef.current)
       intervalRef.current = null
       isRunningRef.current = false
+      setIsRunning(false)
     }
   }, [])
 
@@ -110,6 +114,6 @@ export function useAutoRefresh({
     refresh,
     start,
     stop,
-    isRunning: isRunningRef.current,
+    isRunning,
   }
 }

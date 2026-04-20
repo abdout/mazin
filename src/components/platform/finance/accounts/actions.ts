@@ -12,6 +12,9 @@
 
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("accounts")
 
 import type { AccountActionResult, JournalEntryActionResult } from "./types"
 
@@ -72,7 +75,7 @@ export async function createAccount(
       error: "Account creation not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Failed to create account")
+    log.error("Failed to create account", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to create account",
@@ -99,7 +102,7 @@ export async function updateAccount(
       error: "Account update not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Failed to update account")
+    log.error("Failed to update account", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update account",
@@ -125,7 +128,7 @@ export async function deleteAccount(
       error: "Account deletion not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Failed to delete account")
+    log.error("Failed to delete account", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete account",
@@ -151,7 +154,7 @@ export async function createJournalEntry(
       error: "Journal entry creation not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Failed to create journal entry")
+    log.error("Failed to create journal entry", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to create journal entry",
@@ -177,7 +180,7 @@ export async function postJournalEntry(
       error: "Journal entry posting not yet implemented. Please set up Prisma schema.",
     }
   } catch (error) {
-    console.error("Failed to post journal entry")
+    log.error("Failed to post journal entry", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to post journal entry",
@@ -201,7 +204,7 @@ export async function getChartOfAccounts(filters?: {
     // TODO: Implement with Prisma when schema is ready
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Failed to fetch chart of accounts")
+    log.error("Failed to fetch chart of accounts", error as Error)
     return { success: false, error: "Failed to fetch chart of accounts" }
   }
 }
@@ -222,7 +225,7 @@ export async function getJournalEntries(filters?: {
     // TODO: Implement with Prisma when schema is ready
     return { success: true, data: [] }
   } catch (error) {
-    console.error("Failed to fetch journal entries")
+    log.error("Failed to fetch journal entries", error as Error)
     return { success: false, error: "Failed to fetch journal entries" }
   }
 }

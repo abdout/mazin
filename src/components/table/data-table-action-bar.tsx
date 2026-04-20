@@ -31,11 +31,11 @@ function DataTableActionBarInner<TData>({
   className,
   ...props
 }: DataTableActionBarProps<TData>) {
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useLayoutEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -139,13 +139,13 @@ function DataTableActionBarSelectionInner<TData>({
   }, [table])
 
   return (
-    <div className="flex h-7 items-center rounded-md border pr-1 pl-2.5">
+    <div className="flex h-7 items-center rounded-md border pe-1 ps-2.5">
       <span className="text-xs whitespace-nowrap">
         {table.getFilteredSelectedRowModel().rows.length} selected
       </span>
       <Separator
         orientation="vertical"
-        className="mr-1 ml-2 data-[orientation=vertical]:h-4"
+        className="me-1 ms-2 data-[orientation=vertical]:h-4"
       />
       <Tooltip>
         <TooltipTrigger asChild>

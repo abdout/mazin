@@ -56,17 +56,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     switch (project.status) {
       case 'delivered':
       case 'done':
-        return { color: 'bg-green-500', label: statuses?.DELIVERED || 'Delivered' };
+        return { color: 'bg-green-500', label: statuses?.DELIVERED ?? '' };
       case 'released':
-        return { color: 'bg-emerald-400', label: statuses?.RELEASED || 'Released' };
+        return { color: 'bg-emerald-400', label: statuses?.RELEASED ?? '' };
       case 'in_progress':
       case 'on_progress':
-        return { color: 'bg-yellow-400', label: statuses?.IN_PROGRESS || 'In Progress' };
+        return { color: 'bg-yellow-400', label: statuses?.IN_PROGRESS ?? '' };
       case 'customs_hold':
       case 'stuck':
-        return { color: 'bg-red-500', label: statuses?.CUSTOMS_HOLD || 'On Hold' };
+        return { color: 'bg-red-500', label: statuses?.CUSTOMS_HOLD ?? '' };
       default:
-        return { color: 'bg-neutral-400', label: statuses?.PENDING || 'Pending' };
+        return { color: 'bg-neutral-400', label: statuses?.PENDING ?? '' };
     }
   };
 
@@ -88,7 +88,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="space-y-1">
             <h3 className="font-semibold text-lg leading-tight truncate">{project.customer}</h3>
             <p className="text-sm text-muted-foreground truncate">
-              {project.blAwbNumber || project.location || dictionary.project?.blAwbNumber || 'BL/AWB'}
+              {project.blAwbNumber || project.location || dictionary.project?.blAwbNumber}
             </p>
           </div>
 
@@ -96,7 +96,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="flex-1 flex flex-col justify-center py-2">
             <div className="flex gap-2 items-center text-sm">
               <Icon icon="mdi:ship" width={18} className="text-muted-foreground" />
-              <span className="truncate">{shipmentType || dictionary.dashboard?.shipment || 'Shipment'}</span>
+              <span className="truncate">{shipmentType || dictionary.dashboard?.shipment}</span>
             </div>
             {(project.portOfOrigin || project.portOfDestination) && (
               <div className="flex gap-1.5 items-center mt-1.5 text-xs text-muted-foreground">
@@ -117,7 +117,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {contextMenu.projectID === project.id && (
         <div
-          className="absolute top-0 left-0 w-full h-full rounded-xl bg-background/90 backdrop-blur-sm flex flex-row justify-center items-center gap-4 rtl:left-auto rtl:right-0"
+          className="absolute top-0 start-0 w-full h-full rounded-xl bg-background/90 backdrop-blur-sm flex flex-row justify-center items-center gap-4"
           onMouseLeave={onCloseContextMenu}
           onClick={(e) => {
             // Close if clicking outside the buttons

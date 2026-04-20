@@ -11,7 +11,7 @@ interface MobileHeaderProps {
 
 export default function MobileHeader({ dictionary }: MobileHeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] md:hidden bg-background">
+    <header className="fixed top-0 inset-x-0 z-[100] md:hidden bg-background">
       <div className="layout-container flex h-14 items-center">
         <div className="flex items-center justify-between w-full">
           <MobileNav dictionary={dictionary} />

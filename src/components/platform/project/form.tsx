@@ -13,6 +13,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type ShipmentType, type StageWithType, type ProjectCreateFormProps, type Activity } from './types';
 import { GeneralTab } from './general';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('project.form');
 import { ActivitiesTab } from './activities';
 import { ResourcesTab } from './resources';
 import { DescriptionTab } from './description';
@@ -201,35 +204,12 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
         toast.error(result.error || 'Failed to save shipment');
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      log.error('Error submitting form', error as Error);
       toast.error('An error occurred while saving the shipment');
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Handle system toggle
-  const handleSystemToggle = useCallback((system: ShipmentType) => {
-    setSelectedSystems(prev => {
-      if (prev.includes(system)) {
-        // If system is already selected, remove it and all its activities
-        handleUnselectAllActivities(system, '*', null);
-        // Clear selected categories for this system
-        setSelectedCategories(prevCat => ({
-          ...prevCat,
-          [system]: []
-        }));
-        setSelectedSubcategories(prevSub => ({
-          ...prevSub,
-          [system]: {}
-        }));
-        return prev.filter(s => s !== system);
-      } else {
-        // If system is not yet selected, add it
-        return [...prev, system];
-      }
-    });
-  }, []);
 
   // Handle activity change
   const handleActivityChange = useCallback((system: ShipmentType, category: string, subcategory: string, activity: string, checked: boolean) => {
@@ -280,6 +260,30 @@ export default function ProjectCreateForm({ projectToEdit, onSuccess, onClose }:
       }
     });
   }, []);
+
+  // Handle system toggle — defined after handleUnselectAllActivities so it can be
+  // referenced without violating the "no use-before-declaration" rule.
+  const handleSystemToggle = useCallback((system: ShipmentType) => {
+    setSelectedSystems(prev => {
+      if (prev.includes(system)) {
+        // If system is already selected, remove it and all its activities
+        handleUnselectAllActivities(system, '*', null);
+        // Clear selected categories for this system
+        setSelectedCategories(prevCat => ({
+          ...prevCat,
+          [system]: []
+        }));
+        setSelectedSubcategories(prevSub => ({
+          ...prevSub,
+          [system]: {}
+        }));
+        return prev.filter(s => s !== system);
+      } else {
+        // If system is not yet selected, add it
+        return [...prev, system];
+      }
+    });
+  }, [handleUnselectAllActivities]);
 
   // Handle category toggle
   const handleCategoryToggle = useCallback((system: ShipmentType, category: string) => {

@@ -1,5 +1,6 @@
 "use client"
 
+import type { TooltipProps } from "recharts"
 import {
   Bar,
   BarChart,
@@ -18,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import type { Dictionary } from "@/components/internationalization/types"
 
 interface CashFlowChartProps {
   inflowData: number[]
@@ -25,6 +27,30 @@ interface CashFlowChartProps {
   balanceData: number[]
   labels?: string[]
   className?: string
+  dict?: Dictionary
+}
+
+function formatValue(value: number) {
+  return new Intl.NumberFormat("en-SD", {
+    style: "currency",
+    currency: "SDG",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.abs(value))
+}
+
+function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+  if (!active || !payload || !payload[0]) return null
+
+  const data = payload[0]
+  return (
+    <div className="bg-background rounded-lg border p-3 shadow-lg">
+      <p className="font-semibold">{(data.payload as Record<string, unknown>)?.name as string}</p>
+      <p className="text-sm" style={{ color: (data.payload as Record<string, unknown>)?.color as string }}>
+        {formatValue(data.value ?? 0)}
+      </p>
+    </div>
+  )
 }
 
 export function CashFlowChart({
@@ -32,21 +58,23 @@ export function CashFlowChart({
   outflowData,
   balanceData,
   className,
+  dict,
 }: CashFlowChartProps) {
+  const c = dict?.dashboard?.charts?.cashFlow
   // Prepare data for the chart
   const chartData = [
     {
-      name: "Cash Inflow",
+      name: c?.cashInflow ?? "Cash Inflow",
       value: inflowData[0] || 0,
       color: "#10b981",
     },
     {
-      name: "Cash Outflow",
+      name: c?.cashOutflow ?? "Cash Outflow",
       value: outflowData[0] || 0,
       color: "#ef4444",
     },
     {
-      name: "Net Cash Flow",
+      name: c?.netCashFlow ?? "Net Cash Flow",
       value: (inflowData[0] || 0) - (outflowData[0] || 0),
       color:
         (inflowData[0] || 0) - (outflowData[0] || 0) >= 0
@@ -55,34 +83,13 @@ export function CashFlowChart({
     },
   ]
 
-  const formatValue = (value: number) => {
-    return new Intl.NumberFormat("en-SD", {
-      style: "currency",
-      currency: "SDG",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(Math.abs(value))
-  }
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload || !payload[0]) return null
-
-    const data = payload[0]
-    return (
-      <div className="bg-background rounded-lg border p-3 shadow-lg">
-        <p className="font-semibold">{data.payload.name}</p>
-        <p className="text-sm" style={{ color: data.payload.color }}>
-          {formatValue(data.value)}
-        </p>
-      </div>
-    )
-  }
-
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Cash Flow</CardTitle>
-        <CardDescription>Cash movement for the current period</CardDescription>
+        <CardTitle>{c?.title ?? "Cash Flow"}</CardTitle>
+        <CardDescription>
+          {c?.description ?? "Cash movement for the current period"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -113,14 +120,16 @@ export function CashFlowChart({
         <div className="mt-6 space-y-3 border-t pt-6">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground text-sm">
-              Current Balance
+              {c?.currentBalance ?? "Current Balance"}
             </span>
             <span className="text-lg font-semibold">
               {formatValue(balanceData[0] || 0)}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-sm">Net Cash Flow</span>
+            <span className="text-muted-foreground text-sm">
+              {c?.netCashFlow ?? "Net Cash Flow"}
+            </span>
             <span
               className={`text-lg font-semibold ${
                 (inflowData[0] || 0) - (outflowData[0] || 0) >= 0

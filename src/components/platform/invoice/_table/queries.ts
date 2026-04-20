@@ -6,8 +6,11 @@ import type { Prisma } from "@prisma/client"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { filterColumns } from "@/components/table/lib/prisma-filter-columns"
+import { logger } from "@/lib/logger"
 
 import type { GetInvoicesSchema } from "./validations"
+
+const log = logger.forModule("invoice.queries")
 
 /**
  * Get paginated invoices with filtering and sorting
@@ -99,7 +102,7 @@ export async function getInvoices(input: GetInvoicesSchema) {
 
     return { data, pageCount }
   } catch (error) {
-    console.error("Error fetching invoices:", error)
+    log.error("Error fetching invoices", error as Error)
     return { data: [], pageCount: 0 }
   }
 }
@@ -128,7 +131,7 @@ export async function getInvoiceStatusCounts() {
       {} as Record<string, number>
     )
   } catch (error) {
-    console.error("Error fetching invoice status counts:", error)
+    log.error("Error fetching invoice status counts", error as Error)
     return {}
   }
 }
@@ -154,7 +157,7 @@ export async function getInvoiceTotalRange() {
       max: result._max.total?.toNumber() ?? 100000,
     }
   } catch (error) {
-    console.error("Error fetching invoice total range:", error)
+    log.error("Error fetching invoice total range", error as Error)
     return { min: 0, max: 100000 }
   }
 }

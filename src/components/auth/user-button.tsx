@@ -44,7 +44,7 @@ export const UserButton = ({ className, dictionary }: UserButtonProps) => {
       >
         <Link href={loginUrl}>
           <LogIn className="size-4 rtl:-scale-x-100" />
-          <span className="sr-only">{dictionary?.auth?.login || "Login"}</span>
+          <span className="sr-only">{dictionary?.auth?.login}</span>
         </Link>
       </Button>
     )
@@ -59,7 +59,7 @@ export const UserButton = ({ className, dictionary }: UserButtonProps) => {
         .slice(0, 2)
     : user.email?.charAt(0).toUpperCase() || "U"
 
-  const displayName = user.name || user.email?.split("@")[0] || "User"
+  const displayName = user.name || user.email?.split("@")[0] || dictionary?.users?.name
   const displayEmail = user.email || ""
 
   return (
@@ -72,7 +72,7 @@ export const UserButton = ({ className, dictionary }: UserButtonProps) => {
               {userInitials}
             </AvatarFallback>
           </Avatar>
-          <span className="sr-only">{dictionary?.navigation?.userMenu || "User menu"}</span>
+          <span className="sr-only">{dictionary?.navigation?.userMenu}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" sideOffset={8}>
@@ -89,14 +89,14 @@ export const UserButton = ({ className, dictionary }: UserButtonProps) => {
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/${locale}/profile`}>
               <User />
-              {dictionary?.settings?.profile || "Profile"}
+              {dictionary?.settings?.profile}
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href={`/${locale}/settings`}>
               <Settings />
-              {dictionary?.settings?.title || "Settings"}
+              {dictionary?.settings?.title}
               <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
@@ -105,7 +105,7 @@ export const UserButton = ({ className, dictionary }: UserButtonProps) => {
         <LogoutButton>
           <DropdownMenuItem variant="destructive" className="cursor-pointer">
             <ExitIcon />
-            {dictionary?.auth?.logout || "Logout"}
+            {dictionary?.auth?.logout}
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </LogoutButton>

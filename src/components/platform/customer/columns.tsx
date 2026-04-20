@@ -59,7 +59,7 @@ export function getClientColumns({
     },
     {
       accessorKey: "companyName",
-      header: dictionary.customer?.companyName || "Company Name",
+      header: dictionary.customer?.companyName ?? "",
       cell: ({ row }) => (
         <Link
           href={`/${locale}/customer/${row.original.id}`}
@@ -71,33 +71,33 @@ export function getClientColumns({
     },
     {
       accessorKey: "contactName",
-      header: dictionary.customer?.contactName || "Contact",
+      header: dictionary.customer?.contactName ?? "",
       cell: ({ row }) => row.original.contactName || "-",
     },
     {
       accessorKey: "email",
-      header: dictionary.common?.email || "Email",
+      header: dictionary.common?.email ?? "",
       cell: ({ row }) => row.original.email || "-",
     },
     {
       accessorKey: "phone",
-      header: dictionary.common?.phone || "Phone",
+      header: dictionary.common?.phone ?? "",
       cell: ({ row }) => row.original.phone || "-",
     },
     {
       accessorKey: "isActive",
-      header: dictionary.customer?.isActive || "Status",
+      header: dictionary.customer?.isActive ?? "",
       cell: ({ row }) => (
         <Badge variant={row.original.isActive ? "default" : "secondary"}>
           {row.original.isActive
-            ? dictionary.customer?.active || "Active"
-            : dictionary.customer?.inactive || "Inactive"}
+            ? dictionary.customer?.active ?? ""
+            : dictionary.customer?.inactive ?? ""}
         </Badge>
       ),
     },
     {
       id: "invoiceCount",
-      header: dictionary.customer?.invoiceCount || "Invoices",
+      header: dictionary.customer?.invoiceCount ?? "",
       cell: ({ row }) => (
         <span className="tabular-nums">{row.original.invoices.length}</span>
       ),
@@ -111,27 +111,27 @@ export function getClientColumns({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{dictionary.common?.openMenu ?? ""}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link href={`/${locale}/customer/${client.id}/edit`}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  {dictionary.common?.edit || "Edit"}
+                  <Pencil className="me-2 h-4 w-4" />
+                  {dictionary.common?.edit ?? ""}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onToggleStatus(client.id)}>
                 {client.isActive ? (
                   <>
-                    <ToggleLeft className="mr-2 h-4 w-4" />
-                    {dictionary.customer?.inactive || "Deactivate"}
+                    <ToggleLeft className="me-2 h-4 w-4" />
+                    {dictionary.customer?.inactive ?? ""}
                   </>
                 ) : (
                   <>
-                    <ToggleRight className="mr-2 h-4 w-4" />
-                    {dictionary.customer?.active || "Activate"}
+                    <ToggleRight className="me-2 h-4 w-4" />
+                    {dictionary.customer?.active ?? ""}
                   </>
                 )}
               </DropdownMenuItem>
@@ -141,8 +141,8 @@ export function getClientColumns({
                 className="text-destructive focus:text-destructive"
                 disabled={client.invoices.length > 0}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {dictionary.common?.delete || "Delete"}
+                <Trash2 className="me-2 h-4 w-4" />
+                {dictionary.common?.delete ?? ""}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

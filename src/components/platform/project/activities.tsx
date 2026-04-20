@@ -225,7 +225,7 @@ export function ActivitiesTab({
                                                 );
                                               }}
                                               onClick={(e) => e.stopPropagation()}
-                                              className="mr-2"
+                                              className="me-2"
                                             />
                                             <label
                                               htmlFor={`${shipmentType}-${stage}-${task}`}

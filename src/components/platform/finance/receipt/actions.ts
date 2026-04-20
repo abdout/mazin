@@ -6,6 +6,7 @@
 
 "use server"
 
+import { auth } from "@/auth"
 import type {
   ExpenseReceipt,
   GetReceiptsResponse,
@@ -16,6 +17,8 @@ import type {
 export async function uploadReceipt(
   formData: FormData
 ): Promise<ServerActionResponse<UploadReceiptResponse>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: false,
     error: "Receipt upload not yet implemented",
@@ -30,6 +33,8 @@ export async function getReceipts(input?: {
   startDate?: Date
   endDate?: Date
 }): Promise<ServerActionResponse<GetReceiptsResponse>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: true,
     data: {
@@ -42,6 +47,8 @@ export async function getReceipts(input?: {
 export async function getReceiptById(
   id: string
 ): Promise<ServerActionResponse<ExpenseReceipt>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: false,
     error: "Receipt not found",
@@ -49,6 +56,8 @@ export async function getReceiptById(
 }
 
 export async function deleteReceipt(id: string): Promise<ServerActionResponse> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: false,
     error: "Receipt deletion not yet implemented",
@@ -58,6 +67,8 @@ export async function deleteReceipt(id: string): Promise<ServerActionResponse> {
 export async function retryReceiptExtraction(
   id: string
 ): Promise<ServerActionResponse> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: false,
     error: "Receipt extraction retry not yet implemented",

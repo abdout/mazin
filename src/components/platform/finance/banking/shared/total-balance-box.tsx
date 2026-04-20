@@ -30,7 +30,7 @@ export function TotalBalanceBox({
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <p className="text-muted-foreground font-medium">
-            {dictionary?.totalBalance || "Total Balance"}
+            {dictionary?.totalBalance ?? ""}
           </p>
           <h2 className="text-3xl font-bold">
             {formatCurrency(totalCurrentBalance)}

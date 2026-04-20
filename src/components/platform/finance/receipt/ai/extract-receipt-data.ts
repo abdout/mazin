@@ -1,11 +1,7 @@
-/**
- * AI-Powered Receipt Data Extraction (Stubbed)
- *
- * TODO: Install @ai-sdk/anthropic and implement actual extraction
- * This stub allows the build to pass without the AI dependencies
- */
-
 "use server"
+
+import { auth } from "@/auth"
+import { extractReceipt, type ReceiptResult } from "@/lib/services/ocr"
 
 interface ExtractedReceiptData {
   merchantName: string
@@ -23,47 +19,53 @@ interface ExtractedReceiptData {
   }[]
 }
 
-/**
- * Extract structured data from receipt image/PDF (Stubbed)
- * @param receiptId - Database ID of the receipt record
- * @param fileUrl - Public URL of the uploaded receipt file
- */
 export async function extractReceiptData(
   receiptId: string,
   fileUrl: string
 ): Promise<{ success: boolean; data?: ExtractedReceiptData; error?: string }> {
-  // Return stubbed data for development
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return {
+      success: false,
+      error: "ANTHROPIC_API_KEY not configured",
+    }
+  }
+
+  const result = await extractReceipt(fileUrl)
+
+  if (!result.success) {
+    return { success: false, error: result.error }
+  }
+
   return {
     success: true,
-    data: {
-      merchantName: "Sample Merchant",
-      merchantAddress: "123 Sample Street",
-      merchantContact: "+1-234-567-8900",
-      transactionDate: new Date().toISOString().split("T")[0] ?? "",
-      transactionAmount: "100.00",
-      currency: "SDG",
-      receiptSummary: "Sample receipt for development",
-      items: [
-        {
-          description: "Sample Item",
-          quantity: 1,
-          unitPrice: 100,
-          totalPrice: 100,
-        },
-      ],
-    },
+    data: mapToLegacyFormat(result.data),
   }
 }
 
-/**
- * Retry extraction for failed receipts (Stubbed)
- * @param receiptId - Database ID of the receipt record
- */
 export async function retryExtraction(
   receiptId: string
 ): Promise<{ success: boolean; data?: ExtractedReceiptData; error?: string }> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
   return {
     success: false,
-    error: "AI extraction not implemented - install @ai-sdk/anthropic",
+    error: "Retry requires the original file URL. Re-upload the receipt to extract.",
+  }
+}
+
+function mapToLegacyFormat(data: ReceiptResult): ExtractedReceiptData {
+  return {
+    merchantName: data.merchantName,
+    merchantAddress: data.merchantAddress ?? "",
+    merchantContact: data.merchantContact ?? "",
+    transactionDate: data.transactionDate,
+    transactionAmount: String(data.total),
+    currency: data.currency,
+    receiptSummary: data.notes ?? `Receipt from ${data.merchantName}`,
+    items: data.items,
   }
 }

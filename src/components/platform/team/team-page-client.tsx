@@ -94,7 +94,7 @@ export function TeamPageClient({ dictionary, locale }: TeamPageClientProps) {
   const handleDelete = useCallback(
     (id: string) => {
       setMembers((prev) => prev.filter((m) => m.id !== id))
-      toast.success(dictionary.common?.success || "Member removed successfully")
+      toast.success(dictionary.common?.success ?? "")
     },
     [dictionary]
   )
@@ -104,7 +104,7 @@ export function TeamPageClient({ dictionary, locale }: TeamPageClientProps) {
       setMembers((prev) =>
         prev.map((m) => (m.id === id ? { ...m, role } : m))
       )
-      toast.success(dictionary.common?.success || "Role updated successfully")
+      toast.success(dictionary.common?.success ?? "")
     },
     [dictionary]
   )
@@ -114,7 +114,7 @@ export function TeamPageClient({ dictionary, locale }: TeamPageClientProps) {
       setMembers((prev) =>
         prev.map((m) => (m.id === id ? { ...m, status } : m))
       )
-      toast.success(dictionary.common?.success || "Status updated successfully")
+      toast.success(dictionary.common?.success ?? "")
     },
     [dictionary]
   )

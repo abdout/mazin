@@ -62,7 +62,7 @@ export function getSeeMorePaginationParams(
  */
 export function buildPrismaOrderBy<T extends Record<string, unknown>>(
   sorting?: SortingInput
-): any {
+): Record<string, "asc" | "desc"> | Record<string, "asc" | "desc">[] | undefined {
   if (!sorting || sorting.length === 0) {
     return undefined
   }
@@ -76,7 +76,7 @@ export function buildPrismaOrderBy<T extends Record<string, unknown>>(
     return { [id]: desc ? "desc" : "asc" }
   }
 
-  return validated.map(({ id, desc }) => ({
+  return validated.map(({ id, desc }): Record<string, "asc" | "desc"> => ({
     [id]: desc ? "desc" : "asc",
   }))
 }
@@ -91,8 +91,8 @@ export function buildPrismaOrderBy<T extends Record<string, unknown>>(
  */
 export function buildPrismaWhere<T extends Record<string, unknown>>(
   filters?: FiltersInput,
-  baseWhere?: any
-): any {
+  baseWhere?: Record<string, unknown>
+): Record<string, unknown> | undefined {
   if (!filters || filters.length === 0) {
     return baseWhere
   }
@@ -153,7 +153,7 @@ export function buildPrismaWhere<T extends Record<string, unknown>>(
   return {
     ...baseWhere,
     AND: [filterClauses],
-  } as any
+  }
 }
 
 // ============================================================================

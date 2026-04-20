@@ -47,10 +47,10 @@ const CollapsibleHeader = ({ params }: { params: Params | Promise<Params> }) => 
             variant="ghost" 
             size="sm" 
             onClick={toggleExpanded}
-            className="ml-2"
+            className="ms-2"
           >
             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            <span className="ml-1 text-xs">{isExpanded ? "Collapse" : "Expand"} Navigation</span>
+            <span className="ms-1 text-xs">{isExpanded ? "Collapse" : "Expand"} Navigation</span>
           </Button>
         </div>
 

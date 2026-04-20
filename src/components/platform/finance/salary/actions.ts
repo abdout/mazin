@@ -6,6 +6,8 @@
 
 "use server"
 
+import { auth } from "@/auth"
+
 type ActionResult<T = void> = {
   success: boolean
   data?: T
@@ -19,18 +21,24 @@ type ActionResult<T = void> = {
 export async function getSalaryStructures(
   employeeId?: string
 ): Promise<ActionResult<unknown[]>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: true, data: [] }
 }
 
 export async function getSalaryStructure(
   structureId: string
 ): Promise<ActionResult<unknown>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Salary structure not found" }
 }
 
 export async function createSalaryStructure(
   data: FormData
 ): Promise<ActionResult<string>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Salary structure creation not yet implemented" }
 }
 
@@ -38,12 +46,16 @@ export async function updateSalaryStructure(
   structureId: string,
   data: FormData
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Salary structure update not yet implemented" }
 }
 
 export async function deactivateSalaryStructure(
   structureId: string
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Salary structure deactivation not yet implemented" }
 }
 
@@ -54,6 +66,8 @@ export async function deactivateSalaryStructure(
 export async function addAllowance(
   data: FormData
 ): Promise<ActionResult<string>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Allowance creation not yet implemented" }
 }
 
@@ -61,12 +75,16 @@ export async function updateAllowance(
   allowanceId: string,
   data: FormData
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Allowance update not yet implemented" }
 }
 
 export async function deleteAllowance(
   allowanceId: string
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Allowance deletion not yet implemented" }
 }
 
@@ -77,6 +95,8 @@ export async function deleteAllowance(
 export async function addDeduction(
   data: FormData
 ): Promise<ActionResult<string>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Deduction creation not yet implemented" }
 }
 
@@ -84,12 +104,16 @@ export async function updateDeduction(
   deductionId: string,
   data: FormData
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Deduction update not yet implemented" }
 }
 
 export async function deleteDeduction(
   deductionId: string
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Deduction deletion not yet implemented" }
 }
 
@@ -101,6 +125,8 @@ export async function calculateSalary(
   structureId: string,
   period: { start: Date; end: Date }
 ): Promise<ActionResult<unknown>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: true,
     data: {
@@ -121,6 +147,8 @@ export async function applySalaryIncrement(
   structureId: string,
   data: FormData
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Salary increment not yet implemented" }
 }
 
@@ -129,6 +157,8 @@ export async function applySalaryIncrement(
 // ============================================
 
 export async function getSalarySummary(): Promise<ActionResult<unknown>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: true,
     data: {

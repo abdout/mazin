@@ -117,7 +117,7 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.invoices?.invoiceNumber || "Invoice #"}
+          title={dictionary.invoices?.invoiceNumber}
         />
       ),
       cell: ({ row }) => (
@@ -138,7 +138,7 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.invoices?.status || "Status"}
+          title={dictionary.invoices?.status ?? ""}
         />
       ),
       cell: ({ row }) => {
@@ -156,7 +156,7 @@ export function getInvoiceColumns({
         )
       },
       meta: {
-        label: dictionary.invoices?.status || "Status",
+        label: dictionary.invoices?.status,
         variant: "multiSelect",
         options: invoiceStatusOptions.map((option) => ({
           ...option,
@@ -179,7 +179,7 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.invoices?.client || "Client"}
+          title={dictionary.invoices?.client ?? ""}
         />
       ),
       cell: ({ row }) => (
@@ -197,7 +197,7 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.invoices?.total || "Total"}
+          title={dictionary.invoices?.total}
         />
       ),
       cell: ({ row }) => {
@@ -213,7 +213,7 @@ export function getInvoiceColumns({
         )
       },
       meta: {
-        label: dictionary.invoices?.total || "Total",
+        label: dictionary.invoices?.total,
         variant: "range",
         range: [totalRange.min, totalRange.max],
       },
@@ -227,12 +227,12 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.invoices?.currency || "Currency"}
+          title={dictionary.invoices?.currency ?? ""}
         />
       ),
       cell: ({ row }) => <span>{row.original.currency}</span>,
       meta: {
-        label: dictionary.invoices?.currency || "Currency",
+        label: dictionary.invoices?.currency,
         variant: "multiSelect",
         options: currencyOptions,
       },
@@ -249,7 +249,7 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.invoices?.dueDate || "Due Date"}
+          title={dictionary.invoices?.dueDate}
         />
       ),
       cell: ({ row }) => {
@@ -262,7 +262,7 @@ export function getInvoiceColumns({
         )
       },
       meta: {
-        label: dictionary.invoices?.dueDate || "Due Date",
+        label: dictionary.invoices?.dueDate,
         variant: "dateRange",
       },
       enableColumnFilter: true,
@@ -275,7 +275,7 @@ export function getInvoiceColumns({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={dictionary.common?.createdAt || "Created"}
+          title={dictionary.common?.createdAt}
         />
       ),
       cell: ({ row }) => (
@@ -286,7 +286,7 @@ export function getInvoiceColumns({
         </span>
       ),
       meta: {
-        label: dictionary.common?.createdAt || "Created",
+        label: dictionary.common?.createdAt,
         variant: "dateRange",
       },
       enableColumnFilter: true,
@@ -310,19 +310,19 @@ export function getInvoiceColumns({
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link href={`/${locale}/invoice/${invoice.id}`}>
-                  {dictionary.common?.view || "View"}
+                  {dictionary.common?.view}
                 </Link>
               </DropdownMenuItem>
               {canEdit && (
                 <DropdownMenuItem asChild>
                   <Link href={`/${locale}/invoice/${invoice.id}/edit`}>
-                    {dictionary.common?.edit || "Edit"}
+                    {dictionary.common?.edit}
                   </Link>
                 </DropdownMenuItem>
               )}
               {invoice.status !== "PAID" && (
                 <DropdownMenuItem onClick={() => onMarkPaid?.(invoice.id)}>
-                  {dictionary.invoices?.markAsPaid || "Mark as Paid"}
+                  {dictionary.invoices?.markAsPaid}
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -332,7 +332,7 @@ export function getInvoiceColumns({
                   setRowAction({ row, variant: "delete" })
                 }
               >
-                {dictionary.common?.delete || "Delete"}
+                {dictionary.common?.delete}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -151,11 +151,6 @@ export function PermissionManagementContent() {
   const [roleFilter, setRoleFilter] = useState<string>("all")
   const [moduleFilter, setModuleFilter] = useState<FinanceModule | "all">("all")
 
-  // Load data
-  useEffect(() => {
-    loadData()
-  }, [])
-
   const loadData = async () => {
     setLoading(true)
     try {
@@ -167,13 +162,13 @@ export function PermissionManagementContent() {
       if (usersResult.success && usersResult.data) {
         setUsers(usersResult.data)
       } else {
-        toast.error(usersResult.error || "Failed to load users")
+        toast.error(usersResult.error ?? "")
       }
 
       if (modulesResult.success && modulesResult.data) {
         setModules(modulesResult.data)
       } else {
-        toast.error(modulesResult.error || "Failed to load modules")
+        toast.error(modulesResult.error ?? "")
       }
     } catch (error) {
       toast.error("Failed to load permissions")
@@ -181,6 +176,12 @@ export function PermissionManagementContent() {
       setLoading(false)
     }
   }
+
+  // Load data
+  useEffect(() => {
+    loadData()
+
+  }, [])
 
   // Filter users
   const filteredUsers = users.filter((user) => {
@@ -228,12 +229,12 @@ export function PermissionManagementContent() {
             <div>
               <Label>Search Users</Label>
               <div className="relative">
-                <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
+                <Search className="text-muted-foreground absolute top-2.5 start-2 h-4 w-4" />
                 <Input
                   placeholder="Name or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
+                  className="ps-8"
                 />
               </div>
             </div>
@@ -374,7 +375,7 @@ function UserPermissionCard({
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <UserPlus className="mr-2 h-4 w-4" />
+                  <UserPlus className="me-2 h-4 w-4" />
                   Edit Permissions
                 </Button>
               </DialogTrigger>
@@ -389,7 +390,7 @@ function UserPermissionCard({
             <Dialog open={copyDialogOpen} onOpenChange={setCopyDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <Copy className="mr-2 h-4 w-4" />
+                  <Copy className="me-2 h-4 w-4" />
                   Copy
                 </Button>
               </DialogTrigger>
@@ -638,7 +639,7 @@ function EditPermissionsDialog({
         {FINANCE_MODULES.map((module) => (
           <div key={module} className="space-y-2">
             <h4 className="font-semibold">{MODULE_LABELS[module]}</h4>
-            <div className="grid grid-cols-2 gap-2 pl-4">
+            <div className="grid grid-cols-2 gap-2 ps-4">
               {FINANCE_ACTIONS.map((action) => {
                 const isChecked =
                   selectedPermissions.get(module)?.has(action) || false

@@ -1,5 +1,6 @@
 import { PageNav, type PageNavItem } from "@/components/atom/page-nav"
 import { PageHeadingSetter } from "@/components/platform/context/page-heading-setter"
+import { getDictionary } from "@/components/internationalization/dictionaries"
 
 interface Props {
   children: React.ReactNode
@@ -8,22 +9,24 @@ interface Props {
 
 export default async function WalletLayout({ children, params }: Props) {
   const { lang } = await params
-  const isRTL = lang === "ar"
+  const dict = await getDictionary(lang as "ar" | "en")
+  const finance = dict.finance as Record<string, any> | undefined
 
   // Define wallet page navigation for customs clearance
+  // NOTE: Only "Overview" is implemented; other sub-pages are planned (stubbed).
   const walletPages: PageNavItem[] = [
-    { name: isRTL ? "نظرة عامة" : "Overview", href: `/${lang}/finance/wallet` },
-    { name: isRTL ? "الرصيد" : "Balance", href: `/${lang}/finance/wallet/balance` },
-    { name: isRTL ? "المعاملات" : "Transactions", href: `/${lang}/finance/wallet/transactions` },
-    { name: isRTL ? "شحن الرصيد" : "Top Up", href: `/${lang}/finance/wallet/top-up` },
-    { name: isRTL ? "سحب" : "Withdraw", href: `/${lang}/finance/wallet/withdraw` },
-    { name: isRTL ? "التقارير" : "Reports", href: `/${lang}/finance/wallet/reports` },
+    { name: finance?.wallet?.nav?.overview ?? "Overview", href: `/${lang}/finance/wallet` },
+    { name: finance?.wallet?.nav?.balance ?? "Balance", href: `/${lang}/finance/wallet/balance`, comingSoon: true },
+    { name: finance?.wallet?.nav?.transactions ?? "Transactions", href: `/${lang}/finance/wallet/transactions`, comingSoon: true },
+    { name: finance?.wallet?.nav?.topUp ?? "Top Up", href: `/${lang}/finance/wallet/top-up`, comingSoon: true },
+    { name: finance?.wallet?.nav?.withdraw ?? "Withdraw", href: `/${lang}/finance/wallet/withdraw`, comingSoon: true },
+    { name: finance?.wallet?.nav?.reports ?? "Reports", href: `/${lang}/finance/wallet/reports`, comingSoon: true },
   ]
 
   return (
     <div className="space-y-6">
-      <PageHeadingSetter title={isRTL ? "المحفظة" : "Wallet"} />
-      <PageNav pages={walletPages} />
+      <PageHeadingSetter title={finance?.wallet?.title ?? "Wallet"} />
+      <PageNav pages={walletPages} comingSoonLabel={finance?.comingSoonLabel ?? "Soon"} />
       {children}
     </div>
   )

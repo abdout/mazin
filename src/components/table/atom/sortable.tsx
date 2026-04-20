@@ -550,8 +550,11 @@ function SortableOverlay(props: SortableOverlayProps) {
 
   const context = useSortableContext(OVERLAY_NAME)
 
-  const [mounted, setMounted] = React.useState(false)
-  React.useLayoutEffect(() => setMounted(true), [])
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   const container =
     containerProp ?? (mounted ? globalThis.document?.body : null)

@@ -15,14 +15,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useOutsideClick } from './hooks/use-outside-click';
 import type { ServiceListingWithRelations, ServiceCategoryFilter } from './types';
 import type { ServiceCategoryType } from '@prisma/client';
+import { normalizeSudanPhone } from '@/lib/validation/phone';
 
-// Normalize phone for WhatsApp (Sudan country code)
-function normalizePhone(phone: string): string {
-  const cleaned = phone.replace(/[^\d+]/g, '');
-  if (cleaned.startsWith('0')) {
-    return '249' + cleaned.substring(1);
-  }
-  return cleaned.replace(/^\+/, '');
+// WhatsApp wa.me links want just the digits with the country code (no "+")
+function toWhatsAppNumber(phone: string): string {
+  const normalized = normalizeSudanPhone(phone);
+  return normalized ? normalized.slice(1) : phone.replace(/\D/g, '');
 }
 
 interface ServiceGridProps {
@@ -44,11 +42,11 @@ function formatPrice(
   currency: string,
   dictionary: Dictionary
 ) {
-  const currencyLabel = dictionary.marketplace?.currency || currency;
+  const currencyLabel = dictionary.marketplace?.currency ?? currency;
   if (priceMax && priceMax !== priceMin) {
-    return `${dictionary.marketplace?.priceFrom || 'From'} ${priceMin.toLocaleString()} ${dictionary.marketplace?.priceTo || 'to'} ${priceMax.toLocaleString()} ${currencyLabel}`;
+    return `${dictionary.marketplace?.priceFrom} ${priceMin.toLocaleString()} ${dictionary.marketplace?.priceTo} ${priceMax.toLocaleString()} ${currencyLabel}`;
   }
-  return `${dictionary.marketplace?.priceFrom || 'From'} ${priceMin.toLocaleString()} ${currencyLabel}`;
+  return `${dictionary.marketplace?.priceFrom} ${priceMin.toLocaleString()} ${currencyLabel}`;
 }
 
 function ServiceIcon({
@@ -160,7 +158,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.05 } }}
-              className={`flex absolute top-2 ${rtl ? 'left-2' : 'right-2'} lg:hidden items-center justify-center bg-background rounded-full h-8 w-8 shadow-md`}
+              className="flex absolute top-2 end-2 lg:hidden items-center justify-center bg-background rounded-full h-8 w-8 shadow-md"
               onClick={() => setActive(null)}
             >
               <X className="h-4 w-4" />
@@ -197,7 +195,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
 
                   <div className="flex-1">
                     <Badge variant="secondary" className="mb-2">
-                      {dictionary.marketplace?.categories?.[active.category.type] ||
+                      {dictionary.marketplace?.categories?.[active.category.type] ??
                         active.category.name}
                     </Badge>
                     <motion.h3
@@ -247,7 +245,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
                   {/* Vendor info */}
                   <div className="flex items-center gap-2 pt-2 border-t">
                     <span className="text-xs font-medium">
-                      {dictionary.marketplace?.vendor || 'Vendor'}:
+                      {dictionary.marketplace?.vendor}:
                     </span>
                     <span className="text-xs">
                       {rtl
@@ -260,13 +258,13 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
                   <div className="flex flex-wrap gap-2 pt-2">
                     {active.vendor.whatsappNumber && (
                       <a
-                        href={`https://wa.me/${normalizePhone(active.vendor.whatsappNumber)}`}
+                        href={`https://wa.me/${toWhatsAppNumber(active.vendor.whatsappNumber)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-xs text-green-600 hover:underline"
                       >
                         <MessageCircle className="h-3 w-3" />
-                        {dictionary.marketplace?.whatsapp || 'WhatsApp'}
+                        {dictionary.marketplace?.whatsapp}
                       </a>
                     )}
                     {active.vendor.phone && (
@@ -275,7 +273,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
                       >
                         <Phone className="h-3 w-3" />
-                        {dictionary.marketplace?.phone || 'Phone'}
+                        {dictionary.marketplace?.phone}
                       </a>
                     )}
                     {active.vendor.email && (
@@ -284,7 +282,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
                         className="inline-flex items-center gap-1 text-xs text-orange-600 hover:underline"
                       >
                         <Mail className="h-3 w-3" />
-                        {dictionary.marketplace?.email || 'Email'}
+                        {dictionary.marketplace?.email}
                       </a>
                     )}
                   </div>
@@ -305,7 +303,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
                     onClick={() => handlePlaceOrder(active)}
                     className="min-w-[120px]"
                   >
-                    {dictionary.marketplace?.placeOrder || 'Place Order'}
+                    {dictionary.marketplace?.placeOrder}
                   </Button>
                 </motion.div>
                 <motion.div
@@ -320,7 +318,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
                       onClick={() => setActive(null)}
                       prefetch={true}
                     >
-                      {dictionary.marketplace?.learnMore || 'Learn More'}
+                      {dictionary.marketplace?.learnMore}
                     </Link>
                   </Button>
                 </motion.div>
@@ -340,12 +338,12 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
               size="sm"
               onClick={() => setCategory(cat)}
             >
-              {dictionary.marketplace?.categories?.[cat] || cat}
+              {dictionary.marketplace?.categories?.[cat] ?? cat}
             </Button>
           ))}
         </div>
         <Input
-          placeholder={dictionary.common?.search || 'Search...'}
+          placeholder={dictionary.common?.search}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
@@ -395,7 +393,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
               </motion.div>
               <div className="space-y-2">
                 <Badge variant="secondary" className="mb-2">
-                  {dictionary.marketplace?.categories?.[service.category.type] ||
+                  {dictionary.marketplace?.categories?.[service.category.type] ??
                     service.category.name}
                 </Badge>
                 <motion.h2
@@ -432,7 +430,7 @@ export function ServiceGrid({ services, dictionary, locale }: ServiceGridProps) 
       {/* Empty state */}
       {filteredServices.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          {dictionary.common?.noResults || 'No results found'}
+          {dictionary.common?.noResults}
         </div>
       )}
     </>

@@ -5,6 +5,9 @@ import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { BankAccountType } from "@prisma/client"
 import { z } from "zod"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("bank")
 
 // Validation schemas
 const createBankAccountSchema = z.object({
@@ -88,7 +91,7 @@ export async function getAccounts(): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error fetching accounts:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error fetching accounts", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch accounts",
@@ -127,7 +130,7 @@ export async function getAccount(accountId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error fetching account:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error fetching account", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch account",
@@ -187,7 +190,7 @@ export async function createBankAccount(
       },
     }
   } catch (error) {
-    console.error("Error creating bank account:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error creating bank account", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -255,7 +258,7 @@ export async function updateBankAccount(
       },
     }
   } catch (error) {
-    console.error("Error updating bank account:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error updating bank account", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -331,7 +334,7 @@ export async function deleteBankAccount(accountId: string): Promise<{
 
     return { success: true }
   } catch (error) {
-    console.error("Error deleting bank account:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error deleting bank account", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete account",
@@ -368,7 +371,7 @@ export async function getAccountBalance(accountId: string): Promise<{
       balance: Number(account.currentBalance),
     }
   } catch (error) {
-    console.error("Error fetching balance:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error fetching balance", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch balance",
@@ -420,7 +423,7 @@ export async function setDefaultAccount(accountId: string): Promise<{
 
     return { success: true }
   } catch (error) {
-    console.error("Error setting default account:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error setting default account", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to set default account",
@@ -479,7 +482,7 @@ export async function getDefaultAccount(): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error fetching default account:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error fetching default account", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch default account",
@@ -513,7 +516,7 @@ export async function getBankInfo(accountId: string): Promise<{
       primaryColor: account.color || undefined,
     }
   } catch (error) {
-    console.error("Error fetching bank info:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error fetching bank info", error as Error)
     return null
   }
 }
@@ -555,7 +558,7 @@ export async function updateAccountBalance(
 
     return { success: true, newBalance }
   } catch (error) {
-    console.error("Error updating account balance:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error updating account balance", error as Error)
     return { success: false, error: "Failed to update balance" }
   }
 }
@@ -591,7 +594,7 @@ export async function reconcileAccount(
 
     return { success: true }
   } catch (error) {
-    console.error("Error reconciling account:", error instanceof Error ? error.message : "Unknown error")
+    log.error("Error reconciling account", error as Error)
     return { success: false, error: "Failed to reconcile account" }
   }
 }

@@ -333,34 +333,72 @@ export async function notifyPaymentRequest(
 }
 
 /**
- * Send shipment milestone notification to client
+ * Shipment milestone keys. Covers all 11 tracking stages so clients
+ * can be informed at every meaningful transition.
+ */
+export type ShipmentMilestone =
+  | 'pre-arrival'
+  | 'arrival'
+  | 'declaration'
+  | 'payment'
+  | 'inspection'
+  | 'port-fees'
+  | 'cleared'
+  | 'released'
+  | 'loading'
+  | 'in-transit'
+  | 'delivered';
+
+/**
+ * Send shipment milestone notification to client. All 11 workflow stages
+ * are mapped so every transition fires a client-visible update.
  */
 export async function notifyShipmentMilestone(
   clientId: string,
   shipmentId: string,
-  milestone: 'arrival' | 'cleared' | 'released' | 'delivered',
+  milestone: ShipmentMilestone,
   trackingNumber: string,
   message?: string
 ) {
-  type Milestone = typeof milestone;
-  const typeMap: Record<Milestone, NotificationType> = {
+  const typeMap: Record<ShipmentMilestone, NotificationType> = {
+    'pre-arrival': 'STAGE_COMPLETED',
     arrival: 'SHIPMENT_ARRIVAL',
+    declaration: 'STAGE_COMPLETED',
+    payment: 'PAYMENT_RECEIVED',
+    inspection: 'STAGE_COMPLETED',
+    'port-fees': 'STAGE_COMPLETED',
     cleared: 'SHIPMENT_CLEARED',
     released: 'SHIPMENT_RELEASED',
+    loading: 'STAGE_COMPLETED',
+    'in-transit': 'STAGE_COMPLETED',
     delivered: 'SHIPMENT_DELIVERED',
   };
 
-  const titleMap: Record<Milestone, string> = {
+  const titleMap: Record<ShipmentMilestone, string> = {
+    'pre-arrival': 'Pre-Arrival Documents Ready',
     arrival: 'Shipment Arrived',
+    declaration: 'Customs Declaration Filed',
+    payment: 'Customs Payment Received',
+    inspection: 'Inspection Complete',
+    'port-fees': 'Port Fees Settled',
     cleared: 'Shipment Cleared',
     released: 'Shipment Released',
+    loading: 'Shipment Loaded',
+    'in-transit': 'Shipment In Transit',
     delivered: 'Shipment Delivered',
   };
 
-  const defaultMessages: Record<Milestone, string> = {
+  const defaultMessages: Record<ShipmentMilestone, string> = {
+    'pre-arrival': `Pre-arrival documents for ${trackingNumber} are ready.`,
     arrival: `Your shipment ${trackingNumber} has arrived at port.`,
+    declaration: `Customs declaration filed for ${trackingNumber}.`,
+    payment: `Customs duty and fees received for ${trackingNumber}.`,
+    inspection: `Inspection completed for ${trackingNumber}.`,
+    'port-fees': `Port fees settled for ${trackingNumber}.`,
     cleared: `Your shipment ${trackingNumber} has been cleared by customs.`,
     released: `Your shipment ${trackingNumber} has been released.`,
+    loading: `Your shipment ${trackingNumber} has been loaded for transport.`,
+    'in-transit': `Your shipment ${trackingNumber} is in transit.`,
     delivered: `Your shipment ${trackingNumber} has been delivered.`,
   };
 

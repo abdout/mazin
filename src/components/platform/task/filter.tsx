@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getTasks } from './actions';
 import { Task } from './type';
 import { TASK_STATUS, TASK_PRIORITY } from './constant';
@@ -12,7 +12,7 @@ const getUniqueValues = (tasks: Task[], property: keyof Task) => {
     if (property === 'task') {
       return [];
     }
-  
+
     const values = tasks.map(task => task[property]);
     return Array.from(new Set(values)).map(value => ({ label: value as string, value: value as string }));
 };
@@ -27,7 +27,7 @@ const getDefaultOptions = (property: keyof Task): FilterOption[] => {
       { label: 'Done', value: TASK_STATUS.DONE }
     ];
   }
-  
+
   if (property === 'priority') {
     return [
       { label: 'Low', value: TASK_PRIORITY.LOW },
@@ -36,12 +36,11 @@ const getDefaultOptions = (property: keyof Task): FilterOption[] => {
       { label: 'Urgent', value: TASK_PRIORITY.URGENT }
     ];
   }
-  
+
   return [];
 };
 
 export const useFilter = (property: keyof Task): FilterOption[] => {
-  const [filterOptions, setFilterOptions] = useState<FilterOption[]>(getDefaultOptions(property));
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
@@ -51,18 +50,14 @@ export const useFilter = (property: keyof Task): FilterOption[] => {
         setTasks(result.tasks);
       }
     }
-    
+
     fetchTasks();
   }, []);
 
-  useEffect(() => {
+  // Derive filter options from tasks and property instead of syncing via useEffect
+  const filterOptions = useMemo(() => {
     const uniqueValues = getUniqueValues(tasks, property);
-    if (uniqueValues.length > 0) {
-      setFilterOptions(uniqueValues);
-    } else {
-      // If no values are found in tasks, use defaults
-      setFilterOptions(getDefaultOptions(property));
-    }
+    return uniqueValues.length > 0 ? uniqueValues : getDefaultOptions(property);
   }, [tasks, property]);
 
   return filterOptions;

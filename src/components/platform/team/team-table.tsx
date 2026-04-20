@@ -146,7 +146,7 @@ export function TeamTable({
           <div className="relative">
             <Search className="text-muted-foreground absolute start-2.5 top-1/2 size-4 -translate-y-1/2" />
             <Input
-              placeholder={dictionary.common?.search || "Search..."}
+              placeholder={dictionary.common?.search}
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="h-9 w-40 pe-8 ps-8 lg:w-64"
@@ -168,7 +168,7 @@ export function TeamTable({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9">
                 <Filter className="me-2 size-4" />
-                {dictionary.team?.role || "Role"}
+                {dictionary.team?.role}
                 {roleFilter.length > 0 && (
                   <Badge variant="secondary" className="ms-2 rounded-full px-1.5">
                     {roleFilter.length}
@@ -191,7 +191,7 @@ export function TeamTable({
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setRoleFilter([])}>
-                    {dictionary.common?.clear || "Clear"}
+                    {dictionary.common?.clear}
                   </DropdownMenuItem>
                 </>
               )}
@@ -203,7 +203,7 @@ export function TeamTable({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9">
                 <Filter className="me-2 size-4" />
-                {dictionary.team?.status || "Status"}
+                {dictionary.team?.status}
                 {statusFilter.length > 0 && (
                   <Badge variant="secondary" className="ms-2 rounded-full px-1.5">
                     {statusFilter.length}
@@ -226,7 +226,7 @@ export function TeamTable({
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setStatusFilter([])}>
-                    {dictionary.common?.clear || "Clear"}
+                    {dictionary.common?.clear}
                   </DropdownMenuItem>
                 </>
               )}
@@ -237,7 +237,7 @@ export function TeamTable({
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
               <X className="me-1 size-4" />
-              {dictionary.common?.reset || "Reset"}
+              {dictionary.common?.reset}
             </Button>
           )}
         </div>
@@ -254,7 +254,7 @@ export function TeamTable({
           {onAdd && (
             <Button size="sm" className="h-9" onClick={onAdd}>
               <UserPlus className="me-2 size-4" />
-              {dictionary.team?.addMember || "Add Member"}
+              {dictionary.team?.addMember}
             </Button>
           )}
         </div>
@@ -290,7 +290,7 @@ export function TeamTable({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {dictionary.common?.noResults || "No results found."}
+                  {dictionary.common?.noResults}
                 </TableCell>
               </TableRow>
             )}
@@ -311,7 +311,7 @@ export function TeamTable({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            {dictionary.common?.previous || "Previous"}
+            {dictionary.common?.previous}
           </Button>
           <Button
             variant="outline"
@@ -319,7 +319,7 @@ export function TeamTable({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            {dictionary.common?.next || "Next"}
+            {dictionary.common?.next}
           </Button>
         </div>
       </div>

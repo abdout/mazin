@@ -4,6 +4,9 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { StatementPdf } from "@/components/platform/invoice/statement-pdf"
 import type { Locale } from "@/components/internationalization"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("api.statement-pdf")
 
 export async function GET(
   request: NextRequest,
@@ -45,7 +48,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error("Statement PDF generation error:", error)
+    log.error("Statement PDF generation error", error as Error)
     return NextResponse.json(
       { error: "Failed to generate PDF" },
       { status: 500 }

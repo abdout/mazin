@@ -53,7 +53,7 @@ export function InvoiceCard({ invoice, dictionary, locale }: InvoiceCardProps) {
           {/* Total */}
           <div className="flex justify-between">
             <span className="text-muted-foreground">
-              {dictionary.invoices?.total || "Total"}
+              {dictionary.invoices?.total}
             </span>
             <span className="font-medium tabular-nums">
               {invoice.currency} {formatCurrency(Number(invoice.total))}
@@ -64,7 +64,7 @@ export function InvoiceCard({ invoice, dictionary, locale }: InvoiceCardProps) {
           {invoice.client && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">
-                {dictionary.invoices?.client || "Client"}
+                {dictionary.invoices?.client}
               </span>
               <span className="truncate max-w-[150px]">
                 {invoice.client.companyName}
@@ -76,7 +76,7 @@ export function InvoiceCard({ invoice, dictionary, locale }: InvoiceCardProps) {
           {invoice.dueDate && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">
-                {dictionary.invoices?.dueDate || "Due"}
+                {dictionary.invoices?.due}
               </span>
               <span>{formatDate(invoice.dueDate)}</span>
             </div>
@@ -85,7 +85,7 @@ export function InvoiceCard({ invoice, dictionary, locale }: InvoiceCardProps) {
           {/* Created */}
           <div className="flex justify-between">
             <span className="text-muted-foreground">
-              {dictionary.common?.createdAt || "Created"}
+              {dictionary.common?.createdAt}
             </span>
             <span>{formatDate(invoice.createdAt)}</span>
           </div>

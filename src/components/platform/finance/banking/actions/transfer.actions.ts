@@ -11,6 +11,8 @@
  * For now, these return placeholder data to allow the build to pass.
  */
 
+import { auth } from "@/auth"
+
 export interface Transfer {
   id: string
   fromAccountId: string
@@ -33,6 +35,8 @@ export interface TransferRequest {
 }
 
 export async function createTransfer(params: TransferRequest): Promise<Transfer | null> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   // TODO: Implement with actual bank integration
   throw new Error("Transfer creation not yet implemented. Please set up bank integration.")
 }
@@ -48,6 +52,8 @@ export async function getTransfers(params: {
   pageSize: number
   hasMore: boolean
 }> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   // TODO: Implement with actual Prisma queries
   return {
     data: [],
@@ -59,11 +65,15 @@ export async function getTransfers(params: {
 }
 
 export async function getTransfer(transferId: string): Promise<Transfer | null> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   // TODO: Implement with actual Prisma queries
   return null
 }
 
 export async function cancelTransfer(transferId: string): Promise<Transfer | null> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   // TODO: Implement with actual bank integration
   throw new Error("Transfer cancellation not yet implemented.")
 }

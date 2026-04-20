@@ -6,6 +6,7 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { PlatformHeader } from "@/components/template/platform-header"
 import { PlatformSidebar } from "@/components/template/platform-sidebar"
 import { PageHeadingProvider } from "@/components/platform/context/page-heading-context"
+import { ReportIssue } from "@/components/report-issue"
 
 export default async function PlatformLayout({
   children,
@@ -34,10 +35,9 @@ export default async function PlatformLayout({
         {/* Skip to main content link for keyboard/screen reader users */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none"
-          style={rtl ? { right: "1rem" } : { left: "1rem" }}
+          className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none"
         >
-          {lang === "ar" ? "انتقل إلى المحتوى الرئيسي" : "Skip to main content"}
+          {dict.common?.navigation ?? (lang === "ar" ? "انتقل إلى المحتوى الرئيسي" : "Skip to main content")}
         </a>
 
         <header role="banner">
@@ -49,7 +49,7 @@ export default async function PlatformLayout({
         </header>
 
         <div className="flex pt-6">
-          <nav role="navigation" aria-label={lang === "ar" ? "القائمة الرئيسية" : "Main navigation"}>
+          <nav role="navigation" aria-label={dict.navigation?.menu ?? (lang === "ar" ? "القائمة الرئيسية" : "Main navigation")}>
             <PlatformSidebar
               dictionary={dict}
               locale={lang}
@@ -67,6 +67,10 @@ export default async function PlatformLayout({
               {children}
             </main>
           </PageHeadingProvider>
+        </div>
+
+        <div className="fixed bottom-4 start-4 z-50">
+          <ReportIssue />
         </div>
       </div>
     </SidebarProvider>

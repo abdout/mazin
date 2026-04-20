@@ -4,6 +4,7 @@ import { IconPackageOff, IconArrowLeft, IconSearch } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import { i18n, getDir, type Locale } from "@/components/internationalization/config"
+import { ReportIssue } from "@/components/report-issue"
 
 export default async function TrackingNotFound() {
   const cookieStore = await cookies()
@@ -43,6 +44,9 @@ export default async function TrackingNotFound() {
               {dict.common.back}
             </Link>
           </Button>
+        </div>
+        <div className="mt-6 text-sm text-muted-foreground">
+          <ReportIssue />
         </div>
       </div>
     </div>

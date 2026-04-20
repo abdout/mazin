@@ -4,6 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/db';
 import { auth } from '@/auth';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('marketplace');
 import type { VendorStatus, ServiceRequestStatus } from '@prisma/client';
 import {
   vendorRegistrationSchema,
@@ -37,20 +40,6 @@ function generateRequestNumber(): string {
 }
 
 // ============================================
-// HELPER: Normalize phone number for WhatsApp
-// ============================================
-function normalizePhoneNumber(phone: string): string {
-  // Remove all non-digit characters except leading +
-  const cleaned = phone.replace(/[^\d+]/g, '');
-  // If starts with 0, assume Sudan country code
-  if (cleaned.startsWith('0')) {
-    return '249' + cleaned.substring(1);
-  }
-  // Remove leading + if present
-  return cleaned.replace(/^\+/, '');
-}
-
-// ============================================
 // SERVICE CATEGORY ACTIONS (cached for 1 hour)
 // ============================================
 
@@ -75,7 +64,7 @@ export async function getServiceCategories() {
     const categories = await getCachedCategories();
     return { success: true, categories };
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    log.error('Error fetching categories', error as Error);
     return { success: false, error: 'Failed to fetch categories' };
   }
 }
@@ -135,7 +124,7 @@ export async function registerVendor(data: VendorRegistrationData) {
 
     return { success: true, vendor };
   } catch (error) {
-    console.error('Error registering vendor:', error);
+    log.error('Error registering vendor', error as Error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to register vendor',
@@ -164,7 +153,7 @@ export async function getVendor(id: string) {
 
     return { success: true, vendor };
   } catch (error) {
-    console.error('Error fetching vendor:', error);
+    log.error('Error fetching vendor', error as Error);
     return { success: false, error: 'Failed to fetch vendor' };
   }
 }
@@ -211,7 +200,7 @@ export async function getVendors(filters?: VendorFilters) {
 
     return { success: true, vendors };
   } catch (error) {
-    console.error('Error fetching vendors:', error);
+    log.error('Error fetching vendors', error as Error);
     return { success: false, error: 'Failed to fetch vendors' };
   }
 }
@@ -245,7 +234,7 @@ export async function updateVendorStatus(data: VendorApprovalData) {
 
     return { success: true, vendor };
   } catch (error) {
-    console.error('Error updating vendor status:', error);
+    log.error('Error updating vendor status', error as Error);
     return { success: false, error: 'Failed to update vendor status' };
   }
 }
@@ -274,7 +263,7 @@ export async function getMyVendorProfile() {
 
     return { success: true, vendor };
   } catch (error) {
-    console.error('Error fetching vendor profile:', error);
+    log.error('Error fetching vendor profile', error as Error);
     return { success: false, error: 'Failed to fetch vendor profile' };
   }
 }
@@ -332,7 +321,7 @@ export async function createServiceListing(data: ServiceListingData) {
 
     return { success: true, listing };
   } catch (error) {
-    console.error('Error creating listing:', error);
+    log.error('Error creating listing', error as Error);
     return { success: false, error: 'Failed to create listing' };
   }
 }
@@ -368,7 +357,7 @@ export async function updateServiceListing(id: string, data: Partial<ServiceList
 
     return { success: true, listing };
   } catch (error) {
-    console.error('Error updating listing:', error);
+    log.error('Error updating listing', error as Error);
     return { success: false, error: 'Failed to update listing' };
   }
 }
@@ -402,7 +391,7 @@ export async function toggleListingStatus(id: string, isActive: boolean) {
 
     return { success: true, listing };
   } catch (error) {
-    console.error('Error toggling listing status:', error);
+    log.error('Error toggling listing status', error as Error);
     return { success: false, error: 'Failed to update listing status' };
   }
 }
@@ -478,7 +467,7 @@ export async function getServices(
       },
     };
   } catch (error) {
-    console.error('Error fetching listings:', error);
+    log.error('Error fetching listings', error as Error);
     return { success: false, error: 'Failed to fetch listings' };
   }
 }
@@ -504,7 +493,7 @@ export async function getService(id: string) {
 
     return { success: true, listing };
   } catch (error) {
-    console.error('Error fetching listing:', error);
+    log.error('Error fetching listing', error as Error);
     return { success: false, error: 'Failed to fetch listing' };
   }
 }
@@ -570,7 +559,7 @@ export async function createServiceRequest(data: ServiceRequestData) {
 
     return { success: true, request };
   } catch (error) {
-    console.error('Error creating request:', error);
+    log.error('Error creating request', error as Error);
     return { success: false, error: 'Failed to create request' };
   }
 }
@@ -590,7 +579,7 @@ export async function recordContactView(data: ContactViewData) {
 
     return { success: true, request };
   } catch (error) {
-    console.error('Error recording contact view:', error);
+    log.error('Error recording contact view', error as Error);
     return { success: false, error: 'Failed to record contact view' };
   }
 }
@@ -632,7 +621,7 @@ export async function updateRequestStatus(
 
     return { success: true, request };
   } catch (error) {
-    console.error('Error updating request status:', error);
+    log.error('Error updating request status', error as Error);
     return { success: false, error: 'Failed to update request' };
   }
 }
@@ -687,7 +676,7 @@ export async function getVendorRequests(filters?: RequestFilters) {
 
     return { success: true, requests };
   } catch (error) {
-    console.error('Error fetching vendor requests:', error);
+    log.error('Error fetching vendor requests', error as Error);
     return { success: false, error: 'Failed to fetch requests' };
   }
 }
@@ -719,7 +708,7 @@ export async function getMyRequests() {
 
     return { success: true, requests };
   } catch (error) {
-    console.error('Error fetching user requests:', error);
+    log.error('Error fetching user requests', error as Error);
     return { success: false, error: 'Failed to fetch requests' };
   }
 }

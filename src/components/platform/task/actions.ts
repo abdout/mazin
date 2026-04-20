@@ -5,6 +5,9 @@ import { db } from '@/lib/db';
 import { TaskFormValues } from './validation';
 import { auth } from '@/auth';
 import { TaskStatus, TaskPriority } from '@prisma/client';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('task');
 
 // Map string status to Prisma enum
 function mapStatus(status: string | undefined): TaskStatus {
@@ -57,7 +60,7 @@ export async function createTask(data: TaskFormValues) {
     revalidatePath('/task');
     return { success: true, taskId: savedTask.id };
   } catch (error) {
-    console.error('Error creating task:', error);
+    log.error('Error creating task', error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to create task' };
   }
 }
@@ -103,7 +106,7 @@ export async function getTasks() {
 
     return { success: true, tasks: simplifiedTasks };
   } catch (error) {
-    console.error('Error fetching tasks:', error);
+    log.error('Error fetching tasks', error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to fetch tasks' };
   }
 }
@@ -150,7 +153,7 @@ export async function getTask(id: string) {
 
     return { success: true, task: simplifiedTask };
   } catch (error) {
-    console.error('Error fetching task:', error);
+    log.error('Error fetching task', error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to fetch task' };
   }
 }
@@ -209,7 +212,7 @@ export async function updateTask(id: string, data: Partial<TaskFormValues>) {
     revalidatePath('/task');
     return { success: true, task: simplifiedTask };
   } catch (error) {
-    console.error('Error updating task:', error);
+    log.error('Error updating task', error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to update task' };
   }
 }
@@ -236,7 +239,7 @@ export async function deleteTask(id: string) {
     revalidatePath('/task');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting task:', error);
+    log.error('Error deleting task', error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to delete task' };
   }
 }
@@ -357,7 +360,7 @@ export async function generateTasksFromProject(projectId: string) {
       count: result.count,
     };
   } catch (error) {
-    console.error('Error generating tasks from project:', error);
+    log.error('Error generating tasks from project', error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to generate tasks' };
   }
 }
@@ -370,14 +373,7 @@ export async function syncProjectsWithTasks() {
       return { error: 'Not authenticated' };
     }
 
-    // Get all projects
-    const projects = await db.project.findMany();
-
-    if (projects.length === 0) {
-      return { success: true, message: 'No projects to sync', results: [] };
-    }
-
-    // Process each project
+    const BATCH_SIZE = 10;
     const results: Array<{
       projectId: string;
       name: string;
@@ -386,25 +382,50 @@ export async function syncProjectsWithTasks() {
       count?: number;
     }> = [];
 
-    for (const project of projects) {
-      try {
-        const result = await generateTasksFromProject(project.id);
+    let cursor: string | undefined;
+    let totalProjects = 0;
 
-        results.push({
-          projectId: project.id,
-          name: project.customer,
-          success: result.success || false,
-          message: result.message || result.error || '',
-          count: result.count,
-        });
-      } catch (err) {
-        results.push({
-          projectId: project.id,
-          name: project.customer,
-          success: false,
-          message: err instanceof Error ? err.message : 'Unknown error',
-        });
-      }
+    while (true) {
+      const projects = await db.project.findMany({
+        take: BATCH_SIZE,
+        ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+        orderBy: { id: 'asc' },
+        select: { id: true, customer: true },
+      });
+
+      if (projects.length === 0) break;
+      totalProjects += projects.length;
+
+      const batchResults = await Promise.all(
+        projects.map(async (project) => {
+          try {
+            const result = await generateTasksFromProject(project.id);
+            return {
+              projectId: project.id,
+              name: project.customer,
+              success: result.success || false,
+              message: result.message || result.error || '',
+              count: result.count,
+            };
+          } catch (err) {
+            return {
+              projectId: project.id,
+              name: project.customer,
+              success: false,
+              message: err instanceof Error ? err.message : 'Unknown error',
+            };
+          }
+        })
+      );
+
+      results.push(...batchResults);
+      cursor = projects[projects.length - 1]?.id;
+
+      if (projects.length < BATCH_SIZE) break;
+    }
+
+    if (totalProjects === 0) {
+      return { success: true, message: 'No projects to sync', results: [] };
     }
 
     const totalTasks = results.reduce((sum, r) => sum + (r.count || 0), 0);
@@ -414,12 +435,12 @@ export async function syncProjectsWithTasks() {
 
     return {
       success: true,
-      message: `Synced ${successCount}/${projects.length} projects, created ${totalTasks} tasks`,
+      message: `Synced ${successCount}/${totalProjects} projects, created ${totalTasks} tasks`,
       results,
       totalTasks,
     };
   } catch (error) {
-    console.error('Error syncing projects with tasks:', error);
+    log.error('Error syncing projects with tasks', error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to sync' };
   }
 }
@@ -479,7 +500,7 @@ export async function getTasksByProject(projectId: string) {
 
     return { success: true, tasks: simplifiedTasks };
   } catch (error) {
-    console.error("Failed to fetch project tasks");
+    log.error("Failed to fetch project tasks", error as Error);
     return { error: error instanceof Error ? error.message : 'Failed to fetch tasks' };
   }
 }

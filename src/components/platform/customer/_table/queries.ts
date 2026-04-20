@@ -5,8 +5,11 @@ import type { Prisma } from "@prisma/client"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { filterColumns } from "@/components/table/lib/prisma-filter-columns"
+import { logger } from "@/lib/logger"
 
 import type { GetClientsSchema } from "./validations"
+
+const log = logger.forModule("customer.queries")
 
 /**
  * Get paginated clients with filtering and sorting
@@ -81,7 +84,7 @@ export async function getClients(input: GetClientsSchema) {
 
     return { data, pageCount }
   } catch (error) {
-    console.error("Error fetching clients:", error)
+    log.error("Error fetching clients", error as Error)
     return { data: [], pageCount: 0 }
   }
 }
@@ -110,7 +113,7 @@ export async function getClientStatusCounts() {
       {} as Record<string, number>
     )
   } catch (error) {
-    console.error("Error fetching client status counts:", error)
+    log.error("Error fetching client status counts", error as Error)
     return {}
   }
 }

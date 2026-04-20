@@ -8,6 +8,20 @@ import type { UserRole } from "@prisma/client"
 // TYPES
 // ============================================================================
 
+export interface DemurrageAlert {
+  id: string
+  containerNumber: string
+  shipmentNumber: string
+  projectId: string
+  status: "WARNING" | "DEMURRAGE"
+  daysRemaining: number
+  dailyRate: number
+  currency: string
+  accruedAmount: number
+  arrivalDate: string
+  freeTimeExpiry: string
+}
+
 export interface QuickLookData {
   totalShipments: number
   inTransit: number
@@ -277,46 +291,77 @@ export interface TrendingStatsData {
 
 /**
  * Get financial data for revenue/expense charts
- * Returns last 12 months of data using parallel queries
+ * Returns last 12 months of data using 2 aggregated SQL queries (GROUP BY month)
+ * instead of 24 individual queries (1 per month × 2 sources).
  */
 export async function getFinancialChartData(): Promise<FinancialChartData> {
-  const now = new Date()
-  const labels: string[] = []
-  const months: { start: Date; end: Date }[] = []
-
-  // Build month ranges
-  for (let i = 11; i >= 0; i--) {
-    const start = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0)
-    labels.push(start.toLocaleDateString("en-US", { month: "short" }))
-    months.push({ start, end })
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { revenueData: [], expenseData: [], profitData: [], labels: [] }
   }
 
-  // Run all 12 months of revenue + expense queries in parallel
-  const [revenueResults, expenseResults] = await Promise.all([
-    Promise.all(
-      months.map((m) =>
-        db.invoice.aggregate({
-          where: { status: "PAID", paidAt: { gte: m.start, lte: m.end } },
-          _sum: { total: true },
-        })
-      )
-    ),
-    Promise.all(
-      months.map((m) =>
-        db.expense.aggregate({
-          where: {
-            status: { in: ["APPROVED", "PAID"] },
-            expenseDate: { gte: m.start, lte: m.end },
-          },
-          _sum: { amount: true },
-        })
-      )
-    ),
+  const now = new Date()
+
+  // Build 12-month window (inclusive of current month)
+  // rangeStart = first day of (current month - 11), in UTC to align with date_trunc.
+  const rangeStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1, 0, 0, 0, 0)
+  )
+  // rangeEnd = first day of the month AFTER current, UTC (half-open upper bound).
+  const rangeEnd = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0)
+  )
+
+  const labels: string[] = []
+  const bucketKeys: string[] = []
+  for (let i = 11; i >= 0; i--) {
+    const bucket = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1, 0, 0, 0, 0)
+    )
+    labels.push(bucket.toLocaleDateString("en-US", { month: "short" }))
+    // Canonical month key: "YYYY-MM"
+    bucketKeys.push(
+      `${bucket.getUTCFullYear()}-${String(bucket.getUTCMonth() + 1).padStart(2, "0")}`
+    )
+  }
+
+  // Two GROUP BY queries (one per source) — PostgreSQL aggregates in the engine.
+  // NOTE: to_char(..., 'YYYY-MM') produces the same bucket key format we built above.
+  const [revenueRows, expenseRows] = await Promise.all([
+    db.$queryRaw<Array<{ bucket: string; total: string | number | null }>>`
+      SELECT
+        to_char(date_trunc('month', "paidAt"), 'YYYY-MM') AS bucket,
+        SUM("total") AS total
+      FROM "Invoice"
+      WHERE "status" = 'PAID'
+        AND "paidAt" >= ${rangeStart}
+        AND "paidAt" <  ${rangeEnd}
+      GROUP BY bucket
+    `,
+    db.$queryRaw<Array<{ bucket: string; total: string | number | null }>>`
+      SELECT
+        to_char(date_trunc('month', "expenseDate"), 'YYYY-MM') AS bucket,
+        SUM("amount") AS total
+      FROM "Expense"
+      WHERE "status" IN ('APPROVED', 'PAID')
+        AND "expenseDate" >= ${rangeStart}
+        AND "expenseDate" <  ${rangeEnd}
+      GROUP BY bucket
+    `,
   ])
 
-  const revenueData = revenueResults.map((r) => Number(r._sum.total ?? 0))
-  const expenseData = expenseResults.map((e) => Number(e._sum.amount ?? 0))
+  const revenueMap = new Map<string, number>()
+  for (const r of revenueRows) {
+    revenueMap.set(r.bucket, Number(r.total ?? 0))
+  }
+  const expenseMap = new Map<string, number>()
+  for (const r of expenseRows) {
+    expenseMap.set(r.bucket, Number(r.total ?? 0))
+  }
+
+  // Fill missing months with 0 so the chart always has 12 buckets.
+  const revenueData = bucketKeys.map((k) => revenueMap.get(k) ?? 0)
+  const expenseData = bucketKeys.map((k) => expenseMap.get(k) ?? 0)
   const profitData = revenueData.map((r, i) => r - (expenseData[i] ?? 0))
 
   return { revenueData, expenseData, profitData, labels }
@@ -326,6 +371,11 @@ export async function getFinancialChartData(): Promise<FinancialChartData> {
  * Get cash flow data for the current period
  */
 export async function getCashFlowData(): Promise<CashFlowData> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { inflowData: [], outflowData: [], balanceData: [] }
+  }
+
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
@@ -370,6 +420,11 @@ export async function getCashFlowData(): Promise<CashFlowData> {
  * Get expense categories breakdown from real data
  */
 export async function getExpenseCategories(): Promise<ExpenseCategory[]> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return []
+  }
+
   const grouped = await db.expense.groupBy({
     by: ["categoryId"],
     _sum: { amount: true },
@@ -430,9 +485,13 @@ export async function getRecentTransactions(
   limit: number = 5
 ): Promise<RecentTransaction[]> {
   const session = await auth()
+  if (!session?.user?.id) {
+    return []
+  }
 
   // Get recent invoices as transactions
   const invoices = await db.invoice.findMany({
+    where: { userId: session.user.id },
     take: limit,
     orderBy: { createdAt: "desc" },
     select: {
@@ -469,6 +528,16 @@ export async function getRecentTransactions(
  * Get trending stats for dashboard
  */
 export async function getTrendingStatsData(): Promise<TrendingStatsData> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return {
+      totalShipments: { value: 0, change: 0, changeType: "positive" },
+      totalRevenue: { value: 0, change: 0, changeType: "positive" },
+      pendingDeclarations: { value: 0, change: 0, changeType: "positive" },
+      completionRate: { value: 0, change: 0, changeType: "positive" },
+    }
+  }
+
   const now = new Date()
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
@@ -555,4 +624,54 @@ export async function getTrendingStatsData(): Promise<TrendingStatsData> {
       changeType: completionChange >= 0 ? "positive" : "negative",
     },
   }
+}
+
+// ============================================================================
+// DEMURRAGE ALERTS
+// ============================================================================
+
+export async function getDemurrageAlerts(): Promise<DemurrageAlert[]> {
+  const session = await auth()
+  if (!session?.user?.id) return []
+
+  const containers = await db.container.findMany({
+    where: {
+      status: { in: ["WARNING", "DEMURRAGE"] },
+      shipment: { userId: session.user.id, status: { not: "DELIVERED" } },
+    },
+    include: {
+      shipment: {
+        select: {
+          shipmentNumber: true,
+          project: { select: { id: true } },
+        },
+      },
+    },
+    orderBy: { freeTimeExpiry: "asc" },
+    take: 10,
+  })
+
+  const now = new Date()
+
+  return containers.map((c) => {
+    const freeTimeExpiry = c.freeTimeExpiry ? new Date(c.freeTimeExpiry) : now
+    const diffMs = freeTimeExpiry.getTime() - now.getTime()
+    const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+    const daysOverdue = daysRemaining < 0 ? Math.abs(daysRemaining) : 0
+    const dailyRate = Number(c.demurrageRate ?? 0)
+
+    return {
+      id: c.id,
+      containerNumber: c.containerNumber,
+      shipmentNumber: c.shipment.shipmentNumber ?? c.shipmentId,
+      projectId: c.shipment.project?.id ?? "",
+      status: c.status as "WARNING" | "DEMURRAGE",
+      daysRemaining,
+      dailyRate,
+      currency: c.demurrageCurrency,
+      accruedAmount: daysOverdue * dailyRate,
+      arrivalDate: c.arrivalDate?.toISOString() ?? "",
+      freeTimeExpiry: c.freeTimeExpiry?.toISOString() ?? "",
+    }
+  })
 }

@@ -5,6 +5,9 @@ import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { ExpenseStatus } from "@prisma/client"
 import { z } from "zod"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("expenses")
 
 // Types
 type ActionResult<T = void> = {
@@ -70,7 +73,7 @@ export async function getExpenseCategories(): Promise<ActionResult<unknown[]>> {
       })),
     }
   } catch (error) {
-    console.error("Error fetching categories:", error)
+    log.error("Error fetching categories", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch categories",
@@ -104,7 +107,7 @@ export async function createExpenseCategory(
 
     return { success: true, data: { id: category.id } }
   } catch (error) {
-    console.error("Error creating category:", error)
+    log.error("Error creating category", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -208,7 +211,7 @@ export async function getExpenses(params?: {
       },
     }
   } catch (error) {
-    console.error("Error fetching expenses:", error)
+    log.error("Error fetching expenses", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch expenses",
@@ -259,7 +262,7 @@ export async function getExpense(expenseId: string): Promise<ActionResult<unknow
       },
     }
   } catch (error) {
-    console.error("Error fetching expense:", error)
+    log.error("Error fetching expense", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch expense",
@@ -301,7 +304,7 @@ export async function createExpense(
 
     return { success: true, data: { id: expense.id } }
   } catch (error) {
-    console.error("Error creating expense:", error)
+    log.error("Error creating expense", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -343,7 +346,7 @@ export async function updateExpense(
 
     return { success: true }
   } catch (error) {
-    console.error("Error updating expense:", error)
+    log.error("Error updating expense", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update expense",
@@ -378,7 +381,7 @@ export async function deleteExpense(expenseId: string): Promise<ActionResult> {
 
     return { success: true }
   } catch (error) {
-    console.error("Error deleting expense:", error)
+    log.error("Error deleting expense", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete expense",
@@ -422,7 +425,7 @@ export async function approveExpense(expenseId: string): Promise<ActionResult> {
 
     return { success: true }
   } catch (error) {
-    console.error("Error approving expense:", error)
+    log.error("Error approving expense", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to approve expense",
@@ -466,7 +469,7 @@ export async function rejectExpense(
 
     return { success: true }
   } catch (error) {
-    console.error("Error rejecting expense:", error)
+    log.error("Error rejecting expense", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to reject expense",
@@ -556,7 +559,7 @@ export async function markExpenseAsPaid(
 
     return { success: true }
   } catch (error) {
-    console.error("Error marking expense as paid:", error)
+    log.error("Error marking expense as paid", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to process payment",
@@ -661,7 +664,7 @@ export async function getExpenseSummary(params?: {
       },
     }
   } catch (error) {
-    console.error("Error fetching expense summary:", error)
+    log.error("Error fetching expense summary", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch summary",
@@ -697,7 +700,7 @@ export async function getExpensesByShipment(
       })),
     }
   } catch (error) {
-    console.error("Error fetching shipment expenses:", error)
+    log.error("Error fetching shipment expenses", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch expenses",

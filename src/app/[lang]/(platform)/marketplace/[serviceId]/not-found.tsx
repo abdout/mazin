@@ -1,9 +1,28 @@
 import Link from 'next/link';
+import { cookies, headers } from 'next/headers';
 import { Package, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getDictionary } from '@/components/internationalization/dictionaries';
+import { i18n, type Locale } from '@/components/internationalization';
 
-export default function ServiceNotFound() {
+async function detectLocale(): Promise<Locale> {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value;
+  if (locale && i18n.locales.includes(locale as Locale)) return locale as Locale;
+
+  const headersList = await headers();
+  const preferred = headersList.get("accept-language")?.split(",")[0]?.split("-")[0]?.toLowerCase();
+  if (preferred && i18n.locales.includes(preferred as Locale)) return preferred as Locale;
+
+  return i18n.defaultLocale;
+}
+
+export default async function ServiceNotFound() {
+  const locale = await detectLocale();
+  const dict = await getDictionary(locale);
+  const t = dict.marketplace;
+
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <div className="px-4 lg:px-6">
@@ -14,16 +33,18 @@ export default function ServiceNotFound() {
                 <Package className="h-8 w-8 text-muted-foreground" />
               </div>
             </div>
-            <CardTitle>Service Not Found</CardTitle>
+            <CardTitle>
+              {t?.serviceNotFound?.title ?? (locale === "ar" ? "الخدمة غير موجودة" : "Service Not Found")}
+            </CardTitle>
             <CardDescription>
-              The service you&apos;re looking for doesn&apos;t exist or is no longer available.
+              {t?.serviceNotFound?.description ?? (locale === "ar" ? "الخدمة التي تبحث عنها غير متوفرة أو تم إزالتها." : "The service you're looking for doesn't exist or is no longer available.")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
-              <Link href="/marketplace">
+              <Link href={`/${locale}/marketplace`}>
                 <ArrowLeft className="h-4 w-4 me-2" />
-                Back to Marketplace
+                {t?.serviceNotFound?.back ?? (locale === "ar" ? "العودة للسوق" : "Back to Marketplace")}
               </Link>
             </Button>
           </CardContent>

@@ -129,7 +129,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
     },
     {
       accessorKey: "invoiceNumber",
-      header: dictionary.invoices.invoiceNumber || "Invoice #",
+      header: dictionary.invoices.invoiceNumber,
       cell: ({ row }) => (
         <Button
           variant="link"
@@ -142,7 +142,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
     },
     {
       accessorKey: "status",
-      header: dictionary.shipments.status || "Status",
+      header: dictionary.shipments.status,
       cell: ({ row }) => {
         const status = row.original.status
         const config = statusConfig[status]
@@ -157,7 +157,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
     },
     {
       accessorKey: "total",
-      header: dictionary.invoices.total || "Total",
+      header: dictionary.invoices.total,
       cell: ({ row }) => (
         <span className="font-medium tabular-nums">
           {row.original.currency} {Number(row.original.total).toLocaleString()}
@@ -166,7 +166,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
     },
     {
       accessorKey: "dueDate",
-      header: dictionary.invoices.dueDate || "Due Date",
+      header: dictionary.invoices.dueDate,
       cell: ({ row }) =>
         row.original.dueDate
           ? new Date(row.original.dueDate).toLocaleDateString()
@@ -174,7 +174,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
     },
     {
       accessorKey: "createdAt",
-      header: dictionary.common.createdAt || "Created",
+      header: dictionary.common.createdAt,
       cell: ({ row }) =>
         new Date(row.original.createdAt).toLocaleDateString(),
     },
@@ -185,25 +185,25 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
               <IconDotsVertical className="size-4" />
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{dictionary.common.actions}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => router.push(`/${locale}/invoices/${row.original.id}`)}
             >
-              {dictionary.common.view || "View"}
+              {dictionary.common.view}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => router.push(`/${locale}/invoices/${row.original.id}/edit`)}
             >
-              {dictionary.common.edit || "Edit"}
+              {dictionary.common.edit}
             </DropdownMenuItem>
             {row.original.status !== "PAID" && (
               <DropdownMenuItem
                 onClick={() => updateInvoiceStatus(row.original.id, "PAID")}
               >
-                {dictionary.invoices.markAsPaid || "Mark as Paid"}
+                {dictionary.invoices.markAsPaid}
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -211,7 +211,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
               className="text-destructive"
               onClick={() => deleteInvoice(row.original.id)}
             >
-              {dictionary.common.delete || "Delete"}
+              {dictionary.common.delete}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -254,9 +254,9 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
         {/* Left: Search and Filters */}
         <div className="flex flex-1 items-center gap-2">
           <div className="relative">
-            <IconSearch className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <IconSearch className="text-muted-foreground absolute top-1/2 start-3 size-4 -translate-y-1/2" />
             <Input
-              placeholder={dictionary.common.search || "Search..."}
+              placeholder={dictionary.common.search}
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="h-9 w-40 pe-8 ps-9 lg:w-64"
@@ -265,7 +265,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-1/2 right-1 size-6 -translate-y-1/2"
+                className="absolute top-1/2 end-1 size-6 -translate-y-1/2"
                 onClick={() => setGlobalFilter("")}
               >
                 <IconX className="size-3" />
@@ -278,7 +278,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9">
                 <IconFilter className="size-4 me-2" />
-                {dictionary.shipments.status || "Status"}
+                {dictionary.shipments.status}
                 {statusFilter.length > 0 && (
                   <Badge variant="secondary" className="ms-2 rounded-full px-1.5">
                     {statusFilter.length}
@@ -300,7 +300,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setStatusFilter([])}>
-                    {dictionary.common.all || "Clear filters"}
+                    {dictionary.common.clear}
                   </DropdownMenuItem>
                 </>
               )}
@@ -310,7 +310,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
               <IconX className="size-4 me-1" />
-              {dictionary.common.all || "Clear"}
+              {dictionary.common.clear}
             </Button>
           )}
         </div>
@@ -319,7 +319,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
         <Button asChild size="sm" className="h-9">
           <Link href={`/${locale}/invoices/new`}>
             <IconPlus className="size-4 me-1" />
-            {dictionary.invoices.newInvoice || "New Invoice"}
+            {dictionary.invoices.newInvoice}
           </Link>
         </Button>
       </div>
@@ -365,7 +365,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  {dictionary.common.noResults || "No results"}
+                  {dictionary.common.noResults}
                 </TableCell>
               </TableRow>
             )}
@@ -375,8 +375,8 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
 
       <div className="flex items-center justify-between px-2">
         <div className="text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} {dictionary.table?.of ?? "of"}{" "}
-          {table.getFilteredRowModel().rows.length} {dictionary.table?.rowsSelected ?? "row(s) selected"}
+          {table.getFilteredSelectedRowModel().rows.length} {dictionary.table.of}{" "}
+          {table.getFilteredRowModel().rows.length} {dictionary.table.rowsSelected}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -385,7 +385,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            {dictionary.common.previous || "Previous"}
+            {dictionary.common.previous}
           </Button>
           <Button
             variant="outline"
@@ -393,7 +393,7 @@ export function InvoiceTable({ data, dictionary, locale }: InvoiceTableProps) {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            {dictionary.common.next || "Next"}
+            {dictionary.common.next}
           </Button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
+import { ReportIssue } from "@/components/report-issue"
 
 const messages = {
   ar: {
@@ -47,6 +48,9 @@ export default function LangError({
           >
             {t.goHome}
           </a>
+        </div>
+        <div className="mt-6 text-sm text-muted-foreground">
+          <ReportIssue />
         </div>
       </div>
     </div>

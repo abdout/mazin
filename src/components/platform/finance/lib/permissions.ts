@@ -1,8 +1,13 @@
 /**
- * Finance Permissions Utility (Stubbed)
+ * Finance Permissions Utility
  *
- * TODO: Implement with Prisma when FinancePermission model is added
+ * Role-based permission checks for finance modules.
+ * Uses the UserRole enum from Prisma: ADMIN, MANAGER, CLERK, VIEWER
  */
+
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import type { UserRole } from "@prisma/client"
 
 /**
  * Finance modules that can have permissions
@@ -34,46 +39,114 @@ export type FinanceAction =
   | "export"
 
 /**
- * Local UserRole enum until Prisma schema is added
+ * Role-permission matrix
+ * ADMIN: full access to all modules
+ * MANAGER: view, create, edit, approve, export on all modules
+ * CLERK: view, create, edit on invoice/receipt/fees/expenses/timesheet
+ * VIEWER: view-only on all modules
  */
-export const UserRole = {
-  ADMIN: "ADMIN",
-  MANAGER: "MANAGER",
-  ACCOUNTANT: "ACCOUNTANT",
-  OPERATOR: "OPERATOR",
-  STAFF: "STAFF",
-  CLERK: "CLERK",
-  VIEWER: "VIEWER",
-  DEVELOPER: "DEVELOPER",
-} as const
+const ROLE_PERMISSIONS: Record<UserRole, Partial<Record<FinanceModule, FinanceAction[]>>> = {
+  ADMIN: {
+    invoice: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    receipt: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    banking: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    fees: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    salary: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    payroll: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    timesheet: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    wallet: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    budget: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    expenses: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    accounts: ["view", "create", "edit", "delete", "approve", "process", "export"],
+    reports: ["view", "create", "edit", "delete", "approve", "process", "export"],
+  },
+  MANAGER: {
+    invoice: ["view", "create", "edit", "approve", "export"],
+    receipt: ["view", "create", "edit", "approve", "export"],
+    banking: ["view", "create", "edit", "approve", "export"],
+    fees: ["view", "create", "edit", "approve", "export"],
+    salary: ["view", "create", "edit", "approve", "export"],
+    payroll: ["view", "create", "edit", "approve", "process", "export"],
+    timesheet: ["view", "create", "edit", "approve", "export"],
+    wallet: ["view", "create", "edit", "export"],
+    budget: ["view", "create", "edit", "approve", "export"],
+    expenses: ["view", "create", "edit", "approve", "export"],
+    accounts: ["view", "edit", "export"],
+    reports: ["view", "export"],
+  },
+  CLERK: {
+    invoice: ["view", "create", "edit"],
+    receipt: ["view", "create", "edit"],
+    fees: ["view", "create", "edit"],
+    expenses: ["view", "create"],
+    timesheet: ["view", "create", "edit"],
+    reports: ["view"],
+    banking: ["view"],
+    salary: ["view"],
+    payroll: ["view"],
+    wallet: ["view"],
+    budget: ["view"],
+    accounts: ["view"],
+  },
+  VIEWER: {
+    invoice: ["view"],
+    receipt: ["view"],
+    banking: ["view"],
+    fees: ["view"],
+    salary: ["view"],
+    payroll: ["view"],
+    timesheet: ["view"],
+    wallet: ["view"],
+    budget: ["view"],
+    expenses: ["view"],
+    accounts: ["view"],
+    reports: ["view"],
+  },
+}
 
-export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+/**
+ * Check if a given role has permission to perform action on module
+ */
+function roleHasPermission(
+  role: UserRole,
+  module: FinanceModule,
+  action: FinanceAction
+): boolean {
+  const modulePermissions = ROLE_PERMISSIONS[role]?.[module]
+  if (!modulePermissions) return false
+  return modulePermissions.includes(action)
+}
 
 /**
  * Check if user has permission to perform action on module
- * Stubbed - returns true for development
  */
 export async function checkFinancePermission(
   userId: string,
-  companyId: string,
+  _companyId: string,
   module: FinanceModule,
   action: FinanceAction
 ): Promise<boolean> {
-  // Return true for development
-  return true
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  })
+  if (!user) return false
+  return roleHasPermission(user.role, module, action)
 }
 
 /**
  * Check if current session user has permission
- * Stubbed - returns true for development
  */
 export async function checkCurrentUserPermission(
-  companyId: string,
+  _companyId: string,
   module: FinanceModule,
   action: FinanceAction
 ): Promise<boolean> {
-  // Return true for development
-  return true
+  const session = await auth()
+  if (!session?.user?.id) return false
+  const role = (session.user as { role?: UserRole }).role
+  if (!role) return false
+  return roleHasPermission(role, module, action)
 }
 
 /**
@@ -81,37 +154,43 @@ export async function checkCurrentUserPermission(
  */
 export async function getUserModulePermissions(
   userId: string,
-  companyId: string,
+  _companyId: string,
   module: FinanceModule
 ): Promise<FinanceAction[]> {
-  // Return all permissions for development
-  return ["view", "create", "edit", "delete", "approve", "process", "export"]
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  })
+  if (!user) return []
+  return ROLE_PERMISSIONS[user.role]?.[module] ?? []
 }
 
 /**
  * Grant permission to a user for a specific module and action
+ * Not implemented — roles are static, not per-user grants
  */
 export async function grantFinancePermission(
-  grantedBy: string,
-  grantedTo: string,
-  companyId: string,
-  module: FinanceModule,
-  action: FinanceAction
+  _grantedBy: string,
+  _grantedTo: string,
+  _companyId: string,
+  _module: FinanceModule,
+  _action: FinanceAction
 ): Promise<boolean> {
-  return false // Not implemented
+  return false
 }
 
 /**
  * Revoke permission from a user
+ * Not implemented — roles are static, not per-user grants
  */
 export async function revokeFinancePermission(
-  revokedBy: string,
-  revokedFrom: string,
-  companyId: string,
-  module: FinanceModule,
-  action: FinanceAction
+  _revokedBy: string,
+  _revokedFrom: string,
+  _companyId: string,
+  _module: FinanceModule,
+  _action: FinanceAction
 ): Promise<boolean> {
-  return false // Not implemented
+  return false
 }
 
 /**
@@ -121,14 +200,18 @@ export async function hasFinanceRole(
   userId: string,
   roles: UserRole[]
 ): Promise<boolean> {
-  return true // Return true for development
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  })
+  if (!user) return false
+  return roles.includes(user.role)
 }
 
 /**
  * Module-specific permission helpers
  */
 export const FinancePermissions = {
-  // Invoice permissions
   canViewInvoices: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "invoice", "view"),
   canCreateInvoices: (userId: string, companyId: string) =>
@@ -136,7 +219,6 @@ export const FinancePermissions = {
   canEditInvoices: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "invoice", "edit"),
 
-  // Payroll permissions
   canViewPayroll: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "payroll", "view"),
   canProcessPayroll: (userId: string, companyId: string) =>
@@ -144,7 +226,6 @@ export const FinancePermissions = {
   canApprovePayroll: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "payroll", "approve"),
 
-  // Expense permissions
   canViewExpenses: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "expenses", "view"),
   canCreateExpenses: (userId: string, companyId: string) =>
@@ -152,13 +233,11 @@ export const FinancePermissions = {
   canApproveExpenses: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "expenses", "approve"),
 
-  // Accounts permissions (accounting system)
   canViewAccounts: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "accounts", "view"),
   canEditAccounts: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "accounts", "edit"),
 
-  // Reports permissions
   canViewReports: (userId: string, companyId: string) =>
     checkFinancePermission(userId, companyId, "reports", "view"),
   canExportReports: (userId: string, companyId: string) =>

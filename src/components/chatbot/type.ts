@@ -1,3 +1,7 @@
+import type { MazinQuickAskFlags, PromptType } from './prompts';
+
+export type { PromptType } from './prompts';
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -33,6 +37,11 @@ export interface ChatbotAPIConfig {
   headers?: Record<string, string>;
 }
 
+/**
+ * Flattened dictionary surface.
+ * UI components read keys via optional chaining so adding keys here does not
+ * force every JSON locale to ship them immediately.
+ */
 export interface ChatbotDictionary {
   openChat: string;
   closeChat: string;
@@ -48,7 +57,42 @@ export interface ChatbotDictionary {
   chooseQuestion: string;
   speechNotSupported: string;
   speechError: string;
-  quickActions: {
+  listening: string;
+  ttsEnabled: string;
+  ttsDisabled: string;
+  // Marketing quick-asks (customs clearance default)
+  marketingDocuments: string;
+  marketingDocumentsQuestion: string;
+  marketingAcd: string;
+  marketingAcdQuestion: string;
+  marketingTimeline: string;
+  marketingTimelineQuestion: string;
+  marketingQuote: string;
+  marketingQuoteQuestion: string;
+  marketingSsmo: string;
+  marketingSsmoQuestion: string;
+  marketingFees: string;
+  marketingFeesQuestion: string;
+  // Tracking quick-asks
+  trackingCurrentStage: string;
+  trackingCurrentStageQuestion: string;
+  trackingNext: string;
+  trackingNextQuestion: string;
+  trackingDocs: string;
+  trackingDocsQuestion: string;
+  trackingEta: string;
+  trackingEtaQuestion: string;
+  // Platform quick-asks
+  platformAcd: string;
+  platformAcdQuestion: string;
+  platformDuty: string;
+  platformDutyQuestion: string;
+  platformInvoices: string;
+  platformInvoicesQuestion: string;
+  platformCompliance: string;
+  platformComplianceQuestion: string;
+  // Legacy (kept for compatibility)
+  quickActions?: {
     track: string;
     trackQuestion: string;
     rates: string;
@@ -61,33 +105,20 @@ export interface ChatbotDictionary {
 }
 
 export interface ChatbotConfig {
-  // Positioning and Layout
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
-
-  // Content and Messaging
   welcomeMessage?: string;
   placeholder?: string;
   title?: string;
   subtitle?: string;
-
-  // Localization
   locale?: 'en' | 'ar';
   dictionary?: Partial<ChatbotDictionary>;
-
-  // Appearance
   theme?: ChatbotTheme;
   avatar?: string;
-
-  // API Configuration
   api?: ChatbotAPIConfig;
-
-  // Features
   enableTypingIndicator?: boolean;
   enableTimestamps?: boolean;
   enableSounds?: boolean;
   enablePersistence?: boolean;
-
-  // Behavior
   autoOpen?: boolean;
   autoOpenDelay?: number;
   maxMessages?: number;
@@ -97,6 +128,9 @@ export interface ChatbotConfig {
 export interface ChatbotProps {
   config?: ChatbotConfig;
   className?: string;
+  promptType?: PromptType;
+  trackingIdentifier?: string;
+  projectId?: string;
   onMessageSend?: (message: string) => void;
   onChatOpen?: () => void;
   onChatClose?: () => void;
@@ -127,6 +161,8 @@ export interface ChatWindowProps {
   theme?: ChatbotTheme;
   title?: string;
   subtitle?: string;
+  promptType?: PromptType;
+  quickAskFlags?: MazinQuickAskFlags | null;
   enableTypingIndicator?: boolean;
   enableTimestamps?: boolean;
 }

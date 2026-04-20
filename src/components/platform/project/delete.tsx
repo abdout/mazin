@@ -17,7 +17,7 @@ const Delete: FC<DeleteProps> = ({ id, onSuccess, dictionary }) => {
     toast.custom(
       (t) => (
         <div className="bg-red-500 text-white p-3 rounded flex justify-between items-center w-full">
-          <span>{dictionary.common.areYouSure || "Are you sure?"}</span>
+          <span>{dictionary.common.areYouSure}</span>
           <div className="flex gap-2 ms-6">
             <button
               className="px-2 py-1 bg-white text-red-500 rounded text-sm font-medium"
@@ -27,15 +27,15 @@ const Delete: FC<DeleteProps> = ({ id, onSuccess, dictionary }) => {
                   const result = await deleteProject(id);
 
                   if (result.success) {
-                    toast.success(dictionary.common.success || "Project deleted successfully");
+                    toast.success(dictionary.common.success);
                     if (onSuccess) {
                       await onSuccess();
                     }
                   } else {
-                    toast.error(result.error || dictionary.common.error || "Failed to delete project");
+                    toast.error(result.error || dictionary.common.error);
                   }
                 } catch (error: unknown) {
-                  toast.error(error instanceof Error ? error.message : (dictionary.common.error || "An unexpected error occurred"));
+                  toast.error(error instanceof Error ? error.message : dictionary.common.error);
                 }
               }}
             >

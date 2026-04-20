@@ -13,6 +13,9 @@ import TaskForm from '@/components/platform/task/form';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Locale } from '@/components/internationalization';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('task.detail-client');
 
 interface TaskDetailClientProps {
   taskId: string;
@@ -117,8 +120,8 @@ const TaskDetailClient = ({ taskId, locale, dictionary }: TaskDetailClientProps)
 
         setTask(result.task);
       } catch (error) {
-        console.error('Error fetching task details:', error);
-        toast.error(t.fetchError ?? 'Failed to load task details');
+        log.error('Error fetching task details', error as Error);
+        toast.error(t.fetchError);
       } finally {
         setLoading(false);
       }
@@ -146,8 +149,8 @@ const TaskDetailClient = ({ taskId, locale, dictionary }: TaskDetailClientProps)
       toast.success(t.deleteSuccess ?? 'Task deleted successfully');
       router.push(`/${locale}/task`);
     } catch (error) {
-      console.error('Error deleting task:', error);
-      toast.error(t.deleteError ?? 'Failed to delete task');
+      log.error('Error deleting task', error as Error);
+      toast.error(t.deleteError);
     } finally {
       setDeleting(false);
     }
@@ -194,7 +197,7 @@ const TaskDetailClient = ({ taskId, locale, dictionary }: TaskDetailClientProps)
     return (
       <div className="container py-20 bg-background min-h-screen">
         <div className="text-center">
-          <h1 className="text-3xl text-primary">{t.notFound ?? 'Task not found'}</h1>
+          <h1 className="text-3xl text-primary">{t.notFound}</h1>
           <Link href={`/${locale}/task`} className="text-primary underline mt-4 block">
             {t.returnToList ?? 'Return to task list'}
           </Link>

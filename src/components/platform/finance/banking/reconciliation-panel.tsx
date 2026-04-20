@@ -7,10 +7,19 @@
  * TODO: Regenerate enhanced reconciliation functionality from correct Prisma schema
  */
 
+import type { BankAccount } from "@/components/platform/finance/banking/types/bank.types"
+
+interface ReconciliationHistory {
+  id: string
+  accountId: string
+  reconciledAt: Date
+  status: string
+}
+
 interface ReconciliationPanelProps {
-  accounts: any[]
+  accounts: BankAccount[]
   selectedAccountId?: string
-  reconciliationHistory?: any
+  reconciliationHistory?: ReconciliationHistory
 }
 
 export function ReconciliationPanel({

@@ -1,11 +1,15 @@
 "use server"
 
 import { db } from "@/lib/db"
+import { auth } from "@/auth"
 import type { DashboardStats, FinancialAlert, RecentTransaction } from "./types"
 
 export async function getDashboardStats(
   dateRange: "month" | "quarter" | "year" = "month"
 ): Promise<DashboardStats> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
   const now = new Date()
   let startDate: Date
 
@@ -216,6 +220,9 @@ export async function getDashboardStats(
 export async function getRecentTransactions(
   limit = 10
 ): Promise<RecentTransaction[]> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
   const transactions = await db.bankTransaction.findMany({
     take: limit,
     orderBy: { transactionDate: "desc" },
@@ -244,6 +251,9 @@ export async function getRecentTransactions(
 }
 
 export async function getFinancialAlerts(): Promise<FinancialAlert[]> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
   const alerts: FinancialAlert[] = []
 
   // Check for overdue invoices
@@ -286,6 +296,9 @@ export async function getFinancialAlerts(): Promise<FinancialAlert[]> {
 }
 
 export async function getQuickActionsForRole(role: string) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
   const allActions = [
     {
       id: "create-invoice",

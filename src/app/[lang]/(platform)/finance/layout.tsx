@@ -1,4 +1,5 @@
 import { PageHeadingSetter } from "@/components/platform/context/page-heading-setter"
+import { getDictionary } from "@/components/internationalization/dictionaries"
 
 interface Props {
   children: React.ReactNode
@@ -7,11 +8,11 @@ interface Props {
 
 export default async function FinanceLayout({ children, params }: Props) {
   const { lang } = await params
-  const isRTL = lang === "ar"
+  const dict = await getDictionary(lang as "ar" | "en")
 
   return (
     <div className="space-y-6">
-      <PageHeadingSetter title={isRTL ? "المالية" : "Finance"} />
+      <PageHeadingSetter title={dict.finance?.title ?? "Finance"} />
       {children}
     </div>
   )

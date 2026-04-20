@@ -17,6 +17,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { shareInvoiceViaWhatsApp } from "@/actions/invoice"
 import type { Locale } from "@/components/internationalization"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("invoice.whatsapp-dialog")
 
 interface WhatsAppShareDialogProps {
   invoiceId: string
@@ -98,7 +101,7 @@ Mazin Customs Clearance`
 
         setOpen(false)
       } catch (error) {
-        console.error("Failed to share via WhatsApp:", error)
+        log.error("Failed to share via WhatsApp", error as Error)
       }
     })
   }

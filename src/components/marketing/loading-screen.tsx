@@ -47,9 +47,12 @@ export function LoadingScreen({ isVideoLoaded, onComplete }: LoadingScreenProps)
       return () => clearTimeout(timeout);
     }
 
-    // Pause at 90% if video not loaded
+    // Pause at 90% if video not loaded, but add a fallback timeout
     if (count >= 90 && !isVideoLoaded) {
-      return;
+      const fallback = setTimeout(() => {
+        setCount(prev => Math.min(prev + 1, 100));
+      }, 3000);
+      return () => clearTimeout(fallback);
     }
 
     // Normal progression 0-90%

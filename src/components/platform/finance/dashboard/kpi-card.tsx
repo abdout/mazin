@@ -191,7 +191,7 @@ export const KPICard = React.memo(function KPICard({
       {/* Background decoration */}
       <div
         className={cn(
-          "absolute top-0 right-0 h-32 w-32 translate-x-8 -translate-y-8 transform opacity-5",
+          "absolute top-0 end-0 h-32 w-32 translate-x-8 -translate-y-8 transform opacity-5",
           getColorClass(kpi.color)
         )}
         style={{

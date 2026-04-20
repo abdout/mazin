@@ -70,9 +70,9 @@ export interface GetAccountByPlaidIdParams {
   accountId: string // Plaid account ID
 }
 
-export interface CreateBankAccountParams extends CreateBankAccountInput {}
+export type CreateBankAccountParams = CreateBankAccountInput
 
-export interface CreateBankAccountResult extends BankAccount {}
+export type CreateBankAccountResult = BankAccount
 
 export interface SyncTransactionsParams {
   accountId: string
@@ -88,7 +88,7 @@ export interface GetBankInfoParams {
   accountId: string
 }
 
-export interface GetBankInfoResult extends BankInstitution {}
+export type GetBankInfoResult = BankInstitution
 
 export interface DeleteBankAccountParams {
   accountId: string
@@ -104,7 +104,7 @@ export interface GetTransactionsParams
   userId: string
 }
 
-export interface GetTransactionsResult extends PaginatedResponse<Transaction> {}
+export type GetTransactionsResult = PaginatedResponse<Transaction>
 
 export interface GetTransactionParams {
   transactionId: string
@@ -160,7 +160,7 @@ export interface CreateTransferParams {
   userId: string
 }
 
-export interface CreateTransferResult extends Transfer {}
+export type CreateTransferResult = Transfer
 
 export interface GetTransfersParams extends PaginationOptions {
   userId: string
@@ -168,7 +168,7 @@ export interface GetTransfersParams extends PaginationOptions {
   status?: Transfer["status"]
 }
 
-export interface GetTransfersResult extends PaginatedResponse<TransferWithBanks> {}
+export type GetTransfersResult = PaginatedResponse<TransferWithBanks>
 
 export interface GetTransferParams {
   transferId: string

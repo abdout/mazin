@@ -59,12 +59,12 @@ export function InvoiceModal({
   if (!open) return null
 
   const title = mode === "edit"
-    ? (dictionary.invoices?.editInvoice || "Edit Invoice")
-    : (dictionary.invoices?.newInvoice || "New Invoice")
+    ? dictionary.invoices?.editInvoice
+    : dictionary.invoices?.newInvoice
 
   const description = mode === "edit"
-    ? (dictionary.invoices?.description || "Update the invoice details below")
-    : (dictionary.invoices?.description || "Fill in the details to create a new invoice")
+    ? dictionary.invoices?.editInvoiceModalDesc
+    : dictionary.invoices?.newInvoiceModalDesc
 
   return (
     <>

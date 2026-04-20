@@ -30,33 +30,44 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
+import type { Dictionary } from "@/components/internationalization"
+
 import { deleteReceipt, retryReceiptExtraction } from "./actions"
 import { ExpenseReceipt, ReceiptItem } from "./types"
 
 interface ReceiptDetailProps {
   receipt: ExpenseReceipt
   locale?: string
+  dict?: Dictionary
 }
 
-export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
+export function ReceiptDetail({ receipt, locale = "en", dict }: ReceiptDetailProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = React.useState(false)
   const [isRetrying, setIsRetrying] = React.useState(false)
 
+  const r = dict?.finance?.receipt
+  const detail = r?.detail
+  const statuses = r?.statuses
+
   const statusConfig = {
-    pending: { label: "Pending", variant: "secondary" as const, icon: Clock },
+    pending: {
+      label: statuses?.pending ?? "Pending",
+      variant: "secondary" as const,
+      icon: Clock,
+    },
     processing: {
-      label: "Processing",
+      label: statuses?.processing ?? "Processing",
       variant: "default" as const,
       icon: LoaderCircle,
     },
     processed: {
-      label: "Processed",
+      label: statuses?.processed ?? "Processed",
       variant: "default" as const,
       icon: CircleCheck,
     },
     error: {
-      label: "Error",
+      label: statuses?.error ?? "Error",
       variant: "destructive" as const,
       icon: CircleAlert,
     },
@@ -68,7 +79,8 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
   const handleDelete = async () => {
     if (
       !confirm(
-        "Are you sure you want to delete this receipt? This action cannot be undone."
+        detail?.deleteConfirm ??
+          "Are you sure you want to delete this receipt? This action cannot be undone."
       )
     ) {
       return
@@ -78,14 +90,16 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
     try {
       const result = await deleteReceipt(receipt.id)
       if (result.success) {
-        toast.success("Receipt deleted successfully")
+        toast.success(detail?.deleteSuccess ?? "Receipt deleted successfully")
         router.push("..")
         router.refresh()
       } else {
-        toast.error(result.error || "Failed to delete receipt")
+        toast.error(
+          result.error ?? detail?.deleteFailed ?? "Failed to delete receipt"
+        )
       }
     } catch (error) {
-      toast.error("An unexpected error occurred")
+      toast.error(detail?.unexpectedError ?? "An unexpected error occurred")
     } finally {
       setIsDeleting(false)
     }
@@ -96,13 +110,17 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
     try {
       const result = await retryReceiptExtraction(receipt.id)
       if (result.success) {
-        toast.success("Extraction retry started. Please wait...")
+        toast.success(
+          detail?.retrySuccess ?? "Extraction retry started. Please wait..."
+        )
         router.refresh()
       } else {
-        toast.error(result.error || "Failed to retry extraction")
+        toast.error(
+          result.error ?? detail?.retryFailed ?? "Failed to retry extraction"
+        )
       }
     } catch (error) {
-      toast.error("An unexpected error occurred")
+      toast.error(detail?.unexpectedError ?? "An unexpected error occurred")
     } finally {
       setIsRetrying(false)
     }
@@ -114,6 +132,11 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
       ? (receipt.items as any).items || []
       : []
 
+  const uploadedLabel = (detail?.uploadedAt ?? "Uploaded {date}").replace(
+    "{date}",
+    format(new Date(receipt.uploadedAt), "PPP")
+  )
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -122,9 +145,7 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
           <h2 className="text-2xl font-semibold">
             {receipt.fileDisplayName || receipt.fileName}
           </h2>
-          <p className="text-muted-foreground text-sm">
-            Uploaded {format(new Date(receipt.uploadedAt), "PPP")}
-          </p>
+          <p className="text-muted-foreground text-sm">{uploadedLabel}</p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={status.variant} className="gap-1">
@@ -144,8 +165,8 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
                 <LoaderCircle className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Retry
+                  <RefreshCw className="me-2 h-4 w-4" />
+                  {detail?.retry ?? "Retry"}
                 </>
               )}
             </Button>
@@ -157,7 +178,7 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
         {/* Receipt Image/PDF Preview */}
         <Card>
           <CardHeader>
-            <CardTitle>Receipt Image</CardTitle>
+            <CardTitle>{detail?.receiptImage ?? "Receipt Image"}</CardTitle>
           </CardHeader>
           <CardContent>
             {receipt.mimeType.startsWith("image/") ? (
@@ -170,7 +191,7 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
               <div className="flex flex-col items-center justify-center rounded-lg border p-12">
                 <FileText className="text-muted-foreground mb-4 h-16 w-16" />
                 <p className="text-muted-foreground mb-4 text-sm">
-                  PDF Document
+                  {detail?.pdfDocument ?? "PDF Document"}
                 </p>
                 <Button variant="outline" asChild>
                   <a
@@ -178,8 +199,8 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Download className="mr-2 h-4 w-4" />
-                    View PDF
+                    <Download className="me-2 h-4 w-4" />
+                    {detail?.viewPdf ?? "View PDF"}
                   </a>
                 </Button>
               </div>
@@ -190,7 +211,7 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
         {/* Extracted Data */}
         <Card>
           <CardHeader>
-            <CardTitle>Extracted Data</CardTitle>
+            <CardTitle>{detail?.extractedData ?? "Extracted Data"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {receipt.status === "processed" ? (
@@ -199,11 +220,11 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <MapPin className="h-4 w-4" />
-                      Merchant
+                      {detail?.merchant ?? "Merchant"}
                     </div>
-                    <p className="ml-6 text-sm">{receipt.merchantName}</p>
+                    <p className="ms-6 text-sm">{receipt.merchantName}</p>
                     {receipt.merchantAddress && (
-                      <p className="text-muted-foreground ml-6 text-xs">
+                      <p className="text-muted-foreground ms-6 text-xs">
                         {receipt.merchantAddress}
                       </p>
                     )}
@@ -214,9 +235,9 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Phone className="h-4 w-4" />
-                      Contact
+                      {detail?.contact ?? "Contact"}
                     </div>
-                    <p className="ml-6 text-sm">{receipt.merchantContact}</p>
+                    <p className="ms-6 text-sm">{receipt.merchantContact}</p>
                   </div>
                 )}
 
@@ -224,9 +245,9 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Calendar className="h-4 w-4" />
-                      Date
+                      {detail?.date ?? "Date"}
                     </div>
-                    <p className="ml-6 text-sm">
+                    <p className="ms-6 text-sm">
                       {format(new Date(receipt.transactionDate), "PPP")}
                     </p>
                   </div>
@@ -237,9 +258,9 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <DollarSign className="h-4 w-4" />
-                        Amount
+                        {detail?.amount ?? "Amount"}
                       </div>
-                      <p className="ml-6 text-lg font-semibold">
+                      <p className="ms-6 text-lg font-semibold">
                         {receipt.currency || "USD"}{" "}
                         {receipt.transactionAmount.toFixed(2)}
                       </p>
@@ -248,7 +269,9 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
 
                 {receipt.receiptSummary && (
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">Summary</p>
+                    <p className="text-sm font-medium">
+                      {detail?.summary ?? "Summary"}
+                    </p>
                     <p className="text-muted-foreground text-sm">
                       {receipt.receiptSummary}
                     </p>
@@ -259,21 +282,23 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
               <div className="flex flex-col items-center justify-center p-12 text-center">
                 <LoaderCircle className="text-primary mb-4 h-8 w-8 animate-spin" />
                 <p className="text-muted-foreground text-sm">
-                  AI extraction in progress...
+                  {detail?.aiInProgress ?? "AI extraction in progress..."}
                 </p>
               </div>
             ) : receipt.status === "error" ? (
               <div className="flex flex-col items-center justify-center p-12 text-center">
                 <CircleAlert className="text-destructive mb-4 h-8 w-8" />
                 <p className="text-muted-foreground mb-4 text-sm">
-                  Extraction failed. Please retry.
+                  {detail?.extractionFailed ??
+                    "Extraction failed. Please retry."}
                 </p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center p-12 text-center">
                 <Clock className="text-muted-foreground mb-4 h-8 w-8" />
                 <p className="text-muted-foreground text-sm">
-                  Waiting for extraction to start...
+                  {detail?.waitingExtraction ??
+                    "Waiting for extraction to start..."}
                 </p>
               </div>
             )}
@@ -285,7 +310,7 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
       {items.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Line Items</CardTitle>
+            <CardTitle>{detail?.lineItems ?? "Line Items"}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -295,8 +320,8 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
                     <div className="flex-1">
                       <p className="text-sm font-medium">{item.name}</p>
                       <p className="text-muted-foreground text-xs">
-                        Qty: {item.quantity} × {receipt.currency || "USD"}{" "}
-                        {item.unitPrice.toFixed(2)}
+                        {detail?.qty ?? "Qty"}: {item.quantity} ×{" "}
+                        {receipt.currency || "USD"} {item.unitPrice.toFixed(2)}
                       </p>
                     </div>
                     <p className="text-sm font-semibold">
@@ -314,7 +339,7 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
       {/* Actions */}
       <div className="flex items-center justify-end gap-2">
         <Button variant="outline" onClick={() => router.push("..")}>
-          Back to List
+          {detail?.backToList ?? "Back to List"}
         </Button>
         <Button
           variant="destructive"
@@ -325,8 +350,8 @@ export function ReceiptDetail({ receipt, locale = "en" }: ReceiptDetailProps) {
             <LoaderCircle className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              <Trash2 className="me-2 h-4 w-4" />
+              {detail?.delete ?? "Delete"}
             </>
           )}
         </Button>

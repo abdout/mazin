@@ -6,6 +6,9 @@ import { ProjectFormValues } from './validation';
 import { auth } from '@/auth';
 import { ProjectStatus, ProjectPriority } from '@prisma/client';
 import { executeProjectCascade } from '@/lib/services/project-cascade';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('project');
 
 // Map string status to Prisma enum
 function mapStatus(status: string | undefined): ProjectStatus {
@@ -97,7 +100,7 @@ export async function createProject(data: ProjectFormValues | null) {
       cascade: result.cascadeResult,
     };
   } catch (error) {
-    console.error('Error creating project:', error);
+    log.error('Error creating project', error as Error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create project' };
   }
 }
@@ -121,7 +124,7 @@ export async function getProjects() {
 
     return { success: true, projects };
   } catch (error) {
-    console.error('Error in getProjects:', error);
+    log.error('Error in getProjects', error as Error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch projects',
@@ -164,7 +167,7 @@ export async function getProject(id: string) {
 
     return { success: true, project };
   } catch (error) {
-    console.error('Error fetching project:', error);
+    log.error('Error fetching project', error as Error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to fetch project' };
   }
 }
@@ -204,7 +207,7 @@ export async function updateProject(id: string, data: Partial<ProjectFormValues>
     revalidatePath(`/project/${id}`);
     return { success: true, project };
   } catch (error) {
-    console.error('Error updating project:', error);
+    log.error('Error updating project', error as Error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update project' };
   }
 }
@@ -223,7 +226,7 @@ export async function deleteProject(id: string) {
     revalidatePath('/project');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting project:', error);
+    log.error('Error deleting project', error as Error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete project' };
   }
 }

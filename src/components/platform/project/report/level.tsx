@@ -5,7 +5,7 @@ import Link from "next/link";
 
 interface IndexProps {
   params: Params;
-  project?: any; // Accept project as prop
+  project?: { voltages?: Record<string, boolean> } | null;
 }
 
 interface Params {

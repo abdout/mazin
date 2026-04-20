@@ -78,7 +78,7 @@ export function ModalFooter({
       : t.next
 
   return (
-    <footer className="bg-background fixed right-0 bottom-0 left-0 border-t">
+    <footer className="bg-background fixed inset-x-0 bottom-0 border-t">
       {/* Progress bar */}
       <div className="px-4 py-3 sm:px-8 md:px-12">
         <Progress value={progressValue} className="h-1" />

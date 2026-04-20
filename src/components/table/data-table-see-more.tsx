@@ -120,7 +120,7 @@ function DataTableSeeMoreInner({
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
               Loading...
             </>
           ) : (
@@ -134,7 +134,7 @@ function DataTableSeeMoreInner({
       {/* End of list message */}
       {!hasMore && total! > 0 && (
         <p className="text-muted-foreground muted">
-          You've reached the end of the list
+          You&apos;ve reached the end of the list
         </p>
       )}
     </div>
@@ -180,7 +180,7 @@ function DataTableSeeMoreSimpleInner({
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
               Loading...
             </>
           ) : (

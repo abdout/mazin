@@ -11,6 +11,9 @@ import type {
   PostingResult,
 } from "./types"
 import { AccountType } from "./types"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("accounting.utils")
 
 /**
  * Validate that debits equal credits
@@ -57,7 +60,7 @@ export async function createJournalEntry(
       journalEntryId: `stub-journal-${Date.now()}`,
     }
   } catch (error) {
-    console.error("Failed to create journal entry")
+    log.error("Failed to create journal entry", error as Error)
     return {
       success: false,
       errors: [

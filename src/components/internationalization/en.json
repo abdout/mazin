@@ -146,7 +146,54 @@
     "trendingDown": "Down this period",
     "completionRate": "Completion Rate",
     "clients": "Clients",
-    "shipment": "Shipment"
+    "shipment": "Shipment",
+    "charts": {
+      "cashFlow": {
+        "title": "Cash Flow",
+        "description": "Cash movement for the current period",
+        "cashInflow": "Cash Inflow",
+        "cashOutflow": "Cash Outflow",
+        "netCashFlow": "Net Cash Flow",
+        "currentBalance": "Current Balance"
+      },
+      "revenue": {
+        "title": "Revenue & Expenses",
+        "description": "Monthly financial performance over the last 12 months",
+        "areaChart": "Area Chart",
+        "barChart": "Bar Chart",
+        "lineChart": "Line Chart",
+        "revenue": "Revenue",
+        "expenses": "Expenses",
+        "profit": "Profit",
+        "avgMonthlyRevenue": "Avg Monthly Revenue",
+        "avgMonthlyExpenses": "Avg Monthly Expenses",
+        "avgMonthlyProfit": "Avg Monthly Profit"
+      },
+      "expense": {
+        "title": "Expense Breakdown",
+        "description": "Distribution of expenses by category",
+        "pieChart": "Pie Chart",
+        "barChart": "Bar Chart",
+        "totalExpenses": "Total Expenses",
+        "topCategories": "Top Categories",
+        "other": "Other",
+        "amount": "Amount",
+        "percentage": "Percentage"
+      }
+    },
+    "transactions": {
+      "title": "Recent Transactions",
+      "noTransactions": "No transactions found",
+      "viewAll": "View All",
+      "income": "Income",
+      "expenses": "Expenses",
+      "pending": "Pending",
+      "statuses": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed"
+      }
+    }
   },
   "shipments": {
     "title": "Shipments",
@@ -274,6 +321,39 @@
     "markAsPaid": "Mark as Paid",
     "markAsSent": "Mark as Sent",
     "cannotEditPaidCancelled": "Cannot edit paid or cancelled invoices",
+    "status": "Status",
+    "client": "Client",
+    "currency": "Currency",
+    "noInvoices": "No invoices found.",
+    "invoiceType": "Invoice Type",
+    "supplier": "Supplier",
+    "supplierName": "Supplier name",
+    "documentReferencesTitle": "Document References",
+    "documentReferencesDescription": "B/L, container, and customs document numbers",
+    "basicInfo": "Basic invoice information",
+    "quickAddFees": "Quick Add Fees",
+    "quickAddFeesDescription": "Click to add common fees",
+    "invoiceItemsDescription": "Invoice items and fees",
+    "feeType": "Fee Type",
+    "vat": "VAT",
+    "editInvoiceModalDesc": "Update the invoice details below",
+    "newInvoiceModalDesc": "Fill in the details to create a new invoice",
+    "noSettings": "No settings configured yet",
+    "companyNameEn": "Company Name (EN)",
+    "companyNameAr": "Company Name (AR)",
+    "website": "Website",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "bank": "Bank",
+    "branch": "Branch",
+    "accountName": "Account Name",
+    "accountNumber": "Account Number",
+    "noBankDetails": "No bank details configured",
+    "days": "days",
+    "failedToSendEmail": "Failed to send email",
+    "invalidEmailAddress": "Invalid email address",
+    "due": "Due",
     "statuses": {
       "DRAFT": "Draft",
       "SENT": "Sent",
@@ -401,6 +481,9 @@
   },
   "finance": {
     "title": "Finance",
+    "comingSoonLabel": "Soon",
+    "comingSoonTitle": "Coming Soon",
+    "comingSoonDescription": "This feature is under active development. The interface below is a preview \u2014 data and actions are not yet functional.",
     "dashboard": "Financial Dashboard",
     "overview": "Financial Overview",
     "totalRevenue": "Total Revenue",
@@ -485,7 +568,104 @@
       "transfer": "Transfer",
       "reconcile": "Reconcile",
       "lastReconciled": "Last Reconciled",
-      "totalBalance": "Total Balance"
+      "totalBalance": "Total Balance",
+      "dashboard": "Dashboard",
+      "myBanks": "My Banks",
+      "addBank": "Add Bank",
+      "connectBank": "Connect Bank",
+      "noBanksConnected": "No banks connected yet",
+      "recentActivity": "Recent Activity",
+      "noRecentActivity": "No recent activity",
+      "quickActions": "Quick Actions",
+      "transferFunds": "Transfer Funds",
+      "viewAllTransactions": "View All Transactions",
+      "paymentTransfer": "Payment Transfer",
+      "transactionHistory": "Transaction History",
+      "settings": "Settings",
+      "signOut": "Sign Out",
+      "selectAccount": "Select an account",
+      "recentTransactions": "Recent Transactions",
+      "noTransactions": "No transactions found",
+      "noMatchingTransactions": "No matching transactions found",
+      "transaction": "Transaction",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date",
+      "category": "Category",
+      "all": "All",
+      "pending": "Pending",
+      "completed": "Completed",
+      "nav": {
+        "dashboard": "Dashboard",
+        "myBanks": "My Banks",
+        "paymentTransfer": "Payment Transfer",
+        "transactionHistory": "Transaction History"
+      }
+    },
+    "accounts": {
+      "title": "Accounts",
+      "nav": {
+        "overview": "Overview",
+        "chart": "Chart of Accounts",
+        "journal": "Journal Entries",
+        "ledger": "General Ledger",
+        "reconciliation": "Reconciliation",
+        "settings": "Settings"
+      }
+    },
+    "fees": {
+      "title": "Service Charges",
+      "nav": {
+        "overview": "Overview",
+        "structure": "Service Rates",
+        "collection": "Charge Collection",
+        "pending": "Pending Charges",
+        "discounts": "Discounts",
+        "reports": "Reports"
+      }
+    },
+    "receiptNav": {
+      "title": "Receipts",
+      "nav": {
+        "overview": "Overview",
+        "generate": "Generate Receipt",
+        "history": "Receipt History",
+        "templates": "Templates",
+        "managePlan": "Manage Plans"
+      }
+    },
+    "salary": {
+      "title": "Salary",
+      "nav": {
+        "overview": "Overview",
+        "structure": "Salary Structure",
+        "slips": "Salary Slips",
+        "increments": "Increments",
+        "advances": "Advances",
+        "reports": "Reports"
+      }
+    },
+    "timesheet": {
+      "title": "Timesheet",
+      "nav": {
+        "overview": "Overview",
+        "entry": "Time Entry",
+        "approval": "Approval",
+        "calendar": "Calendar View",
+        "reports": "Reports",
+        "settings": "Settings"
+      }
+    },
+    "wallet": {
+      "title": "Wallet",
+      "nav": {
+        "overview": "Overview",
+        "balance": "Balance",
+        "transactions": "Transactions",
+        "topUp": "Top Up",
+        "withdraw": "Withdraw",
+        "reports": "Reports"
+      }
     },
     "expenses": {
       "title": "Expenses",
@@ -502,7 +682,15 @@
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected",
-      "paid": "Paid"
+      "paid": "Paid",
+      "nav": {
+        "overview": "Overview",
+        "submit": "Submit Expense",
+        "pending": "Pending Approval",
+        "approved": "Approved",
+        "reports": "Reports",
+        "categories": "Categories"
+      }
     },
     "payroll": {
       "title": "Payroll",
@@ -513,7 +701,15 @@
       "totalNet": "Total Net",
       "employees": "Employees",
       "approve": "Approve Payroll",
-      "process": "Process Payment"
+      "process": "Process Payment",
+      "nav": {
+        "overview": "Overview",
+        "processing": "Payroll Processing",
+        "history": "Payroll History",
+        "deductions": "Deductions",
+        "benefits": "Benefits",
+        "reports": "Reports"
+      }
     },
     "budget": {
       "title": "Budget",
@@ -522,7 +718,15 @@
       "allocated": "Allocated",
       "spent": "Spent",
       "remaining": "Remaining",
-      "variance": "Variance"
+      "variance": "Variance",
+      "nav": {
+        "overview": "Overview",
+        "planning": "Budget Planning",
+        "tracking": "Budget Tracking",
+        "variance": "Variance Analysis",
+        "forecasting": "Forecasting",
+        "approval": "Approval Workflow"
+      }
     },
     "reports": {
       "title": "Financial Reports",
@@ -532,7 +736,16 @@
       "trialBalance": "Trial Balance",
       "generate": "Generate Report",
       "export": "Export",
-      "period": "Report Period"
+      "period": "Report Period",
+      "nav": {
+        "overview": "Overview",
+        "financial": "Financial Statements",
+        "cashflow": "Cash Flow",
+        "profitloss": "Profit & Loss",
+        "balanceSheet": "Balance Sheet",
+        "custom": "Custom Reports",
+        "schedule": "Schedule Reports"
+      }
     },
     "invoice": {
       "title": "Invoices",
@@ -560,7 +773,26 @@
       "overdueInvoices": "Overdue Invoices",
       "lowCashReserve": "Low Cash Reserve",
       "pendingPayroll": "Payroll Pending Approval",
-      "pendingExpenses": "Expenses Pending Approval"
+      "pendingExpenses": "Expenses Pending Approval",
+      "overdueInvoicesTitle": "Overdue Invoices",
+      "overdueInvoicesBody": "You have {count} overdue invoices that need attention",
+      "pendingExpensesTitle": "Pending Expenses",
+      "pendingExpensesBody": "There are {count} expenses awaiting approval",
+      "viewInvoicesAction": "View Invoices",
+      "reviewAction": "Review"
+    },
+    "titles": {
+      "accounts": "Accounts",
+      "banking": "Banking",
+      "budget": "Budget",
+      "expenses": "Expenses",
+      "fees": "Service Charges",
+      "payroll": "Payroll",
+      "receipt": "Receipts",
+      "reports": "Reports",
+      "salary": "Salary",
+      "timesheet": "Timesheet",
+      "wallet": "Wallet"
     },
     "currency": {
       "sdg": "SDG",
@@ -602,6 +834,72 @@
         "processing": "Processing",
         "processed": "Processed",
         "error": "Error"
+      },
+      "header": {
+        "title": "Receipts",
+        "description": "Manage and track your expense receipts with AI-powered extraction",
+        "uploadReceipt": "Upload Receipt",
+        "uploadNewReceipt": "Upload New Receipt",
+        "uploadDescription": "Upload a receipt image or PDF. AI will automatically extract the data."
+      },
+      "stats": {
+        "total": "Total Receipts",
+        "processed": "Processed",
+        "processing": "Processing",
+        "errors": "Errors"
+      },
+      "view": {
+        "grid": "Grid",
+        "table": "Table"
+      },
+      "empty": {
+        "noReceipts": "No receipts uploaded yet",
+        "uploadFirst": "Upload Your First Receipt",
+        "noReceiptsFound": "No receipts found."
+      },
+      "detail": {
+        "uploadedAt": "Uploaded {date}",
+        "receiptImage": "Receipt Image",
+        "pdfDocument": "PDF Document",
+        "viewPdf": "View PDF",
+        "extractedData": "Extracted Data",
+        "merchant": "Merchant",
+        "contact": "Contact",
+        "date": "Date",
+        "amount": "Amount",
+        "summary": "Summary",
+        "aiInProgress": "AI extraction in progress...",
+        "extractionFailed": "Extraction failed. Please retry.",
+        "waitingExtraction": "Waiting for extraction to start...",
+        "lineItems": "Line Items",
+        "qty": "Qty",
+        "retry": "Retry",
+        "backToList": "Back to List",
+        "delete": "Delete",
+        "deleteConfirm": "Are you sure you want to delete this receipt? This action cannot be undone.",
+        "deleteSuccess": "Receipt deleted successfully",
+        "deleteFailed": "Failed to delete receipt",
+        "retrySuccess": "Extraction retry started. Please wait...",
+        "retryFailed": "Failed to retry extraction",
+        "unexpectedError": "An unexpected error occurred"
+      },
+      "upload": {
+        "receiptFile": "Receipt File",
+        "selectedFile": "Selected: {name} ({size} KB)",
+        "invalidType": "Please upload an image (JPG, PNG, WebP) or PDF file",
+        "sizeExceeded": "File size must be less than 10MB",
+        "fileSelected": "File selected! Ready to process.",
+        "selectFirst": "Please select a file first.",
+        "processedSuccess": "Receipt processed successfully! AI extraction in progress...",
+        "processingFailed": "Processing failed. Please try again.",
+        "unexpectedError": "An unexpected error occurred. Please try again.",
+        "processingReceipt": "Processing Receipt...",
+        "processReceipt": "Process Receipt"
+      },
+      "table": {
+        "filterByMerchant": "Filter by merchant...",
+        "previous": "Previous",
+        "next": "Next"
       }
     }
   },
@@ -618,6 +916,297 @@
     "endDate": "End Date",
     "nav": {
       "all": "All"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "docs": "Documents",
+      "invoices": "Invoices",
+      "acd": "Advance Cargo Declaration",
+      "containers": "Containers",
+      "duty": "Duty Calculator",
+      "quote": "Quote",
+      "itp": "Document Checklist",
+      "mos": "Clearance Procedures"
+    },
+    "notFound": "Project not found",
+    "failedToLoad": "Failed to load project. Please try again.",
+    "loadError": "Failed to load project",
+    "shipmentFallback": "Shipment",
+    "acd": {
+      "title": "Advance Cargo Declaration",
+      "description": "ACD tracking for Sudan imports",
+      "acnNumber": "ACN Number",
+      "validationDeadline": "Validation Deadline",
+      "status": "Status",
+      "pending": "Pending",
+      "requiredDocuments": "Required Documents",
+      "draftBillOfLading": "Draft Bill of Lading",
+      "commercialInvoice": "Commercial Invoice",
+      "freightInvoice": "Freight Invoice",
+      "notUploaded": "Not uploaded",
+      "complianceTitle": "ACD Compliance",
+      "complianceBody": "The Advance Cargo Declaration must be validated 5 days before vessel arrival. Ensure all documents are completed on time.",
+      "complianceNote": "ACD must be validated 5 days before vessel arrival. Submit documents to acdsudan.com."
+    },
+    "containers": {
+      "title": "Container Tracking",
+      "description": "Monitor container status and demurrage free time",
+      "totalContainers": "Total Containers",
+      "freeTime": "Free Time",
+      "warning": "Warning",
+      "demurrage": "Demurrage",
+      "containerList": "Container List",
+      "noContainers": "No containers added",
+      "noContainersHint": "Container numbers will appear here once added to the shipment",
+      "containerNumbers": "Container numbers will appear here...",
+      "demurragePrevention": "Demurrage Prevention",
+      "demurragePreventionTitle": "Demurrage Prevention",
+      "demurragePreventionNote": "Free time is typically 14 days from vessel arrival. Alerts will be sent at 7, 3, and 1 day before expiry.",
+      "demurragePreventionBody": "Monitor free storage days and meet deadlines to avoid demurrage charges.",
+      "projectNotFound": "Project not found",
+      "noShipmentLinked": "No shipment linked to this project",
+      "noShipmentHint": "Containers will appear here once a shipment is created",
+      "columns": {
+        "containerNo": "Container No",
+        "size": "Size",
+        "status": "Status",
+        "daysRemaining": "Days Remaining",
+        "dailyRate": "Daily Rate",
+        "arrivalDate": "Arrival Date",
+        "accrued": "Accrued",
+        "accruedDemurrage": "Accrued Demurrage"
+      },
+      "statuses": {
+        "pending": "Pending",
+        "free": "Free",
+        "warning": "Warning",
+        "demurrage": "Demurrage",
+        "released": "Released",
+        "returned": "Returned"
+      },
+      "units": {
+        "day": "d",
+        "daysOverdue": "{count}d overdue",
+        "daysOverdueAr": "overdue {count} days",
+        "daysRemaining": "{count}d"
+      }
+    },
+    "payments": {
+      "title": "Payments",
+      "description": "Track multi-party payments for this shipment",
+      "totalAmount": "Total Amount",
+      "paid": "Paid",
+      "partial": "Partial",
+      "pending": "Pending",
+      "unpaid": "Unpaid",
+      "paymentCount": "Payment Count",
+      "breakdownByPayee": "Breakdown by Payee",
+      "noPayeeBreakdown": "No payee data available",
+      "paymentsList": "Payments List",
+      "noPayments": "No payments yet",
+      "noPaymentsHint": "Payments will appear here once added",
+      "total": "Total",
+      "payment": "payment",
+      "payments": "payments",
+      "payees": {
+        "CUSTOMS": "Customs",
+        "SEA_PORTS": "Sea Ports Authority",
+        "SHIPPING_LINE": "Shipping Line",
+        "SSMO": "SSMO",
+        "MINISTRY_OF_TRADE": "Ministry of Trade",
+        "TRANSPORT": "Transport",
+        "CLEARING_AGENT": "Clearing Agent",
+        "OTHER": "Other"
+      },
+      "statuses": {
+        "PENDING": "Pending",
+        "PARTIAL": "Partial",
+        "PAID": "Paid",
+        "CONFIRMED": "Confirmed",
+        "CANCELLED": "Cancelled"
+      }
+    },
+    "duty": {
+      "title": "Customs Duty Calculator",
+      "description": "Calculate customs duty, VAT, and additional fees on the shipment",
+      "hsCode": "HS Code",
+      "hsCodePlaceholder": "e.g., 8471.30",
+      "cifValue": "CIF Value",
+      "cifPlaceholder": "Enter CIF value in USD",
+      "customsDuty": "Customs Duty",
+      "dutyRate": "Duty Rate (%)",
+      "vat": "VAT",
+      "vatRate": "VAT Rate (%)",
+      "excise": "Excise Tax",
+      "developmentFee": "Development Fee",
+      "totalDuty": "Total Duty",
+      "totalDue": "Total Due",
+      "calculate": "Calculate",
+      "calculationResult": "Calculation Result",
+      "inputValues": "Input Values",
+      "result": "Result",
+      "formula": "Formula",
+      "formulaTitle": "Calculation Formula",
+      "formulaText": "Total = (CIF Value × Duty Rate) + (CIF Value + Duty) × VAT Rate"
+    },
+    "docs": {
+      "title": "Documents",
+      "description": "Upload and manage shipping documents required for customs clearance",
+      "checklist": "Document Checklist",
+      "validationTitle": "Document Validation",
+      "validationNote": "Ensure all documents are valid and meet requirements before submitting the customs declaration.",
+      "totalRequired": "Total Required",
+      "uploaded": "Uploaded",
+      "pending": "Pending",
+      "expired": "Expired",
+      "documentChecklist": "Document Checklist",
+      "required": "Required",
+      "notUploaded": "Not uploaded",
+      "documentValidation": "Document Validation",
+      "documentValidationBody": "Ensure all required documents are uploaded and validated before submitting the customs declaration.",
+      "manageDescription": "Manage required documents for customs clearance",
+      "noShipmentLinked": "No shipment linked to this project",
+      "noShipmentHint": "The document checklist will appear once a shipment is created",
+      "ready": "Ready",
+      "missing": "Missing",
+      "readyForDeclaration": "Ready for Declaration",
+      "readyForDeclarationBody": "All mandatory documents are complete. You can proceed to the customs declaration.",
+      "notReady": "Declaration not yet available",
+      "notReadyBody": "All mandatory documents must be uploaded or verified before you can submit the customs declaration.",
+      "docNumber": "Doc No.",
+      "yes": "Yes",
+      "docTypes": {
+        "BILL_OF_LADING": "Bill of Lading (B/L)",
+        "COMMERCIAL_INVOICE": "Commercial Invoice",
+        "PACKING_LIST": "Packing List",
+        "CERTIFICATE_OF_ORIGIN": "Certificate of Origin",
+        "INSURANCE_CERTIFICATE": "Insurance Certificate",
+        "IM_FORM": "IM Form",
+        "ACD_CERTIFICATE": "ACD Certificate",
+        "SSMO_RELEASE": "SSMO Release",
+        "PROFORMA_INVOICE": "Proforma Invoice",
+        "DELIVERY_ORDER": "Delivery Order",
+        "CUSTOMS_DECLARATION": "Customs Declaration",
+        "CUSTOMS_RECEIPT": "Customs Receipt",
+        "PORT_RECEIPT": "Port Receipt",
+        "WORKING_ORDER": "Working Order",
+        "OTHER": "Other"
+      },
+      "docStatuses": {
+        "MISSING": "Missing",
+        "UPLOADED": "Uploaded",
+        "VERIFIED": "Verified",
+        "REJECTED": "Rejected",
+        "EXPIRED": "Expired"
+      },
+      "docs": {
+        "billOfLading": "Bill of Lading",
+        "commercialInvoice": "Commercial Invoice",
+        "packingList": "Packing List",
+        "certificateOfOrigin": "Certificate of Origin",
+        "imForm": "Import Form (IM)",
+        "ssmoCertificate": "SSMO Certificate",
+        "insuranceCertificate": "Insurance Certificate",
+        "phytosanitaryCertificate": "Phytosanitary Certificate"
+      },
+      "requiredList": {
+        "billOfLading": "Bill of Lading (B/L)",
+        "commercialInvoice": "Commercial Invoice",
+        "packingList": "Packing List",
+        "certificateOfOrigin": "Certificate of Origin",
+        "insuranceCertificate": "Insurance Certificate",
+        "importPermit": "Import Permit",
+        "customsDeclaration": "Customs Declaration",
+        "deliveryOrder": "Delivery Order"
+      }
+    },
+    "info": {
+      "sectionTitle": "Project Information",
+      "emptyPlaceholder": "—",
+      "portOfOrigin": { "label": "Port of Origin" },
+      "portOfDestination": { "label": "Port of Destination" },
+      "teamLead": { "label": "Team Lead" },
+      "consignee": { "label": "Consignee" },
+      "consignor": { "label": "Consignor" },
+      "vessel": { "label": "Vessel" },
+      "blAwbNumber": { "label": "BL/AWB Number" },
+      "customer": { "label": "Customer" },
+      "description": { "label": "Description" },
+      "startDate": { "label": "Start Date" },
+      "endDate": { "label": "End Date" }
+    },
+    "invoicesSection": {
+      "title": "Related Invoices",
+      "description": "Track duties, VAT, and amounts paid for this project",
+      "expenseRecords": "Expense Records",
+      "noExpenseRecords": "No expense records yet",
+      "customsDuty": "Customs Duty",
+      "vat": "VAT",
+      "portCharges": "Port Charges",
+      "total": "Total",
+      "filters": {
+        "all": "All",
+        "draft": "Draft",
+        "sent": "Sent",
+        "paid": "Paid",
+        "overdue": "Overdue",
+        "cancelled": "Cancelled"
+      },
+      "columns": {
+        "invoiceNumber": "Invoice Number",
+        "status": "Status",
+        "amount": "Amount",
+        "createdAt": "Created At"
+      }
+    },
+    "report": {
+      "title": "Project Report",
+      "description": "Summary of duties, demurrage, and invoicing for this project",
+      "exportPdf": "Export PDF",
+      "kpis": {
+        "dutyPaid": "Total Duty Paid",
+        "demurrageDays": "Total Demurrage Days",
+        "stagesCompleted": "Stages Completed",
+        "daysInPort": "Days in Port",
+        "totalInvoiced": "Total Invoiced",
+        "stageCountSuffix": "of 11"
+      },
+      "noShipment": "No shipment linked to this project yet.",
+      "generatedOn": "Generated on"
+    },
+    "acdForm": {
+      "title": "Advance Cargo Declaration",
+      "description": "Submit and manage ACD for this project",
+      "noShipment": "An ACD cannot be created without a linked shipment.",
+      "statusBadge": "Status",
+      "statusPending": "No ACD yet",
+      "acnNumber": "ACN Number",
+      "consignee": "Consignee",
+      "consignor": "Consignor",
+      "hsCode": "HS Code",
+      "cargoDescription": "Cargo Description",
+      "estimatedWeight": "Estimated Weight (kg)",
+      "quantity": "Quantity",
+      "vesselName": "Vessel Name",
+      "voyageNumber": "Voyage Number",
+      "portOfLoading": "Port of Loading",
+      "portOfDischarge": "Port of Discharge",
+      "estimatedArrival": "Estimated Arrival",
+      "create": "Create ACD",
+      "update": "Update ACD",
+      "saving": "Saving…",
+      "lockedNotice": "ACD can only be edited while in DRAFT status.",
+      "errorGeneric": "Failed to save the ACD. Please try again."
+    },
+    "itp": {
+      "title": "Document Checklist",
+      "documentChecklist": "Document Checklist"
+    },
+    "mos": {
+      "title": "Clearance Procedures",
+      "description": "Standard Operating Procedures for Custom Clearance",
+      "clearanceProcedures": "Clearance Procedures",
+      "sopDescription": "Standard Operating Procedures for Custom Clearance"
     },
     "statuses": {
       "PENDING": "Pending",
@@ -1256,13 +1845,310 @@
         "quoteButton": "Request Quote",
         "trackButton": "Track Shipment"
       }
+    },
+    "servicePage": {
+      "sections": {
+        "overview": "Overview",
+        "features": "Features",
+        "process": "Process",
+        "advantages": "Advantages",
+        "whyChoose": "Why Choose Our",
+        "onThisPage": "On This Page",
+        "otherServices": "Other Services",
+        "readyTitle": "Ready to get started?",
+        "readyBody": "Talk to our team and move your shipment through Port Sudan with confidence.",
+        "getQuote": "Get Quote",
+        "learnMore": "Learn More"
+      },
+      "catalog": {
+        "customs-clearance": {
+          "title": { "firstLine": "Customs", "secondLine": "Clearance" },
+          "description": { "firstLine": "Licensed Port Sudan brokers handling your entire", "secondLine": "customs declaration from filing to release." },
+          "detailedDescription": "End-to-end customs clearance at Port Sudan. Licensed brokers classify your goods, compute duties, file declarations, secure release orders, and support post-clearance audits. Works across sea, air, and land cargo.",
+          "features": [
+            "HS code classification and tariff determination",
+            "Customs valuation and duty computation",
+            "Declaration filing with Sudan Customs authority",
+            "Release order and gate-pass coordination",
+            "Post-clearance audit support",
+            "Sea, air, and land freight coverage"
+          ],
+          "advantages": [
+            "Licensed Port Sudan brokers",
+            "24-hour release SLA on standard cargo",
+            "Transparent fixed fees",
+            "Port Sudan specialization",
+            "Insurance-backed handling"
+          ],
+          "advantagesDescriptions": [
+            "Certified agents with direct access to customs officers at every terminal.",
+            "Standard declarations released within 24 hours once duty is paid.",
+            "No hidden charges. Fee schedule agreed before filing.",
+            "Deep operational knowledge of Port Sudan's inspection and release workflows.",
+            "Liability cover on every shipment we clear on your behalf."
+          ],
+          "process": [
+            { "title": "Document intake", "body": "Share commercial invoice, packing list, and B/L. We verify completeness before filing." },
+            { "title": "HS classification", "body": "We classify line items against the Sudan customs tariff book." },
+            { "title": "Duty computation", "body": "We compute customs duty, VAT, excise, and development fee on CIF basis." },
+            { "title": "Declaration filing", "body": "We file the declaration electronically with Sudan Customs." },
+            { "title": "Duty payment", "body": "You pay duty directly or through us. We receipt and reconcile." },
+            { "title": "Release and gate-pass", "body": "We secure the release order and coordinate gate-pass for collection." }
+          ]
+        },
+        "document-processing": {
+          "title": { "firstLine": "Document", "secondLine": "Processing" },
+          "description": { "firstLine": "Complete shipment document preparation,", "secondLine": "validation, and legalization for Sudan imports." },
+          "detailedDescription": "We prepare and validate every document Sudan Customs requires. Commercial invoices, packing lists, certificates of origin, insurance certificates, and consular legalization. Errors caught before they cost you demurrage.",
+          "features": [
+            "Bill of Lading and Air Waybill processing",
+            "Commercial invoice review and amendment",
+            "Packing list validation against cargo",
+            "Certificate of Origin coordination",
+            "Insurance certificate preparation",
+            "Consular legalization and embassy attestation"
+          ],
+          "advantages": [
+            "Zero rejection rate on filed documents",
+            "Direct coordination with banks and embassies",
+            "Same-day amendment handling",
+            "Archive of all filings for 7 years",
+            "Bilingual Arabic and English drafting"
+          ],
+          "advantagesDescriptions": [
+            "Documents pre-validated against the Sudan customs checklist so they never bounce.",
+            "We liaise directly with correspondent banks and the consulate for attestations.",
+            "Typos or missing fields amended and re-issued within the same working day.",
+            "Compliant electronic archive available for audit anytime in the next seven years.",
+            "Drafts issued in both Arabic and English to satisfy every stakeholder."
+          ],
+          "process": [
+            { "title": "Document checklist", "body": "We hand you the exact checklist for your cargo type." },
+            { "title": "Draft review", "body": "We review supplier drafts before you commit to shipment." },
+            { "title": "Amendments", "body": "We coordinate corrections with the supplier if errors appear." },
+            { "title": "Legalization", "body": "We walk papers through consulate and chamber as needed." },
+            { "title": "Customs submission", "body": "We attach all documents to the customs declaration." },
+            { "title": "Archive", "body": "We archive scanned copies to your dashboard for future audits." }
+          ]
+        },
+        "inspection-coordination": {
+          "title": { "firstLine": "Inspection", "secondLine": "Coordination" },
+          "description": { "firstLine": "SSMO and quality inspection coordination", "secondLine": "with sampling, testing, and appeals." },
+          "detailedDescription": "We manage the full inspection leg for regulated products. Food, chemicals, construction materials, vehicles, textiles, and electronics all require SSMO Certificate of Inspection. We coordinate sampling, chase results, and handle appeals when tests fail.",
+          "features": [
+            "SSMO coordination and scheduling",
+            "Quality and safety inspection liaison",
+            "Sample collection at terminal",
+            "Accredited lab testing referrals",
+            "Re-inspection handling on failed results",
+            "Appeal submission and follow-up"
+          ],
+          "advantages": [
+            "Pre-shipment inspection guidance",
+            "Relationships with SSMO inspectors",
+            "Fast-track lab turnaround",
+            "Appeal success track record",
+            "Risk assessment before shipping"
+          ],
+          "advantagesDescriptions": [
+            "We advise on inspection requirements before the goods leave the origin port.",
+            "Long-standing relationships shorten scheduling and prevent duplicate sampling.",
+            "Partner labs return standard results within 48 to 72 hours.",
+            "Documented track record of overturning incorrect rejection decisions.",
+            "We assess compliance risk before you commit to the shipment."
+          ],
+          "process": [
+            { "title": "Compliance review", "body": "We check whether your goods need SSMO CoI before shipping." },
+            { "title": "Sampling coordination", "body": "We arrange SSMO inspector attendance at the terminal." },
+            { "title": "Lab submission", "body": "Samples are delivered to accredited laboratories." },
+            { "title": "Results tracking", "body": "We chase results daily and forward them to you." },
+            { "title": "Certificate issuance", "body": "The CoI is issued and attached to the customs file." },
+            { "title": "Appeal on failure", "body": "We prepare and submit appeals for adverse results." }
+          ]
+        },
+        "port-fees-demurrage": {
+          "title": { "firstLine": "Port Fees &", "secondLine": "Demurrage" },
+          "description": { "firstLine": "Calculate, negotiate, and reconcile", "secondLine": "port storage and terminal handling charges." },
+          "detailedDescription": "Port fees and demurrage eat margins silently. We track free time, calculate charges before they accrue, negotiate extensions, and dispute incorrect invoices. Our dashboard shows live demurrage exposure across your fleet.",
+          "features": [
+            "Live demurrage calculator with free-time tracking",
+            "Storage fee negotiation with terminals",
+            "Free-time extension requests to shipping lines",
+            "Terminal handling invoice review",
+            "Payment reconciliation across terminals",
+            "Dispute resolution on incorrect charges"
+          ],
+          "advantages": [
+            "Early-warning alerts at 7, 3, and 1 days",
+            "Historical average extension savings of 30%",
+            "Direct WhatsApp notification on critical dates",
+            "Line-item reconciliation of every invoice",
+            "Escalation to shipping line head office"
+          ],
+          "advantagesDescriptions": [
+            "Tiered alerts give you time to act before demurrage starts accruing.",
+            "Our negotiation track record saves about 30 percent on extension requests.",
+            "Critical-day notices land on your phone when demurrage is about to hit.",
+            "Every charge is matched to a tariff line and challenged when it does not fit.",
+            "When the terminal refuses, we escalate the case to the line's head office."
+          ],
+          "process": [
+            { "title": "Arrival notice", "body": "We log arrival date and free-time window from the B/L." },
+            { "title": "Daily monitoring", "body": "The dashboard tracks days remaining on every container." },
+            { "title": "Proactive alerts", "body": "Alerts fire at 7, 3, and 1 days before demurrage starts." },
+            { "title": "Extension request", "body": "We file extension requests with the shipping line when needed." },
+            { "title": "Invoice review", "body": "Every port invoice is reconciled against our internal ledger." },
+            { "title": "Dispute", "body": "Incorrect charges are disputed and escalated until resolved." }
+          ]
+        },
+        "tracking-notifications": {
+          "title": { "firstLine": "Tracking &", "secondLine": "Notifications" },
+          "description": { "firstLine": "Live 11-stage shipment visibility with", "secondLine": "WhatsApp, email, and SMS alerts." },
+          "detailedDescription": "See every shipment across 11 clearance stages. From pre-arrival documents through vessel arrival, customs declaration, payment, inspection, port fees, release, loading, transit, and delivery. Clients get automatic updates on their channel of choice.",
+          "features": [
+            "11-stage workflow visibility",
+            "Live container status per vessel",
+            "WhatsApp, SMS, and email alerts",
+            "Client-facing tracking links",
+            "ETA updates on every stage change",
+            "Exception escalation for delays"
+          ],
+          "advantages": [
+            "No login required for client tracking",
+            "Arabic and English notification templates",
+            "Shareable tracking URL per shipment",
+            "Delay-cause documentation on every exception",
+            "Export timeline to PDF anytime"
+          ],
+          "advantagesDescriptions": [
+            "Your clients open a link. They never sign up or install anything.",
+            "Every template is drafted natively in both Arabic and English.",
+            "Every shipment has a unique tracking URL for your clients and partners.",
+            "Exceptions carry reason codes and responsible-party so disputes are clear.",
+            "Customers can export the full timeline as a PDF for their own records."
+          ],
+          "process": [
+            { "title": "Tracking number assigned", "body": "A unique number is minted when the shipment is created." },
+            { "title": "Public link sent", "body": "The tracking link is shared with your client automatically." },
+            { "title": "Stage transitions", "body": "Operators advance the shipment through 11 defined stages." },
+            { "title": "Auto-notify", "body": "Each stage transition triggers the right notification channel." },
+            { "title": "ETA recalculation", "body": "We recompute ETA after every stage completion." },
+            { "title": "Delivery confirmation", "body": "Final POD locks the timeline and closes the shipment." }
+          ]
+        },
+        "marketplace-logistics": {
+          "title": { "firstLine": "Marketplace", "secondLine": "Logistics" },
+          "description": { "firstLine": "Book trucks, forklifts, manpower,", "secondLine": "and tools from vetted Port Sudan providers." },
+          "detailedDescription": "The Mazin marketplace connects you to vetted providers of trucks, forklifts, manpower crews, and tool rentals across Port Sudan. Transparent pricing, WhatsApp booking, and ratings you can trust.",
+          "features": [
+            "Truck booking by tonnage and route",
+            "Forklift rental by capacity",
+            "Manpower crews for loading and stuffing",
+            "Tool and equipment rental",
+            "Warehouse and yard matching",
+            "Equipment procurement"
+          ],
+          "advantages": [
+            "Vetted providers only",
+            "WhatsApp booking in under 2 minutes",
+            "Transparent per-hour and per-day rates",
+            "Ratings and reviews from other clearers",
+            "Invoice consolidation across providers"
+          ],
+          "advantagesDescriptions": [
+            "Every provider is vetted for license, insurance, and track record.",
+            "Book in a couple of messages. No app install required.",
+            "Rates are published up front. No surprise charges at payment.",
+            "Community ratings flag reliable partners and weed out the weak ones.",
+            "Multiple provider invoices consolidated into one settlement."
+          ],
+          "process": [
+            { "title": "Browse the catalog", "body": "Filter by category, area, and date available." },
+            { "title": "Open a service", "body": "Review rates, ratings, and provider profile." },
+            { "title": "Send inquiry", "body": "Submit your requirement via the inquiry form." },
+            { "title": "Provider responds", "body": "Providers respond via WhatsApp, phone, or email." },
+            { "title": "Confirm and pay", "body": "Agree terms and settle via the platform or direct." },
+            { "title": "Rate the experience", "body": "Post-service rating helps other clearers pick wisely." }
+          ]
+        },
+        "advance-cargo-declaration": {
+          "title": { "firstLine": "Advance Cargo", "secondLine": "Declaration (ACD)" },
+          "description": { "firstLine": "Mandatory ACD filing before vessel loading", "secondLine": "with ACN generation and B/L reconciliation." },
+          "detailedDescription": "ACD is mandatory from January 2026. File your Advance Cargo Declaration five days before vessel arrival, get your ACN number on the Bill of Lading, and avoid port rejection. We handle the entire lifecycle from filing to amendments.",
+          "features": [
+            "ACD filing before cargo loading at origin",
+            "ACN number generation and B/L placement",
+            "Pre-arrival manifest reconciliation",
+            "Amendment handling post-filing",
+            "Multi-carrier support across shipping lines",
+            "Customs pre-validation before vessel arrival"
+          ],
+          "advantages": [
+            "5-day pre-arrival deadline guaranteed",
+            "Direct system integration with customs",
+            "Rejection-risk scoring before filing",
+            "Automated amendment workflow",
+            "Audit trail for every change"
+          ],
+          "advantagesDescriptions": [
+            "Our workflow enforces the 5-day deadline so you never miss the window.",
+            "We submit electronically without manual data re-entry anywhere.",
+            "Every draft is scored for rejection risk before submission.",
+            "Amendments route through a guided workflow that prevents data drift.",
+            "Every change is logged with timestamp, actor, and reason."
+          ],
+          "process": [
+            { "title": "Cargo data capture", "body": "We capture cargo details from the supplier before loading." },
+            { "title": "Compliance check", "body": "Data is validated against Sudan Customs rules." },
+            { "title": "ACD filing", "body": "We file the declaration and receive the ACN number." },
+            { "title": "B/L placement", "body": "ACN is placed on the Bill of Lading at origin." },
+            { "title": "Pre-arrival check", "body": "We reconcile manifest against ACD before vessel arrival." },
+            { "title": "Amendment", "body": "Any discrepancy is amended through the guided workflow." }
+          ]
+        },
+        "im-form-processing": {
+          "title": { "firstLine": "IM Form", "secondLine": "Processing" },
+          "description": { "firstLine": "Bank IM Form preparation for foreign", "secondLine": "currency allocation and import compliance." },
+          "detailedDescription": "The IM Form is required by Bank of Sudan for foreign currency allocation on imports. We prepare, submit, track, and close IM Forms for every shipment with LC or bank transfer payment terms.",
+          "features": [
+            "IM Form preparation and pre-screening",
+            "Bank of Sudan submission",
+            "Foreign currency allocation tracking",
+            "LC coordination with correspondent banks",
+            "Amendment processing on variance",
+            "Closure tracking and final settlement"
+          ],
+          "advantages": [
+            "Same-day form preparation",
+            "Direct submission to approved banks",
+            "LC-linked workflow for traceability",
+            "Variance auto-detection on closure",
+            "Historical record of every IM reference"
+          ],
+          "advantagesDescriptions": [
+            "Draft IM Form ready within one working day of instruction.",
+            "We lodge directly with the bank approved for your foreign currency.",
+            "LC and IM Form numbers cross-referenced at every step.",
+            "Closure variances flagged automatically so you can investigate early.",
+            "Every historical IM reference is searchable in the dashboard."
+          ],
+          "process": [
+            { "title": "Proforma receipt", "body": "The supplier proforma invoice triggers the IM workflow." },
+            { "title": "Form preparation", "body": "We draft the IM Form using verified supplier data." },
+            { "title": "Bank submission", "body": "We lodge the form with your chosen correspondent bank." },
+            { "title": "Allocation", "body": "Bank of Sudan allocates foreign currency against the form." },
+            { "title": "LC or transfer", "body": "Payment issues to supplier under the allocated IM." },
+            { "title": "Closure", "body": "Form is closed after shipment arrival and document settlement." }
+          ]
+        }
+      }
     }
   },
   "chatbot": {
     "openChat": "Open chat",
     "closeChat": "Close chat",
-    "placeholder": "Ask about customs clearance...",
-    "welcomeMessage": "Hello! I'm here to help with customs clearance and import/export inquiries. How can I assist you today?",
+    "placeholder": "Ask about ACD, SSMO, documents, duties...",
+    "welcomeMessage": "Hello! I'm the ABDOUT GROUP assistant. Ask about ACD, SSMO, documents, duties, or your shipment.",
     "noMessages": "No messages yet. Start a conversation!",
     "errorMessage": "Sorry, something went wrong. Please try again.",
     "typing": "Typing...",
@@ -1273,6 +2159,37 @@
     "chooseQuestion": "Choose a question or type your message",
     "speechNotSupported": "Speech recognition is not supported in your browser.",
     "speechError": "Speech recognition error. Please try again.",
+    "listening": "Listening...",
+    "ttsEnabled": "Text-to-speech enabled",
+    "ttsDisabled": "Text-to-speech disabled",
+    "marketingDocuments": "Documents",
+    "marketingDocumentsQuestion": "What documents do I need for import clearance at Port Sudan?",
+    "marketingAcd": "ACD",
+    "marketingAcdQuestion": "What is the Advance Cargo Declaration (ACD) and when is it mandatory?",
+    "marketingTimeline": "Timeline",
+    "marketingTimelineQuestion": "How long does customs clearance take from vessel arrival to release?",
+    "marketingQuote": "Get Quote",
+    "marketingQuoteQuestion": "I need a quote for clearing a shipment at Port Sudan.",
+    "marketingSsmo": "SSMO",
+    "marketingSsmoQuestion": "Which products require SSMO pre-shipment inspection?",
+    "marketingFees": "Fees",
+    "marketingFeesQuestion": "What are the typical fees for clearing a 40ft container?",
+    "trackingCurrentStage": "Current Stage",
+    "trackingCurrentStageQuestion": "What is happening with my shipment right now?",
+    "trackingNext": "Next Step",
+    "trackingNextQuestion": "What is the next step in my clearance?",
+    "trackingDocs": "Documents",
+    "trackingDocsQuestion": "Which documents are still needed for my shipment?",
+    "trackingEta": "ETA",
+    "trackingEtaQuestion": "When will my shipment be released?",
+    "platformAcd": "ACD Status",
+    "platformAcdQuestion": "Check ACD status and deadlines for this project.",
+    "platformDuty": "Duty Estimate",
+    "platformDutyQuestion": "How do I calculate duties for this shipment?",
+    "platformInvoices": "Invoices",
+    "platformInvoicesQuestion": "Show me unpaid invoices for this project.",
+    "platformCompliance": "Compliance",
+    "platformComplianceQuestion": "What compliance items are outstanding for this project?",
     "quickActions": {
       "track": "Track",
       "trackQuestion": "I want to track my shipment",
@@ -1390,7 +2307,10 @@
     "paymentRequested": "Payment Requested",
     "paymentReceived": "Payment Received",
     "requestPayment": "Request Payment",
-    "paymentPending": "Payment Pending"
+    "paymentPending": "Payment Pending",
+    "initializeSuccess": "Tracking initialized. Number:",
+    "initializeFailed": "Failed to initialize tracking",
+    "advanceFailed": "Failed to advance stage"
   },
   "marketplace": {
     "title": "Marketplace",
@@ -1450,7 +2370,28 @@
       "IN_PROGRESS": "In Progress",
       "COMPLETED": "Completed",
       "CANCELLED": "Cancelled"
+    },
+    "serviceNotFound": {
+      "title": "Service Not Found",
+      "description": "The service you're looking for is not available or has been removed.",
+      "back": "Back to Marketplace"
     }
+  },
+  "reportIssue": {
+    "link": "Report an issue",
+    "title": "Report an issue",
+    "categoryPlaceholder": "Select category",
+    "categoryVisual": "Visual / Layout",
+    "categoryBroken": "Broken / Not Working",
+    "categoryData": "Wrong Data",
+    "categorySlow": "Slow / Performance",
+    "categoryConfusing": "Confusing / UX",
+    "categoryOther": "Other",
+    "placeholder": "Describe the issue...",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "success": "Submitted. Thank you!",
+    "error": "Something went wrong. Try again."
   },
   "errorPage": {
     "title": "Something went wrong",
@@ -1468,5 +2409,79 @@
     "goHome": "Go to Homepage",
     "goDashboard": "Go to Dashboard",
     "searchPlaceholder": "Search for a page..."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "page": {
+      "subtitle": "Manage your notifications and channel preferences",
+      "matrixTitle": "Notification channels",
+      "typeColumn": "Type",
+      "quietHoursTitle": "Quiet hours",
+      "quietHoursToggle": "Enable quiet hours",
+      "quietHoursStart": "Start",
+      "quietHoursEnd": "End",
+      "whatsappTitle": "WhatsApp",
+      "whatsappNumber": "WhatsApp number",
+      "whatsappHelp": "Used when WhatsApp is enabled above."
+    },
+    "types": {
+      "TASK_ASSIGNED": "Task assigned",
+      "TASK_DUE_SOON": "Task due soon",
+      "TASK_OVERDUE": "Task overdue",
+      "TASK_COMPLETED": "Task completed",
+      "STAGE_ATTENTION_NEEDED": "Stage needs attention",
+      "STAGE_COMPLETED": "Stage completed",
+      "SHIPMENT_CREATED": "Shipment created",
+      "SHIPMENT_ARRIVAL": "Shipment arrived",
+      "SHIPMENT_CLEARED": "Shipment cleared",
+      "SHIPMENT_RELEASED": "Shipment released",
+      "SHIPMENT_DELIVERED": "Shipment delivered",
+      "PAYMENT_REQUEST": "Payment request",
+      "PAYMENT_RECEIVED": "Payment received",
+      "PAYMENT_OVERDUE": "Payment overdue",
+      "SYSTEM_ALERT": "System alert"
+    },
+    "channels": {
+      "IN_APP": "In-app",
+      "EMAIL": "Email",
+      "WHATSAPP": "WhatsApp",
+      "SMS": "SMS"
+    },
+    "priorities": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "filters": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "actions": {
+      "markRead": "Mark read",
+      "markUnread": "Mark unread",
+      "markAllRead": "Mark all read",
+      "viewAll": "View all",
+      "loadMore": "Load more",
+      "view": "View"
+    },
+    "bulk": {
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "selected": "selected"
+    },
+    "empty": {
+      "title": "No notifications",
+      "description": "You're all caught up."
+    },
+    "a11y": {
+      "bell": "Notifications",
+      "select": "Select notification",
+      "unreadBadge": "Unread notifications"
+    },
+    "messages": {
+      "saved": "Preferences saved",
+      "failed": "Could not save preferences"
+    }
   }
 }

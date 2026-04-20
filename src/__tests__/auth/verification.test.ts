@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { newVerification } from "@/components/auth/verification/action"
 
 // Mock the token lookup and user lookup
-vi.mock("@/components/auth/verification/verificiation-token", () => ({
+vi.mock("@/components/auth/verification/verification-token", () => ({
   getVerificationTokenByToken: vi.fn(),
 }))
 
@@ -10,7 +10,7 @@ vi.mock("@/components/auth/user", () => ({
   getUserByEmail: vi.fn(),
 }))
 
-import { getVerificationTokenByToken } from "@/components/auth/verification/verificiation-token"
+import { getVerificationTokenByToken } from "@/components/auth/verification/verification-token"
 import { getUserByEmail } from "@/components/auth/user"
 
 const mockGetToken = vi.mocked(getVerificationTokenByToken)

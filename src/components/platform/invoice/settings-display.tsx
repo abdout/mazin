@@ -33,7 +33,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
       <Card>
         <CardContent className="py-10 text-center">
           <p className="text-muted-foreground">
-            {locale === "ar" ? "لم يتم تكوين الإعدادات بعد" : "No settings configured yet"}
+            {dictionary.invoices?.noSettings}
           </p>
         </CardContent>
       </Card>
@@ -47,21 +47,21 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <IconBuilding className="size-5" />
-            {dict?.companyInfo || "Company Information"}
+            {dict?.companyInfo}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3">
             <div className="flex justify-between">
               <span className="text-muted-foreground text-sm">
-                {locale === "ar" ? "اسم الشركة (EN)" : "Company Name (EN)"}
+                {dictionary.invoices?.companyNameEn}
               </span>
               <span className="font-medium">{settings.companyName}</span>
             </div>
             {settings.companyNameAr && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-sm">
-                  {locale === "ar" ? "اسم الشركة (AR)" : "Company Name (AR)"}
+                  {dictionary.invoices?.companyNameAr}
                 </span>
                 <span className="font-medium">{settings.companyNameAr}</span>
               </div>
@@ -69,7 +69,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
             {settings.taxId && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-sm">
-                  {dictionary.invoices.taxId || "Tax ID"}
+                  {dictionary.invoices.taxId}
                 </span>
                 <span className="font-medium">{settings.taxId}</span>
               </div>
@@ -98,7 +98,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
             {settings.website && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-sm">
-                  {locale === "ar" ? "الموقع" : "Website"}
+                  {dictionary.invoices?.website}
                 </span>
                 <span className="font-medium">{settings.website}</span>
               </div>
@@ -112,7 +112,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
                 {settings.address1 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground text-sm">
-                      {locale === "ar" ? "العنوان" : "Address"}
+                      {dictionary.invoices?.address}
                     </span>
                     <span className="font-medium text-end">
                       {settings.address1}
@@ -123,7 +123,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
                 {settings.city && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground text-sm">
-                      {locale === "ar" ? "المدينة" : "City"}
+                      {dictionary.invoices?.city}
                     </span>
                     <span className="font-medium">
                       {settings.city}
@@ -133,7 +133,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground text-sm">
-                    {locale === "ar" ? "البلد" : "Country"}
+                    {dictionary.invoices?.country}
                   </span>
                   <span className="font-medium">{settings.country}</span>
                 </div>
@@ -148,14 +148,14 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <IconPalette className="size-5" />
-            {dict?.branding || "Branding"}
+            {dict?.branding}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
             <div>
               <p className="text-muted-foreground mb-3 text-sm">
-                {dict?.logo || "Logo"}
+                {dict?.logo}
               </p>
               <div className="bg-muted/50 flex h-24 items-center justify-center rounded-lg border p-4">
                 <Image
@@ -169,7 +169,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
             </div>
             <div>
               <p className="text-muted-foreground mb-3 text-sm">
-                {dict?.signature || "Signature"}
+                {dict?.signature}
               </p>
               <div className="bg-muted/50 flex h-24 items-center justify-center rounded-lg border p-4">
                 <Image
@@ -190,14 +190,14 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <IconBuildingBank className="size-5" />
-            {dict?.bankDetails || "Bank Details"}
+            {dict?.bankDetails}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {settings.bankName && (
             <div className="flex justify-between">
               <span className="text-muted-foreground text-sm">
-                {locale === "ar" ? "البنك" : "Bank"}
+                {dictionary.invoices?.bank}
               </span>
               <span className="font-medium">{settings.bankName}</span>
             </div>
@@ -205,7 +205,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
           {settings.bankBranch && (
             <div className="flex justify-between">
               <span className="text-muted-foreground text-sm">
-                {locale === "ar" ? "الفرع" : "Branch"}
+                {dictionary.invoices?.branch}
               </span>
               <span className="font-medium">{settings.bankBranch}</span>
             </div>
@@ -213,7 +213,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
           {settings.accountName && (
             <div className="flex justify-between">
               <span className="text-muted-foreground text-sm">
-                {locale === "ar" ? "اسم الحساب" : "Account Name"}
+                {dictionary.invoices?.accountName}
               </span>
               <span className="font-medium">{settings.accountName}</span>
             </div>
@@ -221,7 +221,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
           {settings.accountNumber && (
             <div className="flex justify-between">
               <span className="text-muted-foreground text-sm">
-                {locale === "ar" ? "رقم الحساب" : "Account Number"}
+                {dictionary.invoices?.accountNumber}
               </span>
               <span className="font-medium font-mono">{settings.accountNumber}</span>
             </div>
@@ -240,7 +240,7 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
           )}
           {!settings.bankName && !settings.accountNumber && (
             <p className="text-muted-foreground text-center text-sm">
-              {locale === "ar" ? "لم يتم تكوين التفاصيل البنكية" : "No bank details configured"}
+              {dictionary.invoices?.noBankDetails}
             </p>
           )}
         </CardContent>
@@ -251,34 +251,34 @@ export function SettingsDisplay({ settings, dictionary, locale }: SettingsDispla
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <IconFileInvoice className="size-5" />
-            {dict?.defaults || "Invoice Defaults"}
+            {dict?.defaults}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex justify-between">
             <span className="text-muted-foreground text-sm">
-              {dict?.invoicePrefix || "Invoice Prefix"}
+              {dict?.invoicePrefix}
             </span>
             <span className="font-medium font-mono">{settings.invoicePrefix}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground text-sm">
-              {dict?.defaultCurrency || "Default Currency"}
+              {dict?.defaultCurrency}
             </span>
             <span className="font-medium">{settings.defaultCurrency}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground text-sm">
-              {dict?.taxRate || "Tax Rate"}
+              {dict?.taxRate}
             </span>
             <span className="font-medium">{Number(settings.defaultTaxRate)}%</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground text-sm">
-              {dict?.paymentTerms || "Payment Terms"}
+              {dict?.paymentTerms}
             </span>
             <span className="font-medium">
-              {settings.defaultPaymentTerms} {locale === "ar" ? "يوم" : "days"}
+              {settings.defaultPaymentTerms} {dictionary.invoices?.days}
             </span>
           </div>
         </CardContent>

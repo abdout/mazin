@@ -31,16 +31,14 @@ import type { z } from 'zod';
 import { createServiceRequest } from './actions';
 import { serviceRequestSchema, type ServiceRequestData } from './validation';
 import type { ServiceListingWithRelations } from './types';
+import { normalizeSudanPhone } from '@/lib/validation/phone';
 
 type ServiceRequestFormValues = z.input<typeof serviceRequestSchema>;
 
-// Normalize phone for WhatsApp (Sudan country code)
-function normalizePhone(phone: string): string {
-  const cleaned = phone.replace(/[^\d+]/g, '');
-  if (cleaned.startsWith('0')) {
-    return '249' + cleaned.substring(1);
-  }
-  return cleaned.replace(/^\+/, '');
+// WhatsApp wa.me links want just the digits with the country code (no "+")
+function toWhatsAppNumber(phone: string): string {
+  const normalized = normalizeSudanPhone(phone);
+  return normalized ? normalized.slice(1) : phone.replace(/\D/g, '');
 }
 
 interface OrderFormProps {
@@ -87,10 +85,10 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
           vendor: result.request.vendor,
         });
         toast.success(
-          dictionary.marketplace?.orderPlaced || 'Request submitted successfully'
+          dictionary.marketplace?.orderPlaced ?? ''
         );
       } else {
-        toast.error(result.error || 'Failed to submit request');
+        toast.error(result.error ?? dictionary.common?.error ?? '');
       }
     });
   };
@@ -102,37 +100,35 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
           <div className="flex items-center gap-2 text-green-600">
             <CheckCircle className="h-5 w-5" />
             <CardTitle>
-              {dictionary.marketplace?.orderPlaced || 'Request Submitted'}
+              {dictionary.marketplace?.orderPlaced}
             </CardTitle>
           </div>
           <CardDescription>
-            {dictionary.marketplace?.request?.success ||
-              'Your request has been submitted! The vendor will contact you soon.'}
+            {dictionary.marketplace?.request?.success}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-sm">
-            <span className="font-medium">Request #: </span>
+            <span className="font-medium">#: </span>
             <span>{requestData.requestNumber}</span>
           </div>
 
           <div className="border-t pt-4">
             <h4 className="font-medium mb-3">
-              {dictionary.marketplace?.request?.contactInfo ||
-                'Vendor Contact Information'}
+              {dictionary.marketplace?.request?.contactInfo}
             </h4>
             <div className="space-y-2">
               <p className="text-sm font-medium">{requestData.vendor.businessName}</p>
               <div className="flex flex-wrap gap-3">
                 {requestData.vendor.whatsappNumber && (
                   <a
-                    href={`https://wa.me/${normalizePhone(requestData.vendor.whatsappNumber)}`}
+                    href={`https://wa.me/${toWhatsAppNumber(requestData.vendor.whatsappNumber)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-md text-sm hover:bg-green-200 transition-colors"
                   >
                     <MessageCircle className="h-4 w-4" />
-                    {dictionary.marketplace?.whatsapp || 'WhatsApp'}
+                    {dictionary.marketplace?.whatsapp}
                   </a>
                 )}
                 {requestData.vendor.phone && (
@@ -150,7 +146,7 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
                     className="inline-flex items-center gap-2 px-3 py-2 bg-orange-100 text-orange-700 rounded-md text-sm hover:bg-orange-200 transition-colors"
                   >
                     <Mail className="h-4 w-4" />
-                    {dictionary.marketplace?.email || 'Email'}
+                    {dictionary.marketplace?.email}
                   </a>
                 )}
               </div>
@@ -165,7 +161,7 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {dictionary.marketplace?.request?.title || 'Request Service'}
+          {dictionary.marketplace?.request?.title}
         </CardTitle>
         <CardDescription>
           {rtl
@@ -182,7 +178,7 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {dictionary.marketplace?.request?.name || 'Your Name'}
+                    {dictionary.marketplace?.request?.name}
                   </FormLabel>
                   <FormControl>
                     <Input {...field} />
@@ -198,7 +194,7 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {dictionary.marketplace?.request?.phone || 'Phone Number'}
+                    {dictionary.marketplace?.request?.phone}
                   </FormLabel>
                   <FormControl>
                     <Input {...field} type="tel" />
@@ -214,7 +210,7 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {dictionary.marketplace?.request?.email || 'Email (optional)'}
+                    {dictionary.marketplace?.request?.email}
                   </FormLabel>
                   <FormControl>
                     <Input {...field} type="email" />
@@ -230,7 +226,7 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {dictionary.marketplace?.request?.quantity || 'Quantity'}
+                    {dictionary.marketplace?.request?.quantity}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -251,8 +247,7 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {dictionary.marketplace?.request?.message ||
-                      'Message to vendor (optional)'}
+                    {dictionary.marketplace?.request?.message}
                   </FormLabel>
                   <FormControl>
                     <Textarea {...field} rows={3} />
@@ -265,11 +260,11 @@ export function OrderForm({ service, dictionary, locale }: OrderFormProps) {
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {dictionary.common?.loading || 'Loading...'}
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  {dictionary.common?.loading}
                 </>
               ) : (
-                dictionary.marketplace?.request?.submit || 'Submit Request'
+                dictionary.marketplace?.request?.submit
               )}
             </Button>
           </form>

@@ -1,3 +1,4 @@
+import { cache } from "react"
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { getUserById } from "@/components/auth/user"
@@ -161,5 +162,7 @@ const nextAuth = NextAuth({
   trustHost: true,
 })
 
-export const { handlers, auth, signIn, signOut } = nextAuth
+const { handlers, auth: uncachedAuth, signIn, signOut } = nextAuth
+export const auth = cache(uncachedAuth)
+export { handlers, signIn, signOut }
 export const { GET, POST } = handlers

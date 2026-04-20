@@ -6,8 +6,34 @@ export const SettingsSchema = z.object({
   isTwoFactorEnabled: z.optional(z.boolean()),
   role: z.enum([UserRole.ADMIN, UserRole.MANAGER, UserRole.CLERK, UserRole.VIEWER]),
   email: z.optional(z.string().email()),
-  password: z.optional(z.string().min(6)),
-  newPassword: z.optional(z.string().min(6)),
+  password: z.optional(
+    z.string()
+      .min(8, { message: "Minimum 8 characters required" })
+      .max(128, { message: "Maximum 128 characters allowed" })
+      .refine((val) => /[A-Z]/.test(val), {
+        message: "Password must contain at least one uppercase letter",
+      })
+      .refine((val) => /[a-z]/.test(val), {
+        message: "Password must contain at least one lowercase letter",
+      })
+      .refine((val) => /[0-9]/.test(val), {
+        message: "Password must contain at least one digit",
+      })
+  ),
+  newPassword: z.optional(
+    z.string()
+      .min(8, { message: "Minimum 8 characters required" })
+      .max(128, { message: "Maximum 128 characters allowed" })
+      .refine((val) => /[A-Z]/.test(val), {
+        message: "Password must contain at least one uppercase letter",
+      })
+      .refine((val) => /[a-z]/.test(val), {
+        message: "Password must contain at least one lowercase letter",
+      })
+      .refine((val) => /[0-9]/.test(val), {
+        message: "Password must contain at least one digit",
+      })
+  ),
 })
   .refine((data) => {
     if (data.password && !data.newPassword) {
@@ -31,9 +57,18 @@ export const SettingsSchema = z.object({
   })
 
 export const NewPasswordSchema = z.object({
-  password: z.string().min(6, {
-    message: "Minimum of 6 characters required",
-  }),
+  password: z.string()
+    .min(8, { message: "Minimum 8 characters required" })
+    .max(128, { message: "Maximum 128 characters allowed" })
+    .refine((val) => /[A-Z]/.test(val), {
+      message: "Password must contain at least one uppercase letter",
+    })
+    .refine((val) => /[a-z]/.test(val), {
+      message: "Password must contain at least one lowercase letter",
+    })
+    .refine((val) => /[0-9]/.test(val), {
+      message: "Password must contain at least one digit",
+    }),
 });
 
 export const ResetSchema = z.object({
@@ -56,9 +91,18 @@ export const RegisterSchema = z.object({
   email: z.string().email({
     message: "Email is required",
   }),
-  password: z.string().min(6, {
-    message: "Minimum 6 characters required",
-  }),
+  password: z.string()
+    .min(8, { message: "Minimum 8 characters required" })
+    .max(128, { message: "Maximum 128 characters allowed" })
+    .refine((val) => /[A-Z]/.test(val), {
+      message: "Password must contain at least one uppercase letter",
+    })
+    .refine((val) => /[a-z]/.test(val), {
+      message: "Password must contain at least one lowercase letter",
+    })
+    .refine((val) => /[0-9]/.test(val), {
+      message: "Password must contain at least one digit",
+    }),
   name: z.string().min(1, {
     message: "Name is required",
   }),

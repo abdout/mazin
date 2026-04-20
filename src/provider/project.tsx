@@ -2,6 +2,9 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { getProject } from '@/components/platform/project/actions';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('provider.project');
 
 interface Project {
   id?: string;
@@ -65,7 +68,7 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
         setProject(null);
       }
     } catch (err) {
-      console.error('Error fetching project:', err);
+      log.error('Error fetching project', err as Error);
       setError(err instanceof Error ? err.message : 'Failed to fetch project');
       setProject(null);
     } finally {

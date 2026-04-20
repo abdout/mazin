@@ -1,0 +1,279 @@
+// Operations Models
+// Container tracking, exchange rates, IM forms, and multi-party payment tracking
+// These models support the core customs clearance workflow
+
+// ============================================================================
+// CONTAINER TRACKING
+// ============================================================================
+
+model Container {
+  id              String          @id @default(cuid())
+  containerNumber String
+  size            ContainerSize   @default(TWENTY_FT)
+  sealNumber      String?
+  shippingLine    String?
+  bookingReference String?
+
+  // Demurrage tracking
+  arrivalDate      DateTime?
+  freeTimeDays     Int       @default(14)
+  freeTimeExpiry   DateTime?
+  demurrageRate    Decimal   @default(150) @db.Decimal(12, 2)
+  demurrageCurrency String   @default("USD")
+  currentDemurrage  Decimal  @default(0) @db.Decimal(12, 2)
+  lastDemurrageCalc DateTime?
+  status           ContainerStatus @default(PENDING_ARRIVAL)
+
+  // Release
+  releasedAt   DateTime?
+  returnedAt   DateTime?
+  releaseNotes String?
+
+  notes String?
+
+  // Relations
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([containerNumber])
+  @@index([shipmentId])
+  @@index([status])
+  @@map("containers")
+}
+
+enum ContainerSize {
+  TWENTY_FT
+  FORTY_FT
+  FORTY_FT_HC
+  FORTY_FIVE_FT
+  OTHER
+}
+
+enum ContainerStatus {
+  PENDING_ARRIVAL
+  FREE
+  WARNING
+  DEMURRAGE
+  RELEASED
+  RETURNED
+}
+
+// ============================================================================
+// EXCHANGE RATE
+// ============================================================================
+
+model ExchangeRate {
+  id           String   @id @default(cuid())
+  fromCurrency String   @default("USD")
+  toCurrency   String   @default("SDG")
+  rate         Decimal  @db.Decimal(12, 4) // e.g., 2312.4500
+  source       String?  // e.g., "Central Bank", "Market", "Manual"
+  effectiveDate DateTime @default(now())
+  isActive     Boolean  @default(true)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([fromCurrency, toCurrency])
+  @@index([effectiveDate])
+  @@index([isActive])
+  @@map("exchange_rates")
+}
+
+// ============================================================================
+// IM FORM (Bank Import Form)
+// ============================================================================
+
+model IMForm {
+  id       String       @id @default(cuid())
+  imNumber String       @unique
+  status   IMFormStatus @default(ACTIVE)
+
+  // Bank details
+  bankName           String
+  bankBranch         String?
+  bankContactPerson  String?
+
+  // Forex allocation
+  approvedAmount   Decimal  @db.Decimal(15, 2)
+  currency         String   @default("USD")
+  exchangeRate     Decimal? @db.Decimal(12, 4)
+
+  // Invoice details
+  proformaInvoiceValue   Decimal  @db.Decimal(15, 2)
+  proformaInvoiceRef     String?
+  commercialInvoiceValue Decimal? @db.Decimal(15, 2)
+  commercialInvoiceRef   String?
+  valueVariance          Decimal? @db.Decimal(10, 4)
+  varianceExplanation    String?
+
+  // Dates
+  issueDate  DateTime @default(now())
+  expiryDate DateTime
+
+  notes String?
+
+  // Relations
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+
+  createdById String?
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([imNumber])
+  @@index([shipmentId])
+  @@index([status])
+  @@map("im_forms")
+}
+
+enum IMFormStatus {
+  ACTIVE
+  EXPIRED
+  CONSUMED
+  CANCELLED
+  VALUE_MISMATCH
+}
+
+// ============================================================================
+// SHIPMENT PAYMENT (Multi-party payment tracking)
+// ============================================================================
+
+model ShipmentPayment {
+  id        String               @id @default(cuid())
+  paymentNo String?              @unique // Payment reference number
+  status    ShipmentPaymentStatus @default(PENDING)
+
+  // Who receives the payment
+  payee     PaymentPayee
+  payeeName String?  // Specific entity name (e.g., "CMA CGM", "Al Arbab Shipping")
+
+  // Amount
+  amount    Decimal  @db.Decimal(15, 2)
+  currency  String   @default("SDG")
+
+  // Payment details
+  method      PaymentMethod?
+  referenceNo String?  // Bank transfer ref, receipt number, etc.
+  receiptNo   String?  // Official receipt number from payee
+
+  // Dates
+  dueDate  DateTime?
+  paidDate DateTime?
+
+  // Supporting document
+  documentUrl String?
+
+  notes String?
+
+  // Relations
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  // Link to tracking stage if applicable
+  stageType TrackingStageType?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shipmentId])
+  @@index([payee])
+  @@index([status])
+  @@map("shipment_payments")
+}
+
+enum PaymentPayee {
+  CUSTOMS           // Sudan Customs / Ministry of Finance
+  SEA_PORTS         // Sea Ports Corporation
+  SHIPPING_LINE     // CMA CGM, Al Arbab, etc.
+  SSMO              // Quality standards
+  MINISTRY_OF_TRADE // Commerce charges
+  TRANSPORT         // Trucking / local transport
+  CLEARING_AGENT    // Commission (self)
+  OTHER
+}
+
+enum ShipmentPaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+  CONFIRMED // Confirmed by receipt
+  CANCELLED
+}
+
+// PaymentMethod enum is defined in finance.prisma
+
+// ============================================================================
+// DOCUMENT CHECKLIST
+// ============================================================================
+
+model ShipmentDocument {
+  id       String                @id @default(cuid())
+  docType  ShipmentDocumentType
+  status   DocumentCheckStatus   @default(MISSING)
+
+  // Document details
+  documentNo  String?  // B/L number, invoice number, etc.
+  issueDate   DateTime?
+  expiryDate  DateTime?
+
+  fileUrl     String?
+  fileName    String?
+  fileSize    Int?
+
+  notes       String?
+  verifiedAt  DateTime?
+  verifiedBy  String?
+
+  // Relations
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shipmentId, docType])
+  @@index([shipmentId])
+  @@index([status])
+  @@map("shipment_documents")
+}
+
+enum ShipmentDocumentType {
+  BILL_OF_LADING
+  COMMERCIAL_INVOICE
+  PACKING_LIST
+  CERTIFICATE_OF_ORIGIN
+  INSURANCE_CERTIFICATE
+  IM_FORM
+  ACD_CERTIFICATE
+  SSMO_RELEASE
+  PROFORMA_INVOICE
+  DELIVERY_ORDER
+  CUSTOMS_DECLARATION
+  CUSTOMS_RECEIPT
+  PORT_RECEIPT
+  WORKING_ORDER
+  OTHER
+}
+
+enum DocumentCheckStatus {
+  MISSING
+  UPLOADED
+  VERIFIED
+  REJECTED
+  EXPIRED
+}

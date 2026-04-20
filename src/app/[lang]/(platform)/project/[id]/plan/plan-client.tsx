@@ -3,6 +3,7 @@
 import React from "react";
 import { usePDF } from "react-to-pdf";
 import Action from "@/components/platform/project/layout/action";
+import { Project } from "@/components/platform/project/types";
 
 const teamMembers = [
   { image: '/team/eng/osman.png', lead: true },
@@ -18,7 +19,7 @@ const kit = [
 ];
 
 interface PlanClientProps {
-  project: any; // Using any to avoid type issues with the server response
+  project: Pick<Project, 'customer'> | null | undefined;
 }
 
 const PlanClient = ({ project }: PlanClientProps) => {

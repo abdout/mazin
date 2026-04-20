@@ -120,6 +120,7 @@ export function AdminDashboardClient({
         <TransactionList
           transactions={recentTransactions}
           locale={locale}
+          dict={dictionary}
         />
       </section>
     </div>

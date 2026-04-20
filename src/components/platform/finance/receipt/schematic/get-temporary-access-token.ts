@@ -9,6 +9,9 @@
 
 import { auth } from "@/auth"
 import { getTenantContext } from "@/lib/tenant-context"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("receipt.access-token")
 
 /**
  * Get a temporary Schematic access token for the current user/company (Stubbed)
@@ -20,7 +23,7 @@ export async function getTemporaryAccessToken(): Promise<string | null> {
     const session = await auth()
 
     if (!session?.user?.id) {
-      console.warn("getTemporaryAccessToken: No authenticated user")
+      log.warn("getTemporaryAccessToken: No authenticated user")
       return null
     }
 
@@ -28,14 +31,14 @@ export async function getTemporaryAccessToken(): Promise<string | null> {
     const companyId = tenantContext?.companyId
 
     if (!companyId) {
-      console.warn("getTemporaryAccessToken: No companyId found")
+      log.warn("getTemporaryAccessToken: No companyId found")
       return null
     }
 
     // Return stub token for development
     return `stub-access-token-${companyId}-${Date.now()}`
   } catch (error) {
-    console.error("Failed to get temporary access token")
+    log.error("Failed to get temporary access token", error as Error)
     return null
   }
 }

@@ -37,33 +37,32 @@ export function DashboardHeader({
     <header className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">
-          {dictionary?.welcome || "Welcome back"}, {user?.name || "Guest"}
+          {dictionary?.welcome ?? ""}, {user?.name ?? ""}
         </h1>
         <p className="text-muted-foreground">
-          {dictionary?.subtitle ||
-            "Access and manage your account and transactions efficiently."}
+          {dictionary?.subtitle ?? ""}
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label={dictionary?.totalBalance || "Total Balance"}
+          label={dictionary?.totalBalance ?? ""}
           value={formatCurrency(totalCurrentBalance)}
         />
 
         <StatCard
-          label={dictionary?.connectedBanks || "Connected Banks"}
+          label={dictionary?.connectedBanks ?? ""}
           value={totalBanks}
         />
 
         <StatCard
-          label={dictionary?.activeAccounts || "Active Accounts"}
+          label={dictionary?.activeAccounts ?? ""}
           value={0}
         />
 
         <StatCard
-          label={dictionary?.accountStatus || "Account Status"}
-          value={dictionary?.statusActive || "Active"}
+          label={dictionary?.accountStatus ?? ""}
+          value={dictionary?.statusActive ?? ""}
           className="text-green-600"
         />
       </div>

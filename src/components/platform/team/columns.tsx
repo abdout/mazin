@@ -80,7 +80,7 @@ export function getColumns({
     },
     {
       accessorKey: "name",
-      header: dictionary.team?.name || "Name",
+      header: dictionary.team?.name,
       cell: ({ row }) => {
         const member = row.original
         const initials = member.name
@@ -106,7 +106,7 @@ export function getColumns({
     },
     {
       accessorKey: "role",
-      header: dictionary.team?.role || "Role",
+      header: dictionary.team?.role,
       cell: ({ row }) => {
         const role = row.original.role
         const config = roleConfig[role]
@@ -123,7 +123,7 @@ export function getColumns({
     },
     {
       accessorKey: "department",
-      header: dictionary.team?.department || "Department",
+      header: dictionary.team?.department,
       cell: ({ row }) => {
         const dept = row.original.department
         return dept ? (
@@ -135,7 +135,7 @@ export function getColumns({
     },
     {
       accessorKey: "status",
-      header: dictionary.team?.status || "Status",
+      header: dictionary.team?.status,
       cell: ({ row }) => {
         const status = row.original.status
         const config = statusConfig[status]
@@ -153,7 +153,7 @@ export function getColumns({
     },
     {
       accessorKey: "joinedAt",
-      header: dictionary.team?.joinedAt || "Joined",
+      header: dictionary.team?.joinedAt,
       cell: ({ row }) => {
         const date = new Date(row.original.joinedAt)
         return <span className="text-muted-foreground">{date.toLocaleDateString()}</span>
@@ -173,28 +173,28 @@ export function getColumns({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{dictionary.common?.actions || "Actions"}</DropdownMenuLabel>
+              <DropdownMenuLabel>{dictionary.common?.actions}</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => navigator.clipboard.writeText(member.email)}>
                 <Mail className="me-2 size-4" />
-                {dictionary.team?.copyEmail || "Copy email"}
+                {dictionary.team?.copyEmail}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onEdit?.(member)}>
-                {dictionary.common?.edit || "Edit"}
+                {dictionary.common?.edit}
               </DropdownMenuItem>
               {onChangeRole && (
                 <DropdownMenuItem onClick={() => onChangeRole(member.id, "MANAGER")}>
-                  {dictionary.team?.changeRole || "Change role"}
+                  {dictionary.team?.changeRole}
                 </DropdownMenuItem>
               )}
               {onChangeStatus && member.status === "ACTIVE" && (
                 <DropdownMenuItem onClick={() => onChangeStatus(member.id, "INACTIVE")}>
-                  {dictionary.team?.deactivate || "Deactivate"}
+                  {dictionary.team?.deactivate}
                 </DropdownMenuItem>
               )}
               {onChangeStatus && member.status === "INACTIVE" && (
                 <DropdownMenuItem onClick={() => onChangeStatus(member.id, "ACTIVE")}>
-                  {dictionary.team?.activate || "Activate"}
+                  {dictionary.team?.activate}
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -202,7 +202,7 @@ export function getColumns({
                 onClick={() => onDelete?.(member.id)}
                 className="text-destructive focus:text-destructive"
               >
-                {dictionary.common?.delete || "Delete"}
+                {dictionary.common?.delete}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

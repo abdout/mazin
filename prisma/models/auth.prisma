@@ -61,6 +61,12 @@ model User {
   // Assignment rules (when assigning to specific user)
   assignmentRules TaskAssignmentRule[]
 
+  // Operations relations
+  exchangeRates    ExchangeRate[]
+  imForms          IMForm[]
+  shipmentPayments ShipmentPayment[]
+  shipmentDocuments ShipmentDocument[]
+
   // Marketplace relations
   vendor          Vendor?
   serviceRequests ServiceRequest[]

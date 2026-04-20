@@ -16,6 +16,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
+import type { TooltipProps } from "recharts"
 
 import {
   Card,
@@ -34,7 +35,46 @@ interface RevenueChartProps {
   labels?: string[]
   className?: string
   locale?: Locale
-  dictionary?: Record<string, any>
+  dictionary?: Record<string, Record<string, unknown>>
+}
+
+// Custom tooltip — defined at module scope to avoid recreating on every render.
+function RevenueTooltip({
+  active,
+  payload,
+  label,
+  isRTL,
+}: TooltipProps<number, string> & { isRTL: boolean }) {
+  if (!active || !payload) return null
+
+  return (
+    <div className="bg-background rounded-lg border p-3 shadow-lg">
+      <p className="font-semibold">{label}</p>
+      {payload.map((entry, index: number) => (
+        <div key={index} className="flex items-center gap-2 text-sm">
+          <div
+            className="h-3 w-3 rounded-full"
+            style={{ backgroundColor: entry.color }}
+          />
+          <span className="capitalize">{entry.name}:</span>
+          <span className="font-medium">
+            {isRTL ? "ج.س" : "SDG"} {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(entry.value as number)}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Format Y-axis ticks
+function formatYAxis(value: number) {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`
+  }
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(0)}K`
+  }
+  return value.toString()
 }
 
 function RevenueChartInner({
@@ -65,39 +105,10 @@ function RevenueChartInner({
     profit: profitData[index] || 0,
   }))
 
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload) return null
-
-    return (
-      <div className="bg-background rounded-lg border p-3 shadow-lg">
-        <p className="font-semibold">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
-            <div
-              className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="capitalize">{entry.name}:</span>
-            <span className="font-medium">
-              {isRTL ? "ج.س" : "SDG"} {new Intl.NumberFormat(isRTL ? "ar-SD" : "en-SD").format(entry.value)}
-            </span>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  // Format Y-axis ticks
-  const formatYAxis = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(0)}K`
-    }
-    return value.toString()
-  }
+  // Render tooltip bound to locale
+  const renderTooltip = (props: TooltipProps<number, string>) => (
+    <RevenueTooltip {...props} isRTL={isRTL} />
+  )
 
   return (
     <Card className={className}>
@@ -151,7 +162,7 @@ function RevenueChartInner({
                   tick={{ fill: "currentColor" }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={renderTooltip} />
                 <Legend />
                 <Area
                   type="monotone"
@@ -189,7 +200,7 @@ function RevenueChartInner({
                   tick={{ fill: "currentColor" }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={renderTooltip} />
                 <Legend />
                 <Bar dataKey="revenue" fill="#10b981" name={isRTL ? "الإيرادات" : "Revenue"} />
                 <Bar dataKey="expense" fill="#ef4444" name={isRTL ? "المصروفات" : "Expenses"} />
@@ -212,7 +223,7 @@ function RevenueChartInner({
                   tick={{ fill: "currentColor" }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={renderTooltip} />
                 <Legend />
                 <Line
                   type="monotone"

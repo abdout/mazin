@@ -132,7 +132,7 @@ export function InvoicesTable({
             onDelete={handleDelete}
           />
         }
-        emptyMessage={dictionary.invoices?.noInvoices || "No invoices found."}
+        emptyMessage={dictionary.invoices?.noInvoices}
       />
 
       {/* Invoice Create/Edit Modal */}

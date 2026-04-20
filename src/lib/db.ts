@@ -10,6 +10,21 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient() {
   const pool = globalForPrisma.pool ?? new Pool({
     connectionString: process.env.DATABASE_URL,
+    // Neon serverless Postgres closes idle connections aggressively. These
+    // timeouts keep the pool resilient when dev servers sleep or cold-start.
+    max: 10,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 10_000,
+    allowExitOnIdle: true,
+    keepAlive: true,
+  })
+
+  // Swallow background connection errors so a dropped idle socket does not
+  // crash the process; the next query will reconnect via the pool.
+  pool.on("error", (err) => {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[db] pool error:", err.message)
+    }
   })
 
   if (process.env.NODE_ENV !== "production") {
@@ -20,7 +35,7 @@ function createPrismaClient() {
 
   return new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   })
 }
 

@@ -6,6 +6,9 @@ import { auth } from "@/auth"
 import { TransactionType, TransactionSourceType } from "@prisma/client"
 import { z } from "zod"
 import { parse } from "csv-parse/sync"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("banking.transaction")
 
 // Validation schemas
 const createTransactionSchema = z.object({
@@ -182,7 +185,7 @@ export async function getTransactions(params: {
       },
     }
   } catch (error) {
-    console.error("Error fetching transactions:", error)
+    log.error("Error fetching transactions", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch transactions",
@@ -252,7 +255,7 @@ export async function getTransaction(transactionId: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error fetching transaction:", error)
+    log.error("Error fetching transaction", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch transaction",
@@ -341,7 +344,7 @@ export async function createTransaction(
       },
     }
   } catch (error) {
-    console.error("Error creating transaction:", error)
+    log.error("Error creating transaction", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -392,7 +395,7 @@ export async function reconcileTransaction(
 
     return { success: true }
   } catch (error) {
-    console.error("Error reconciling transaction:", error)
+    log.error("Error reconciling transaction", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to reconcile transaction",
@@ -432,7 +435,7 @@ export async function batchReconcileTransactions(
 
     return { success: true, count: result.count }
   } catch (error) {
-    console.error("Error batch reconciling transactions:", error)
+    log.error("Error batch reconciling transactions", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to reconcile transactions",
@@ -582,7 +585,7 @@ export async function importBankStatement(params: {
       errors: errors.length > 0 ? errors : undefined,
     }
   } catch (error) {
-    console.error("Error importing bank statement:", error)
+    log.error("Error importing bank statement", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to import statement",
@@ -614,7 +617,7 @@ export async function getUnreconciledCount(accountId?: string): Promise<{
 
     return { success: true, count }
   } catch (error) {
-    console.error("Error fetching unreconciled count:", error)
+    log.error("Error fetching unreconciled count", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch count",
@@ -685,7 +688,7 @@ export async function getTransactionSummary(params: {
       },
     }
   } catch (error) {
-    console.error("Error fetching transaction summary:", error)
+    log.error("Error fetching transaction summary", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch summary",

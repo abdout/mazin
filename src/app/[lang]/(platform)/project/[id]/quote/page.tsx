@@ -1,11 +1,10 @@
-import React from 'react'
+import { redirect } from "next/navigation"
 
-const Quote = () => {
-  return (
-    <div>
-      <h1>Quote</h1>
-    </div>
-  )
+export default async function QuotePage({
+  params,
+}: {
+  params: Promise<{ lang: string; id: string }>
+}) {
+  const { lang, id } = await params
+  redirect(`/${lang}/invoice/new?projectId=${id}`)
 }
-
-export default Quote

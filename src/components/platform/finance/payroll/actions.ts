@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { auth } from "@/auth"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("payroll")
 import { PayrollRunStatus, PayrollItemStatus, EmployeeStatus } from "@prisma/client"
 import { z } from "zod"
 import {
@@ -102,7 +105,7 @@ export async function getEmployees(
 
     return { success: true, data: employees }
   } catch (error) {
-    console.error("Error fetching employees:", error)
+    log.error("Error fetching employees", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch employees",
@@ -149,7 +152,7 @@ export async function getEmployee(employeeId: string): Promise<ActionResult<unkn
 
     return { success: true, data: employee }
   } catch (error) {
-    console.error("Error fetching employee:", error)
+    log.error("Error fetching employee", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch employee",
@@ -204,7 +207,7 @@ export async function createEmployee(
 
     return { success: true, data: { id: result.id } }
   } catch (error) {
-    console.error("Error creating employee:", error)
+    log.error("Error creating employee", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -266,7 +269,7 @@ export async function updateEmployee(
 
     return { success: true }
   } catch (error) {
-    console.error("Error updating employee:", error)
+    log.error("Error updating employee", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update employee",
@@ -314,7 +317,7 @@ export async function getPayrollRuns(
       })),
     }
   } catch (error) {
-    console.error("Error fetching payroll runs:", error)
+    log.error("Error fetching payroll runs", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch payroll runs",
@@ -384,7 +387,7 @@ export async function getPayrollRun(runId: string): Promise<ActionResult<unknown
       },
     }
   } catch (error) {
-    console.error("Error fetching payroll run:", error)
+    log.error("Error fetching payroll run", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch payroll run",
@@ -529,7 +532,7 @@ export async function createPayrollRun(
 
     return { success: true, data: { id: result.id } }
   } catch (error) {
-    console.error("Error creating payroll run:", error)
+    log.error("Error creating payroll run", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -584,7 +587,7 @@ export async function approvePayroll(
 
     return { success: true }
   } catch (error) {
-    console.error("Error approving payroll:", error)
+    log.error("Error approving payroll", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to approve payroll",
@@ -630,7 +633,7 @@ export async function cancelPayroll(
 
     return { success: true }
   } catch (error) {
-    console.error("Error cancelling payroll:", error)
+    log.error("Error cancelling payroll", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to cancel payroll",
@@ -750,7 +753,7 @@ export async function processPayments(
       data: { processedCount, totalAmount },
     }
   } catch (error) {
-    console.error("Error processing payments:", error)
+    log.error("Error processing payments", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to process payments",
@@ -798,7 +801,7 @@ export async function getSalarySlip(slipId: string): Promise<ActionResult<unknow
       },
     }
   } catch (error) {
-    console.error("Error fetching salary slip:", error)
+    log.error("Error fetching salary slip", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch salary slip",
@@ -843,7 +846,7 @@ export async function getEmployeeSalarySlips(
       })),
     }
   } catch (error) {
-    console.error("Error fetching employee slips:", error)
+    log.error("Error fetching employee slips", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch salary slips",
@@ -913,7 +916,7 @@ export async function getPayrollSummary(): Promise<ActionResult<{
       },
     }
   } catch (error) {
-    console.error("Error fetching payroll summary:", error)
+    log.error("Error fetching payroll summary", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch summary",
@@ -954,7 +957,7 @@ export async function deletePayrollRun(runId: string): Promise<ActionResult> {
 
     return { success: true }
   } catch (error) {
-    console.error("Error deleting payroll run:", error)
+    log.error("Error deleting payroll run", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete payroll run",

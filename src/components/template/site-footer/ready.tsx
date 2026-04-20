@@ -46,14 +46,10 @@ export default function ReadySection({ dictionary, lang, isRTL = false }: ReadyS
           </span>
           {isRTL ? (
             <ArrowLeft
-              className={`order-1 transition-all duration-300 group-hover:order-2 group-hover:-translate-x-1 h-4 w-4 ${
-                isRTL
-                  ? "mr-2 md:mr-2 group-hover:mr-0 group-hover:ml-2"
-                  : "ml-2 group-hover:ml-0 group-hover:mr-2"
-              }`}
+              className="order-1 transition-all duration-300 group-hover:order-2 group-hover:-translate-x-1 h-4 w-4 me-2 md:me-2 group-hover:me-0 group-hover:ms-2"
             />
           ) : (
-            <ArrowRight className="order-2 ml-2 group-hover:ml-0 group-hover:mr-2 h-4 w-4 transition-all duration-300 group-hover:order-1 group-hover:translate-x-1" />
+            <ArrowRight className="order-2 ms-2 group-hover:ms-0 group-hover:me-2 h-4 w-4 transition-all duration-300 group-hover:order-1 group-hover:translate-x-1" />
           )}
         </ExpandButton>
       </Link>

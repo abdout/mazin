@@ -84,7 +84,7 @@ export function ResourcesTab({ control }: ResourcesTabProps) {
                             {member?.name}
                             <button
                               type="button"
-                              className="ml-2 text-muted-foreground hover:text-foreground"
+                              className="ms-2 text-muted-foreground hover:text-foreground"
                               onClick={() => {
                                 const newValue = field.value?.filter(id => id !== memberId) || [];
                                 field.onChange(newValue);

@@ -6,6 +6,8 @@
 
 "use server"
 
+import { auth } from "@/auth"
+
 type ActionResult<T = void> = {
   success: boolean
   data?: T
@@ -17,12 +19,16 @@ type ActionResult<T = void> = {
 // ============================================
 
 export async function getFeeStructures(): Promise<ActionResult<unknown[]>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: true, data: [] }
 }
 
 export async function createFeeStructure(
   data: FormData
 ): Promise<ActionResult<string>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Fee structure creation not yet implemented" }
 }
 
@@ -31,18 +37,24 @@ export async function createFeeStructure(
 // ============================================
 
 export async function assignFee(data: FormData): Promise<ActionResult<string>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Fee assignment not yet implemented" }
 }
 
 export async function bulkAssignFees(
   data: FormData
 ): Promise<ActionResult<number>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Bulk fee assignment not yet implemented" }
 }
 
 export async function getStudentFees(
   studentId: string
 ): Promise<ActionResult<unknown[]>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: true, data: [] }
 }
 
@@ -53,6 +65,8 @@ export async function getStudentFees(
 export async function recordPayment(
   data: FormData
 ): Promise<ActionResult<string>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Payment recording not yet implemented" }
 }
 
@@ -65,6 +79,8 @@ export async function applyScholarship(
   scholarshipId: string,
   scholarshipAmount: number
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Scholarship application not yet implemented" }
 }
 
@@ -73,6 +89,8 @@ export async function applyScholarship(
 // ============================================
 
 export async function issueFine(data: FormData): Promise<ActionResult<string>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Fine issuance not yet implemented" }
 }
 
@@ -80,6 +98,8 @@ export async function waiveFine(
   fineId: string,
   reason: string
 ): Promise<ActionResult> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return { success: false, error: "Fine waiver not yet implemented" }
 }
 
@@ -88,6 +108,8 @@ export async function waiveFine(
 // ============================================
 
 export async function getFeeCollectionSummary(): Promise<ActionResult<unknown>> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   return {
     success: true,
     data: {

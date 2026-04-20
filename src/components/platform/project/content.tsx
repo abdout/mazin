@@ -12,6 +12,9 @@ import ProjectCard from './card';
 import Loading from "@/components/atom/loading";
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('project.content');
 
 const ProjectList: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -31,7 +34,7 @@ const ProjectList: React.FC = () => {
         toast.error(result.error || 'Failed to fetch projects');
       }
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      log.error('Error fetching projects', error as Error);
       toast.error('An error occurred while fetching projects');
     } finally {
       setIsLoading(false);
@@ -111,7 +114,7 @@ const ProjectList: React.FC = () => {
         }}
       >
         <DialogContent className="max-w-full h-screen p-0 overflow-hidden">
-          <DialogClose asChild className="absolute right-4 top-4">
+          <DialogClose asChild className="absolute end-4 top-4">
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>

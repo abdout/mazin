@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('marketplace.service.error');
 
 export default function ServiceError({
   error,
@@ -14,7 +17,7 @@ export default function ServiceError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Service detail error:', error);
+    log.error('Service detail error', error);
   }, [error]);
 
   return (

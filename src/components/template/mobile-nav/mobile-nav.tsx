@@ -64,23 +64,23 @@ export function MobileNav({
             <div className="relative size-4">
               <span
                 className={cn(
-                  "bg-foreground absolute left-0 block h-0.5 w-4 transition-all duration-100",
+                  "bg-foreground absolute start-0 block h-0.5 w-4 transition-all duration-100",
                   open ? "top-[0.4rem] -rotate-45" : "top-1"
                 )}
               />
               <span
                 className={cn(
-                  "bg-foreground absolute left-0 block h-0.5 w-4 transition-all duration-100",
+                  "bg-foreground absolute start-0 block h-0.5 w-4 transition-all duration-100",
                   open ? "top-[0.4rem] rotate-45" : "top-2.5"
                 )}
               />
             </div>
             <span className="sr-only">
-              {(dictionary?.navigation as Record<string, string> | undefined)?.toggleMenu || "Toggle Menu"}
+              {(dictionary?.navigation as Record<string, string> | undefined)?.toggleMenu}
             </span>
           </div>
           <span className="flex h-8 items-center text-lg leading-none font-medium">
-            {(dictionary?.navigation as Record<string, string> | undefined)?.menu || "Menu"}
+            {(dictionary?.navigation as Record<string, string> | undefined)?.menu}
           </span>
         </Button>
       </PopoverTrigger>
@@ -94,7 +94,7 @@ export function MobileNav({
         <div className="flex flex-col gap-12 overflow-auto px-6 py-6">
           <div className="flex flex-col gap-4">
             <div className="text-muted-foreground text-sm font-medium">
-              {(dictionary?.navigation as Record<string, string> | undefined)?.menu || "Menu"}
+              {(dictionary?.navigation as Record<string, string> | undefined)?.menu}
             </div>
             <div className="flex flex-col gap-3">
               <MobileLink
@@ -102,7 +102,7 @@ export function MobileNav({
                 onOpenChange={setOpen}
                 locale={locale}
               >
-                {(dictionary?.common as Record<string, string> | undefined)?.home || "Home"}
+                {(dictionary?.common as Record<string, string> | undefined)?.home}
               </MobileLink>
               {items.map((item, index) => (
                 <MobileLink

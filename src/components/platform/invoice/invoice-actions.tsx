@@ -9,6 +9,9 @@ import { WhatsAppShareDialog } from "./whatsapp-share-dialog"
 import type { Dictionary } from "@/components/internationalization/types"
 import type { Locale } from "@/components/internationalization"
 import type { InvoiceStatus } from "@prisma/client"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("invoice.actions")
 
 interface InvoiceActionsProps {
   invoiceId: string
@@ -64,7 +67,7 @@ export function InvoiceActions({
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (error) {
-      console.error("PDF download error:", error)
+      log.error("PDF download error", error as Error)
     } finally {
       setDownloadingPdf(false)
     }

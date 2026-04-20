@@ -48,11 +48,11 @@ function formatPrice(
   currency: string,
   dictionary: Dictionary
 ) {
-  const currencyLabel = dictionary.marketplace?.currency || currency;
+  const currencyLabel = dictionary.marketplace?.currency ?? currency;
   if (priceMax && priceMax !== priceMin) {
-    return `${dictionary.marketplace?.priceFrom || 'From'} ${priceMin.toLocaleString()} ${dictionary.marketplace?.priceTo || 'to'} ${priceMax.toLocaleString()} ${currencyLabel}`;
+    return `${dictionary.marketplace?.priceFrom} ${priceMin.toLocaleString()} ${dictionary.marketplace?.priceTo} ${priceMax.toLocaleString()} ${currencyLabel}`;
   }
-  return `${dictionary.marketplace?.priceFrom || 'From'} ${priceMin.toLocaleString()} ${currencyLabel}`;
+  return `${dictionary.marketplace?.priceFrom} ${priceMin.toLocaleString()} ${currencyLabel}`;
 }
 
 function ServiceIcon({
@@ -82,8 +82,8 @@ export function ServiceDetail({ service, dictionary, locale }: ServiceDetailProp
       <div className="px-4 lg:px-6">
         <Button variant="ghost" asChild>
           <Link href={`/${locale}/marketplace`}>
-            <ArrowLeft className={`h-4 w-4 ${rtl ? 'rotate-180 ml-2' : 'mr-2'}`} />
-            {dictionary.marketplace?.backToMarketplace || 'Back to Marketplace'}
+            <ArrowLeft className={`h-4 w-4 me-2 ${rtl ? 'rotate-180' : ''}`} />
+            {dictionary.marketplace?.backToMarketplace}
           </Link>
         </Button>
       </div>
@@ -122,7 +122,7 @@ export function ServiceDetail({ service, dictionary, locale }: ServiceDetailProp
                   <div className="flex-1 space-y-4">
                     <div>
                       <Badge variant="secondary" className="mb-2">
-                        {dictionary.marketplace?.categories?.[service.category.type] ||
+                        {dictionary.marketplace?.categories?.[service.category.type] ??
                           service.category.name}
                       </Badge>
                       <h1 className="text-2xl font-bold">{title}</h1>
@@ -150,14 +150,14 @@ export function ServiceDetail({ service, dictionary, locale }: ServiceDetailProp
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4" />
                       <span>
-                        {dictionary.marketplace?.serviceArea || 'Service Area'}:{' '}
+                        {dictionary.marketplace?.serviceArea}:{' '}
                         {service.serviceArea}
                       </span>
                     </div>
 
                     {service.isActive && (
                       <Badge variant="default" className="bg-green-100 text-green-700">
-                        {dictionary.marketplace?.inStock || 'Available'}
+                        {dictionary.marketplace?.inStock}
                       </Badge>
                     )}
                   </div>
@@ -170,7 +170,7 @@ export function ServiceDetail({ service, dictionary, locale }: ServiceDetailProp
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    {dictionary.marketplace?.viewDetails || 'Details'}
+                    {dictionary.marketplace?.viewDetails}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -182,7 +182,7 @@ export function ServiceDetail({ service, dictionary, locale }: ServiceDetailProp
             {/* Vendor info */}
             <Card>
               <CardHeader>
-                <CardTitle>{dictionary.marketplace?.vendor || 'Vendor'}</CardTitle>
+                <CardTitle>{dictionary.marketplace?.vendor}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -226,7 +226,7 @@ export function ServiceDetail({ service, dictionary, locale }: ServiceDetailProp
                       className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-md text-sm hover:bg-green-200 transition-colors"
                     >
                       <MessageCircle className="h-4 w-4" />
-                      {dictionary.marketplace?.whatsapp || 'WhatsApp'}
+                      {dictionary.marketplace?.whatsapp}
                     </a>
                   )}
                   {service.vendor.phone && (
@@ -244,7 +244,7 @@ export function ServiceDetail({ service, dictionary, locale }: ServiceDetailProp
                       className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-md text-sm hover:bg-orange-200 transition-colors"
                     >
                       <Mail className="h-4 w-4" />
-                      {dictionary.marketplace?.email || 'Email'}
+                      {dictionary.marketplace?.email}
                     </a>
                   )}
                 </div>

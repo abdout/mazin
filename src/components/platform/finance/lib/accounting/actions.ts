@@ -7,8 +7,11 @@
 "use server"
 
 import { auth } from "@/auth"
+import { logger } from "@/lib/logger"
 
 import type { PostingResult } from "./types"
+
+const log = logger.forModule("accounting")
 
 /**
  * Initialize accounting system for company
@@ -31,7 +34,7 @@ export async function initializeAccounting(companyId: string): Promise<{
       fiscalYearId: "stub-fiscal-year-id",
     }
   } catch (error) {
-    console.error("Failed to initialize accounting")
+    log.error("Failed to initialize accounting", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -61,7 +64,7 @@ export async function postFeePayment(
 
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Failed to post fee payment")
+    log.error("Failed to post fee payment", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -90,7 +93,7 @@ export async function postFeeAssignment(
 
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Failed to post fee assignment")
+    log.error("Failed to post fee assignment", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -121,7 +124,7 @@ export async function postSalaryPayment(
 
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Failed to post salary payment")
+    log.error("Failed to post salary payment", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -150,7 +153,7 @@ export async function postExpensePayment(
 
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Failed to post expense payment")
+    log.error("Failed to post expense payment", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -178,7 +181,7 @@ export async function postInvoicePayment(
 
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Failed to post invoice payment")
+    log.error("Failed to post invoice payment", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -205,7 +208,7 @@ export async function postWalletTopup(
 
     return { success: true, journalEntryId: "stub-journal-entry-id" }
   } catch (error) {
-    console.error("Failed to post wallet top-up")
+    log.error("Failed to post wallet top-up", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -227,7 +230,7 @@ export async function postJournalEntryAction(
 
     return { success: true, journalEntryId }
   } catch (error) {
-    console.error("Failed to post journal entry")
+    log.error("Failed to post journal entry", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -250,7 +253,7 @@ export async function reverseJournalEntryAction(
 
     return { success: true, journalEntryId: `reversed-${journalEntryId}` }
   } catch (error) {
-    console.error("Failed to reverse journal entry")
+    log.error("Failed to reverse journal entry", error as Error)
     return {
       success: false,
       errors: [error instanceof Error ? error.message : "Unknown error"],
@@ -270,7 +273,7 @@ export async function getChartOfAccounts(companyId: string) {
 
     return { success: true, accounts: [] }
   } catch (error) {
-    console.error("Failed to fetch chart of accounts")
+    log.error("Failed to fetch chart of accounts", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -298,7 +301,7 @@ export async function getJournalEntries(
 
     return { success: true, entries: [] }
   } catch (error) {
-    console.error("Failed to fetch journal entries")
+    log.error("Failed to fetch journal entries", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -321,7 +324,7 @@ export async function getAccountBalances(
 
     return { success: true, balances: [] }
   } catch (error) {
-    console.error("Failed to fetch account balances")
+    log.error("Failed to fetch account balances", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

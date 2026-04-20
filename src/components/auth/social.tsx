@@ -21,8 +21,17 @@ const cleanUrlHash = () => {
   }
 };
 
+interface AuthDictionary {
+  auth?: {
+    providers?: {
+      google?: string;
+      facebook?: string;
+    };
+  };
+}
+
 interface SocialProps {
-  dictionary?: any;
+  dictionary?: AuthDictionary;
 }
 
 export const Social = ({ dictionary }: SocialProps) => {

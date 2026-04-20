@@ -3,7 +3,11 @@
  * Sends messages via Meta WhatsApp Cloud API
  */
 
+import crypto from 'node:crypto';
 import { db } from '@/lib/db';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('notification.whatsapp');
 
 export type WhatsAppTemplate =
   | 'task_assigned'
@@ -57,7 +61,7 @@ export async function sendWhatsAppMessage(
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
 
   if (!phoneNumberId || !accessToken) {
-    console.warn('WhatsApp credentials not configured');
+    log.warn('WhatsApp credentials not configured');
     return {
       success: false,
       error: 'WhatsApp not configured',
@@ -125,7 +129,7 @@ export async function sendWhatsAppMessage(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('WhatsApp API error:', data);
+      log.error('WhatsApp API error', undefined, { data });
 
       // Log failed message
       await logWhatsAppMessage({
@@ -156,7 +160,7 @@ export async function sendWhatsAppMessage(
       messageId,
     };
   } catch (error) {
-    console.error('WhatsApp send error:', error);
+    log.error('WhatsApp send error', error as Error);
 
     await logWhatsAppMessage({
       phoneNumber: formattedPhone,
@@ -196,7 +200,7 @@ async function logWhatsAppMessage(data: {
       },
     });
   } catch (error) {
-    console.error('Failed to log WhatsApp message:', error);
+    log.error('Failed to log WhatsApp message', error as Error);
   }
 }
 
@@ -218,7 +222,7 @@ export async function updateWhatsAppMessageStatus(
       },
     });
   } catch (error) {
-    console.error('Failed to update WhatsApp message status:', error);
+    log.error('Failed to update WhatsApp message status', error as Error);
   }
 }
 
@@ -230,7 +234,6 @@ export function verifyWebhookSignature(
   payload: string,
   secret: string
 ): boolean {
-  const crypto = require('crypto');
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(payload)

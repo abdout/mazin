@@ -54,8 +54,8 @@ export function SectionCards({ dictionary, stats }: SectionCardsProps) {
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             {stats.totalShipments.trend >= 0
-              ? dictionary.dashboard.trendingUp || "Trending up this month"
-              : dictionary.dashboard.trendingDown || "Down this period"}
+              ? dictionary.dashboard.trendingUp
+              : dictionary.dashboard.trendingDown}
             {stats.totalShipments.trend >= 0 ? (
               <IconTrendingUp className="size-4" />
             ) : (
@@ -90,8 +90,8 @@ export function SectionCards({ dictionary, stats }: SectionCardsProps) {
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             {stats.inTransit.trend >= 0
-              ? dictionary.dashboard.trendingUp || "Trending up this month"
-              : dictionary.dashboard.trendingDown || "Down this period"}
+              ? dictionary.dashboard.trendingUp
+              : dictionary.dashboard.trendingDown}
             {stats.inTransit.trend >= 0 ? (
               <IconTrendingUp className="size-4" />
             ) : (
@@ -126,8 +126,8 @@ export function SectionCards({ dictionary, stats }: SectionCardsProps) {
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             {stats.pendingCustoms.trend <= 0
-              ? dictionary.dashboard.trendingUp || "Processing smoothly"
-              : dictionary.dashboard.trendingDown || "Needs attention"}
+              ? dictionary.dashboard.trendingUp
+              : dictionary.dashboard.trendingDown}
             {stats.pendingCustoms.trend <= 0 ? (
               <IconTrendingUp className="size-4" />
             ) : (
@@ -162,8 +162,8 @@ export function SectionCards({ dictionary, stats }: SectionCardsProps) {
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             {stats.unpaidInvoices.trend <= 0
-              ? dictionary.dashboard.trendingUp || "Collections improving"
-              : dictionary.dashboard.trendingDown || "Follow up needed"}
+              ? dictionary.dashboard.trendingUp
+              : dictionary.dashboard.trendingDown}
             {stats.unpaidInvoices.trend <= 0 ? (
               <IconTrendingUp className="size-4" />
             ) : (

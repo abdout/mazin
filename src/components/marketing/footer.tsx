@@ -12,6 +12,7 @@ import {
 } from "@/components/atom/icons";
 import { Dictionary } from "@/components/internationalization/types";
 import Link from "next/link";
+import { ReportIssue } from "@/components/report-issue";
 
 interface FooterProps {
   dictionary: Dictionary;
@@ -199,9 +200,14 @@ export function Footer({ dictionary, lang }: FooterProps) {
       {/* Copyright */}
       <div className="border-t border-white/10">
         <div className="layout-container py-6">
-          <p className="text-start text-white/50 text-sm">
-            &copy; {new Date().getFullYear()} {dictionary.common.appName}. {footer.copyright}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-white/50 text-sm">
+              &copy; {new Date().getFullYear()} {dictionary.common.appName}. {footer.copyright}
+            </p>
+            <div className="text-white/50 text-sm">
+              <ReportIssue />
+            </div>
+          </div>
         </div>
       </div>
     </footer>

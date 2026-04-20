@@ -10,16 +10,19 @@ export interface PageNavItem {
   name: string
   href: string
   hidden?: boolean
+  comingSoon?: boolean
 }
 
 interface PageNavProps extends React.HTMLAttributes<HTMLDivElement> {
   pages: PageNavItem[]
   defaultPage?: PageNavItem
+  comingSoonLabel?: string
 }
 
 export function PageNav({
   pages,
   defaultPage,
+  comingSoonLabel = "Soon",
   className,
   ...props
 }: PageNavProps) {
@@ -57,6 +60,7 @@ export function PageNav({
             <PageLink
               page={defaultPage}
               isActive={isPageActive(defaultPage.href)}
+              comingSoonLabel={comingSoonLabel}
             />
           )}
           {pages.map((page) => (
@@ -64,6 +68,7 @@ export function PageNav({
               key={page.href}
               page={page}
               isActive={isPageActive(page.href)}
+              comingSoonLabel={comingSoonLabel}
             />
           ))}
         </nav>
@@ -76,12 +81,38 @@ export function PageNav({
 function PageLink({
   page,
   isActive,
+  comingSoonLabel,
 }: {
   page: PageNavItem
   isActive: boolean
+  comingSoonLabel: string
 }) {
   if (page.hidden) {
     return null
+  }
+
+  if (page.comingSoon) {
+    return (
+      <span
+        key={page.href}
+        className={cn(
+          "relative inline-flex cursor-not-allowed items-center gap-1.5 px-1 pb-3 text-sm font-medium whitespace-nowrap",
+          "text-muted-foreground/60"
+        )}
+        aria-disabled="true"
+        title={comingSoonLabel}
+      >
+        {page.name}
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium leading-none",
+            "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          )}
+        >
+          {comingSoonLabel}
+        </span>
+      </span>
+    )
   }
 
   return (
@@ -95,7 +126,7 @@ function PageLink({
     >
       {page.name}
       {isActive && (
-        <span className="bg-primary absolute right-0 bottom-0 left-0 h-0.5" />
+        <span className="bg-primary absolute inset-x-0 bottom-0 h-0.5" />
       )}
     </Link>
   )

@@ -8,13 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Task } from './type';
 import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from './constant';
+import type { Dictionary } from '@/components/internationalization/types';
 
 interface TaskCardProps {
   task: Task;
   onClick?: (task: Task) => void;
+  dictionary?: Dictionary;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, dictionary }) => {
   const handleClick = () => {
     if (onClick) onClick(task);
   };
@@ -63,7 +65,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
           </Badge>
         </div>
         <div className="text-sm text-muted-foreground">
-          Project: {task.project}
+          {dictionary?.task?.project ?? ""}: {task.project}
         </div>
       </CardHeader>
       <CardContent>
@@ -97,7 +99,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
           {task.assignedTo && task.assignedTo.length > 0 && (
             <Badge variant="outline" className="flex gap-1 items-center">
               <User2 className="h-3 w-3" />
-              {task.assignedTo.length} assigned
+              {task.assignedTo.length} {dictionary?.task?.assignedTo ?? ""}
             </Badge>
           )}
           

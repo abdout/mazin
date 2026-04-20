@@ -18,15 +18,19 @@ import {
   formatAmount,
   formatDateTime,
 } from "@/components/platform/finance/banking/lib/utils"
+import type { Transaction } from "@/components/platform/finance/banking/types/bank.types"
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Dictionary = Record<string, any>
+
 interface RecentTransactionsListProps {
-  transactions: any[]
+  transactions: Transaction[]
   currentPage: number
-  dictionary: Record<string, any>
+  dictionary: Dictionary
 }
 
 interface TransactionRowProps {
-  transaction: any
-  dictionary: Record<string, any>
+  transaction: Transaction
+  dictionary: Dictionary
 }
 
 /**
@@ -51,8 +55,8 @@ const TransactionRow = memo(function TransactionRow({
     transaction.type === "credit" ? "text-green-600" : "text-red-600"
   const statusVariant = transaction.pending ? "secondary" : "default"
   const statusText = transaction.pending
-    ? dictionary?.pending || "Pending"
-    : dictionary?.completed || "Completed"
+    ? dictionary?.pending
+    : dictionary?.completed
 
   return (
     <TableRow>
@@ -139,7 +143,7 @@ export const RecentTransactionsList = memo(function RecentTransactionsList({
     return (
       <div className="py-12 text-center">
         <p className="text-muted-foreground mb-4">
-          {dictionary?.noTransactions || "No transactions found"}
+          {dictionary?.noTransactions}
         </p>
       </div>
     )
@@ -156,7 +160,7 @@ export const RecentTransactionsList = memo(function RecentTransactionsList({
             onClick={() => handleCategoryChange(null)}
             disabled={isPending}
           >
-            {dictionary?.all || "All"}
+            {dictionary?.all}
           </Button>
           {categories.map((category: string) => (
             <Button
@@ -178,15 +182,15 @@ export const RecentTransactionsList = memo(function RecentTransactionsList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{dictionary?.transaction || "Transaction"}</TableHead>
-              <TableHead>{dictionary?.amount || "Amount"}</TableHead>
-              <TableHead>{dictionary?.status || "Status"}</TableHead>
-              <TableHead>{dictionary?.date || "Date"}</TableHead>
-              <TableHead>{dictionary?.category || "Category"}</TableHead>
+              <TableHead>{dictionary?.transaction}</TableHead>
+              <TableHead>{dictionary?.amount}</TableHead>
+              <TableHead>{dictionary?.status}</TableHead>
+              <TableHead>{dictionary?.date}</TableHead>
+              <TableHead>{dictionary?.category}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {displayedTransactions.map((transaction: any) => (
+            {displayedTransactions.map((transaction) => (
               <TransactionRow
                 key={transaction.id}
                 transaction={transaction}
@@ -199,8 +203,7 @@ export const RecentTransactionsList = memo(function RecentTransactionsList({
 
       {filteredTransactions.length === 0 && (
         <div className="text-muted-foreground py-8 text-center">
-          {dictionary?.noMatchingTransactions ||
-            "No matching transactions found"}
+          {dictionary?.noMatchingTransactions}
         </div>
       )}
     </div>

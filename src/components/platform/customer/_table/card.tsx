@@ -33,8 +33,8 @@ export function ClientCard({ client, dictionary, locale }: ClientCardProps) {
     : clientStatusConfig.inactive
   const StatusIcon = statusConfig.icon
   const statusLabel = client.isActive
-    ? dictionary.customer?.active || "Active"
-    : dictionary.customer?.inactive || "Inactive"
+    ? dictionary.customer?.active ?? ""
+    : dictionary.customer?.inactive ?? ""
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -108,7 +108,7 @@ export function ClientCard({ client, dictionary, locale }: ClientCardProps) {
 
         {/* Created Date */}
         <div className="pt-2 border-t text-xs text-muted-foreground">
-          {dictionary.common?.createdAt || "Created"}:{" "}
+          {dictionary.common?.createdAt ?? ""}:{" "}
           {new Date(client.createdAt).toLocaleDateString(
             locale === "ar" ? "ar-SA" : "en-US"
           )}

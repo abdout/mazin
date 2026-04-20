@@ -11,19 +11,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import type { RecentTransaction } from "./actions"
-import type { Locale } from "@/components/internationalization"
+import type { Locale, Dictionary } from "@/components/internationalization"
 
 interface TransactionListProps {
   transactions: RecentTransaction[]
   locale: Locale
   className?: string
+  dict?: Dictionary
 }
 
 export function TransactionList({
   transactions,
   locale,
   className,
+  dict,
 }: TransactionListProps) {
+  const t = dict?.dashboard?.transactions
+
   const getIcon = (type: RecentTransaction["type"]) => {
     switch (type) {
       case "income":
@@ -40,19 +44,19 @@ export function TransactionList({
       case "completed":
         return (
           <Badge variant="outline" className="text-green-600 border-green-200">
-            Completed
+            {t?.statuses?.completed ?? "Completed"}
           </Badge>
         )
       case "pending":
         return (
           <Badge variant="outline" className="text-yellow-600 border-yellow-200">
-            Pending
+            {t?.statuses?.pending ?? "Pending"}
           </Badge>
         )
       case "failed":
         return (
           <Badge variant="outline" className="text-red-600 border-red-200">
-            Failed
+            {t?.statuses?.failed ?? "Failed"}
           </Badge>
         )
     }
@@ -78,11 +82,13 @@ export function TransactionList({
     return (
       <Card className={className}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Recent Transactions</CardTitle>
+          <CardTitle className="text-base">
+            {t?.title ?? "Recent Transactions"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm">
-            No transactions found
+            {t?.noTransactions ?? "No transactions found"}
           </p>
         </CardContent>
       </Card>
@@ -93,10 +99,12 @@ export function TransactionList({
     <Card className={className}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Recent Transactions</CardTitle>
+          <CardTitle className="text-base">
+            {t?.title ?? "Recent Transactions"}
+          </CardTitle>
           <Link href={`/${locale}/finance/transactions`}>
             <Button variant="ghost" size="sm" className="h-8 text-xs">
-              View All
+              {t?.viewAll ?? "View All"}
             </Button>
           </Link>
         </div>
@@ -142,7 +150,9 @@ export function TransactionList({
         {/* Summary */}
         <div className="grid grid-cols-3 gap-4 border-t px-4 py-3 text-center">
           <div>
-            <p className="text-muted-foreground text-xs">Income</p>
+            <p className="text-muted-foreground text-xs">
+              {t?.income ?? "Income"}
+            </p>
             <p className="text-sm font-semibold text-green-600">
               SDG{" "}
               {new Intl.NumberFormat("en-SD").format(
@@ -155,7 +165,9 @@ export function TransactionList({
             </p>
           </div>
           <div>
-            <p className="text-muted-foreground text-xs">Expenses</p>
+            <p className="text-muted-foreground text-xs">
+              {t?.expenses ?? "Expenses"}
+            </p>
             <p className="text-sm font-semibold text-red-600">
               SDG{" "}
               {new Intl.NumberFormat("en-SD").format(
@@ -168,7 +180,9 @@ export function TransactionList({
             </p>
           </div>
           <div>
-            <p className="text-muted-foreground text-xs">Pending</p>
+            <p className="text-muted-foreground text-xs">
+              {t?.pending ?? "Pending"}
+            </p>
             <p className="text-sm font-semibold text-yellow-600">
               {transactions.filter((t) => t.status === "pending").length}
             </p>

@@ -58,21 +58,21 @@ export function MobileNav({ items, className, dictionary }: MobileNavProps) {
             <div className="relative size-4">
               <span
                 className={cn(
-                  "bg-foreground absolute left-0 block h-0.5 w-4 transition-all duration-100",
+                  "bg-foreground absolute start-0 block h-0.5 w-4 transition-all duration-100",
                   open ? "top-[0.4rem] -rotate-45" : "top-1"
                 )}
               />
               <span
                 className={cn(
-                  "bg-foreground absolute left-0 block h-0.5 w-4 transition-all duration-100",
+                  "bg-foreground absolute start-0 block h-0.5 w-4 transition-all duration-100",
                   open ? "top-[0.4rem] rotate-45" : "top-2.5"
                 )}
               />
             </div>
-            <span className="sr-only">{dictionary.navigation?.toggleMenu || "Toggle Menu"}</span>
+            <span className="sr-only">{dictionary.navigation?.toggleMenu}</span>
           </div>
           <span className="flex h-8 items-center text-lg leading-none font-medium">
-            {dictionary.navigation?.menu || "Menu"}
+            {dictionary.navigation?.menu}
           </span>
         </Button>
       </PopoverTrigger>
@@ -86,11 +86,11 @@ export function MobileNav({ items, className, dictionary }: MobileNavProps) {
         <div className="flex flex-col gap-12 overflow-auto px-6 py-6">
           <div className="flex flex-col gap-4">
             <div className="text-muted-foreground text-sm font-medium">
-              {dictionary.navigation?.menu || "Menu"}
+              {dictionary.navigation?.menu}
             </div>
             <div className="flex flex-col gap-3">
               <MobileLink href={`/${locale}`} onOpenChange={setOpen}>
-                {dictionary.marketing?.footer?.links?.home || "Home"}
+                {dictionary.marketing?.footer?.links?.home}
               </MobileLink>
               {navItems.map((item, index) => (
                 <MobileLink key={index} href={item.href} onOpenChange={setOpen}>

@@ -1,6 +1,8 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { Dictionary } from '@/components/internationalization/types'
 import { motion } from 'motion/react'
 
@@ -10,7 +12,11 @@ interface ServicesProps {
 
 export function Services({ dictionary }: ServicesProps) {
   const { services } = dictionary.marketing
+  const params = useParams()
+  const lang = (params?.lang as string) || 'ar'
 
+  // Deep-link each marketing card to the matching /service?id=X detail page
+  // so the marketing carousel and the detail page stay in sync.
   const items = [
     {
       type: services.items.sea.type,
@@ -18,6 +24,7 @@ export function Services({ dictionary }: ServicesProps) {
       title: services.items.sea.title,
       description: services.items.sea.description,
       image: '/ship.jpg',
+      href: `/${lang}/service?id=customs-clearance`,
     },
     {
       type: services.items.air.type,
@@ -25,6 +32,7 @@ export function Services({ dictionary }: ServicesProps) {
       title: services.items.air.title,
       description: services.items.air.description,
       image: '/plane.jpg',
+      href: `/${lang}/service?id=document-processing`,
     },
     {
       type: services.items.ground.type,
@@ -32,6 +40,7 @@ export function Services({ dictionary }: ServicesProps) {
       title: services.items.ground.title,
       description: services.items.ground.description,
       image: '/contianer.jpg',
+      href: `/${lang}/service?id=marketplace-logistics`,
     },
   ]
 
@@ -65,7 +74,7 @@ export function Services({ dictionary }: ServicesProps) {
               ))}
             </h2>
           </div>
-          <p className="text-muted-foreground lg:max-w-sm lg:text-right lg:pt-12">
+          <p className="text-muted-foreground lg:max-w-sm lg:text-end lg:pt-12">
             {services.subtitle}
           </p>
         </div>
@@ -84,6 +93,7 @@ export function Services({ dictionary }: ServicesProps) {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
+              <Link href={item.href} className="block">
               {/* Image with Tags */}
               <div className="relative aspect-[3/2] rounded-3xl overflow-hidden mb-5">
                 <Image
@@ -113,6 +123,7 @@ export function Services({ dictionary }: ServicesProps) {
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {item.description}
               </p>
+              </Link>
             </motion.div>
           ))}
         </div>

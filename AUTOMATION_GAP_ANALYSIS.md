@@ -1,7 +1,8 @@
 # Process Elimination Targets - Gap Analysis
 
 > **Audit Date:** December 2025
-> **Status:** Implementation Required
+> **Updated:** April 2026
+> **Status:** Phase 1 & 2 Complete — OCR remains
 
 ---
 
@@ -10,9 +11,20 @@
 | Target | knowledge.md Requirement | Current Status | Gap Level |
 |--------|--------------------------|----------------|-----------|
 | Invoice typing → OCR | AI-powered extraction (80% time savings) | STUBBED - No implementation | **CRITICAL** |
-| Status calls → Auto-notifications | WhatsApp/SMS on status change | PARTIAL - Not auto-triggered | **HIGH** |
-| Manual duty calc → Automated | HS code lookup + instant calculation | BASIC - Frontend only | **HIGH** |
-| Demurrage tracking → Countdown | Free time alerts at 7/3/1 days | NOT IMPLEMENTED | **CRITICAL** |
+| Status calls → Auto-notifications | WhatsApp/SMS on status change | **COMPLETE** - Auto-triggered on stage advance | **DONE** |
+| Manual duty calc → Automated | HS code lookup + instant calculation | **COMPLETE** - Server-side HS code DB + exchange rate | **DONE** |
+| Demurrage tracking → Countdown | Free time alerts at 7/3/1 days | **COMPLETE** - Container model + daily cron + alerts | **DONE** |
+
+### New Features (April 2026)
+
+| Feature | Status |
+|---------|--------|
+| Container per-shipment tracking (size, demurrage status, free time) | **COMPLETE** |
+| Multi-party payment tracking (6 payee types, summary by entity) | **COMPLETE** |
+| IM Form (Bank Import Form) management | **COMPLETE** |
+| Exchange rate management (USD/SDG with auto-deactivation) | **COMPLETE** |
+| Document checklist with mandatory validation | **COMPLETE** |
+| Demurrage daily cron job (Vercel, 6AM) | **COMPLETE** |
 
 ---
 

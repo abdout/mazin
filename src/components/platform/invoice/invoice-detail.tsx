@@ -92,7 +92,7 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
           {invoice.status !== "PAID" && invoice.status !== "CANCELLED" && (
             <Button onClick={() => updateInvoiceStatus(invoice.id, "PAID")}>
               <IconCheck className="size-4" />
-              {dictionary.invoices.markAsPaid || "Mark as Paid"}
+              {dictionary.invoices.markAsPaid}
             </Button>
           )}
         </div>
@@ -101,25 +101,25 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{dictionary.invoices.details || "Invoice Details"}</CardTitle>
+            <CardTitle>{dictionary.invoices.details}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {dictionary.invoices.invoiceNumber || "Invoice #"}
+                  {dictionary.invoices.invoiceNumber}
                 </p>
                 <p className="font-medium">{invoice.invoiceNumber}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {dictionary.customs.currency || "Currency"}
+                  {dictionary.invoices.currency}
                 </p>
                 <p className="font-medium">{invoice.currency}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {dictionary.common.createdAt || "Created"}
+                  {dictionary.common.createdAt}
                 </p>
                 <p className="font-medium">
                   {new Date(invoice.createdAt).toLocaleDateString()}
@@ -127,7 +127,7 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {dictionary.invoices.dueDate || "Due Date"}
+                  {dictionary.invoices.dueDate}
                 </p>
                 <p className="font-medium">
                   {invoice.dueDate
@@ -138,7 +138,7 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
               {invoice.paidAt && (
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    {dictionary.invoices.paidAt || "Paid At"}
+                    {dictionary.invoices.paidAt}
                   </p>
                   <p className="font-medium">
                     {new Date(invoice.paidAt).toLocaleDateString()}
@@ -152,19 +152,19 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
         {invoice.shipment && (
           <Card>
             <CardHeader>
-              <CardTitle>{dictionary.navigation.shipments || "Shipment"}</CardTitle>
+              <CardTitle>{dictionary.navigation.shipments}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    {dictionary.shipments.shipmentNumber || "Shipment #"}
+                    {dictionary.shipments.shipmentNumber}
                   </p>
                   <p className="font-medium">{invoice.shipment.shipmentNumber}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    {dictionary.shipments.status || "Status"}
+                    {dictionary.shipments.status}
                   </p>
                   <p className="font-medium">{invoice.shipment.status}</p>
                 </div>
@@ -176,7 +176,7 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
         {invoice.client && (
           <Card>
             <CardHeader>
-              <CardTitle>{dictionary.invoices.clientInfo || "Client Information"}</CardTitle>
+              <CardTitle>{dictionary.invoices.clientInfo}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
@@ -198,13 +198,13 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
                 <div className="text-sm space-y-1 pt-2 border-t">
                   {invoice.client.email && (
                     <p>
-                      <span className="text-muted-foreground">{dictionary.common.email || "Email"}: </span>
+                      <span className="text-muted-foreground">{dictionary.common.email}: </span>
                       {invoice.client.email}
                     </p>
                   )}
                   {invoice.client.phone && (
                     <p>
-                      <span className="text-muted-foreground">{dictionary.common.phone || "Phone"}: </span>
+                      <span className="text-muted-foreground">{dictionary.common.phone}: </span>
                       {invoice.client.phone}
                     </p>
                   )}
@@ -212,7 +212,7 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
               )}
               {invoice.client.taxId && (
                 <p className="text-sm">
-                  <span className="text-muted-foreground">{dictionary.invoices.taxId || "Tax ID"}: </span>
+                  <span className="text-muted-foreground">{dictionary.invoices.taxId}: </span>
                   {invoice.client.taxId}
                 </p>
               )}
@@ -223,21 +223,21 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
 
       <Card>
         <CardHeader>
-          <CardTitle>{dictionary.invoices.lineItems || "Line Items"}</CardTitle>
+          <CardTitle>{dictionary.invoices.lineItems}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{dictionary.invoices.itemDescription || "Description"}</TableHead>
+                <TableHead>{dictionary.invoices.itemDescription}</TableHead>
                 <TableHead className="text-end">
-                  {dictionary.shipments.quantity || "Qty"}
+                  {dictionary.shipments.quantity}
                 </TableHead>
                 <TableHead className="text-end">
-                  {dictionary.invoices.unitPrice || "Unit Price"}
+                  {dictionary.invoices.unitPrice}
                 </TableHead>
                 <TableHead className="text-end">
-                  {dictionary.invoices.total || "Total"}
+                  {dictionary.invoices.total}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -266,7 +266,7 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
           <div className="flex flex-col items-end gap-2">
             <div className="flex gap-8">
               <span className="text-muted-foreground">
-                {dictionary.invoices.subtotal || "Subtotal"}:
+                {dictionary.invoices.subtotal}:
               </span>
               <span className="font-medium tabular-nums">
                 {invoice.currency} {Number(invoice.subtotal).toLocaleString()}
@@ -274,14 +274,14 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
             </div>
             <div className="flex gap-8">
               <span className="text-muted-foreground">
-                {dictionary.invoices.tax || "Tax"}:
+                {dictionary.invoices.tax}:
               </span>
               <span className="font-medium tabular-nums">
                 {invoice.currency} {Number(invoice.tax).toLocaleString()}
               </span>
             </div>
             <div className="flex gap-8 text-xl font-bold">
-              <span>{dictionary.invoices.total || "Total"}:</span>
+              <span>{dictionary.invoices.total}:</span>
               <span className="tabular-nums">
                 {invoice.currency} {Number(invoice.total).toLocaleString()}
               </span>
@@ -293,7 +293,7 @@ export function InvoiceDetail({ invoice, settings, dictionary, locale }: Invoice
       {invoice.notes && (
         <Card>
           <CardHeader>
-            <CardTitle>{dictionary.invoices.notes || "Notes"}</CardTitle>
+            <CardTitle>{dictionary.invoices.notes}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">{invoice.notes}</p>

@@ -1,6 +1,9 @@
 import "server-only"
 import type { Locale } from "./config"
 import type { Dictionary } from "./types"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("i18n.dictionaries")
 
 const dictionaries = {
   ar: () => import("./ar.json").then((module) => module.default as unknown as Dictionary),
@@ -11,7 +14,7 @@ export const getDictionary = async (locale: Locale): Promise<Dictionary> => {
   try {
     return await (dictionaries[locale]?.() ?? dictionaries["ar"]())
   } catch (error) {
-    console.warn(`Failed to load dictionary for locale: ${locale}. Falling back to ar.`)
+    log.warn(`Failed to load dictionary for locale: ${locale}. Falling back to ar.`, { error })
     return await dictionaries["ar"]()
   }
 }

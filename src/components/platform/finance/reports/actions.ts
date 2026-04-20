@@ -7,6 +7,9 @@
 
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("reports")
 
 import type {
   BalanceSheetData,
@@ -155,7 +158,7 @@ export async function generateBalanceSheet(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error generating balance sheet:", error)
+    log.error("Error generating balance sheet", error as Error)
     return { success: false, error: "Failed to generate balance sheet" }
   }
 }
@@ -298,7 +301,7 @@ export async function generateIncomeStatement(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error generating income statement:", error)
+    log.error("Error generating income statement", error as Error)
     return { success: false, error: "Failed to generate income statement" }
   }
 }
@@ -413,7 +416,7 @@ export async function generateCashFlowStatement(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error generating cash flow statement:", error)
+    log.error("Error generating cash flow statement", error as Error)
     return { success: false, error: "Failed to generate cash flow statement" }
   }
 }
@@ -533,7 +536,7 @@ export async function generateTrialBalance(
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error generating trial balance:", error)
+    log.error("Error generating trial balance", error as Error)
     return { success: false, error: "Failed to generate trial balance" }
   }
 }
@@ -632,7 +635,7 @@ export async function generateExpenseAnalysis(
       },
     }
   } catch (error) {
-    console.error("Error generating expense analysis:", error)
+    log.error("Error generating expense analysis", error as Error)
     return { success: false, error: "Failed to generate expense analysis" }
   }
 }
@@ -717,7 +720,7 @@ export async function generateRevenueAnalysis(
       },
     }
   } catch (error) {
-    console.error("Error generating revenue analysis:", error)
+    log.error("Error generating revenue analysis", error as Error)
     return { success: false, error: "Failed to generate revenue analysis" }
   }
 }
@@ -736,7 +739,7 @@ export async function generateBudgetVarianceReport(
 
   try {
     // Get active budget or specific budget
-    const where: any = { userId: session.user.id }
+    const where: Record<string, unknown> = { userId: session.user.id }
     if (budgetId) {
       where.id = budgetId
     } else {
@@ -803,7 +806,7 @@ export async function generateBudgetVarianceReport(
       },
     }
   } catch (error) {
-    console.error("Error generating budget variance report:", error)
+    log.error("Error generating budget variance report", error as Error)
     return { success: false, error: "Failed to generate budget variance report" }
   }
 }

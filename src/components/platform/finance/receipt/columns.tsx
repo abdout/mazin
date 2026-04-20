@@ -36,7 +36,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
   return [
     {
       accessorKey: "fileName",
-      header: f?.columns?.fileName || "File Name",
+      header: f?.columns?.fileName ?? "",
       cell: ({ row }) => {
         const receipt = row.original
         return (
@@ -48,7 +48,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
     },
     {
       accessorKey: "merchantName",
-      header: f?.columns?.merchant || "Merchant",
+      header: f?.columns?.merchant ?? "",
       cell: ({ row }) => {
         const merchantName = row.getValue("merchantName") as string | null
         return merchantName || <span className="text-muted-foreground">—</span>
@@ -56,7 +56,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
     },
     {
       accessorKey: "transactionDate",
-      header: f?.columns?.date || "Date",
+      header: f?.columns?.date ?? "",
       cell: ({ row }) => {
         const date = row.getValue("transactionDate") as Date | null
         return date ? (
@@ -68,7 +68,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
     },
     {
       accessorKey: "transactionAmount",
-      header: f?.columns?.amount || "Amount",
+      header: f?.columns?.amount ?? "",
       cell: ({ row }) => {
         const amount = row.getValue("transactionAmount") as number | null
         const currency = row.original.currency || "USD"
@@ -83,15 +83,15 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
     },
     {
       accessorKey: "status",
-      header: f?.columns?.status || "Status",
+      header: f?.columns?.status ?? "",
       cell: ({ row }) => {
         const status = row.getValue("status") as string
 
         const statusConfig = {
-          pending: { label: f?.statuses?.PENDING || "Pending", variant: "secondary" as const },
-          processing: { label: f?.statuses?.PROCESSING || "Processing", variant: "default" as const },
-          processed: { label: f?.statuses?.PROCESSED || "Processed", variant: "default" as const },
-          error: { label: f?.statuses?.ERROR || "Error", variant: "destructive" as const },
+          pending: { label: f?.statuses?.PENDING ?? "", variant: "secondary" as const },
+          processing: { label: f?.statuses?.PROCESSING ?? "", variant: "default" as const },
+          processed: { label: f?.statuses?.PROCESSED ?? "", variant: "default" as const },
+          error: { label: f?.statuses?.ERROR ?? "", variant: "destructive" as const },
         }
 
         const config =
@@ -103,7 +103,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
     },
     {
       accessorKey: "uploadedAt",
-      header: f?.columns?.uploaded || "Uploaded",
+      header: f?.columns?.uploaded ?? "",
       cell: ({ row }) => {
         const date = row.getValue("uploadedAt") as Date
         return format(new Date(date), "PP", { locale: dateLocale })
@@ -118,12 +118,12 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{dictionary.common.openMenu || "Open menu"}</span>
+                <span className="sr-only">{dictionary.common.openMenu ?? ""}</span>
                 <Ellipsis className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{dictionary.common.actions || "Actions"}</DropdownMenuLabel>
+              <DropdownMenuLabel>{dictionary.common.actions ?? ""}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
@@ -132,7 +132,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
                 }}
               >
                 <Eye className="me-2 h-4 w-4" />
-                {f?.viewDetails || "View Details"}
+                {f?.viewDetails ?? ""}
               </DropdownMenuItem>
               {receipt.status === "error" && (
                 <DropdownMenuItem
@@ -141,7 +141,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
                   }}
                 >
                   <RefreshCw className="me-2 h-4 w-4" />
-                  {f?.retryExtraction || "Retry Extraction"}
+                  {f?.retryExtraction ?? ""}
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -152,7 +152,7 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
                 }}
               >
                 <Trash2 className="me-2 h-4 w-4" />
-                {dictionary.common.delete || "Delete"}
+                {dictionary.common.delete ?? ""}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

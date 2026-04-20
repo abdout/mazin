@@ -1,8 +1,5 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import {
   Anchor,
   ChevronRight,
@@ -31,72 +28,29 @@ interface Props {
   lang: Locale
 }
 
-interface FinanceData {
-  totalBalance: number
-  totalExpenses: number
-  pendingPayroll: number
-  unpaidInvoices: number
-  invoicesCount: number
-  clientsWithChargesCount: number
-  employeesWithSalaryCount: number
-  pendingPayrollCount: number
-  reportsCount: number
-}
-
-export default function FinanceContent({ dictionary, lang }: Props) {
+export default async function FinanceContent({ dictionary, lang }: Props) {
   const d = dictionary?.finance
-  const [data, setData] = useState<FinanceData>({
-    totalBalance: 0,
-    totalExpenses: 0,
-    pendingPayroll: 0,
-    unpaidInvoices: 0,
-    invoicesCount: 0,
-    clientsWithChargesCount: 0,
-    employeesWithSalaryCount: 0,
-    pendingPayrollCount: 0,
-    reportsCount: 0,
-  })
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [accountsResult, payrollResult, expenseResult] = await Promise.all([
-          getAccounts(),
-          getPayrollSummary(),
-          getExpenseSummary(),
-        ])
+  const [accountsResult, payrollResult, expenseResult] = await Promise.all([
+    getAccounts(),
+    getPayrollSummary(),
+    getExpenseSummary(),
+  ])
 
-        setData({
-          totalBalance: accountsResult.success && accountsResult.data
-            ? accountsResult.data.totalCurrentBalance
-            : 0,
-          totalExpenses: expenseResult.success && expenseResult.data
-            ? expenseResult.data.totalPaidAmount
-            : 0,
-          pendingPayroll: payrollResult.success && payrollResult.data
-            ? payrollResult.data.approvedRuns
-            : 0,
-          unpaidInvoices: 0, // Would need invoice actions
-          invoicesCount: 0,
-          clientsWithChargesCount: 0,
-          employeesWithSalaryCount: payrollResult.success && payrollResult.data
-            ? payrollResult.data.activeEmployees
-            : 0,
-          pendingPayrollCount: payrollResult.success && payrollResult.data
-            ? payrollResult.data.pendingApproval + payrollResult.data.draftRuns
-            : 0,
-          reportsCount: 0,
-        })
-      } catch (error) {
-        console.error("Error fetching finance data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
+  const data = {
+    totalBalance: accountsResult.success && accountsResult.data
+      ? accountsResult.data.totalCurrentBalance
+      : 0,
+    totalExpenses: expenseResult.success && expenseResult.data
+      ? expenseResult.data.totalPaidAmount
+      : 0,
+    employeesWithSalaryCount: payrollResult.success && payrollResult.data
+      ? payrollResult.data.activeEmployees
+      : 0,
+    pendingPayrollCount: payrollResult.success && payrollResult.data
+      ? payrollResult.data.pendingApproval + payrollResult.data.draftRuns
+      : 0,
+  }
 
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString(lang === "ar" ? "ar-SD" : "en-US")
@@ -104,9 +58,7 @@ export default function FinanceContent({ dictionary, lang }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Overview Stats - Financial Health */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Bank Card with Image */}
         <div className="flex items-center justify-center">
           <Image
             src="/master-card.png"
@@ -118,21 +70,20 @@ export default function FinanceContent({ dictionary, lang }: Props) {
           />
         </div>
 
-        {/* 2x2 Grid - Key Stats */}
         <div className="grid grid-cols-2 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.totalBalance ?? "Total Balance"}
+                {d?.totalBalance ?? ""}
               </CardTitle>
               <TrendingUp className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {loading ? "..." : `${formatCurrency(data.totalBalance)} SDG`}
+                {formatCurrency(data.totalBalance)} SDG
               </div>
               <p className="text-muted-foreground text-xs">
-                {d?.allAccounts ?? "All accounts"}
+                {d?.allAccounts ?? ""}
               </p>
             </CardContent>
           </Card>
@@ -140,16 +91,16 @@ export default function FinanceContent({ dictionary, lang }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.totalExpenses ?? "Total Expenses"}
+                {d?.totalExpenses ?? ""}
               </CardTitle>
               <DollarSign className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {loading ? "..." : `${formatCurrency(data.totalExpenses)} SDG`}
+                {formatCurrency(data.totalExpenses)} SDG
               </div>
               <p className="text-muted-foreground text-xs">
-                {d?.paid ?? "Paid"}
+                {d?.paid ?? ""}
               </p>
             </CardContent>
           </Card>
@@ -157,16 +108,16 @@ export default function FinanceContent({ dictionary, lang }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.pendingPayroll ?? "Pending Payroll"}
+                {d?.pendingPayroll ?? ""}
               </CardTitle>
               <CircleAlert className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {loading ? "..." : data.pendingPayrollCount}
+                {data.pendingPayrollCount}
               </div>
               <p className="text-muted-foreground text-xs">
-                {d?.needApproval ?? "Need approval"}
+                {d?.needApproval ?? ""}
               </p>
             </CardContent>
           </Card>
@@ -174,23 +125,22 @@ export default function FinanceContent({ dictionary, lang }: Props) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium">
-                {d?.activeEmployees ?? "Active Employees"}
+                {d?.activeEmployees ?? ""}
               </CardTitle>
               <Users className="text-muted-foreground h-3.5 w-3.5" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {loading ? "..." : data.employeesWithSalaryCount}
+                {data.employeesWithSalaryCount}
               </div>
               <p className="text-muted-foreground text-xs">
-                {d?.employees ?? "Employees"}
+                {d?.employees ?? ""}
               </p>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Charts Section */}
       <div className="space-y-4">
         <InteractiveBarChart />
         <div className="grid gap-4 md:grid-cols-2">
@@ -199,9 +149,7 @@ export default function FinanceContent({ dictionary, lang }: Props) {
         </div>
       </div>
 
-      {/* Finance Quick Look */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {/* Banking */}
         <Card className="p-4">
           <CardContent className="space-y-3 p-0">
             <div className="flex items-center gap-3">
@@ -210,11 +158,11 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {d?.navigation?.banking ?? "Banking"}
+                  {d?.navigation?.banking ?? ""}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
-                    {loading ? "..." : formatCurrency(data.totalBalance)}
+                    {formatCurrency(data.totalBalance)}
                   </p>
                   <span className="bg-muted text-muted-foreground rounded px-1.5 py-0 text-[10px]">
                     SDG
@@ -226,13 +174,12 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               href={`/${lang}/finance/banking`}
               className="text-primary inline-flex items-center text-xs hover:underline"
             >
-              {d?.viewAccounts ?? "View Accounts"}{" "}
-              <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
+              {d?.viewAccounts ?? ""}{" "}
+              <ChevronRight className="ms-1 h-3 w-3 rtl:rotate-180" />
             </Link>
           </CardContent>
         </Card>
 
-        {/* Payroll */}
         <Card className="p-4">
           <CardContent className="space-y-3 p-0">
             <div className="flex items-center gap-3">
@@ -241,15 +188,15 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {d?.navigation?.payroll ?? "Payroll"}
+                  {d?.navigation?.payroll ?? ""}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
-                    {loading ? "..." : data.employeesWithSalaryCount}
+                    {data.employeesWithSalaryCount}
                   </p>
                   {data.pendingPayrollCount > 0 && (
                     <span className="rounded bg-amber-500/10 px-1.5 py-0 text-[10px] text-amber-600">
-                      {data.pendingPayrollCount} {d?.pending ?? "pending"}
+                      {data.pendingPayrollCount} {d?.pending ?? ""}
                     </span>
                   )}
                 </div>
@@ -259,13 +206,12 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               href={`/${lang}/finance/payroll`}
               className="text-primary inline-flex items-center text-xs hover:underline"
             >
-              {d?.viewPayroll ?? "View Payroll"}{" "}
-              <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
+              {d?.viewPayroll ?? ""}{" "}
+              <ChevronRight className="ms-1 h-3 w-3 rtl:rotate-180" />
             </Link>
           </CardContent>
         </Card>
 
-        {/* Expenses */}
         <Card className="p-4">
           <CardContent className="space-y-3 p-0">
             <div className="flex items-center gap-3">
@@ -274,11 +220,11 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {d?.navigation?.expenses ?? "Expenses"}
+                  {d?.navigation?.expenses ?? ""}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
-                    {loading ? "..." : formatCurrency(data.totalExpenses)}
+                    {formatCurrency(data.totalExpenses)}
                   </p>
                   <span className="bg-muted text-muted-foreground rounded px-1.5 py-0 text-[10px]">
                     SDG
@@ -290,13 +236,12 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               href={`/${lang}/finance/expenses`}
               className="text-primary inline-flex items-center text-xs hover:underline"
             >
-              {d?.viewExpenses ?? "View Expenses"}{" "}
-              <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
+              {d?.viewExpenses ?? ""}{" "}
+              <ChevronRight className="ms-1 h-3 w-3 rtl:rotate-180" />
             </Link>
           </CardContent>
         </Card>
 
-        {/* Fees/Customs */}
         <Card className="p-4">
           <CardContent className="space-y-3 p-0">
             <div className="flex items-center gap-3">
@@ -305,11 +250,11 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground text-xs">
-                  {d?.customsFees ?? "Customs Fees"}
+                  {d?.customsFees ?? ""}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">
-                    {dictionary?.common?.view ?? "View"}
+                    {dictionary?.common?.view ?? ""}
                   </p>
                 </div>
               </div>
@@ -318,14 +263,13 @@ export default function FinanceContent({ dictionary, lang }: Props) {
               href={`/${lang}/finance/fees`}
               className="text-primary inline-flex items-center text-xs hover:underline"
             >
-              {d?.viewFees ?? "View Fees"}{" "}
-              <ChevronRight className="ml-1 h-3 w-3 rtl:mr-1 rtl:rotate-180" />
+              {d?.viewFees ?? ""}{" "}
+              <ChevronRight className="ms-1 h-3 w-3 rtl:rotate-180" />
             </Link>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href={`/${lang}/finance/banking/my-banks`}>
           <Card className="group hover:border-primary/30 cursor-pointer p-4 transition-all duration-300 hover:shadow-md">
@@ -336,10 +280,10 @@ export default function FinanceContent({ dictionary, lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.addBankAccount ?? "Add Bank Account"}
+                    {d?.addBankAccount ?? ""}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {d?.manageAccounts ?? "Manage accounts"}
+                    {d?.manageAccounts ?? ""}
                   </p>
                 </div>
               </div>
@@ -356,10 +300,10 @@ export default function FinanceContent({ dictionary, lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.processPayroll ?? "Process Payroll"}
+                    {d?.processPayroll ?? ""}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {d?.monthlyPayroll ?? "Monthly payroll"}
+                    {d?.monthlyPayroll ?? ""}
                   </p>
                 </div>
               </div>
@@ -376,10 +320,10 @@ export default function FinanceContent({ dictionary, lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.addExpense ?? "Add Expense"}
+                    {d?.addExpense ?? ""}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {d?.trackExpenses ?? "Track expenses"}
+                    {d?.trackExpenses ?? ""}
                   </p>
                 </div>
               </div>
@@ -396,10 +340,10 @@ export default function FinanceContent({ dictionary, lang }: Props) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {d?.generateReport ?? "Generate Report"}
+                    {d?.generateReport ?? ""}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {d?.financialReports ?? "Financial reports"}
+                    {d?.financialReports ?? ""}
                   </p>
                 </div>
               </div>

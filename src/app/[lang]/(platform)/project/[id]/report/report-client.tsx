@@ -7,7 +7,7 @@ import React from 'react';
 import { usePDF } from 'react-to-pdf';
 
 interface ReportClientProps {
-  project: any; // Using any to avoid type issues with the server response
+  project: Pick<Project, 'customer'> & { voltages?: Record<string, boolean> } | null | undefined;
   id: string;
 }
 

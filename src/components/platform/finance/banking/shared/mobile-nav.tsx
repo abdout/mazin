@@ -22,9 +22,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+interface BankingMobileNavUser {
+  name?: string
+  email?: string
+}
+
 interface BankingMobileNavProps {
-  user: any
-  dictionary: Record<string, any>
+  user: BankingMobileNavUser
+  dictionary: Record<string, string>
   lang: string
 }
 
@@ -38,27 +43,27 @@ export function BankingMobileNav({
 
   const navItems = [
     {
-      title: dictionary?.dashboard || "Dashboard",
+      title: dictionary?.dashboard,
       href: `/${lang}/banking`,
       icon: House,
     },
     {
-      title: dictionary?.myBanks || "My Banks",
+      title: dictionary?.myBanks,
       href: `/${lang}/banking/my-banks`,
       icon: CreditCard,
     },
     {
-      title: dictionary?.paymentTransfer || "Payment Transfer",
+      title: dictionary?.paymentTransfer,
       href: `/${lang}/banking/payment-transfer`,
       icon: SendHorizontal,
     },
     {
-      title: dictionary?.transactionHistory || "Transaction History",
+      title: dictionary?.transactionHistory,
       href: `/${lang}/banking/transaction-history`,
       icon: History,
     },
     {
-      title: dictionary?.settings || "Settings",
+      title: dictionary?.settings,
       href: `/${lang}/banking/settings`,
       icon: Settings,
     },
@@ -70,14 +75,14 @@ export function BankingMobileNav({
         <Button
           variant="ghost"
           size="icon"
-          className="fixed top-4 left-4 z-40 lg:hidden"
+          className="fixed top-4 start-4 z-40 lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0">
         <SheetHeader className="p-6">
-          <SheetTitle>Banking</SheetTitle>
+          <SheetTitle>{dictionary?.title}</SheetTitle>
         </SheetHeader>
 
         <nav className="flex-1 space-y-1 px-3">
@@ -106,7 +111,7 @@ export function BankingMobileNav({
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
               <span className="text-primary text-sm font-semibold">
-                {user?.name?.[0]?.toUpperCase() || "U"}
+                {user?.name?.[0]?.toUpperCase() || ""}
               </span>
             </div>
             <div className="flex-1">

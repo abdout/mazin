@@ -5,6 +5,9 @@ import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { CustomsPaymentType, CustomsPaymentStatus } from "@prisma/client"
 import { z } from "zod"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("authority")
 
 // Types
 type ActionResult<T = void> = {
@@ -147,7 +150,7 @@ export async function getCustomsPayments(params?: {
       },
     }
   } catch (error) {
-    console.error("Error fetching customs payments:", error)
+    log.error("Error fetching customs payments", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch payments",
@@ -197,7 +200,7 @@ export async function getCustomsPayment(
       },
     }
   } catch (error) {
-    console.error("Error fetching customs payment:", error)
+    log.error("Error fetching customs payment", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch payment",
@@ -246,7 +249,7 @@ export async function createAuthorityPayment(
 
     return { success: true, data: { id: payment.id } }
   } catch (error) {
-    console.error("Error creating customs payment:", error)
+    log.error("Error creating customs payment", error as Error)
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0]?.message ?? "Validation error" }
     }
@@ -289,7 +292,7 @@ export async function updatePaymentReceipt(
 
     return { success: true }
   } catch (error) {
-    console.error("Error updating receipt:", error)
+    log.error("Error updating receipt", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update receipt",
@@ -373,7 +376,7 @@ export async function markPaymentAsPaid(
 
     return { success: true }
   } catch (error) {
-    console.error("Error marking payment as paid:", error)
+    log.error("Error marking payment as paid", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to process payment",
@@ -415,7 +418,7 @@ export async function cancelPayment(
 
     return { success: true }
   } catch (error) {
-    console.error("Error cancelling payment:", error)
+    log.error("Error cancelling payment", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to cancel payment",
@@ -483,7 +486,7 @@ export async function reconcileWithBankTransaction(
 
     return { success: true }
   } catch (error) {
-    console.error("Error reconciling payment:", error)
+    log.error("Error reconciling payment", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to reconcile payment",
@@ -529,7 +532,7 @@ export async function getPaymentsByDeclaration(
       })),
     }
   } catch (error) {
-    console.error("Error fetching declaration payments:", error)
+    log.error("Error fetching declaration payments", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch payments",
@@ -625,7 +628,7 @@ export async function getCustomsPaymentSummary(params?: {
       },
     }
   } catch (error) {
-    console.error("Error fetching payment summary:", error)
+    log.error("Error fetching payment summary", error as Error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch summary",

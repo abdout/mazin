@@ -1,4 +1,7 @@
 import { Resend } from "resend";
+import { logger } from "@/lib/logger";
+
+const log = logger.forModule("auth.mail");
 
 // Lazy initialization to avoid errors when API key is not configured
 let resend: Resend | null = null;
@@ -31,7 +34,7 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
       html: `<p>Your 2FA code: ${token}</p>`,
     });
   } catch (error) {
-    console.error("Failed to send 2FA email");
+    log.error("Failed to send 2FA email", error as Error);
   }
 };
 
@@ -50,7 +53,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       html: `<p>Click <a href="${resetLink}">here</a> to reset password.</p>`,
     });
   } catch (error) {
-    console.error("Failed to send password reset email");
+    log.error("Failed to send password reset email", error as Error);
   }
 };
 
@@ -70,6 +73,6 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       text: `Click the following link to confirm your email: ${confirmLink}`
     });
   } catch (error) {
-    console.error("Failed to send verification email");
+    log.error("Failed to send verification email", error as Error);
   }
 };

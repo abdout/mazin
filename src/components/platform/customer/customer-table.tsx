@@ -34,12 +34,12 @@ export function CustomerTable({ data, dictionary, locale }: CustomerTableProps) 
     startTransition(async () => {
       try {
         await deleteClient(id)
-        toast.success(dictionary.common?.success || "Customer deleted successfully")
+        toast.success(dictionary.common?.success ?? "")
       } catch (error) {
         toast.error(
           error instanceof Error
             ? error.message
-            : dictionary.common?.error || "Failed to delete customer"
+            : dictionary.common?.error ?? ""
         )
       }
     })
@@ -49,9 +49,9 @@ export function CustomerTable({ data, dictionary, locale }: CustomerTableProps) 
     startTransition(async () => {
       try {
         await toggleClientStatus(id)
-        toast.success(dictionary.common?.success || "Status updated")
+        toast.success(dictionary.common?.success ?? "")
       } catch (error) {
-        toast.error(dictionary.common?.error || "Failed to update status")
+        toast.error(dictionary.common?.error ?? "")
       }
     })
   }

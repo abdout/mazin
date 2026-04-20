@@ -14,7 +14,7 @@ export default function SiteHeaderClient({ dictionary }: SiteHeaderClientProps) 
   return (
     <>
       {/* Desktop Header */}
-      <header className="fixed z-50 top-0 left-0 right-0 hidden md:block bg-background">
+      <header className="fixed z-50 top-0 inset-x-0 hidden md:block bg-background">
         <div className="layout-container">
           <div className="flex h-16 items-center justify-between">
             {/* Logo + Nav - Left */}

@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('marketplace.error');
 
 export default function MarketplaceError({
   error,
@@ -14,7 +17,7 @@ export default function MarketplaceError({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('Marketplace error:', error);
+    log.error('Marketplace error', error);
   }, [error]);
 
   return (

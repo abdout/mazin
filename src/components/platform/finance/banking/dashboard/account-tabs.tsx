@@ -7,15 +7,16 @@ import { LoaderCircle } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatAmount } from "@/components/platform/finance/banking/lib/utils"
 import type { Dictionary } from "@/components/internationalization/types"
+import type { BankAccountWithTransactions } from "@/components/platform/finance/banking/types/bank.types"
 
 interface AccountTabsProps {
-  accounts: any[]
+  accounts: BankAccountWithTransactions[]
   currentAccountId: string
   dictionary: Dictionary
 }
 
 interface AccountTabTriggerProps {
-  account: any
+  account: BankAccountWithTransactions
 }
 
 /**
@@ -35,7 +36,7 @@ const AccountTabTrigger = memo(function AccountTabTrigger({
     <TabsTrigger
       key={account.id}
       value={account.id}
-      className="flex flex-col items-start gap-1 text-left"
+      className="flex flex-col items-start gap-1 text-start"
     >
       <span className="text-sm font-medium">{account.name}</span>
       <span className="text-muted-foreground text-xs">{formattedBalance}</span>
@@ -87,7 +88,7 @@ export const AccountTabs = memo(function AccountTabs({
     <div className="relative">
       <Tabs value={currentAccountId} onValueChange={handleAccountChange}>
         <TabsList className="grid w-full" style={gridTemplate}>
-          {accounts.map((account: any) => (
+          {accounts.map((account) => (
             <AccountTabTrigger key={account.id} account={account} />
           ))}
         </TabsList>

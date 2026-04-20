@@ -5,6 +5,9 @@
 
 import { db } from '@/lib/db';
 import { notifyTaskAssigned, createNotification } from '@/lib/services/notification';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('jobs.task-reminders');
 
 interface ReminderResult {
   taskId: string;
@@ -233,7 +236,7 @@ export async function sendStageAttentionAlerts(hoursThreshold: number = 48): Pro
       });
       alertsSent++;
     } catch (error) {
-      console.error('Failed to send stage attention alert');
+      log.error('Failed to send stage attention alert', error as Error);
     }
   }
 
@@ -293,7 +296,7 @@ export async function sendPaymentOverdueReminders(): Promise<number> {
       });
       remindersSent++;
     } catch (error) {
-      console.error('Failed to send payment overdue reminder');
+      log.error('Failed to send payment overdue reminder', error as Error);
     }
   }
 
@@ -304,13 +307,34 @@ export async function sendPaymentOverdueReminders(): Promise<number> {
  * Run all scheduled reminder jobs
  */
 export async function runAllReminderJobs() {
-  const results = {
-    dueSoonReminders: await sendTaskDueSoonReminders(),
-    overdueAlerts: await sendTaskOverdueAlerts(),
-    stageAlerts: await sendStageAttentionAlerts(),
-    paymentReminders: await sendPaymentOverdueReminders(),
-    timestamp: new Date().toISOString(),
-  };
+  log.info("Starting reminder jobs")
 
-  return results;
+  const dueSoonReminders = await sendTaskDueSoonReminders()
+  log.info(`Due soon: ${dueSoonReminders.length} reminders sent`)
+
+  const overdueAlerts = await sendTaskOverdueAlerts()
+  log.info(`Overdue: ${overdueAlerts.length} alerts sent`)
+
+  const stageAlerts = await sendStageAttentionAlerts()
+  log.info(`Stage attention: ${stageAlerts} alerts sent`)
+
+  const paymentReminders = await sendPaymentOverdueReminders()
+  log.info(`Payment overdue: ${paymentReminders} reminders sent`)
+
+  const results = {
+    dueSoonReminders,
+    overdueAlerts,
+    stageAlerts,
+    paymentReminders,
+    timestamp: new Date().toISOString(),
+  }
+
+  log.info("Reminder jobs completed", {
+    dueSoon: dueSoonReminders.length,
+    overdue: overdueAlerts.length,
+    stageAlerts,
+    paymentReminders,
+  })
+
+  return results
 }

@@ -18,57 +18,57 @@ export default async function Page({ params }: Props) {
   // Define finance page navigation (primary links shown in nav, secondary hidden)
   const financePages: PageNavItem[] = [
     // Primary navigation (7 most important features)
-    { name: d?.navigation?.overview || "Overview", href: `/${lang}/finance` },
+    { name: d?.navigation?.overview ?? "", href: `/${lang}/finance` },
     {
-      name: d?.navigation?.invoice || "Invoice",
+      name: d?.navigation?.invoice ?? "",
       href: `/${lang}/finance/invoice`,
     },
     {
-      name: d?.navigation?.banking || "Banking",
+      name: d?.navigation?.banking ?? "",
       href: `/${lang}/finance/banking`,
     },
-    { name: d?.navigation?.fees || "Fees", href: `/${lang}/finance/fees` },
+    { name: d?.navigation?.fees ?? "", href: `/${lang}/finance/fees` },
     {
-      name: d?.navigation?.salary || "Salary",
+      name: d?.navigation?.salary ?? "",
       href: `/${lang}/finance/salary`,
     },
     {
-      name: d?.navigation?.payroll || "Payroll",
+      name: d?.navigation?.payroll ?? "",
       href: `/${lang}/finance/payroll`,
     },
     {
-      name: d?.navigation?.reports || "Reports",
+      name: d?.navigation?.reports ?? "",
       href: `/${lang}/finance/reports`,
     },
 
     // Secondary navigation (hidden from nav, shown in content)
     {
-      name: d?.navigation?.receipt || "Receipt",
+      name: d?.navigation?.receipt ?? "",
       href: `/${lang}/finance/receipt`,
       hidden: true,
     },
     {
-      name: d?.navigation?.timesheet || "Timesheet",
+      name: d?.navigation?.timesheet ?? "",
       href: `/${lang}/finance/timesheet`,
       hidden: true,
     },
     {
-      name: d?.navigation?.wallet || "Wallet",
+      name: d?.navigation?.wallet ?? "",
       href: `/${lang}/finance/wallet`,
       hidden: true,
     },
     {
-      name: d?.navigation?.budget || "Budget",
+      name: d?.navigation?.budget ?? "",
       href: `/${lang}/finance/budget`,
       hidden: true,
     },
     {
-      name: d?.navigation?.expenses || "Expenses",
+      name: d?.navigation?.expenses ?? "",
       href: `/${lang}/finance/expenses`,
       hidden: true,
     },
     {
-      name: d?.navigation?.accounts || "Accounts",
+      name: d?.navigation?.accounts ?? "",
       href: `/${lang}/finance/accounts`,
       hidden: true,
     },
@@ -76,7 +76,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <PageHeadingSetter title={d?.title || "Finance"} />
+      <PageHeadingSetter title={d?.title ?? ""} />
       <PageNav pages={financePages} />
       <FinanceContent dictionary={dictionary} lang={lang} />
     </div>

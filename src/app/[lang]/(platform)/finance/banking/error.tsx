@@ -13,6 +13,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("finance.banking.error")
 
 export default function BankingError({
   error,
@@ -27,7 +30,7 @@ export default function BankingError({
 
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error("Banking module error:", error)
+    log.error("Banking module error", error)
   }, [error])
 
   const translations = {

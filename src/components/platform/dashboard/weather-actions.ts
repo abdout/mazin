@@ -1,6 +1,9 @@
 "use server"
 
 import type { WeatherCondition, ForecastDay, WeatherConditionType } from "./weather"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("dashboard.weather")
 
 // ============================================================================
 // TYPES
@@ -93,7 +96,7 @@ export async function getWeatherData(
 
   // If no API key, return default data
   if (!apiKey) {
-    console.warn("[Weather] OPENWEATHERMAP_API_KEY not configured, using defaults")
+    log.warn("OPENWEATHERMAP_API_KEY not configured, using defaults")
     return defaultWeatherData
   }
 
@@ -114,7 +117,7 @@ export async function getWeatherData(
     })
 
     if (!response.ok) {
-      console.error("[Weather] API error:", response.status)
+      log.error("API error", undefined, { status: response.status })
       return defaultWeatherData
     }
 
@@ -154,7 +157,7 @@ export async function getWeatherData(
       location: "Port Sudan",
     }
   } catch (error) {
-    console.error("[Weather] Fetch error:", error)
+    log.error("Fetch error", error as Error)
     return defaultWeatherData
   }
 }

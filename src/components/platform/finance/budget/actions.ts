@@ -9,6 +9,9 @@ import { revalidatePath } from "next/cache"
 
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("budget")
 
 // ============================================================================
 // TYPES
@@ -88,7 +91,7 @@ export async function getBudgets(filters?: {
   }
 
   try {
-    const where: any = { userId: session.user.id }
+    const where: Record<string, unknown> = { userId: session.user.id }
 
     if (filters?.status) {
       where.status = filters.status
@@ -123,7 +126,7 @@ export async function getBudgets(filters?: {
       })),
     }
   } catch (error) {
-    console.error("Error fetching budgets:", error)
+    log.error("Error fetching budgets", error as Error)
     return { success: false, error: "Failed to fetch budgets" }
   }
 }
@@ -182,7 +185,7 @@ export async function getBudget(
       },
     }
   } catch (error) {
-    console.error("Error fetching budget:", error)
+    log.error("Error fetching budget", error as Error)
     return { success: false, error: "Failed to fetch budget" }
   }
 }
@@ -246,7 +249,7 @@ export async function getActiveBudget(): Promise<BudgetActionResult<BudgetWithIt
       },
     }
   } catch (error) {
-    console.error("Error fetching active budget:", error)
+    log.error("Error fetching active budget", error as Error)
     return { success: false, error: "Failed to fetch active budget" }
   }
 }
@@ -328,7 +331,7 @@ export async function createBudget(params: {
       },
     }
   } catch (error) {
-    console.error("Error creating budget:", error)
+    log.error("Error creating budget", error as Error)
     return { success: false, error: "Failed to create budget" }
   }
 }
@@ -392,7 +395,7 @@ export async function updateBudget(
       },
     }
   } catch (error) {
-    console.error("Error updating budget:", error)
+    log.error("Error updating budget", error as Error)
     return { success: false, error: "Failed to update budget" }
   }
 }
@@ -423,7 +426,7 @@ export async function deleteBudget(budgetId: string): Promise<BudgetActionResult
 
     return { success: true }
   } catch (error) {
-    console.error("Error deleting budget:", error)
+    log.error("Error deleting budget", error as Error)
     return { success: false, error: "Failed to delete budget" }
   }
 }
@@ -499,7 +502,7 @@ export async function createBudgetAllocation(params: {
       },
     }
   } catch (error) {
-    console.error("Error creating budget allocation:", error)
+    log.error("Error creating budget allocation", error as Error)
     return { success: false, error: "Failed to create budget allocation" }
   }
 }
@@ -589,7 +592,7 @@ export async function updateBudgetAllocation(
       },
     }
   } catch (error) {
-    console.error("Error updating budget allocation:", error)
+    log.error("Error updating budget allocation", error as Error)
     return { success: false, error: "Failed to update budget allocation" }
   }
 }
@@ -636,7 +639,7 @@ export async function deleteBudgetAllocation(
 
     return { success: true }
   } catch (error) {
-    console.error("Error deleting budget allocation:", error)
+    log.error("Error deleting budget allocation", error as Error)
     return { success: false, error: "Failed to delete budget allocation" }
   }
 }
@@ -698,7 +701,7 @@ export async function submitBudgetForApproval(
       },
     }
   } catch (error) {
-    console.error("Error submitting budget for approval:", error)
+    log.error("Error submitting budget for approval", error as Error)
     return { success: false, error: "Failed to submit budget for approval" }
   }
 }
@@ -753,7 +756,7 @@ export async function approveBudget(budgetId: string): Promise<BudgetActionResul
       },
     }
   } catch (error) {
-    console.error("Error approving budget:", error)
+    log.error("Error approving budget", error as Error)
     return { success: false, error: "Failed to approve budget" }
   }
 }
@@ -814,7 +817,7 @@ export async function activateBudget(budgetId: string): Promise<BudgetActionResu
       },
     }
   } catch (error) {
-    console.error("Error activating budget:", error)
+    log.error("Error activating budget", error as Error)
     return { success: false, error: "Failed to activate budget" }
   }
 }
@@ -861,7 +864,7 @@ export async function closeBudget(budgetId: string): Promise<BudgetActionResult>
       },
     }
   } catch (error) {
-    console.error("Error closing budget:", error)
+    log.error("Error closing budget", error as Error)
     return { success: false, error: "Failed to close budget" }
   }
 }
@@ -948,7 +951,7 @@ export async function recordBudgetSpending(params: {
       },
     }
   } catch (error) {
-    console.error("Error recording budget spending:", error)
+    log.error("Error recording budget spending", error as Error)
     return { success: false, error: "Failed to record budget spending" }
   }
 }
@@ -1027,7 +1030,7 @@ export async function getBudgetDashboardStats(): Promise<BudgetActionResult<Budg
       },
     }
   } catch (error) {
-    console.error("Error fetching budget dashboard stats:", error)
+    log.error("Error fetching budget dashboard stats", error as Error)
     return { success: false, error: "Failed to fetch budget stats" }
   }
 }
@@ -1113,7 +1116,7 @@ export async function compareBudgets(params: {
       },
     }
   } catch (error) {
-    console.error("Error comparing budgets:", error)
+    log.error("Error comparing budgets", error as Error)
     return { success: false, error: "Failed to compare budgets" }
   }
 }

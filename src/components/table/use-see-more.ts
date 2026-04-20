@@ -53,6 +53,9 @@ import { paginationConfig } from "./config"
 import type { ExtendedColumnSort, SeeMorePaginationState } from "./types"
 import { useDebouncedCallback } from "./use-debounced-callback"
 import { getSortingStateParser } from "./utils"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("table.use-see-more")
 
 const LOADED_COUNT_KEY = "loadedCount"
 const BATCH_SIZE_KEY = "batchSize"
@@ -367,7 +370,7 @@ export function useSeeMore<TData>(props: UseSeeMoreProps<TData>) {
       // Update URL state immediately (parent will fetch fresh data based on new URL)
       void setLoadedCount(newLoadedCount)
     } catch (error) {
-      console.error("Error loading more data:", error)
+      log.error("Error loading more data", error as Error)
     } finally {
       setIsLoadingMore(false)
     }

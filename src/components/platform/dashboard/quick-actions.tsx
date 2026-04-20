@@ -35,22 +35,22 @@ export function QuickActions({
   // Labels without "New" prefix
   const actions = [
     {
-      label: "Shipment",
+      label: dictionary?.dashboard?.shipment ?? dictionary?.navigation?.shipments ?? "",
       href: `/${locale}/shipments/new`,
       icon: Ship,
     },
     {
-      label: "Declaration",
+      label: dictionary?.navigation?.customs ?? "",
       href: `/${locale}/customs/new`,
       icon: FileText,
     },
     {
-      label: "Invoice",
+      label: dictionary?.navigation?.invoices ?? "",
       href: `/${locale}/invoice/new`,
       icon: Receipt,
     },
     {
-      label: dictionary?.common?.view || "View",
+      label: dictionary?.common?.view ?? "",
       href: `/${locale}/settings`,
       icon: Users,
     },

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getTwoFactorTokenByEmail } from "@/components/auth/verification/2f-token";
 import { db } from "@/lib/db";
 import { getPasswordResetTokenByEmail } from "@/components/auth/password/token";
-import { getVerificationTokenByEmail } from "@/components/auth/verification/verificiation-token";
+import { getVerificationTokenByEmail } from "@/components/auth/verification/verification-token";
 
 
 

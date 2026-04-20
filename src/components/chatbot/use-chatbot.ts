@@ -1,15 +1,26 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import type { ModelMessage } from 'ai';
 import { sendMessage as sendMessageAction } from './actions';
-import type { ChatbotState, ChatMessage } from './type';
+import type { ChatbotState, ChatMessage, PromptType } from './type';
+import { logger } from '@/lib/logger';
 
-type Message = {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-};
+const log = logger.forModule('chatbot.use-chatbot');
 
-export function useChatbot() {
+interface UseChatbotOptions {
+  promptType?: PromptType;
+  trackingIdentifier?: string;
+  projectId?: string;
+  locale?: string;
+}
+
+export function useChatbot({
+  promptType = 'marketing',
+  trackingIdentifier,
+  projectId,
+  locale = 'en',
+}: UseChatbotOptions = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,59 +39,59 @@ export function useChatbot() {
   }, []);
 
   const sendMessage = useCallback(async (content: string) => {
-    // Clear any previous errors
     setError(undefined);
     setIsLoading(true);
 
-    // Add user message immediately
     const userMessage: ChatMessage = {
       role: 'user',
       content,
       id: Date.now().toString(),
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      // Convert messages to Message format for the server action
-      const coreMessages: Message[] = [...messages, userMessage].map(msg => ({
+      const coreMessages: ModelMessage[] = [...messages, userMessage].map(msg => ({
         role: msg.role as 'user' | 'assistant',
-        content: msg.content
+        content: msg.content,
       }));
 
-      // Call the server action
-      const result = await sendMessageAction(coreMessages);
+      const result = await sendMessageAction({
+        messages: coreMessages,
+        promptType,
+        trackingIdentifier,
+        projectId,
+        locale,
+      });
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to send message');
       }
 
-      // Add assistant message
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: result.content || '',
         id: Date.now().toString() + '_ai',
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err) {
-      console.error('Chat error:', err);
+      log.error('Chat error', err as Error);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(errorMessage);
 
-      // Add error message
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: `Sorry, there was an error: ${errorMessage}`,
         id: Date.now().toString() + '_error',
-        timestamp: new Date()
+        timestamp: new Date(),
       }]);
     } finally {
       setIsLoading(false);
     }
-  }, [messages]);
+  }, [messages, promptType, trackingIdentifier, projectId, locale]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);

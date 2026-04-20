@@ -37,6 +37,9 @@ import { createQuickInvoice } from "@/actions/invoice"
 import { FEE_CATEGORIES, QUICK_FEE_PRESETS, VAT_RATE } from "./config"
 import type { Shipment, FeeCategory } from "@prisma/client"
 import type { Locale } from "@/components/internationalization"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("invoice.quick-dialog")
 
 // =============================================================================
 // TYPES
@@ -121,15 +124,17 @@ export function QuickInvoiceDialog({
   const [customPrices, setCustomPrices] = React.useState<Record<string, number>>({})
   const [currency, setCurrency] = React.useState<"SDG" | "USD" | "SAR">("SDG")
 
-  // Reset form when dialog closes
-  React.useEffect(() => {
-    if (!open) {
+  // Reset form when dialog closes — handled via onOpenChange instead of effect
+  // to avoid cascading renders.
+  const handleOpenChange = React.useCallback((next: boolean) => {
+    setOpen(next)
+    if (!next) {
       setSelectedShipment("")
       setSelectedPreset(null)
       setSelectedCategories(new Set())
       setCustomPrices({})
     }
-  }, [open])
+  }, [])
 
   // Handle preset selection
   const handlePresetSelect = (preset: PresetKey) => {
@@ -197,13 +202,13 @@ export function QuickInvoiceDialog({
         onSuccess?.()
         router.push(`/${locale}/invoice/${invoice.id}`)
       } catch (error) {
-        console.error("Failed to create quick invoice:", error)
+        log.error("Failed to create quick invoice", error as Error)
       }
     })
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button>

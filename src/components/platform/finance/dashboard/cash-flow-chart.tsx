@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
+import type { TooltipProps } from "recharts"
 
 import {
   Card,
@@ -27,6 +28,29 @@ interface CashFlowChartProps {
   labels?: string[]
   locale?: string
   className?: string
+}
+
+function formatValue(value: number) {
+  return new Intl.NumberFormat("en-SD", {
+    style: "currency",
+    currency: "SDG",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.abs(value))
+}
+
+function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+  if (!active || !payload || !payload[0]) return null
+
+  const data = payload[0]
+  return (
+    <div className="bg-background rounded-lg border p-3 shadow-lg">
+      <p className="font-semibold">{(data.payload as Record<string, unknown>).name as string}</p>
+      <p className="text-sm" style={{ color: (data.payload as Record<string, unknown>).color as string }}>
+        {formatValue(data.value as number)}
+      </p>
+    </div>
+  )
 }
 
 export function CashFlowChart({
@@ -57,29 +81,6 @@ export function CashFlowChart({
           : "#f59e0b",
     },
   ]
-
-  const formatValue = (value: number) => {
-    return new Intl.NumberFormat("en-SD", {
-      style: "currency",
-      currency: "SDG",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(Math.abs(value))
-  }
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload || !payload[0]) return null
-
-    const data = payload[0]
-    return (
-      <div className="bg-background rounded-lg border p-3 shadow-lg">
-        <p className="font-semibold">{data.payload.name}</p>
-        <p className="text-sm" style={{ color: data.payload.color }}>
-          {formatValue(data.value)}
-        </p>
-      </div>
-    )
-  }
 
   return (
     <Card className={className}>

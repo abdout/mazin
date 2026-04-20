@@ -2,6 +2,7 @@ import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
 import { auth } from "@/auth"
 import { AdminDashboardClient } from "@/components/platform/dashboard/admin-client"
+import DemurrageAlerts from "@/components/platform/dashboard/demurrage-alerts"
 import {
   getQuickLookData,
   getUpcomingData,
@@ -49,17 +50,20 @@ export default async function DashboardPage({
   ])
 
   return (
-    <AdminDashboardClient
-      dictionary={dict}
-      locale={lang}
-      quickLookData={quickLookData}
-      upcomingData={upcomingData}
-      financialData={financialData}
-      cashFlowData={cashFlowData}
-      expenseCategories={expenseCategories}
-      trendingStats={trendingStats}
-      weatherData={weatherData}
-      recentTransactions={recentTransactions}
-    />
+    <>
+      <DemurrageAlerts locale={lang} />
+      <AdminDashboardClient
+        dictionary={dict}
+        locale={lang}
+        quickLookData={quickLookData}
+        upcomingData={upcomingData}
+        financialData={financialData}
+        cashFlowData={cashFlowData}
+        expenseCategories={expenseCategories}
+        trendingStats={trendingStats}
+        weatherData={weatherData}
+        recentTransactions={recentTransactions}
+      />
+    </>
   )
 }

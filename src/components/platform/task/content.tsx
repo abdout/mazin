@@ -39,6 +39,9 @@ import { useRouter } from 'next/navigation'
 import TaskForm from './form'
 import { Task } from './type'
 import { syncProjectsWithTasks } from './actions'
+import { logger } from '@/lib/logger'
+
+const log = logger.forModule('task.content')
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -104,7 +107,7 @@ export function Content<TData, TValue>({ columns, data, onTasksChange, onRowClic
       const result = await syncProjectsWithTasks();
       
       if (result.error) {
-        console.error('Failed to sync with projects:', result.error);
+        log.error('Failed to sync with projects', undefined, { reason: result.error });
         toast.error('Failed to sync with projects');
         return;
       }
@@ -114,7 +117,7 @@ export function Content<TData, TValue>({ columns, data, onTasksChange, onRowClic
       // Fetch updated tasks after sync
       if (onTasksChange) await onTasksChange();
     } catch (error) {
-      console.error('Error syncing with projects:', error);
+      log.error('Error syncing with projects', error as Error);
       toast.error('Error syncing with projects');
     } finally {
       setIsSyncing(false);
@@ -345,7 +348,7 @@ export function Content<TData, TValue>({ columns, data, onTasksChange, onRowClic
               <TableRow key={headerGroup.id} className="border-b">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="border-b border-l-0 border-r-0 px-4">
+                    <TableHead key={header.id} className="border-b border-s-0 border-e-0 px-4">
                       {header.isPlaceholder
                         ? null
                         : flexRender(

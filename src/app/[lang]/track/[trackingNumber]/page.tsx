@@ -6,6 +6,7 @@ import { getPublicTracking } from "@/actions/tracking"
 import { TrackingHeader, TrackingTimeline } from "@/components/platform/tracking"
 import { LanguageToggle } from "@/components/template/site-header/language-toggle"
 import { ModeToggle } from "@/components/atom/mode-toggle"
+import { Chatbot } from "@/components/chatbot"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -186,6 +187,12 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
           {dict.common.appName}. {dict.marketing.footer.copyright}
         </div>
       </footer>
+
+      <Chatbot
+        lang={lang}
+        promptType="tracking"
+        trackingIdentifier={trackingNumber}
+      />
     </div>
   )
 }

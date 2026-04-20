@@ -76,20 +76,20 @@ export function InvoiceActionBar({
       <div className="flex items-center gap-1.5">
         {canMarkPaid.length > 0 && (
           <DataTableActionBarAction
-            tooltip={dictionary.invoices?.markAsPaid || "Mark as Paid"}
+            tooltip={dictionary.invoices?.markAsPaid}
             onClick={handleMarkPaid}
             isPending={isPending}
           >
             <IconCircleCheckFilled className="size-3.5" />
             <span className="hidden sm:inline">
-              {dictionary.invoices?.markAsPaid || "Mark as Paid"}
+              {dictionary.invoices?.markAsPaid}
             </span>
           </DataTableActionBarAction>
         )}
 
         {onSendEmail && (
           <DataTableActionBarAction
-            tooltip={dictionary.invoices?.sendEmail || "Send Email"}
+            tooltip={dictionary.invoices?.sendEmail}
             onClick={handleSendEmail}
             isPending={isPending}
           >
@@ -98,14 +98,14 @@ export function InvoiceActionBar({
         )}
 
         <DataTableActionBarAction
-          tooltip={dictionary.common?.export || "Export"}
+          tooltip={dictionary.common?.export}
           onClick={handleExport}
         >
           <Download className="size-3.5" />
         </DataTableActionBarAction>
 
         <DataTableActionBarAction
-          tooltip={dictionary.common?.delete || "Delete"}
+          tooltip={dictionary.common?.delete}
           variant="destructive"
           onClick={handleDelete}
           isPending={isPending}

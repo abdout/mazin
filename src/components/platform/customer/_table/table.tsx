@@ -98,7 +98,7 @@ export function ClientsTable({
             <Link href={`/${locale}/customer/new`}>
               <Button size="sm">
                 <Plus className="h-4 w-4 me-1" />
-                {dictionary.customer?.newCustomer || "New Customer"}
+                {dictionary.customer?.newCustomer ?? ""}
               </Button>
             </Link>
           ),
@@ -128,7 +128,7 @@ export function ClientsTable({
             onDelete={handleDelete}
           />
         }
-        emptyMessage={dictionary.customer?.noCustomers || "No customers found."}
+        emptyMessage={dictionary.customer?.noCustomers ?? ""}
       />
 
       {/* Delete confirmation dialog can be added here if needed */}

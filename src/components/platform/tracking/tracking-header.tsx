@@ -13,6 +13,9 @@ import {
   IconCalendarTime,
 } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("tracking.header")
 import { STATUS_STYLES, formatTrackingDate } from "@/lib/tracking"
 import type { PublicTrackingData } from "@/lib/tracking"
 import type { Dictionary } from "@/components/internationalization/types"
@@ -50,7 +53,7 @@ export function TrackingHeader({
       setTimeout(() => setCopied(false), 2000)
     } catch {
       // Fallback for older browsers
-      console.error("Failed to copy to clipboard")
+      log.error("Failed to copy to clipboard")
     }
   }, [locale, data.trackingNumber])
 

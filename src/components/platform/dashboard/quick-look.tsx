@@ -35,7 +35,7 @@ export function QuickLook({ stats, dictionary: propDictionary, className }: Quic
   const statConfigs = [
     {
       key: "totalShipments" as const,
-      label: d?.totalShipments || "Total Shipments",
+      label: d?.totalShipments,
       icon: Ship,
       bg: "bg-[#D97757]", // Coral/orange
       text: "text-white",
@@ -43,7 +43,7 @@ export function QuickLook({ stats, dictionary: propDictionary, className }: Quic
     },
     {
       key: "totalRevenue" as const,
-      label: dictionary.finance?.totalRevenue || "Total Revenue",
+      label: dictionary.finance?.totalRevenue,
       icon: DollarSign,
       bg: "bg-[#6A9BCC]", // Blue
       text: "text-white",
@@ -51,7 +51,7 @@ export function QuickLook({ stats, dictionary: propDictionary, className }: Quic
     },
     {
       key: "pendingDeclarations" as const,
-      label: d?.pendingDeclarations || "Pending Declarations",
+      label: d?.pendingDeclarations,
       icon: FileText,
       bg: "bg-[#CBCADB]", // Lavender
       text: "text-gray-800",
@@ -59,7 +59,7 @@ export function QuickLook({ stats, dictionary: propDictionary, className }: Quic
     },
     {
       key: "completionRate" as const,
-      label: d?.completionRate || "Completion Rate",
+      label: d?.completionRate,
       icon: CheckCircle,
       bg: "bg-[#BCD1CA]", // Mint
       text: "text-gray-800",

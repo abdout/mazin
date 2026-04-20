@@ -3,14 +3,16 @@ import { Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { BankCard } from "@/components/platform/finance/banking/shared/bank-card"
+import type { BankAccount, Transaction } from "@/components/platform/finance/banking/types/bank.types"
+
 interface DashboardSidebarProps {
   user: {
     name?: string | null
     email?: string | null
   }
-  transactions: any[]
-  banks: any[]
-  dictionary: Record<string, any>
+  transactions: Transaction[]
+  banks: BankAccount[]
+  dictionary: Record<string, string>
   lang: string
 }
 
@@ -22,14 +24,14 @@ interface UserProfileSectionProps {
 }
 
 interface RecentActivityItemProps {
-  transaction: any
+  transaction: Transaction
 }
 
 /**
  * UserProfileSection - Server component for user profile display
  */
 function UserProfileSection({ user }: UserProfileSectionProps) {
-  const initial = user?.name?.[0]?.toUpperCase() || "U"
+  const initial = user?.name?.[0]?.toUpperCase() || ""
 
   return (
     <div className="bg-card rounded-lg border p-6">
@@ -59,7 +61,7 @@ function RecentActivityItem({ transaction }: RecentActivityItemProps) {
 
   return (
     <div className="flex items-center justify-between py-2">
-      <div className="mr-4 min-w-0 flex-1">
+      <div className="me-4 min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{transaction.name}</p>
         <p className="text-muted-foreground text-xs">
           {new Date(transaction.date).toLocaleDateString()}
@@ -88,7 +90,7 @@ export function DashboardSidebar({
   const recentTransactions = transactions?.slice(0, 3) || []
 
   return (
-    <aside className="bg-muted/10 w-96 border-l p-8">
+    <aside className="bg-muted/10 w-96 border-s p-8">
       <div className="space-y-6">
         {/* User Profile Section */}
         <UserProfileSection user={user} />
@@ -97,23 +99,23 @@ export function DashboardSidebar({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">
-              {dictionary?.myBanks || "My Banks"}
+              {dictionary?.myBanks}
             </h3>
             <Link href={`/${lang}/banking/my-banks`}>
               <Button variant="ghost" size="sm">
-                <Plus className="mr-1 h-4 w-4" />
-                {dictionary?.addBank || "Add Bank"}
+                <Plus className="me-1 h-4 w-4" />
+                {dictionary?.addBank}
               </Button>
             </Link>
           </div>
 
           {banks?.length > 0 ? (
             <div className="space-y-3">
-              {banks.map((bank: any) => (
+              {banks.map((bank) => (
                 <BankCard
                   key={bank.id}
                   account={bank}
-                  userName={user?.name || "User"}
+                  userName={user?.name || ""}
                   showBalance={false}
                 />
               ))}
@@ -121,11 +123,11 @@ export function DashboardSidebar({
           ) : (
             <div className="rounded-lg border border-dashed p-6 text-center">
               <p className="text-muted-foreground text-sm">
-                {dictionary?.noBanksConnected || "No banks connected yet"}
+                {dictionary?.noBanksConnected}
               </p>
               <Link href={`/${lang}/banking/my-banks`}>
                 <Button variant="outline" size="sm" className="mt-2">
-                  {dictionary?.connectBank || "Connect Bank"}
+                  {dictionary?.connectBank}
                 </Button>
               </Link>
             </div>
@@ -135,11 +137,11 @@ export function DashboardSidebar({
         {/* Recent Activity */}
         <div className="space-y-4">
           <h3 className="font-semibold">
-            {dictionary?.recentActivity || "Recent Activity"}
+            {dictionary?.recentActivity}
           </h3>
           {recentTransactions.length > 0 ? (
             <div className="space-y-1">
-              {recentTransactions.map((transaction: any) => (
+              {recentTransactions.map((transaction) => (
                 <RecentActivityItem
                   key={transaction.id}
                   transaction={transaction}
@@ -148,7 +150,7 @@ export function DashboardSidebar({
             </div>
           ) : (
             <p className="text-muted-foreground text-sm">
-              {dictionary?.noRecentActivity || "No recent activity"}
+              {dictionary?.noRecentActivity}
             </p>
           )}
         </div>
@@ -156,16 +158,16 @@ export function DashboardSidebar({
         {/* Quick Actions */}
         <div className="space-y-2">
           <h3 className="mb-3 font-semibold">
-            {dictionary?.quickActions || "Quick Actions"}
+            {dictionary?.quickActions}
           </h3>
           <Link href={`/${lang}/banking/payment-transfer`} className="block">
             <Button variant="outline" className="w-full justify-start">
-              {dictionary?.transferFunds || "Transfer Funds"}
+              {dictionary?.transferFunds}
             </Button>
           </Link>
           <Link href={`/${lang}/banking/transaction-history`} className="block">
             <Button variant="outline" className="w-full justify-start">
-              {dictionary?.viewAllTransactions || "View All Transactions"}
+              {dictionary?.viewAllTransactions}
             </Button>
           </Link>
         </div>

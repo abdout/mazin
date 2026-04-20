@@ -15,6 +15,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { runAllReminderJobs } from '@/lib/jobs/task-reminders';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('api.cron-reminders');
 
 // Verify cron secret to prevent unauthorized access
 function verifySecret(request: NextRequest): boolean {
@@ -47,7 +50,7 @@ export async function GET(request: NextRequest) {
       ...results,
     });
   } catch (error) {
-    console.error('Cron job failed:', error);
+    log.error('Cron job failed', error as Error);
     return NextResponse.json(
       {
         success: false,

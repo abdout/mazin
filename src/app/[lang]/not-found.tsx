@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ReportIssue } from "@/components/report-issue"
 
 export default function NotFound() {
   return (
@@ -26,6 +27,9 @@ export default function NotFound() {
           >
             Homepage
           </Link>
+        </div>
+        <div className="mt-6 text-sm text-muted-foreground">
+          <ReportIssue />
         </div>
       </div>
     </div>

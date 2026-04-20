@@ -8,6 +8,7 @@
  * 2. Plaid API integration
  */
 
+import { auth } from "@/auth"
 import type { BankAccount } from "@prisma/client"
 
 export interface BankWithInfo extends BankAccount {
@@ -17,16 +18,22 @@ export interface BankWithInfo extends BankAccount {
 }
 
 export async function getBanksForUser(userId: string): Promise<BankWithInfo[]> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   // TODO: Implement with Prisma
   return []
 }
 
 export async function unlinkBank(bankId: string): Promise<{ success: boolean; error?: string }> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   // TODO: Implement with Prisma
   return { success: false, error: "Bank unlinking not yet implemented" }
 }
 
 export async function refreshBankData(bankId: string): Promise<{ success: boolean; error?: string }> {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
   // TODO: Implement with Plaid API
   return { success: false, error: "Bank refresh not yet implemented" }
 }

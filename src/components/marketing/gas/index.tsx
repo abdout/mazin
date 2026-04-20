@@ -65,8 +65,8 @@ export function GasSection({ dictionary }: GasSectionProps) {
     <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-background via-background/95 to-background">
       {/* Background gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 start-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 end-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 md:px-6">
@@ -159,7 +159,7 @@ export function GasSection({ dictionary }: GasSectionProps) {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="absolute top-10 left-4 md:left-0 px-4 py-2 bg-card/80 backdrop-blur-md rounded-xl border border-border/50 shadow-lg"
+              className="absolute top-10 start-4 md:start-0 px-4 py-2 bg-card/80 backdrop-blur-md rounded-xl border border-border/50 shadow-lg"
             >
               <div className="text-2xl font-bold text-primary">{content.stats.containers}</div>
               <div className="text-xs text-muted-foreground">{content.stats.containersLabel}</div>
@@ -170,7 +170,7 @@ export function GasSection({ dictionary }: GasSectionProps) {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.7, duration: 0.5 }}
-              className="absolute bottom-20 right-4 md:right-0 px-4 py-2 bg-card/80 backdrop-blur-md rounded-xl border border-border/50 shadow-lg"
+              className="absolute bottom-20 end-4 md:end-0 px-4 py-2 bg-card/80 backdrop-blur-md rounded-xl border border-border/50 shadow-lg"
             >
               <div className="text-2xl font-bold text-green-500">{content.stats.delivery}</div>
               <div className="text-xs text-muted-foreground">{content.stats.deliveryLabel}</div>

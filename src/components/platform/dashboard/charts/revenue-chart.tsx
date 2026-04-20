@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { format } from "date-fns"
+import type { TooltipProps } from "recharts"
 import {
   Area,
   AreaChart,
@@ -25,6 +26,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { Dictionary } from "@/components/internationalization/types"
 
 interface RevenueChartProps {
   revenueData: number[]
@@ -32,6 +34,41 @@ interface RevenueChartProps {
   profitData: number[]
   labels?: string[]
   className?: string
+  dict?: Dictionary
+}
+
+// Custom tooltip — defined at module scope to avoid creating a new component each render.
+function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
+  if (!active || !payload) return null
+
+  return (
+    <div className="bg-background rounded-lg border p-3 shadow-lg">
+      <p className="font-semibold">{label}</p>
+      {payload.map((entry, index) => (
+        <div key={index} className="flex items-center gap-2 text-sm">
+          <div
+            className="h-3 w-3 rounded-full"
+            style={{ backgroundColor: entry.color }}
+          />
+          <span className="capitalize">{entry.name}:</span>
+          <span className="font-medium">
+            SDG {new Intl.NumberFormat("en-SD").format(entry.value ?? 0)}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Format Y-axis ticks
+function formatYAxis(value: number) {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`
+  }
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(0)}K`
+  }
+  return value.toString()
 }
 
 function RevenueChartInner({
@@ -40,7 +77,9 @@ function RevenueChartInner({
   profitData,
   labels,
   className,
+  dict,
 }: RevenueChartProps) {
+  const r = dict?.dashboard?.charts?.revenue
   // Generate labels if not provided (last 12 months)
   const monthLabels =
     labels ||
@@ -58,54 +97,20 @@ function RevenueChartInner({
     profit: profitData[index] || 0,
   }))
 
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload) return null
-
-    return (
-      <div className="bg-background rounded-lg border p-3 shadow-lg">
-        <p className="font-semibold">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
-            <div
-              className="h-3 w-3 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="capitalize">{entry.name}:</span>
-            <span className="font-medium">
-              SDG {new Intl.NumberFormat("en-SD").format(entry.value)}
-            </span>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  // Format Y-axis ticks
-  const formatYAxis = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(0)}K`
-    }
-    return value.toString()
-  }
-
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>Revenue & Expenses</CardTitle>
+        <CardTitle>{r?.title ?? "Revenue & Expenses"}</CardTitle>
         <CardDescription>
-          Monthly financial performance over the last 12 months
+          {r?.description ?? "Monthly financial performance over the last 12 months"}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="area" className="w-full">
           <TabsList className="grid w-full max-w-[400px] grid-cols-3">
-            <TabsTrigger value="area">Area Chart</TabsTrigger>
-            <TabsTrigger value="bar">Bar Chart</TabsTrigger>
-            <TabsTrigger value="line">Line Chart</TabsTrigger>
+            <TabsTrigger value="area">{r?.areaChart ?? "Area Chart"}</TabsTrigger>
+            <TabsTrigger value="bar">{r?.barChart ?? "Bar Chart"}</TabsTrigger>
+            <TabsTrigger value="line">{r?.lineChart ?? "Line Chart"}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="area" className="mt-4">
@@ -153,7 +158,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#revenueGradient)"
-                  name="Revenue"
+                  name={r?.revenue ?? "Revenue"}
                 />
                 <Area
                   type="monotone"
@@ -162,7 +167,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#expenseGradient)"
-                  name="Expenses"
+                  name={r?.expenses ?? "Expenses"}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -184,9 +189,9 @@ function RevenueChartInner({
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
-                <Bar dataKey="expense" fill="#ef4444" name="Expenses" />
-                <Bar dataKey="profit" fill="#3b82f6" name="Profit" />
+                <Bar dataKey="revenue" fill="#10b981" name={r?.revenue ?? "Revenue"} />
+                <Bar dataKey="expense" fill="#ef4444" name={r?.expenses ?? "Expenses"} />
+                <Bar dataKey="profit" fill="#3b82f6" name={r?.profit ?? "Profit"} />
               </BarChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -214,7 +219,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Revenue"
+                  name={r?.revenue ?? "Revenue"}
                 />
                 <Line
                   type="monotone"
@@ -223,7 +228,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Expenses"
+                  name={r?.expenses ?? "Expenses"}
                 />
                 <Line
                   type="monotone"
@@ -232,7 +237,7 @@ function RevenueChartInner({
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Profit"
+                  name={r?.profit ?? "Profit"}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -242,7 +247,9 @@ function RevenueChartInner({
         {/* Summary Stats */}
         <div className="mt-6 grid grid-cols-3 gap-4 border-t pt-6">
           <div className="text-center">
-            <p className="text-muted-foreground text-sm">Avg Monthly Revenue</p>
+            <p className="text-muted-foreground text-sm">
+              {r?.avgMonthlyRevenue ?? "Avg Monthly Revenue"}
+            </p>
             <p className="text-lg font-semibold text-green-600">
               SDG{" "}
               {new Intl.NumberFormat("en-SD").format(
@@ -252,7 +259,7 @@ function RevenueChartInner({
           </div>
           <div className="text-center">
             <p className="text-muted-foreground text-sm">
-              Avg Monthly Expenses
+              {r?.avgMonthlyExpenses ?? "Avg Monthly Expenses"}
             </p>
             <p className="text-lg font-semibold text-red-600">
               SDG{" "}
@@ -262,7 +269,9 @@ function RevenueChartInner({
             </p>
           </div>
           <div className="text-center">
-            <p className="text-muted-foreground text-sm">Avg Monthly Profit</p>
+            <p className="text-muted-foreground text-sm">
+              {r?.avgMonthlyProfit ?? "Avg Monthly Profit"}
+            </p>
             <p className="text-lg font-semibold text-blue-600">
               SDG{" "}
               {new Intl.NumberFormat("en-SD").format(

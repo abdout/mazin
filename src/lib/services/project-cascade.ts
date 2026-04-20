@@ -4,7 +4,7 @@
  * when a new project is created.
  */
 
-import { Prisma, ShipmentType, TrackingStageStatus, TaskCategory, TaskPriority, TaskStatus } from '@prisma/client';
+import { Prisma, ShipmentType, TrackingStageStatus, TrackingStageType, TaskCategory, TaskPriority, TaskStatus, type ShipmentDocumentType, type DocumentCheckStatus } from '@prisma/client';
 import {
   generateTrackingNumber,
   generateTrackingSlug,
@@ -258,8 +258,8 @@ async function createDefaultTasks(
 /**
  * Map stage name to tracking stage type
  */
-function mapStageToTrackingStage(stageName: string): any | null {
-  const stageMap: Record<string, string> = {
+function mapStageToTrackingStage(stageName: string): TrackingStageType | null {
+  const stageMap: Record<string, TrackingStageType> = {
     'pre-arrival': 'PRE_ARRIVAL_DOCS',
     'documentation': 'PRE_ARRIVAL_DOCS',
     'arrival': 'VESSEL_ARRIVAL',
@@ -289,7 +289,65 @@ function mapStageToTrackingStage(stageName: string): any | null {
 }
 
 /**
- * Full project cascade - creates shipment, stages, and tasks
+ * Initialize mandatory document checklist for a shipment
+ */
+async function initializeDocChecklist(
+  tx: Prisma.TransactionClient,
+  shipmentId: string,
+  userId: string
+): Promise<number> {
+  const MANDATORY_DOCS: ShipmentDocumentType[] = [
+    "BILL_OF_LADING",
+    "COMMERCIAL_INVOICE",
+    "PACKING_LIST",
+    "CERTIFICATE_OF_ORIGIN",
+    "IM_FORM",
+  ];
+
+  await tx.shipmentDocument.createMany({
+    data: MANDATORY_DOCS.map((docType) => ({
+      docType,
+      status: "MISSING" as DocumentCheckStatus,
+      shipmentId,
+      userId,
+    })),
+    skipDuplicates: true,
+  });
+
+  return MANDATORY_DOCS.length;
+}
+
+/**
+ * Create container records from B/L number pattern
+ * Extracts container numbers if embedded in the B/L reference
+ */
+async function initializeContainers(
+  tx: Prisma.TransactionClient,
+  shipmentId: string,
+  blNumber: string | null
+): Promise<number> {
+  if (!blNumber) return 0;
+
+  // Extract container numbers from B/L text (pattern: 4 uppercase letters + 7 digits)
+  const containerPattern = /[A-Z]{4}\d{7}/g
+  const matches = blNumber.match(containerPattern)
+  if (!matches || matches.length === 0) return 0;
+
+  const unique = [...new Set(matches)]
+  await tx.container.createMany({
+    data: unique.map((containerNumber) => ({
+      containerNumber,
+      size: "TWENTY_FT" as const,
+      shipmentId,
+    })),
+    skipDuplicates: true,
+  })
+
+  return unique.length
+}
+
+/**
+ * Full project cascade - creates shipment, stages, tasks, documents, and containers
  */
 export async function executeProjectCascade(
   tx: Prisma.TransactionClient,
@@ -299,15 +357,20 @@ export async function executeProjectCascade(
   // 1. Create shipment with tracking stages
   const shipmentResult = await createShipmentWithStages(tx, project, userId);
 
-  // 2. Generate tasks from activities
+  // 2. Initialize document checklist
+  await initializeDocChecklist(tx, shipmentResult.id, userId);
+
+  // 3. Create containers from B/L if available
+  await initializeContainers(tx, shipmentResult.id, project.blAwbNumber);
+
+  // 4. Generate tasks from activities
   const tasksCreated = await generateTasksWithCategories(tx, project, userId);
 
-  // 3. Auto-assign tasks based on category rules
+  // 5. Auto-assign tasks based on category rules
   let tasksAssigned = 0;
   let assignments: AssignmentResult[] = [];
 
   if (tasksCreated > 0) {
-    // Fetch the created tasks for assignment
     const createdTasks = await tx.task.findMany({
       where: { projectId: project.id },
       select: {
@@ -318,7 +381,6 @@ export async function executeProjectCascade(
       },
     });
 
-    // Auto-assign tasks
     assignments = await autoAssignTasks(
       tx,
       createdTasks.map((t) => ({

@@ -127,7 +127,7 @@ const Index: React.FC<IndexProps> = ({ params }) => {
                           <td className="border border-black p-2 text-center text-xs">
                             {stageIndex + 1}.{taskIndex + 1}
                           </td>
-                          <td className="border border-black p-2 pl-6">
+                          <td className="border border-black p-2 ps-6">
                             {task}
                           </td>
                           <td className="border border-black p-2 text-center">

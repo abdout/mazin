@@ -42,9 +42,9 @@ export function TrackingAdminControls({
     startTransition(async () => {
       try {
         const result = await initializeTrackingStages(shipmentId)
-        toast.success(`Tracking initialized. Number: ${result.trackingNumber}`)
+        toast.success(`${dictionary.tracking?.initializeSuccess ?? "Tracking initialized. Number:"} ${result.trackingNumber}`)
       } catch {
-        toast.error("Failed to initialize tracking")
+        toast.error(dictionary.tracking?.initializeFailed ?? "Failed to initialize tracking")
       }
     })
   }
@@ -57,7 +57,7 @@ export function TrackingAdminControls({
           `Completed: ${dictionary.tracking.stages[result.completedStage as keyof typeof dictionary.tracking.stages]}`
         )
       } catch {
-        toast.error("Failed to advance stage")
+        toast.error(dictionary.tracking?.advanceFailed ?? "Failed to advance stage")
       }
     })
   }

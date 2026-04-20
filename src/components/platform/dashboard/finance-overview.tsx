@@ -22,6 +22,7 @@ import { TrendingUp, TrendingDown, Wallet, PieChartIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { TooltipProps } from "recharts"
 import type {
   FinancialChartData,
   CashFlowData,
@@ -57,6 +58,38 @@ const EXPENSE_COLORS = [
   "#14b8a6", // Teal
   "#f97316", // Copper
 ]
+
+// Custom tooltip — receives a formatter so it stays at module scope.
+function FinanceTooltip({
+  active,
+  payload,
+  label,
+  formatCurrency,
+}: TooltipProps<number, string> & {
+  formatCurrency: (value: number) => string
+}) {
+  if (!active || !payload) return null
+
+  return (
+    <div className="bg-background/95 backdrop-blur-sm rounded-lg border border-amber-200/30 dark:border-amber-800/30 p-3 shadow-lg">
+      <p className="font-semibold text-sm mb-1">{label || payload[0]?.name}</p>
+      {payload.map((entry, index) => (
+        <div key={index} className="flex items-center gap-2 text-xs">
+          <div
+            className="h-2 w-2 rounded-full"
+            style={{ backgroundColor: entry.color }}
+          />
+          <span className="text-muted-foreground capitalize">
+            {entry.name}:
+          </span>
+          <span className="font-medium">
+            {formatCurrency(Math.abs(entry.value ?? 0))}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export function FinanceOverview({
   financialData,
@@ -135,30 +168,10 @@ export function FinanceOverview({
   const netCashFlow =
     (cashFlowData.inflowData[0] || 0) - (cashFlowData.outflowData[0] || 0)
 
-  // Custom tooltip for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload) return null
-
-    return (
-      <div className="bg-background/95 backdrop-blur-sm rounded-lg border border-amber-200/30 dark:border-amber-800/30 p-3 shadow-lg">
-        <p className="font-semibold text-sm mb-1">{label || payload[0]?.name}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-xs">
-            <div
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="text-muted-foreground capitalize">
-              {entry.name}:
-            </span>
-            <span className="font-medium">
-              {formatCurrency(Math.abs(entry.value))}
-            </span>
-          </div>
-        ))}
-      </div>
-    )
-  }
+  // Render tooltip via module-scope component bound to the current formatter.
+  const renderTooltip = (props: TooltipProps<number, string>) => (
+    <FinanceTooltip {...props} formatCurrency={formatCurrency} />
+  )
 
   return (
     <div className={cn("w-full space-y-4", className)}>
@@ -182,10 +195,10 @@ export function FinanceOverview({
                 </div>
                 <div>
                   <CardTitle className="text-base">
-                    {f?.revenueExpenses || "Revenue & Expenses"}
+                    {f?.revenueExpenses}
                   </CardTitle>
                   <p className="text-muted-foreground text-xs">
-                    {f?.lastMonths || "Last 12 months"}
+                    {f?.lastMonths}
                   </p>
                 </div>
               </div>
@@ -230,7 +243,7 @@ export function FinanceOverview({
                   tickFormatter={formatYAxis}
                   axisLine={{ stroke: "currentColor", strokeOpacity: 0.2 }}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={renderTooltip} />
                 <Legend
                   wrapperStyle={{ fontSize: "12px" }}
                   iconType="circle"
@@ -260,19 +273,19 @@ export function FinanceOverview({
             {/* Summary stats */}
             <div className="mt-4 grid grid-cols-3 gap-4 border-t border-amber-200/30 dark:border-amber-800/30 pt-4">
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">{f?.avgRevenue || "Avg Revenue"}</p>
+                <p className="text-muted-foreground text-xs">{f?.avgRevenue}</p>
                 <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                   {formatCurrency(Math.round(totalRevenue / 12))}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">{f?.avgExpenses || "Avg Expenses"}</p>
+                <p className="text-muted-foreground text-xs">{f?.avgExpenses}</p>
                 <p className="text-sm font-semibold text-red-600 dark:text-red-400">
                   {formatCurrency(Math.round(totalExpenses / 12))}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-muted-foreground text-xs">{f?.avgProfit || "Avg Profit"}</p>
+                <p className="text-muted-foreground text-xs">{f?.avgProfit}</p>
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                   {formatCurrency(Math.round(totalProfit / 12))}
                 </p>
@@ -296,8 +309,8 @@ export function FinanceOverview({
                 <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <CardTitle className="text-base">{f?.cashFlow || "Cash Flow"}</CardTitle>
-                <p className="text-muted-foreground text-xs">{f?.currentPeriod || "Current period"}</p>
+                <CardTitle className="text-base">{f?.cashFlow}</CardTitle>
+                <p className="text-muted-foreground text-xs">{f?.currentPeriod}</p>
               </div>
             </div>
           </CardHeader>
@@ -316,7 +329,7 @@ export function FinanceOverview({
                   tick={{ fill: "currentColor", fontSize: 10 }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={renderTooltip} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {cashFlowChartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -328,13 +341,13 @@ export function FinanceOverview({
             {/* Cash summary */}
             <div className="mt-4 space-y-2 border-t border-amber-200/30 dark:border-amber-800/30 pt-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{f?.balance || "Balance"}</span>
+                <span className="text-muted-foreground">{f?.balance}</span>
                 <span className="font-semibold">
                   {formatCurrency(currentBalance)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{f?.netFlow || "Net Flow"}</span>
+                <span className="text-muted-foreground">{f?.netFlow}</span>
                 <span
                   className={cn(
                     "font-semibold",
@@ -367,8 +380,8 @@ export function FinanceOverview({
               <PieChartIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <CardTitle className="text-base">{f?.expenseBreakdown || "Expense Breakdown"}</CardTitle>
-              <p className="text-muted-foreground text-xs">{f?.byCategory || "By category"}</p>
+              <CardTitle className="text-base">{f?.expenseBreakdown}</CardTitle>
+              <p className="text-muted-foreground text-xs">{f?.byCategory}</p>
             </div>
           </div>
         </CardHeader>
@@ -399,7 +412,7 @@ export function FinanceOverview({
                       />
                     ))}
                   </Pie>
-                  <Tooltip content={<CustomTooltip />} />
+                  <Tooltip content={renderTooltip} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -407,7 +420,7 @@ export function FinanceOverview({
             {/* Category breakdown list */}
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium">{f?.totalExpenses || "Total Expenses"}</span>
+                <span className="text-sm font-medium">{f?.totalExpenses}</span>
                 <span className="font-bold">
                   {formatCurrency(
                     topExpenses.reduce((sum, cat) => sum + cat.amount, 0)

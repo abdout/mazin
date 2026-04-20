@@ -9,7 +9,7 @@ export async function GET() {
 
   try {
     // Verify database connectivity
-    await db.$queryRawUnsafe("SELECT 1")
+    await db.$queryRaw`SELECT 1`
   } catch {
     dbStatus = "error"
   }

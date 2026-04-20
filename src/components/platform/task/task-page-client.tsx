@@ -11,6 +11,9 @@ import { Content } from '@/components/platform/task/content'
 import { getTasks, syncProjectsWithTasks } from '@/components/platform/task/actions'
 import { Task } from '@/components/platform/task/type'
 import type { Dictionary } from '@/components/internationalization/types'
+import { logger } from '@/lib/logger'
+
+const log = logger.forModule('task.page-client')
 
 interface TaskPageClientProps {
   dictionary: Dictionary
@@ -28,15 +31,15 @@ export function TaskPageClient({ dictionary }: TaskPageClientProps) {
       const result = await getTasks()
 
       if (result.error) {
-        console.error('Failed to fetch tasks:', result.error)
-        toast.error(dictionary?.task?.fetchError ?? 'Failed to fetch tasks')
+        log.error('Failed to fetch tasks', undefined, { reason: result.error })
+        toast.error(dictionary?.task?.fetchError ?? "")
         return
       }
 
       setTasks(result.tasks || [])
     } catch (error) {
-      console.error('Exception in fetchTasks:', error)
-      toast.error(dictionary?.task?.fetchError ?? 'Failed to fetch tasks')
+      log.error('Exception in fetchTasks', error as Error)
+      toast.error(dictionary?.task?.fetchError ?? "")
       setTasks([])
     } finally {
       setIsLoading(false)
@@ -71,13 +74,13 @@ export function TaskPageClient({ dictionary }: TaskPageClientProps) {
         return
       }
 
-      toast.success(result.message || (dictionary?.task?.syncCompleted ?? 'Sync completed'))
+      toast.success(result.message || (dictionary?.task?.syncCompleted ?? ""))
 
       // Refresh tasks after sync
       await fetchTasks()
     } catch (error) {
-      console.error('Sync error:', error)
-      toast.error(dictionary?.task?.syncError ?? 'Failed to sync projects with tasks')
+      log.error('Sync error', error as Error)
+      toast.error(dictionary?.task?.syncError ?? "")
     } finally {
       setIsSyncing(false)
     }
@@ -93,7 +96,7 @@ export function TaskPageClient({ dictionary }: TaskPageClientProps) {
           disabled={isSyncing}
         >
           <RefreshCw className={`h-4 w-4 me-2 ${isSyncing ? 'animate-spin' : ''}`} />
-          {isSyncing ? (dictionary?.task?.syncing ?? 'Syncing...') : (dictionary?.task?.syncWithProjects ?? 'Sync with Projects')}
+          {isSyncing ? (dictionary?.task?.syncing ?? "") : (dictionary?.task?.syncWithProjects ?? "")}
         </Button>
       </div>
       <Content

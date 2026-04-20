@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { deleteTask } from './actions';
+import { logger } from '@/lib/logger';
+
+const log = logger.forModule('task.delete');
 import { Task } from './type';
 import type { Dictionary } from "@/components/internationalization";
 import { useDictionary } from "@/components/internationalization/use-dictionary";
@@ -37,7 +40,7 @@ const DeleteTask = ({ task, onSuccess, dictionary: propDictionary }: DeleteTaskP
     const taskId = task.id || task._id;
 
     if (!taskId) {
-      console.error('Cannot delete task: No task ID provided');
+      log.error('Cannot delete task: No task ID provided');
       return;
     }
 
@@ -51,14 +54,14 @@ const DeleteTask = ({ task, onSuccess, dictionary: propDictionary }: DeleteTaskP
         return;
       }
 
-      toast.success(t?.taskDeletedSuccess || 'Task deleted successfully');
+      toast.success(t?.taskDeletedSuccess ?? "");
 
       setIsOpen(false);
       if (onSuccess) {
         await onSuccess();
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : (dictionary.common.error || 'Failed to delete task');
+      const message = error instanceof Error ? error.message : dictionary.common.error;
       toast.error(message);
     } finally {
       setIsDeleting(false);
@@ -84,9 +87,9 @@ const DeleteTask = ({ task, onSuccess, dictionary: propDictionary }: DeleteTaskP
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[425px]" data-action="no-navigate">
           <DialogHeader>
-            <DialogTitle>{t?.deleteTask || 'Delete Task'}</DialogTitle>
+            <DialogTitle>{t?.deleteTask ?? ""}</DialogTitle>
             <DialogDescription>
-              {t?.deleteConfirmation || 'Are you sure you want to delete this task? This action cannot be undone.'}
+              {t?.deleteConfirmation ?? ""}
             </DialogDescription>
           </DialogHeader>
 
@@ -116,7 +119,7 @@ const DeleteTask = ({ task, onSuccess, dictionary: propDictionary }: DeleteTaskP
               disabled={isDeleting}
               data-action="no-navigate"
             >
-              {isDeleting ? (t?.deleting || 'Deleting...') : dictionary.common.delete}
+              {isDeleting ? (t?.deleting ?? "") : dictionary.common.delete}
             </Button>
           </DialogFooter>
         </DialogContent>

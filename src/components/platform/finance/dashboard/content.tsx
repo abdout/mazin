@@ -7,7 +7,7 @@ import {
 } from "lucide-react"
 
 import type { Locale } from "@/components/internationalization"
-import { UserRole } from "../lib/permissions"
+import type { UserRole } from "@prisma/client"
 import {
   getDashboardStats,
   getFinancialAlerts,
@@ -57,7 +57,7 @@ export async function FinanceDashboardContent({
     const allKPIs: FinancialKPI[] = [
       {
         id: "total-revenue",
-        title: t.totalRevenue ?? "Total Revenue",
+        title: t.totalRevenue ?? "",
         value: stats.totalRevenue,
         change: 12,
         changeType: "increase",
@@ -68,17 +68,17 @@ export async function FinanceDashboardContent({
       },
       {
         id: "collected-revenue",
-        title: t.collectedRevenue ?? "Collected Revenue",
+        title: t.collectedRevenue ?? "",
         value: stats.collectedRevenue,
         change: stats.collectionRate > 75 ? 5 : -5,
         changeType: stats.collectionRate > 75 ? "increase" : "decrease",
         icon: "✅",
         color: "blue",
-        description: `${stats.collectionRate.toFixed(1)}% ${t.collectionRate ?? "collection rate"}`,
+        description: `${stats.collectionRate.toFixed(1)}% ${t.collectionRate ?? ""}`,
       },
       {
         id: "total-expenses",
-        title: t.totalExpenses ?? "Total Expenses",
+        title: t.totalExpenses ?? "",
         value: stats.totalExpenses,
         change: 3,
         changeType: "increase",
@@ -88,18 +88,18 @@ export async function FinanceDashboardContent({
       },
       {
         id: "net-profit",
-        title: t.netProfit ?? "Net Profit",
+        title: t.netProfit ?? "",
         value: stats.netProfit,
         change: stats.profitMargin,
         changeType: stats.netProfit > 0 ? "increase" : "decrease",
         icon: "📈",
         color: stats.netProfit > 0 ? "green" : "red",
-        description: `${stats.profitMargin.toFixed(1)}% ${t.profitMargin ?? "profit margin"}`,
+        description: `${stats.profitMargin.toFixed(1)}% ${t.profitMargin ?? ""}`,
         trend: stats.profitTrend.slice(-7),
       },
       {
         id: "cash-balance",
-        title: t.cashBalance ?? "Cash Balance",
+        title: t.cashBalance ?? "",
         value: stats.cashBalance,
         change: 8,
         changeType: "increase",
@@ -109,13 +109,13 @@ export async function FinanceDashboardContent({
       },
       {
         id: "outstanding-invoices",
-        title: t.outstandingPayments ?? "Outstanding",
+        title: t.outstandingPayments ?? "",
         value: stats.outstandingRevenue,
         change: stats.overdueInvoices,
         changeType: stats.overdueInvoices > 0 ? "increase" : "neutral",
         icon: "⏰",
         color: "yellow",
-        description: `${stats.overdueInvoices} ${t.overdueInvoices ?? "overdue invoices"}`,
+        description: `${stats.overdueInvoices} ${t.overdueInvoices ?? ""}`,
       },
       {
         id: "active-clients",
@@ -129,7 +129,7 @@ export async function FinanceDashboardContent({
       },
       {
         id: "payroll-expense",
-        title: t.navigation?.payroll ?? "Payroll",
+        title: t.navigation?.payroll ?? "",
         value: stats.totalPayroll,
         change: 0,
         changeType: "neutral",
@@ -142,14 +142,13 @@ export async function FinanceDashboardContent({
     // Filter KPIs based on role
     switch (userRole) {
       case "ADMIN":
-      case "ACCOUNTANT":
+      case "CLERK":
         return allKPIs
       case "MANAGER":
-      case "OPERATOR":
         return allKPIs.filter((kpi) =>
           ["net-profit", "payroll-expense", "total-revenue", "active-clients"].includes(kpi.id)
         )
-      case "STAFF":
+      case "VIEWER":
         return allKPIs.filter((kpi) =>
           ["active-clients", "outstanding-invoices"].includes(kpi.id)
         )
@@ -161,18 +160,18 @@ export async function FinanceDashboardContent({
   const kpis = getKPIsForRole()
 
   // Check if user has full access
-  const hasFullAccess = ["ADMIN", "ACCOUNTANT"].includes(userRole)
-  const hasLimitedAccess = ["MANAGER", "OPERATOR"].includes(userRole)
+  const hasFullAccess = ["ADMIN", "CLERK"].includes(userRole)
+  const hasLimitedAccess = userRole === "MANAGER"
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          {t.dashboard ?? "Financial Dashboard"}
+          {t.dashboard ?? ""}
         </h1>
         <p className="text-muted-foreground">
-          {t.overview ?? (isRTL ? "نظرة عامة على الأداء المالي لشركتك" : "Overview of your company's financial performance")}
+          {t.overview ?? ""}
         </p>
       </div>
 
@@ -307,7 +306,7 @@ function BudgetOverview({
 
   return (
     <div className="rounded-lg border p-6">
-      <h3 className="mb-4 text-lg font-semibold">{t.title ?? (isRTL ? "نظرة عامة على الميزانية" : "Budget Overview")}</h3>
+      <h3 className="mb-4 text-lg font-semibold">{t.title ?? ""}</h3>
       <div className="space-y-3">
         {categories.slice(0, 5).map((cat) => (
           <div key={cat.category} className="space-y-1">
