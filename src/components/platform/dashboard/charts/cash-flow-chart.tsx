@@ -1,6 +1,5 @@
 "use client"
 
-import type { TooltipProps } from "recharts"
 import {
   Bar,
   BarChart,
@@ -39,7 +38,7 @@ function formatValue(value: number) {
   }).format(Math.abs(value))
 }
 
-function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ value?: number; payload?: Record<string, unknown> }> }) {
   if (!active || !payload || !payload[0]) return null
 
   const data = payload[0]

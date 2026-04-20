@@ -11,7 +11,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import type { TooltipProps } from "recharts"
 
 import {
   Card,
@@ -39,7 +38,7 @@ function formatValue(value: number) {
   }).format(Math.abs(value))
 }
 
-function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string }) {
   if (!active || !payload || !payload[0]) return null
 
   const data = payload[0]

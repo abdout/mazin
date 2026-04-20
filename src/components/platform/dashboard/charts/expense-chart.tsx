@@ -1,6 +1,5 @@
 "use client"
 
-import type { TooltipProps } from "recharts"
 import {
   Bar,
   BarChart,
@@ -54,7 +53,7 @@ function CustomTooltip({
   payload,
   amountLabel = "Amount",
   percentageLabel = "Percentage",
-}: TooltipProps<number, string> & {
+}: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string } & {
   amountLabel?: string
   percentageLabel?: string
 }) {
@@ -84,7 +83,7 @@ export function ExpenseChart({
   const percentageLabel = e?.percentage ?? "Percentage"
 
   // Render tooltip bound to current labels
-  const renderTooltip = (props: TooltipProps<number, string>) => (
+  const renderTooltip = (props: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string }) => (
     <CustomTooltip {...props} amountLabel={amountLabel} percentageLabel={percentageLabel} />
   )
 
@@ -187,7 +186,7 @@ export function ExpenseChart({
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={renderCustomLabel}
+                  label={renderCustomLabel as never}
                   outerRadius={120}
                   fill="#8884d8"
                   dataKey="amount"
@@ -200,7 +199,7 @@ export function ExpenseChart({
                     />
                   ))}
                 </Pie>
-                <Tooltip content={renderTooltip} />
+                <Tooltip content={renderTooltip as never} />
                 <Legend
                   verticalAlign="middle"
                   align="right"
@@ -233,7 +232,7 @@ export function ExpenseChart({
                   tick={{ fill: "currentColor", fontSize: 12 }}
                   width={90}
                 />
-                <Tooltip content={renderTooltip} />
+                <Tooltip content={renderTooltip as never} />
                 <Bar dataKey="amount" fill="#3b82f6">
                   {topCategories.map((entry, index) => (
                     <Cell

@@ -13,7 +13,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import type { TooltipProps } from "recharts"
 
 import {
   Card,
@@ -48,7 +47,7 @@ const COLORS = [
 ]
 
 // Custom tooltip — defined at module scope so it's not recreated on every render.
-function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+function CustomTooltip({ active, payload }: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string }) {
   if (!active || !payload || !payload[0]) return null
 
   const data = payload[0]
@@ -167,7 +166,7 @@ export function ExpenseChart({
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={renderCustomLabel}
+                  label={renderCustomLabel as never}
                   outerRadius={120}
                   fill="#8884d8"
                   dataKey="amount"

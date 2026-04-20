@@ -16,7 +16,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import type { TooltipProps } from "recharts"
 
 import {
   Card,
@@ -44,7 +43,7 @@ function RevenueTooltip({
   payload,
   label,
   isRTL,
-}: TooltipProps<number, string> & { isRTL: boolean }) {
+}: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string } & { isRTL: boolean }) {
   if (!active || !payload) return null
 
   return (
@@ -106,7 +105,7 @@ function RevenueChartInner({
   }))
 
   // Render tooltip bound to locale
-  const renderTooltip = (props: TooltipProps<number, string>) => (
+  const renderTooltip = (props: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string }) => (
     <RevenueTooltip {...props} isRTL={isRTL} />
   )
 
@@ -162,7 +161,7 @@ function RevenueChartInner({
                   tick={{ fill: "currentColor" }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={renderTooltip} />
+                <Tooltip content={renderTooltip as never} />
                 <Legend />
                 <Area
                   type="monotone"
@@ -200,7 +199,7 @@ function RevenueChartInner({
                   tick={{ fill: "currentColor" }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={renderTooltip} />
+                <Tooltip content={renderTooltip as never} />
                 <Legend />
                 <Bar dataKey="revenue" fill="#10b981" name={isRTL ? "الإيرادات" : "Revenue"} />
                 <Bar dataKey="expense" fill="#ef4444" name={isRTL ? "المصروفات" : "Expenses"} />
@@ -223,7 +222,7 @@ function RevenueChartInner({
                   tick={{ fill: "currentColor" }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={renderTooltip} />
+                <Tooltip content={renderTooltip as never} />
                 <Legend />
                 <Line
                   type="monotone"

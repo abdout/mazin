@@ -22,7 +22,6 @@ import { TrendingUp, TrendingDown, Wallet, PieChartIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { TooltipProps } from "recharts"
 import type {
   FinancialChartData,
   CashFlowData,
@@ -65,7 +64,7 @@ function FinanceTooltip({
   payload,
   label,
   formatCurrency,
-}: TooltipProps<number, string> & {
+}: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string } & {
   formatCurrency: (value: number) => string
 }) {
   if (!active || !payload) return null
@@ -169,7 +168,7 @@ export function FinanceOverview({
     (cashFlowData.inflowData[0] || 0) - (cashFlowData.outflowData[0] || 0)
 
   // Render tooltip via module-scope component bound to the current formatter.
-  const renderTooltip = (props: TooltipProps<number, string>) => (
+  const renderTooltip = (props: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string }) => (
     <FinanceTooltip {...props} formatCurrency={formatCurrency} />
   )
 
@@ -243,7 +242,7 @@ export function FinanceOverview({
                   tickFormatter={formatYAxis}
                   axisLine={{ stroke: "currentColor", strokeOpacity: 0.2 }}
                 />
-                <Tooltip content={renderTooltip} />
+                <Tooltip content={renderTooltip as never} />
                 <Legend
                   wrapperStyle={{ fontSize: "12px" }}
                   iconType="circle"
@@ -329,7 +328,7 @@ export function FinanceOverview({
                   tick={{ fill: "currentColor", fontSize: 10 }}
                   tickFormatter={formatYAxis}
                 />
-                <Tooltip content={renderTooltip} />
+                <Tooltip content={renderTooltip as never} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {cashFlowChartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -412,7 +411,7 @@ export function FinanceOverview({
                       />
                     ))}
                   </Pie>
-                  <Tooltip content={renderTooltip} />
+                  <Tooltip content={renderTooltip as never} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

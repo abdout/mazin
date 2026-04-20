@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { format } from "date-fns"
-import type { TooltipProps } from "recharts"
 import {
   Area,
   AreaChart,
@@ -38,7 +37,7 @@ interface RevenueChartProps {
 }
 
 // Custom tooltip — defined at module scope to avoid creating a new component each render.
-function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value?: number; name?: string; color?: string; payload?: Record<string, unknown> }>; label?: string }) {
   if (!active || !payload) return null
 
   return (
