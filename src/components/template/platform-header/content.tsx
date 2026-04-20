@@ -21,7 +21,7 @@ import { MobileNav } from "@/components/template/mobile-nav"
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs"
 import { platformNav, type Role } from "@/components/template/platform-sidebar/config"
 import { usePageHeading } from "@/components/platform/context/page-heading-context"
-import { NotificationBellIcon } from "@/components/platform/notifications"
+import { NotificationBellIcon } from "@/components/platform/notifications/bell-icon"
 
 interface PlatformHeaderProps {
   dictionary: Dictionary
