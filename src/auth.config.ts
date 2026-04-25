@@ -37,7 +37,9 @@ export default {
         url: "https://www.facebook.com/v18.0/dialog/oauth",
         params: {
           scope: "email public_profile",
-          redirect_uri: process.env.NEXTAUTH_URL ? `${process.env.NEXTAUTH_URL}/api/auth/callback/facebook` : undefined
+          redirect_uri: (process.env.AUTH_URL ?? process.env.NEXTAUTH_URL)
+            ? `${process.env.AUTH_URL ?? process.env.NEXTAUTH_URL}/api/auth/callback/facebook`
+            : undefined
         }
       },
       token: {

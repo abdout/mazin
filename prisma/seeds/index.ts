@@ -35,6 +35,7 @@ import dotenv from "dotenv"
 import { seedUsers } from "./auth"
 import { seedClients } from "./clients"
 import { seedDeclarations } from "./declarations"
+import { seedHsCodes } from "./hs-codes"
 import { seedInvoices } from "./invoices"
 import { seedMarketplace } from "./marketplace"
 import { seedProjects } from "./projects"
@@ -143,9 +144,19 @@ async function main() {
     )
 
     // ========================================================================
+    // PHASE 9: HS CODES (reference data, no FKs)
+    // ========================================================================
+    logPhase(9, "HS CODES (Customs Tariff)")
+
+    const hsCodeCount = await measureDuration("HS Codes", () =>
+      seedHsCodes(prisma)
+    )
+
+    // ========================================================================
     // COMPLETION
     // ========================================================================
     logSummary(startTime, {
+      "HS Codes": hsCodeCount,
       Users: users.length,
       Settings: settings.length,
       Clients: clients.length,

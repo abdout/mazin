@@ -70,6 +70,10 @@ const db = {
   trackingStage: createModelMock(),
   stageInvoice: createModelMock(),
   shipmentDocument: createModelMock(),
+  shipmentPayment: createModelMock(),
+  container: createModelMock(),
+  iMForm: createModelMock(),
+  exchangeRate: createModelMock(),
 
   // --- Invoice models ---
   invoice: createModelMock(),

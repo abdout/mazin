@@ -43,9 +43,10 @@ export function hasPermission(role: UserRole, action: BankingAction): boolean {
 export async function checkCurrentUserPermission(
   action: BankingAction
 ): Promise<boolean> {
-  // TODO: Implement with actual session/auth check
-  // For now, return true to allow development
-  return true
+  const { getAuthContext } = await import("@/lib/auth-context")
+  const ctx = await getAuthContext()
+  if (!ctx || ctx.userType !== "STAFF") return false
+  return hasPermission(ctx.role, action)
 }
 
 /**

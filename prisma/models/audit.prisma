@@ -1,0 +1,40 @@
+// Audit Log — immutable record of security-sensitive events.
+// Append-only; never update or delete rows (enforce via code, not DB).
+
+enum AuditAction {
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_COMPLETE
+  TWO_FACTOR_ENABLE
+  TWO_FACTOR_DISABLE
+  ROLE_CHANGE
+  USER_TYPE_CHANGE
+  PERMISSION_DENIED
+  RECORD_CREATE
+  RECORD_UPDATE
+  RECORD_DELETE
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  action     AuditAction
+  // Actor (null for failed/anonymous events like LOGIN_FAILED)
+  actorId    String?
+  actorEmail String?
+  // Target row (when action touches a specific record)
+  resource   String?     // e.g., "invoice", "shipment"
+  resourceId String?
+  // Free-form context (before/after snapshots, IP, UA, reason)
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+
+  createdAt  DateTime    @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([resource, resourceId])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}

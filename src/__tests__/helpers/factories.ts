@@ -14,6 +14,7 @@ export function makeUser(overrides = {}) {
     password: faker.internet.password(),
     image: null,
     phone: faker.phone.number(),
+    type: "STAFF" as const,
     role: "ADMIN" as const,
     isTwoFactorEnabled: false,
     createdAt: new Date(),

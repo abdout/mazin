@@ -1,20 +1,11 @@
-"use client"
+// Copyright (c) 2025-present databayt
+// Licensed under SSPL-1.0 -- see LICENSE for details
 
-/**
- * Reports Content - Stubbed Implementation
- */
+import { redirect } from "next/navigation"
 
-import Link from "next/link"
-import {
-  BarChart,
-  Calendar,
-  Download,
-  FileBarChart,
-  PieChart,
-  TrendingUp,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
+import { auth } from "@/auth"
+import type { Dictionary } from "@/components/internationalization/types"
+import type { Locale } from "@/components/internationalization/config"
 import {
   Card,
   CardContent,
@@ -22,250 +13,305 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type { Locale } from "@/components/internationalization/config"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+
+import {
+  getARAging,
+  getCashFlowThisMonth,
+  getPnlSummary,
+  getWalletSummary,
+} from "./actions"
 
 interface Props {
-  dictionary?: unknown
+  dictionary: Dictionary
   lang: Locale
 }
 
-export default function ReportsContent({ lang }: Props) {
-  const isRTL = lang === "ar"
+function formatMoney(value: number, currency: string, locale: Locale) {
+  try {
+    return new Intl.NumberFormat(locale === "ar" ? "ar-SD" : "en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    }).format(value)
+  } catch {
+    return `${currency} ${value.toFixed(2)}`
+  }
+}
 
-  // Stub data
-  const reportsCount = 0
-  const generatedReportsCount = 0
+export default async function ReportsContent({ dictionary, lang }: Props) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    redirect(`/${lang}/login?callbackUrl=/${lang}/finance/reports`)
+  }
+
+  // All four reports run in parallel; they're independent tenant-scoped reads.
+  const [pnlRes, agingRes, walletsRes, cashFlowRes] = await Promise.all([
+    getPnlSummary(),
+    getARAging(),
+    getWalletSummary(),
+    getCashFlowThisMonth(),
+  ])
+
+  const pnl = pnlRes.success ? pnlRes.data : null
+  const aging = agingRes.success ? agingRes.data : null
+  const wallets = walletsRes.success ? walletsRes.data : null
+  const cashflow = cashFlowRes.success ? cashFlowRes.data : null
+
+  const rdict = dictionary.finance?.reports as Record<string, unknown> | undefined
+  const s = (rdict?.sections ?? {}) as Record<string, string>
+
+  const title = (rdict?.title as string) ?? "Financial reports"
+  const subtitle = (rdict?.subtitle as string) ?? ""
+  const currency = "SDG"
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
+    <div className="space-y-6 py-4 md:py-6">
+      <header className="px-4 lg:px-6">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {subtitle ? (
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+        ) : null}
+      </header>
+
+      {/* P&L Summary: three periods side-by-side. */}
+      <section className="px-4 lg:px-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "التقارير المولدة" : "Generated Reports"}
-            </CardTitle>
-            <FileBarChart className="text-muted-foreground h-4 w-4" />
+          <CardHeader>
+            <CardTitle>{s.pnl ?? "Profit & Loss"}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{generatedReportsCount}</div>
-            <p className="text-muted-foreground text-xs">
-              {reportsCount} {isRTL ? "إجمالي" : "total"}
-            </p>
+            <div className="grid gap-4 md:grid-cols-3">
+              <PnlColumn
+                label={s.pnlThisMonth ?? "This month"}
+                period={pnl?.thisMonth}
+                currency={currency}
+                locale={lang}
+                labels={s}
+              />
+              <PnlColumn
+                label={s.pnlLastMonth ?? "Last month"}
+                period={pnl?.lastMonth}
+                currency={currency}
+                locale={lang}
+                labels={s}
+              />
+              <PnlColumn
+                label={s.pnlYTD ?? "Year to date"}
+                period={pnl?.yearToDate}
+                currency={currency}
+                locale={lang}
+                labels={s}
+              />
+            </div>
           </CardContent>
         </Card>
+      </section>
 
+      {/* Two-column layout for aging + wallets. */}
+      <section className="grid gap-4 px-4 md:grid-cols-2 lg:px-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "أنواع التقارير" : "Report Types"}
-            </CardTitle>
-            <BarChart className="text-muted-foreground h-4 w-4" />
+          <CardHeader>
+            <CardTitle>{s.aging ?? "Receivables aging"}</CardTitle>
+            <CardDescription>{s.agingSubtitle}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-muted-foreground text-xs">
-              {isRTL ? "التقارير المتاحة" : "Available reports"}
-            </p>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{s.agingBucket ?? "Age"}</TableHead>
+                  <TableHead className="text-end">{s.agingCount ?? "Count"}</TableHead>
+                  <TableHead className="text-end">{s.agingAmount ?? "Amount"}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(aging?.buckets ?? []).map((b) => (
+                  <TableRow key={b.label}>
+                    <TableCell className="font-mono text-xs">{b.label}</TableCell>
+                    <TableCell className="text-end tabular-nums">{b.count}</TableCell>
+                    <TableCell className="text-end tabular-nums">
+                      {formatMoney(b.amount, currency, lang)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "المجدولة" : "Scheduled"}
-            </CardTitle>
-            <Calendar className="text-muted-foreground h-4 w-4" />
+          <CardHeader>
+            <CardTitle>{s.wallets ?? "Client wallets"}</CardTitle>
+            <CardDescription>{s.walletsSubtitle}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <MiniStat
+                label={s.walletsTotalHeld ?? "Total held"}
+                value={formatMoney(wallets?.totalHeld ?? 0, currency, lang)}
+              />
+              <MiniStat
+                label={s.walletsActive ?? "Active wallets"}
+                value={String(wallets?.walletCount ?? 0)}
+              />
+            </div>
+            {(wallets?.topClients?.length ?? 0) > 0 && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{s.walletsTopClient ?? "Client"}</TableHead>
+                    <TableHead className="text-end">
+                      {s.walletsTopBalance ?? "Balance"}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {wallets?.topClients.map((c) => (
+                    <TableRow key={c.clientId}>
+                      <TableCell>{c.clientName}</TableCell>
+                      <TableCell className="text-end tabular-nums">
+                        {formatMoney(c.balance, c.currency, lang)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Cash flow this month. */}
+      <section className="px-4 lg:px-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{s.cashflow ?? "Cash flow"}</CardTitle>
+            <CardDescription>{s.cashflowSubtitle}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-muted-foreground text-xs">
-              {isRTL ? "التقارير الآلية" : "Automated reports"}
-            </p>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  {s.cashflowInflows ?? "Inflows"}
+                </h3>
+                <ul className="mt-2 space-y-1">
+                  <LedgerLine
+                    label={s.cashflowInvoicePayments ?? "Invoice payments"}
+                    value={formatMoney(cashflow?.inflows.invoicePayments ?? 0, currency, lang)}
+                  />
+                  <LedgerLine
+                    label={s.cashflowWalletDeposits ?? "Wallet deposits"}
+                    value={formatMoney(cashflow?.inflows.walletDeposits ?? 0, currency, lang)}
+                  />
+                  <LedgerLine
+                    label="—"
+                    value={formatMoney(cashflow?.inflows.total ?? 0, currency, lang)}
+                    bold
+                  />
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  {s.cashflowOutflows ?? "Outflows"}
+                </h3>
+                <ul className="mt-2 space-y-1">
+                  <LedgerLine
+                    label={s.cashflowExpenses ?? "Expenses paid"}
+                    value={formatMoney(cashflow?.outflows.expenses ?? 0, currency, lang)}
+                  />
+                  <LedgerLine
+                    label={s.cashflowWalletDrawdowns ?? "Wallet drawdowns"}
+                    value={formatMoney(cashflow?.outflows.walletDrawdowns ?? 0, currency, lang)}
+                  />
+                  <LedgerLine
+                    label="—"
+                    value={formatMoney(cashflow?.outflows.total ?? 0, currency, lang)}
+                    bold
+                  />
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  {s.cashflowNet ?? "Net"}
+                </h3>
+                <p className="mt-2 text-2xl font-semibold tabular-nums">
+                  {formatMoney(cashflow?.net ?? 0, currency, lang)}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "التصدير" : "Exports"}
-            </CardTitle>
-            <Download className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-muted-foreground text-xs">PDF, Excel, CSV</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="text-primary h-5 w-5" />
-              {isRTL ? "بيان الأرباح والخسائر" : "Profit & Loss Statement"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "بيان الدخل يوضح الإيرادات والمصروفات" : "Income statement showing revenue and expenses"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/profit-loss`}>
-                {isRTL ? "إنشاء التقرير" : "Generate Report"}
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full" size="sm">
-              <Link href={`/${lang}/finance/reports/profit-loss/history`}>
-                {isRTL ? "عرض السجل" : "View History"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart className="h-5 w-5" />
-              {isRTL ? "الميزانية العمومية" : "Balance Sheet"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "بيان الأصول والخصوم وحقوق الملكية" : "Assets, liabilities, and equity statement"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/balance-sheet`}>
-                {isRTL ? "إنشاء التقرير" : "Generate Report"}
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full" size="sm">
-              <Link href={`/${lang}/finance/reports/balance-sheet/comparative`}>
-                {isRTL ? "مقارنة" : "Comparative"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              {isRTL ? "بيان التدفق النقدي" : "Cash Flow Statement"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "التدفقات النقدية التشغيلية والاستثمارية والتمويلية" : "Operating, investing, and financing cash flows"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/cash-flow`}>
-                {isRTL ? "إنشاء التقرير" : "Generate Report"}
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full" size="sm">
-              <Link href={`/${lang}/finance/reports/cash-flow/projection`}>
-                {isRTL ? "التوقعات" : "Projection"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart className="h-5 w-5" />
-              {isRTL ? "ميزان المراجعة" : "Trial Balance"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "قائمة جميع الحسابات مع أرصدة المدين والدائن" : "List of all accounts with debit/credit balances"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/trial-balance`}>
-                {isRTL ? "إنشاء التقرير" : "Generate Report"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5" />
-              {isRTL ? "تحليل الإيرادات" : "Revenue Analysis"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "تفصيل مفصل لمصادر الإيرادات" : "Detailed breakdown of revenue sources"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/revenue`}>
-                {isRTL ? "إنشاء التقرير" : "Generate Report"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              {isRTL ? "تحليل المصروفات" : "Expense Analysis"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "تفصيل مفصل لفئات المصروفات" : "Detailed breakdown of expense categories"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/expense`}>
-                {isRTL ? "إنشاء التقرير" : "Generate Report"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              {isRTL ? "تقارير مخصصة" : "Custom Reports"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "إنشاء تقارير مالية مخصصة" : "Build custom financial reports"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/custom`}>
-                {isRTL ? "إنشاء تقرير مخصص" : "Create Custom"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileBarChart className="h-5 w-5" />
-              {isRTL ? "جميع التقارير" : "All Reports"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "عرض وإدارة جميع التقارير المولدة" : "View and manage all generated reports"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/reports/all`}>
-                {isRTL ? "عرض الكل" : "View All"} ({reportsCount})
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      </section>
     </div>
+  )
+}
+
+function PnlColumn({
+  label,
+  period,
+  currency,
+  locale,
+  labels,
+}: {
+  label: string
+  period: { revenue: number; expenses: number; profit: number } | undefined
+  currency: string
+  locale: Locale
+  labels: Record<string, string>
+}) {
+  return (
+    <div className="space-y-1 rounded-md border p-4">
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
+      <LedgerLine
+        label={labels.revenue ?? "Revenue"}
+        value={formatMoney(period?.revenue ?? 0, currency, locale)}
+      />
+      <LedgerLine
+        label={labels.expenses ?? "Expenses"}
+        value={formatMoney(period?.expenses ?? 0, currency, locale)}
+      />
+      <LedgerLine
+        label={labels.profit ?? "Profit"}
+        value={formatMoney(period?.profit ?? 0, currency, locale)}
+        bold
+      />
+    </div>
+  )
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-lg font-semibold tabular-nums">{value}</p>
+    </div>
+  )
+}
+
+function LedgerLine({
+  label,
+  value,
+  bold,
+}: {
+  label: string
+  value: string
+  bold?: boolean
+}) {
+  return (
+    <li
+      className={
+        "flex items-center justify-between gap-4 text-sm" + (bold ? " font-semibold" : "")
+      }
+    >
+      <span className="text-muted-foreground">{label}</span>
+      <span className="tabular-nums">{value}</span>
+    </li>
   )
 }

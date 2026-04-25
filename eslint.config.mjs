@@ -8,6 +8,10 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
+      // React 19 compiler hints — useful signal but too noisy for async-polling
+      // patterns we intentionally use (verification form, notification bell).
+      // Revisit after the React Compiler is enabled.
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
   // Override default ignores of eslint-config-next.
@@ -17,6 +21,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated artefacts — linting these wastes CI time and produces noise.
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
+    "prisma/migrations/**",
   ]),
 ]);
 

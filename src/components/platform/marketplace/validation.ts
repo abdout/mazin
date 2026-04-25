@@ -27,8 +27,9 @@ export const vendorApprovalSchema = z.object({
 
 export type VendorApprovalData = z.infer<typeof vendorApprovalSchema>;
 
-// Service Listing Schema
-export const serviceListingSchema = z.object({
+// Service Listing Schema — base object separated from the refine so we can
+// derive a `.partial()` update schema that shares the same field definitions.
+const serviceListingFields = z.object({
   title: z.string().min(3, 'Title is required'),
   titleAr: z.string().optional(),
   description: z.string().min(10, 'Description is required'),
@@ -46,17 +47,23 @@ export const serviceListingSchema = z.object({
   serviceArea: z.string().default('Port Sudan'),
   capacity: z.string().optional(),
   specifications: z.record(z.string(), z.unknown()).optional(),
-}).refine(
-  (data) => {
-    if (data.priceMax && data.priceMax < data.priceMin) {
-      return false;
-    }
-    return true;
-  },
-  { message: 'Max price must be greater than min price', path: ['priceMax'] }
-);
+});
+
+const priceBoundsValid = (data: { priceMin?: number; priceMax?: number }) =>
+  !(data.priceMax !== undefined && data.priceMin !== undefined && data.priceMax < data.priceMin);
+
+export const serviceListingSchema = serviceListingFields.refine(priceBoundsValid, {
+  message: 'Max price must be greater than min price',
+  path: ['priceMax'],
+});
+
+export const serviceListingUpdateSchema = serviceListingFields.partial().refine(priceBoundsValid, {
+  message: 'Max price must be greater than min price',
+  path: ['priceMax'],
+});
 
 export type ServiceListingData = z.infer<typeof serviceListingSchema>;
+export type ServiceListingUpdateData = z.infer<typeof serviceListingUpdateSchema>;
 
 // Service Request Schema
 export const serviceRequestSchema = z.object({

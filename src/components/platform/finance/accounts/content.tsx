@@ -1,193 +1,198 @@
-"use client"
+// Copyright (c) 2025-present databayt
+// Licensed under SSPL-1.0 -- see LICENSE for details
 
-/**
- * Accounts Content - Stubbed Implementation
- *
- * TODO: This component requires:
- * 1. Prisma schema with ChartOfAccount, JournalEntry, LedgerEntry, FiscalYear models
- * 2. Tenant context with companyId instead of schoolId
- * 3. Permission system integration
- */
+import { redirect } from "next/navigation"
+import { Landmark, Wallet } from "lucide-react"
 
-import {
-  BarChart,
-  BookOpen,
-  Calendar,
-  FileText,
-  Lock,
-  Settings,
-} from "lucide-react"
-
+import { auth } from "@/auth"
+import type { Dictionary } from "@/components/internationalization/types"
 import type { Locale } from "@/components/internationalization/config"
 import {
-  DashboardGrid,
-  FeatureCard,
-  StatsCard,
-} from "../lib/dashboard-components"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+
+import { getBankAccountStats, listBankAccounts } from "./actions"
+import { AccountDialog } from "./account-dialog"
+import { RowActions } from "./row-actions"
+import type { BankAccountDTO } from "./types"
 
 interface Props {
-  dictionary?: unknown
+  dictionary: Dictionary
   lang: Locale
 }
 
-export default function AccountsContent({ lang }: Props) {
-  // Stubbed stats - will be replaced with real data from Prisma
-  const accountsCount = 0
-  const journalEntriesCount = 0
-  const ledgerEntriesCount = 0
-  const fiscalYearsCount = 0
-  const postedEntriesCount = 0
-  const unpostedEntriesCount = 0
+function formatMoney(value: number, currency: string, locale: Locale) {
+  try {
+    return new Intl.NumberFormat(locale === "ar" ? "ar-SD" : "en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    }).format(value)
+  } catch {
+    return `${currency} ${value.toFixed(2)}`
+  }
+}
 
-  // Permission flags - stub as true for now
-  const canView = true
-  const canCreate = true
-  const canEdit = true
-  const canApprove = true
-
-  if (!canView) {
-    return (
-      <div>
-        <p className="text-muted-foreground">
-          You don&apos;t have permission to view accounting
-        </p>
-      </div>
-    )
+export default async function AccountsContent({ dictionary, lang }: Props) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    redirect(`/${lang}/login?callbackUrl=/${lang}/finance/accounts`)
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <DashboardGrid type="stats">
-        <StatsCard
-          title="Chart of Accounts"
-          value={accountsCount}
-          description="Configured accounts"
-          icon={BookOpen}
-        />
-        <StatsCard
-          title="Journal Entries"
-          value={journalEntriesCount}
-          description={`${postedEntriesCount} posted`}
-          icon={FileText}
-        />
-        <StatsCard
-          title="Ledger Entries"
-          value={ledgerEntriesCount}
-          description="Total transactions"
-          icon={BarChart}
-        />
-        <StatsCard
-          title="Unposted"
-          value={unpostedEntriesCount}
-          description="Requires posting"
-          icon={Calendar}
-        />
-      </DashboardGrid>
+  const [listRes, statsRes] = await Promise.all([
+    listBankAccounts(),
+    getBankAccountStats(),
+  ])
+  const rows = (listRes.success && listRes.data ? listRes.data : []) as BankAccountDTO[]
+  const stats = statsRes.success && statsRes.data ? statsRes.data : null
 
-      {/* Feature Cards Grid */}
-      <DashboardGrid type="features">
-        <FeatureCard
-          title="Chart of Accounts"
-          description="Define and manage account structure"
-          icon={BookOpen}
-          isPrimary
-          primaryAction={{
-            label: "View Chart",
-            href: `/${lang}/finance/accounts/chart`,
-            count: accountsCount,
-          }}
-          secondaryAction={
-            canCreate
-              ? {
-                  label: "Add Account",
-                  href: `/${lang}/finance/accounts/chart/new`,
-                }
-              : undefined
-          }
+  const adict = dictionary.finance?.accounts as Record<string, unknown> | undefined
+  const cols = (adict?.columns ?? {}) as Record<string, string>
+  const accountTypeLabels = (adict?.accountTypes ?? {}) as Record<string, string>
+  const statusLabels = (adict?.statuses ?? {}) as Record<string, string>
+  const statsLabels = (adict?.stats ?? {}) as Record<string, string>
+
+  const title = (adict?.title as string) ?? "Bank accounts"
+  const subtitle = (adict?.subtitle as string) ?? ""
+  const empty = (adict?.empty as string) ?? "No accounts yet."
+
+  return (
+    <div className="space-y-6 py-4 md:py-6">
+      <header className="flex flex-wrap items-start justify-between gap-4 px-4 lg:px-6">
+        <div>
+          <h1 className="text-2xl font-bold">{title}</h1>
+          {subtitle ? (
+            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+          ) : null}
+        </div>
+        <AccountDialog locale={lang} dict={adict} />
+      </header>
+
+      <div className="grid gap-4 px-4 md:grid-cols-2 lg:px-6">
+        <StatCard
+          title={statsLabels.totalBalance ?? "Total balance"}
+          value={formatMoney(stats?.totalBalance ?? 0, stats?.currency ?? "SDG", lang)}
+          icon={<Landmark className="size-4" />}
         />
-        <FeatureCard
-          title="Journal Entries"
-          description="Record financial transactions"
-          icon={FileText}
-          primaryAction={{
-            label: "View Journal",
-            href: `/${lang}/finance/accounts/journal`,
-            count: journalEntriesCount,
-          }}
-          secondaryAction={
-            canCreate
-              ? {
-                  label: "New Entry",
-                  href: `/${lang}/finance/accounts/journal/new`,
-                }
-              : undefined
-          }
+        <StatCard
+          title={statsLabels.activeAccounts ?? "Active accounts"}
+          value={String(stats?.activeAccounts ?? 0)}
+          icon={<Wallet className="size-4" />}
         />
-        <FeatureCard
-          title="General Ledger"
-          description="View account balances and activity"
-          icon={BarChart}
-          primaryAction={{
-            label: "View Ledger",
-            href: `/${lang}/finance/accounts/ledger`,
-          }}
-          secondaryAction={{
-            label: "Account Balances",
-            href: `/${lang}/finance/accounts/ledger/balances`,
-          }}
-        />
-        {canEdit && (
-          <FeatureCard
-            title="Fiscal Years"
-            description="Manage accounting periods"
-            icon={Calendar}
-            primaryAction={{
-              label: "Fiscal Years",
-              href: `/${lang}/finance/accounts/fiscal`,
-              count: fiscalYearsCount,
-            }}
-            secondaryAction={
-              canCreate
-                ? {
-                    label: "New Year",
-                    href: `/${lang}/finance/accounts/fiscal/new`,
-                  }
-                : undefined
-            }
-          />
-        )}
-        {canApprove && (
-          <FeatureCard
-            title="Period Closing"
-            description="Close accounting periods"
-            icon={Lock}
-            primaryAction={{
-              label: "Close Period",
-              href: `/${lang}/finance/accounts/closing`,
-            }}
-            secondaryAction={{
-              label: "History",
-              href: `/${lang}/finance/accounts/closing/history`,
-            }}
-          />
-        )}
-        {canEdit && (
-          <FeatureCard
-            title="Accounting Settings"
-            description="Configure accounting rules"
-            icon={Settings}
-            primaryAction={{
-              label: "Settings",
-              href: `/${lang}/finance/accounts/settings`,
-            }}
-            secondaryAction={{
-              label: "Posting Rules",
-              href: `/${lang}/finance/accounts/settings/rules`,
-            }}
-          />
-        )}
-      </DashboardGrid>
+      </div>
+
+      <div className="px-4 lg:px-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{subtitle}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {rows.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                {empty}
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{cols.accountName ?? "Account"}</TableHead>
+                    <TableHead>{cols.bankName ?? "Bank"}</TableHead>
+                    <TableHead>{cols.accountNumber ?? "Number"}</TableHead>
+                    <TableHead>{cols.type ?? "Type"}</TableHead>
+                    <TableHead className="text-end">{cols.balance ?? "Balance"}</TableHead>
+                    <TableHead>{cols.status ?? "Status"}</TableHead>
+                    <TableHead className="text-end">{cols.actions ?? "Actions"}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((a) => (
+                    <TableRow key={a.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{a.accountName}</span>
+                          {a.isDefault ? (
+                            <Badge variant="outline" className="text-xs">
+                              ★
+                            </Badge>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p>{a.bankName}</p>
+                          {a.bankBranch ? (
+                            <p className="text-xs text-muted-foreground">
+                              {a.bankBranch}
+                            </p>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {a.accountNumber}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span>{accountTypeLabels[a.accountType] ?? a.accountType}</span>
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {a.currency}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-end tabular-nums">
+                        {formatMoney(a.currentBalance, a.currency, lang)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={a.status === "ACTIVE" ? "default" : "secondary"}>
+                          {statusLabels[a.status] ?? a.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <RowActions account={a} locale={lang} dict={adict} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
+  )
+}
+
+function StatCard({
+  title,
+  value,
+  icon,
+}: {
+  title: string
+  value: string
+  icon: React.ReactNode
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
+        <CardDescription className="text-xs">{title}</CardDescription>
+        <div className="text-muted-foreground">{icon}</div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-2xl font-semibold tabular-nums">{value}</p>
+      </CardContent>
+    </Card>
   )
 }

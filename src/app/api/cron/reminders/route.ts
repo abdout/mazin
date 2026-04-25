@@ -14,10 +14,17 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { runAllReminderJobs } from '@/lib/jobs/task-reminders';
 import { logger } from '@/lib/logger';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 const log = logger.forModule('api.cron-reminders');
+
+const CRON_MONITOR_SLUG = 'cron-reminders-daily';
+const CRON_SCHEDULE = { type: 'crontab' as const, value: '0 8 * * *' };
 
 // Verify cron secret to prevent unauthorized access
 function verifySecret(request: NextRequest): boolean {
@@ -42,8 +49,15 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const checkInId = Sentry.captureCheckIn(
+    { monitorSlug: CRON_MONITOR_SLUG, status: 'in_progress' },
+    { schedule: CRON_SCHEDULE, checkinMargin: 5, maxRuntime: 10 }
+  );
+
   try {
     const results = await runAllReminderJobs();
+
+    Sentry.captureCheckIn({ checkInId, monitorSlug: CRON_MONITOR_SLUG, status: 'ok' });
 
     return NextResponse.json({
       success: true,
@@ -51,6 +65,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     log.error('Cron job failed', error as Error);
+    Sentry.captureCheckIn({ checkInId, monitorSlug: CRON_MONITOR_SLUG, status: 'error' });
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         success: false,

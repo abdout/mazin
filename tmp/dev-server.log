@@ -1,0 +1,377 @@
+
+> mazin@0.1.0 dev /Users/abdout/mazin
+> next dev --turbopack
+
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.20.10.4:3000
+- Environments: .env.local, .env
+✓ Ready in 369ms
+[@sentry/nextjs] DEPRECATION WARNING: disableLogger is deprecated and will be removed in a future version. Use webpack.treeshake.removeDebugLogging instead. (Not supported with Turbopack.)
+[@sentry/nextjs] DEPRECATION WARNING: automaticVercelMonitors is deprecated and will be removed in a future version. Use webpack.automaticVercelMonitors instead. (Not supported with Turbopack.)
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+- Experiments (use with caution):
+  · clientTraceMetadata
+
+ GET /ar 200 in 3.3s (next.js: 2.1s, proxy.ts: 66ms, generate-params: 740ms, application-code: 1189ms)
+[browser] Image with src "/plane.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/ship.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/contianer.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/session 200 in 1344ms (next.js: 1284ms, proxy.ts: 11ms, application-code: 50ms)
+ GET /api/auth/session 200 in 72ms (next.js: 29ms, proxy.ts: 29ms, application-code: 13ms)
+ GET /ar 200 in 540ms (next.js: 22ms, proxy.ts: 4ms, generate-params: 5ms, application-code: 513ms)
+ GET /api/auth/session 200 in 52ms (next.js: 37ms, proxy.ts: 7ms, application-code: 8ms)
+ GET /api/auth/session 200 in 53ms (next.js: 19ms, proxy.ts: 16ms, application-code: 19ms)
+[browser] Image with src "/ship.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/plane.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/contianer.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /ar/login?callbackUrl=%2Far%2Flistings 200 in 1272ms (next.js: 995ms, proxy.ts: 5ms, generate-params: 759ms, application-code: 272ms)
+ GET /api/auth/session 200 in 60ms (next.js: 23ms, proxy.ts: 29ms, application-code: 9ms)
+ GET /api/auth/session 200 in 28ms (next.js: 8ms, proxy.ts: 3ms, application-code: 18ms)
+ GET /api/auth/csrf 200 in 55ms (next.js: 40ms, proxy.ts: 10ms, application-code: 5ms)
+ GET /ar/login?callbackUrl=%2Far%2Flistings 200 in 982ms (next.js: 525ms, proxy.ts: 2ms, generate-params: 5ms, application-code: 454ms)
+ GET /api/auth/session 200 in 32ms (next.js: 8ms, proxy.ts: 19ms, application-code: 5ms)
+ GET /api/auth/session 200 in 19ms (next.js: 13ms, proxy.ts: 3ms, application-code: 3ms)
+ GET /ar/login?callbackUrl=%2Far%2Flistings 200 in 143ms (next.js: 8ms, proxy.ts: 1806µs, generate-params: 34µs, application-code: 133ms)
+ GET /api/auth/session 200 in 45ms (next.js: 20ms, proxy.ts: 7ms, application-code: 18ms)
+ GET /api/auth/session 200 in 20ms (next.js: 9ms, proxy.ts: 4ms, application-code: 6ms)
+ GET /ar/login?callbackUrl=%2Far%2Fhelp 200 in 189ms (next.js: 13ms, proxy.ts: 3ms, generate-params: 1191µs, application-code: 172ms)
+ GET /api/auth/session 200 in 62ms (next.js: 29ms, proxy.ts: 18ms, application-code: 14ms)
+ GET /api/auth/session 200 in 68ms (next.js: 38ms, proxy.ts: 9ms, application-code: 21ms)
+ GET /ar/login?callbackUrl=%2Far%2Fhelp 200 in 183ms (next.js: 8ms, proxy.ts: 3ms, generate-params: 3ms, application-code: 172ms)
+ GET /api/auth/session 200 in 16ms (next.js: 6ms, proxy.ts: 3ms, application-code: 6ms)
+ GET /api/auth/session 200 in 19ms (next.js: 11ms, proxy.ts: 3ms, application-code: 5ms)
+ POST /api/auth/callback/credentials 302 in 3.4s (next.js: 32ms, proxy.ts: 3ms, application-code: 3.4s)
+ GET /ar/login?callbackUrl=%2Far%2Fhelp 200 in 270ms (next.js: 14ms, proxy.ts: 2ms, generate-params: 1929µs, application-code: 253ms)
+ GET /ar 200 in 522ms (next.js: 11ms, proxy.ts: 4ms, generate-params: 2ms, application-code: 507ms)
+ GET /api/auth/session 200 in 31ms (next.js: 14ms, proxy.ts: 8ms, application-code: 9ms)
+ GET /api/auth/session 200 in 16ms (next.js: 5ms, proxy.ts: 3ms, application-code: 8ms)
+ GET /ar/login?callbackUrl=%2Far%2Fterms 200 in 434ms (next.js: 5ms, proxy.ts: 4ms, generate-params: 18µs, application-code: 425ms)
+ GET /api/auth/session 200 in 62ms (next.js: 42ms, proxy.ts: 10ms, application-code: 10ms)
+ GET /api/auth/session 200 in 35ms (next.js: 24ms, proxy.ts: 3ms, application-code: 8ms)
+○ Compiling /[lang]/dashboard ...
+ GET /ar/login?callbackUrl=%2Far%2Fterms 200 in 345ms (next.js: 21ms, proxy.ts: 3ms, generate-params: 7ms, application-code: 320ms)
+ GET /api/auth/session 200 in 123ms (next.js: 94ms, proxy.ts: 12ms, application-code: 17ms)
+ GET /api/auth/session 200 in 33ms (next.js: 19ms, proxy.ts: 4ms, application-code: 10ms)
+ GET /ar/login?callbackUrl=%2Far%2Fterms 200 in 542ms (next.js: 28ms, proxy.ts: 5ms, generate-params: 51µs, application-code: 510ms)
+ GET /api/auth/session 200 in 62ms (next.js: 23ms, proxy.ts: 16ms, application-code: 23ms)
+ GET /api/auth/session 200 in 22ms (next.js: 10ms, proxy.ts: 4ms, application-code: 8ms)
+ GET /ar/login?callbackUrl=%2Far%2Fprivacy 200 in 356ms (next.js: 7ms, proxy.ts: 7ms, generate-params: 1997µs, application-code: 342ms)
+ GET /api/auth/session 200 in 218ms (next.js: 47ms, proxy.ts: 33ms, application-code: 138ms)
+ GET /api/auth/session 200 in 55ms (next.js: 20ms, proxy.ts: 19ms, application-code: 17ms)
+ GET /ar/login?callbackUrl=%2Far%2Fprivacy 200 in 575ms (next.js: 54ms, proxy.ts: 46ms, generate-params: 8ms, application-code: 475ms)
+ GET /api/auth/session 200 in 59ms (next.js: 28ms, proxy.ts: 17ms, application-code: 14ms)
+ GET /api/auth/session 200 in 58ms (next.js: 10ms, proxy.ts: 6ms, application-code: 42ms)
+ GET /ar/login?callbackUrl=%2Far%2Fprivacy 200 in 321ms (next.js: 24ms, proxy.ts: 6ms, generate-params: 74µs, application-code: 290ms)
+ GET /api/auth/session 200 in 39ms (next.js: 17ms, proxy.ts: 15ms, application-code: 7ms)
+ GET /api/auth/session 200 in 12ms (next.js: 4ms, proxy.ts: 3ms, application-code: 4ms)
+ GET /en 200 in 750ms (next.js: 22ms, proxy.ts: 3ms, generate-params: 8ms, application-code: 724ms)
+ GET /api/auth/session 200 in 171ms (next.js: 140ms, proxy.ts: 15ms, application-code: 16ms)
+ GET /api/auth/session 200 in 115ms (next.js: 69ms, proxy.ts: 33ms, application-code: 13ms)
+[browser] Image with src "/ship.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/plane.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/contianer.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /en/login?callbackUrl=%2Fen%2Fdefinitely-not-a-route-xyz 200 in 784ms (next.js: 53ms, proxy.ts: 5ms, generate-params: 16ms, application-code: 726ms)
+ GET /en 200 in 1541ms (next.js: 77ms, proxy.ts: 6ms, generate-params: 10ms, application-code: 1458ms)
+ GET /api/auth/session 200 in 255ms (next.js: 191ms, proxy.ts: 17ms, application-code: 47ms)
+[dashboard.weather] OPENWEATHERMAP_API_KEY not configured, using defaults 
+ GET /api/auth/session 200 in 1583ms (next.js: 1059ms, proxy.ts: 443ms, application-code: 81ms)
+[browser] Image with src "/ship.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/contianer.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/plane.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].bankAccount.aggregate()` invocation in
+/Users/abdout/mazin/.next/dev/server/chunks/ssr/_10cgycn._.js:1540:140
+
+  1537     }
+  1538 }),
+  1539 // Balance from bank accounts
+→ 1540 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].bankAccount.aggregate(
+The column `(not available)` does not exist in the current database.
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `{imported module ./src/lib/db.ts}["db"].bankAccount.aggregate()` invocation in
+/Users/abdout/mazin/.next/dev/server/chunks/ssr/_10cgycn._.js:1540:140
+
+  1537     }
+  1538 }),
+  1539 // Balance from bank accounts
+→ 1540 {imported module ./src/lib/db.ts}["db"].bankAccount.aggregate(
+The column `(not available)` does not exist in the current database.
+    at <unknown> (src/components/platform/dashboard/actions.ts:402:20)
+    at async getCashFlowData (src/components/platform/dashboard/actions.ts:384:43)
+    at async DashboardPage (src/app/[lang]/(platform)/dashboard/page.tsx:41:7)
+  400 |     }),
+  401 |     // Balance from bank accounts
+> 402 |     db.bankAccount.aggregate({
+      |                    ^
+  403 |       where: { isActive: true },
+  404 |       _sum: { currentBalance: true },
+  405 |     }), {
+  code: 'P2022',
+  meta: {
+    modelName: 'BankAccount',
+    driverAdapterError: Error [DriverAdapterError]: ColumnNotFound
+        at async getCashFlowData (src/components/platform/dashboard/actions.ts:384:43)
+        at async DashboardPage (src/app/[lang]/(platform)/dashboard/page.tsx:41:7)
+      382 |
+      383 |   // Run queries in parallel
+    > 384 |   const [inflow, outflow, bankBalances] = await Promise.all([
+          |                                           ^
+      385 |     // Cash inflow = paid invoices this month
+      386 |     db.invoice.aggregate({
+      387 |       where: { {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.2.0',
+  digest: '1751027407'
+}
+ GET /en/dashboard 200 in 23.1s (next.js: 17.6s, proxy.ts: 27ms, generate-params: 1110ms, application-code: 5.5s)
+[browser] Image with src "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+prisma:error 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `42P01`. Message: `relation "Expense" does not exist`
+prisma:error 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `42P01`. Message: `relation "Invoice" does not exist`
+[browser] Image with src "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ POST /en/dashboard 200 in 2.2s (next.js: 173ms, proxy.ts: 687ms, generate-params: 15ms, application-code: 1307ms)
+  └─ ƒ getBellNotifications(5) in 1130ms src/components/platform/notifications/actions.ts
+ GET /api/auth/session 200 in 3.4s (next.js: 181ms, proxy.ts: 37ms, application-code: 3.2s)
+ GET /api/auth/session 200 in 864ms (next.js: 117ms, proxy.ts: 19ms, application-code: 728ms)
+ GET /en 200 in 578ms (next.js: 44ms, proxy.ts: 56ms, generate-params: 5ms, application-code: 477ms)
+ GET /api/auth/session 200 in 76ms (next.js: 44ms, proxy.ts: 9ms, application-code: 23ms)
+ GET /api/auth/session 200 in 282ms (next.js: 243ms, proxy.ts: 11ms, application-code: 28ms)
+[browser] Image with src "/ship.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/plane.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/contianer.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /en 200 in 329ms (next.js: 10ms, proxy.ts: 7ms, generate-params: 3ms, application-code: 313ms)
+ GET /api/auth/session 200 in 41ms (next.js: 18ms, proxy.ts: 1446µs, application-code: 22ms)
+ GET /api/auth/session 200 in 44ms (next.js: 22ms, proxy.ts: 5ms, application-code: 17ms)
+[browser] Image with src "/ship.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/plane.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/contianer.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /en/login 200 in 517ms (next.js: 29ms, proxy.ts: 20ms, generate-params: 8ms, application-code: 469ms)
+ GET /api/auth/session 200 in 131ms (next.js: 65ms, proxy.ts: 17ms, application-code: 49ms)
+ GET /api/auth/session 200 in 69ms (next.js: 53ms, proxy.ts: 4ms, application-code: 11ms)
+ GET /ar 200 in 855ms (next.js: 56ms, proxy.ts: 14ms, generate-params: 17ms, application-code: 786ms)
+[dashboard.weather] OPENWEATHERMAP_API_KEY not configured, using defaults 
+ GET /api/auth/session 200 in 296ms (next.js: 264ms, proxy.ts: 14ms, application-code: 18ms)
+ GET /api/auth/session 200 in 199ms (next.js: 170ms, proxy.ts: 12ms, application-code: 17ms)
+[browser] Image with src "/ship.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/plane.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/contianer.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].bankAccount.aggregate()` invocation in
+/Users/abdout/mazin/.next/dev/server/chunks/ssr/_10cgycn._.js:1540:140
+
+  1537     }
+  1538 }),
+  1539 // Balance from bank accounts
+→ 1540 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].bankAccount.aggregate(
+The column `(not available)` does not exist in the current database.
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `{imported module ./src/lib/db.ts}["db"].bankAccount.aggregate()` invocation in
+/Users/abdout/mazin/.next/dev/server/chunks/ssr/_10cgycn._.js:1540:140
+
+  1537     }
+  1538 }),
+  1539 // Balance from bank accounts
+→ 1540 {imported module ./src/lib/db.ts}["db"].bankAccount.aggregate(
+The column `(not available)` does not exist in the current database.
+    at <unknown> (src/components/platform/dashboard/actions.ts:402:20)
+    at async getCashFlowData (src/components/platform/dashboard/actions.ts:384:43)
+    at async DashboardPage (src/app/[lang]/(platform)/dashboard/page.tsx:41:7)
+  400 |     }),
+  401 |     // Balance from bank accounts
+> 402 |     db.bankAccount.aggregate({
+      |                    ^
+  403 |       where: { isActive: true },
+  404 |       _sum: { currentBalance: true },
+  405 |     }), {
+  code: 'P2022',
+  meta: {
+    modelName: 'BankAccount',
+    driverAdapterError: Error [DriverAdapterError]: ColumnNotFound
+        at async getCashFlowData (src/components/platform/dashboard/actions.ts:384:43)
+        at async DashboardPage (src/app/[lang]/(platform)/dashboard/page.tsx:41:7)
+      382 |
+      383 |   // Run queries in parallel
+    > 384 |   const [inflow, outflow, bankBalances] = await Promise.all([
+          |                                           ^
+      385 |     // Cash inflow = paid invoices this month
+      386 |     db.invoice.aggregate({
+      387 |       where: { {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.2.0',
+  digest: '1751027407'
+}
+[browser] Image with src "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /en/dashboard 200 in 3.0s (next.js: 58ms, proxy.ts: 1736µs, generate-params: 16ms, application-code: 3.0s)
+ POST /en/login 303 in 6.3s (next.js: 18ms, proxy.ts: 21ms, generate-params: 4ms, application-code: 6.3s)
+  └─ ƒ login({"email":"mazin@abdout.org","password":"1234"}, null) in 3153ms src/components/auth/login/action.ts
+prisma:error 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `42P01`. Message: `relation "Expense" does not exist`
+prisma:error 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `42P01`. Message: `relation "Invoice" does not exist`
+ GET /en/login?callbackUrl=%2Fen%2Fsearch 200 in 159ms (next.js: 10ms, proxy.ts: 4ms, generate-params: 2ms, application-code: 145ms)
+ GET /api/auth/session 200 in 22ms (next.js: 12ms, proxy.ts: 5ms, application-code: 5ms)
+ GET /api/auth/session 200 in 11ms (next.js: 3ms, proxy.ts: 3ms, application-code: 4ms)
+ POST /en/dashboard 200 in 2.3s (next.js: 125ms, proxy.ts: 23ms, generate-params: 29µs, application-code: 2.2s)
+  └─ ƒ getBellNotifications(5) in 2138ms src/components/platform/notifications/actions.ts
+ POST /en/dashboard 200 in 1128ms (next.js: 12ms, proxy.ts: 6ms, generate-params: 1152µs, application-code: 1110ms)
+  └─ ƒ getBellNotifications(5) in 1095ms src/components/platform/notifications/actions.ts
+ GET /en/login 200 in 179ms (next.js: 12ms, proxy.ts: 7ms, generate-params: 5ms, application-code: 161ms)
+ GET /api/auth/session 200 in 46ms (next.js: 30ms, proxy.ts: 8ms, application-code: 7ms)
+ GET /api/auth/session 200 in 59ms (next.js: 46ms, proxy.ts: 3ms, application-code: 10ms)
+ GET /en/join 200 in 1045ms (next.js: 882ms, proxy.ts: 2ms, generate-params: 805ms, application-code: 160ms)
+ GET /api/auth/session 200 in 25ms (next.js: 16ms, proxy.ts: 3ms, application-code: 6ms)
+ GET /api/auth/session 200 in 20ms (next.js: 6ms, proxy.ts: 3ms, application-code: 11ms)
+ GET /en/login?callbackUrl=%2Fen%2Fthis-route-does-not-exist-xyz 200 in 161ms (next.js: 12ms, proxy.ts: 2ms, generate-params: 7ms, application-code: 146ms)
+ GET /api/auth/session 200 in 27ms (next.js: 13ms, proxy.ts: 11ms, application-code: 3ms)
+ GET /api/auth/session 200 in 16ms (next.js: 7ms, proxy.ts: 5ms, application-code: 4ms)
+ GET /en/login 200 in 148ms (next.js: 4ms, proxy.ts: 2ms, generate-params: 22µs, application-code: 142ms)
+ GET /api/auth/session 200 in 25ms (next.js: 12ms, proxy.ts: 6ms, application-code: 7ms)
+ GET /api/auth/session 200 in 14ms (next.js: 5ms, proxy.ts: 4ms, application-code: 5ms)
+[dashboard.weather] OPENWEATHERMAP_API_KEY not configured, using defaults 
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].bankAccount.aggregate()` invocation in
+/Users/abdout/mazin/.next/dev/server/chunks/ssr/_10cgycn._.js:1540:140
+
+  1537     }
+  1538 }),
+  1539 // Balance from bank accounts
+→ 1540 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].bankAccount.aggregate(
+The column `(not available)` does not exist in the current database.
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `{imported module ./src/lib/db.ts}["db"].bankAccount.aggregate()` invocation in
+/Users/abdout/mazin/.next/dev/server/chunks/ssr/_10cgycn._.js:1540:140
+
+  1537     }
+  1538 }),
+  1539 // Balance from bank accounts
+→ 1540 {imported module ./src/lib/db.ts}["db"].bankAccount.aggregate(
+The column `(not available)` does not exist in the current database.
+    at <unknown> (src/components/platform/dashboard/actions.ts:402:20)
+    at async getCashFlowData (src/components/platform/dashboard/actions.ts:384:43)
+    at async DashboardPage (src/app/[lang]/(platform)/dashboard/page.tsx:41:7)
+  400 |     }),
+  401 |     // Balance from bank accounts
+> 402 |     db.bankAccount.aggregate({
+      |                    ^
+  403 |       where: { isActive: true },
+  404 |       _sum: { currentBalance: true },
+  405 |     }), {
+  code: 'P2022',
+  meta: {
+    modelName: 'BankAccount',
+    driverAdapterError: Error [DriverAdapterError]: ColumnNotFound
+        at async getCashFlowData (src/components/platform/dashboard/actions.ts:384:43)
+        at async DashboardPage (src/app/[lang]/(platform)/dashboard/page.tsx:41:7)
+      382 |
+      383 |   // Run queries in parallel
+    > 384 |   const [inflow, outflow, bankBalances] = await Promise.all([
+          |                                           ^
+      385 |     // Cash inflow = paid invoices this month
+      386 |     db.invoice.aggregate({
+      387 |       where: { {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.2.0',
+  digest: '1751027407'
+}
+ GET /en/dashboard 200 in 1877ms (next.js: 14ms, proxy.ts: 3ms, generate-params: 2ms, application-code: 1860ms)
+ POST /en/login 303 in 3.8s (next.js: 15ms, proxy.ts: 8ms, generate-params: 1420µs, application-code: 3.8s)
+  └─ ƒ login({"email":"mazin@abdout.org","password":"1234"}, null) in 1880ms src/components/auth/login/action.ts
+prisma:error 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `42P01`. Message: `relation "Invoice" does not exist`
+prisma:error 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Raw query failed. Code: `42P01`. Message: `relation "Expense" does not exist`
+ POST /en/dashboard 200 in 2.2s (next.js: 8ms, proxy.ts: 9ms, generate-params: 3ms, application-code: 2.2s)
+  └─ ƒ getBellNotifications(5) in 2193ms src/components/platform/notifications/actions.ts
+ POST /en/dashboard 200 in 971ms (next.js: 6ms, proxy.ts: 1235µs, generate-params: 2ms, application-code: 963ms)
+  └─ ƒ getBellNotifications(5) in 958ms src/components/platform/notifications/actions.ts
+ GET /en/login 200 in 168ms (next.js: 4ms, proxy.ts: 3ms, generate-params: 1792µs, application-code: 161ms)
+ GET /api/auth/session 200 in 22ms (next.js: 5ms, proxy.ts: 8ms, application-code: 9ms)
+ GET /api/auth/session 200 in 35ms (next.js: 28ms, proxy.ts: 3ms, application-code: 4ms)
+ POST /en/login 200 in 262ms (next.js: 4ms, proxy.ts: 10ms, generate-params: 15µs, application-code: 248ms)
+  └─ ƒ login({"email":"nobody@example.com","password":"wrongpassword"}, null) in 244ms src/components/auth/login/action.ts
+ GET /en 200 in 161ms (next.js: 8ms, proxy.ts: 4ms, generate-params: 2ms, application-code: 149ms)
+ GET /en/login 200 in 155ms (next.js: 6ms, proxy.ts: 3ms, generate-params: 1615µs, application-code: 146ms)
+ GET /api/auth/session 200 in 20ms (next.js: 8ms, proxy.ts: 6ms, application-code: 7ms)
+ GET /api/auth/session 200 in 11ms (next.js: 3ms, proxy.ts: 3ms, application-code: 5ms)
+ POST /en/login 200 in 1607ms (next.js: 5ms, proxy.ts: 11ms, generate-params: 15µs, application-code: 1591ms)
+  └─ ƒ login({"email":"nobody@example.com","password":"wrongpassword"}, null) in 1584ms src/components/auth/login/action.ts
+ GET /en/login 200 in 178ms (next.js: 17ms, proxy.ts: 3ms, generate-params: 5ms, application-code: 159ms)
+ GET /api/auth/session 200 in 35ms (next.js: 14ms, proxy.ts: 10ms, application-code: 10ms)
+ GET /api/auth/session 200 in 30ms (next.js: 17ms, proxy.ts: 8ms, application-code: 4ms)
+ GET /en/login?callbackUrl=%2Fen%2Fdashboard 200 in 270ms (next.js: 4ms, proxy.ts: 2ms, generate-params: 21µs, application-code: 264ms)
+ GET /api/auth/session 200 in 19ms (next.js: 12ms, proxy.ts: 2ms, application-code: 5ms)
+ GET /api/auth/session 200 in 14ms (next.js: 7ms, proxy.ts: 2ms, application-code: 5ms)
+ GET /en/login 200 in 149ms (next.js: 5ms, proxy.ts: 1730µs, generate-params: 3ms, application-code: 142ms)
+ GET /api/auth/session 200 in 22ms (next.js: 6ms, proxy.ts: 9ms, application-code: 7ms)
+ GET /api/auth/session 200 in 21ms (next.js: 6ms, proxy.ts: 3ms, application-code: 12ms)

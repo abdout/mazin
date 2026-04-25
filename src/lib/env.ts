@@ -28,25 +28,47 @@ const serverSchema = z.object({
   DATABASE_URL: isProduction
     ? z.string().min(1, "DATABASE_URL is required in production")
     : z.string().min(1).optional(),
+  // Direct (unpooled) connection used by Prisma migrations.
+  DIRECT_URL: z.string().optional(),
 
-  // NextAuth
+  // NextAuth — Auth.js v5 reads AUTH_URL/AUTH_SECRET; older NEXTAUTH_* kept
+  // for back-compat so config rollouts are reversible.
   AUTH_SECRET: isProduction
     ? z.string().min(1, "AUTH_SECRET is required in production")
     : z.string().min(1).optional(),
   AUTH_URL: z.string().url().optional(),
   AUTH_TRUST_HOST: z.string().optional(),
+  AUTH_JWT_VERIFY: z.enum(["strict", "lax"]).optional(),
+  NEXTAUTH_SECRET: z.string().optional(),
+  NEXTAUTH_URL: z.string().url().optional(),
 
   // OAuth providers
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   FACEBOOK_CLIENT_ID: z.string().optional(),
   FACEBOOK_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+
+  // GitHub issue reporting (Report Issue feature)
+  GITHUB_PERSONAL_ACCESS_TOKEN: z.string().optional(),
+  GITHUB_REPO: z.string().optional(),
 
   // Email
   RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
 
   // AI / Chatbot
   GROQ_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().optional(),
+
+  // External services
+  OPENWEATHERMAP_API_KEY: z.string().optional(),
+
+  // Plaid (banking integration)
+  PLAID_CLIENT_ID: z.string().optional(),
+  PLAID_SECRET: z.string().optional(),
+  PLAID_ENV: z.enum(["sandbox", "development", "production"]).optional(),
 
   // Cron
   CRON_SECRET: z.string().optional(),
@@ -69,6 +91,7 @@ const serverSchema = z.object({
 const clientSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+  NEXT_PUBLIC_SCHEMATIC_CUSTOMER_PORTAL_COMPONENT_ID: z.string().optional(),
 })
 
 type ServerEnv = z.infer<typeof serverSchema>
@@ -83,18 +106,35 @@ const rawEnv = {
   NODE_ENV: process.env.NODE_ENV,
 
   DATABASE_URL: process.env.DATABASE_URL,
+  DIRECT_URL: process.env.DIRECT_URL,
 
   AUTH_SECRET: process.env.AUTH_SECRET,
   AUTH_URL: process.env.AUTH_URL,
   AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
+  AUTH_JWT_VERIFY: process.env.AUTH_JWT_VERIFY,
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
 
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID,
   FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET,
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+
+  GITHUB_PERSONAL_ACCESS_TOKEN: process.env.GITHUB_PERSONAL_ACCESS_TOKEN,
+  GITHUB_REPO: process.env.GITHUB_REPO,
 
   RESEND_API_KEY: process.env.RESEND_API_KEY,
+  EMAIL_FROM: process.env.EMAIL_FROM,
   GROQ_API_KEY: process.env.GROQ_API_KEY,
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+  OPENWEATHERMAP_API_KEY: process.env.OPENWEATHERMAP_API_KEY,
+
+  PLAID_CLIENT_ID: process.env.PLAID_CLIENT_ID,
+  PLAID_SECRET: process.env.PLAID_SECRET,
+  PLAID_ENV: process.env.PLAID_ENV,
+
   CRON_SECRET: process.env.CRON_SECRET,
 
   WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
@@ -107,6 +147,8 @@ const rawEnv = {
 
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  NEXT_PUBLIC_SCHEMATIC_CUSTOMER_PORTAL_COMPONENT_ID:
+    process.env.NEXT_PUBLIC_SCHEMATIC_CUSTOMER_PORTAL_COMPONENT_ID,
 } as const
 
 /**

@@ -1,21 +1,11 @@
-"use client"
+// Copyright (c) 2025-present databayt
+// Licensed under SSPL-1.0 -- see LICENSE for details
 
-/**
- * Fees Content - Stubbed Implementation
- */
+import { redirect } from "next/navigation"
 
-import Link from "next/link"
-import {
-  Award,
-  CircleAlert,
-  CreditCard,
-  DollarSign,
-  TrendingUp,
-  TriangleAlert,
-  Users,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
+import { auth } from "@/auth"
+import type { Dictionary } from "@/components/internationalization/types"
+import type { Locale } from "@/components/internationalization/config"
 import {
   Card,
   CardContent,
@@ -23,225 +13,144 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type { Locale } from "@/components/internationalization/config"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+
+import { listFeeTemplates } from "./actions"
+import { TemplateDialog } from "./template-dialog"
+import { RowActions } from "./row-actions"
+import type { FeeTemplateDTO } from "./types"
 
 interface Props {
-  dictionary?: unknown
+  dictionary: Dictionary
   lang: Locale
 }
 
-export default function FeesContent({ lang }: Props) {
-  const isRTL = lang === "ar"
+function formatMoney(value: number, locale: Locale) {
+  try {
+    return new Intl.NumberFormat(locale === "ar" ? "ar-SD" : "en-US", {
+      style: "currency",
+      currency: "SDG",
+      maximumFractionDigits: 2,
+    }).format(value)
+  } catch {
+    return `SDG ${value.toFixed(2)}`
+  }
+}
 
-  // Stub data
-  const feeStructuresCount = 0
-  const totalFeesCollected = 0
-  const pendingPayments = 0
-  const overduePayments = 0
-  const scholarshipsCount = 0
-  const finesCount = 0
-  const activeAssignmentsCount = 0
+function formatValue(t: FeeTemplateDTO, locale: Locale): string {
+  if (t.calculationType === "FIXED" && t.amount != null) {
+    return formatMoney(t.amount, locale)
+  }
+  if (t.calculationType === "PERCENTAGE_OF_VALUE" && t.percentage != null) {
+    return `${Number((t.percentage * 100).toFixed(4))}%`
+  }
+  if (t.amount != null) return formatMoney(t.amount, locale)
+  if (t.percentage != null) {
+    return `${Number((t.percentage * 100).toFixed(4))}%`
+  }
+  return "—"
+}
+
+export default async function FeesContent({ dictionary, lang }: Props) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    redirect(`/${lang}/login?callbackUrl=/${lang}/finance/fees`)
+  }
+
+  const res = await listFeeTemplates()
+  const rows = (res.success && res.data ? res.data : []) as FeeTemplateDTO[]
+
+  const fdict = dictionary.finance?.fees as Record<string, unknown> | undefined
+  const cols = (fdict?.columns ?? {}) as Record<string, string>
+  const feeTypes = (fdict?.feeTypes ?? {}) as Record<string, string>
+  const calcTypes = (fdict?.calculationTypes ?? {}) as Record<string, string>
+
+  const title = (fdict?.title as string) ?? "Fee templates"
+  const subtitle = (fdict?.subtitle as string) ?? ""
+  const empty = (fdict?.empty as string) ?? "No fee templates yet."
 
   return (
-    <div className="space-y-6">
-      {/* Financial Overview */}
-      <div className="grid gap-4 md:grid-cols-4">
+    <div className="space-y-6 py-4 md:py-6">
+      <header className="flex flex-wrap items-start justify-between gap-4 px-4 lg:px-6">
+        <div>
+          <h1 className="text-2xl font-bold">{title}</h1>
+          {subtitle ? (
+            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+          ) : null}
+        </div>
+        <TemplateDialog locale={lang} dict={fdict} />
+      </header>
+
+      <div className="px-4 lg:px-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "الرسوم المحصلة" : "Fees Collected"}
-            </CardTitle>
-            <DollarSign className="text-muted-foreground h-4 w-4" />
+          <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{subtitle}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              ${(totalFeesCollected / 100).toLocaleString()}
-            </div>
-            <p className="text-muted-foreground text-xs">
-              {isRTL ? "المدفوعات المكتملة" : "Completed payments"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "المدفوعات المعلقة" : "Pending Payments"}
-            </CardTitle>
-            <CircleAlert className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(pendingPayments / 100).toLocaleString()}
-            </div>
-            <p className="text-muted-foreground text-xs">
-              {activeAssignmentsCount} {isRTL ? "تخصيصات" : "assignments"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "المدفوعات المتأخرة" : "Overdue Payments"}
-            </CardTitle>
-            <TriangleAlert className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(overduePayments / 100).toLocaleString()}
-            </div>
-            <p className="text-muted-foreground text-xs">
-              {isRTL ? "يتطلب إجراء" : "Requires action"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {isRTL ? "المنح النشطة" : "Active Scholarships"}
-            </CardTitle>
-            <Award className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{scholarshipsCount}</div>
-            <p className="text-muted-foreground text-xs">
-              {isRTL ? "البرامج المتاحة" : "Available programs"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Fee Structures */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              {isRTL ? "هياكل الرسوم" : "Fee Structures"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "تحديد وإدارة أنواع ومبالغ الرسوم" : "Define and manage fee types and amounts"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/fees/structures`}>
-                {isRTL ? "عرض الهياكل" : "View Structures"} ({feeStructuresCount})
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full" size="sm">
-              <Link href={`/${lang}/finance/fees/structures/new`}>
-                {isRTL ? "إنشاء هيكل جديد" : "Create New Structure"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Payment Tracking */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              {isRTL ? "تتبع المدفوعات" : "Payment Tracking"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "تسجيل وتتبع مدفوعات الرسوم" : "Record and track fee payments"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/fees/payments`}>
-                {isRTL ? "عرض المدفوعات" : "View Payments"}
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full" size="sm">
-              <Link href={`/${lang}/finance/fees/payments/record`}>
-                {isRTL ? "تسجيل دفعة" : "Record Payment"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Assignments */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              {isRTL ? "تخصيص الرسوم" : "Fee Assignments"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "تخصيص الرسوم وتتبع الحالة" : "Assign fees and track status"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/fees/assignments`}>
-                {isRTL ? "عرض التخصيصات" : "View Assignments"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Scholarships */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5" />
-              {isRTL ? "المنح" : "Scholarships"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "إدارة برامج المنح والطلبات" : "Manage scholarship programs and applications"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/fees/scholarships`}>
-                {isRTL ? "عرض المنح" : "View Scholarships"} ({scholarshipsCount})
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Fines */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TriangleAlert className="h-5 w-5" />
-              {isRTL ? "الغرامات والعقوبات" : "Fines & Penalties"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "تتبع وإدارة الغرامات والعقوبات" : "Track and manage fines and penalties"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/fees/fines`}>
-                {isRTL ? "عرض الغرامات" : "View Fines"} ({finesCount})
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Reports */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              {isRTL ? "تقارير الرسوم" : "Fee Reports"}
-            </CardTitle>
-            <CardDescription>
-              {isRTL ? "إنشاء تقارير جمع وتحليل الرسوم" : "Generate fee collection and analysis reports"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild className="w-full">
-              <Link href={`/${lang}/finance/fees/reports`}>
-                {isRTL ? "عرض التقارير" : "View Reports"}
-              </Link>
-            </Button>
+            {rows.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                {empty}
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{cols.code ?? "Code"}</TableHead>
+                    <TableHead>{cols.name ?? "Name"}</TableHead>
+                    <TableHead>{cols.feeType ?? "Fee type"}</TableHead>
+                    <TableHead>{cols.calculationType ?? "Calculation"}</TableHead>
+                    <TableHead className="text-end">{cols.value ?? "Value"}</TableHead>
+                    <TableHead>{cols.status ?? "Status"}</TableHead>
+                    <TableHead className="text-end">{cols.actions ?? "Actions"}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((t) => (
+                    <TableRow key={t.id}>
+                      <TableCell className="font-mono text-xs">{t.code}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">
+                            {lang === "ar" && t.nameAr ? t.nameAr : t.name}
+                          </p>
+                          {t.description ? (
+                            <p className="truncate text-xs text-muted-foreground">
+                              {t.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell>{feeTypes[t.feeType] ?? t.feeType}</TableCell>
+                      <TableCell>
+                        {calcTypes[t.calculationType] ?? t.calculationType}
+                      </TableCell>
+                      <TableCell className="text-end tabular-nums">
+                        {formatValue(t, lang)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={t.isActive ? "default" : "secondary"}>
+                          {t.isActive
+                            ? (fdict?.statusActive as string) ?? "Active"
+                            : (fdict?.statusInactive as string) ?? "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <RowActions template={t} locale={lang} dict={fdict} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </div>

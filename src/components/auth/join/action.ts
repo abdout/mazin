@@ -26,11 +26,14 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Email already in use!" };
   }
 
+  // Public signup = COMMUNITY user (marketplace). Staff are created via invite only.
   await db.user.create({
     data: {
       name,
       email,
       password: hashedPassword,
+      type: "COMMUNITY",
+      role: "VIEWER",
     },
   });
 

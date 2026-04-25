@@ -155,7 +155,7 @@ describe("updateInvoice schema validation", () => {
 
   it("rejects when items is empty", async () => {
     // Provide an existing DRAFT invoice for the ownership check
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     vi.mocked(db.invoice.findFirst).mockResolvedValue(
       makeInvoice({ status: "DRAFT", items: [] }) as any
     )
@@ -166,7 +166,7 @@ describe("updateInvoice schema validation", () => {
   })
 
   it("rejects item with empty description", async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     vi.mocked(db.invoice.findFirst).mockResolvedValue(
       makeInvoice({ status: "DRAFT", items: [] }) as any
     )

@@ -60,7 +60,12 @@ export const ResetForm = ({
         <CardHeader className="text-center" />
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              method="POST"
+              action="#"
+              className="grid gap-6"
+            >
               <div className="grid gap-6">
                 <FormField
                   control={form.control}

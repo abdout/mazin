@@ -1,0 +1,29 @@
+// Staff invitations.
+// Community users self-signup through /join. Staff must be invited by an
+// existing admin — an invite is a one-time token bound to email + role.
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+model StaffInvite {
+  id         String       @id @default(cuid())
+  email      String
+  role       UserRole     @default(CLERK)
+  token      String       @unique
+  status     InviteStatus @default(PENDING)
+  expiresAt  DateTime
+  invitedBy  String       // User.id of the admin who issued the invite
+  acceptedAt DateTime?
+  acceptedBy String?      // User.id created from this invite
+
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([email, status])
+  @@index([token])
+  @@map("staff_invites")
+}

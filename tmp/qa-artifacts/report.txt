@@ -1,0 +1,137 @@
+
+========================================
+Mazin Production QA Report
+========================================
+Base: https://www.abdoutgroup.com
+Date: 2026-04-21T11:44:12.229Z
+
+PASSED (25):
+  ✓ landing-en
+  ✓ landing-ar
+  ✓ /en/about
+  ✓ /en/services
+  ✓ /en/service
+  ✓ track-public
+  ✓ login-mazin@abdout.org
+  ✓ /en/dashboard
+  ✓ /en/project
+  ✓ /en/project/new
+  ✓ /en/customer
+  ✓ /en/task
+  ✓ /en/team
+  ✓ /en/finance/dashboard
+  ✓ /en/finance/fees
+  ✓ /en/finance/expenses
+  ✓ /en/finance/reports
+  ✓ /en/finance/wallet
+  ✓ /en/finance/accounts
+  ✓ /en/finance/banking/my-banks
+  ✓ /en/customs
+  ✓ /en/marketplace
+  ✓ /en/settings
+  ✓ /en/settings/notifications
+  ✓ mobile-landing
+
+FAILED (0):
+
+
+BUGS (3):
+  🐛 [/en/contact] HTTP 404
+  🐛 [/en/invoice] page shows error text. Snippet: Skip to main content
+Toggle Sidebar
+Invoice
+Search
+Notifications
+Switch to العربية
+Toggle theme
+Login
+Dashboard
+Shipments
+Customs
+Invoices
+Finance
+Tasks
+Customers
+Team
+Settings
+⚠️
+Something went wrong
+
+An unexpected error occurred. Please try again.
+
+Try Again
+Go to Dashboard
+Report an issue
+  🐛 [/en/invoice/new] page shows error text. Snippet: Skip to main content
+Toggle Sidebar
+Invoice
+New
+Search
+Notifications
+Switch to العربية
+Toggle theme
+M
+User menu
+Dashboard
+Shipments
+Customs
+Invoices
+Finance
+Tasks
+Customers
+Team
+Settings
+⚠️
+Something went wrong
+
+An unexpected error occurred. Please try again.
+
+Try Again
+Go to Dashboard
+Report an iss
+
+NETWORK 5xx (0):
+
+
+CONSOLE ERRORS (22):
+  • [track] Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance 
+  • [login-mazin@abdout.org] Failed to load resource: the server responded with a status of 429 ()
+  • [login-mazin@abdout.org] Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance 
+  • [/en/invoice] Failed to load resource: the server responded with a status of 429 ()
+  • [/en/invoice] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+  • [/en/invoice] Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance 
+  • [/en/invoice/new] Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance 
+  • [/en/finance/dashboard] Failed to load resource: the server responded with a status of 429 ()
+  • [/en/finance/dashboard] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+  • [/en/finance/banking/my-banks] Failed to load resource: the server responded with a status of 429 ()
+  • [/en/finance/banking/my-banks] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+  • [login-mazin@abdout.org] Failed to load resource: the server responded with a status of 429 ()
+  • [login-mazin@abdout.org] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+  • [login-mazin@abdout.org] Failed to load resource: the server responded with a status of 429 ()
+  • [/en/customs] Failed to load resource: the server responded with a status of 429 ()
+  • [/en/customs] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+  • [login-mazin@abdout.org] Failed to load resource: the server responded with a status of 429 ()
+  • [login-mazin@abdout.org] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+  • [/en/settings/notifications] Failed to load resource: the server responded with a status of 429 ()
+  • [/en/settings/notifications] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+  • [login-mazin@abdout.org] Failed to load resource: the server responded with a status of 429 ()
+  • [login-mazin@abdout.org] o: Read more at https://errors.authjs.dev#autherror
+    at i (https://www.abdoutgroup.com/_next/static/chunks/098cx-t8-n6j5.js:2:5157)
+    at async y (https://www.abdoutgroup.com/_next/static/chunks/0
+
+Screenshots: /Users/abdout/mazin/tmp/qa-artifacts
+========================================

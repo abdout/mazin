@@ -1,26 +1,16 @@
-import { ComingSoonBanner } from "@/components/atom/coming-soon-banner"
-import { type Locale } from "@/components/internationalization/config"
+import type { Locale } from "@/components/internationalization/config"
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import AccountsContent from "@/components/platform/finance/accounts/content"
 
-export const metadata = { title: "Dashboard: Accounting System" }
+export const metadata = { title: "Finance — Bank accounts" }
 
 interface Props {
-  params: Promise<{ lang: Locale; subdomain: string }>
+  params: Promise<{ lang: Locale }>
 }
 
 export default async function Page({ params }: Props) {
   const { lang } = await params
   const dictionary = await getDictionary(lang)
-  const finance = dictionary.finance as Record<string, unknown> | undefined
 
-  return (
-    <div className="space-y-6">
-      <ComingSoonBanner
-        title={(finance?.comingSoonTitle as string) ?? "Coming Soon"}
-        description={(finance?.comingSoonDescription as string) ?? undefined}
-      />
-      <AccountsContent dictionary={dictionary} lang={lang} />
-    </div>
-  )
+  return <AccountsContent dictionary={dictionary} lang={lang} />
 }

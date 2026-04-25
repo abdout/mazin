@@ -35,6 +35,8 @@ export const publicRoutes = [
 export const publicRoutePrefixes = [
   "/en/track/",
   "/ar/track/",
+  "/en/join/invite/",
+  "/ar/join/invite/",
 ]
 
 /**
@@ -72,3 +74,19 @@ export const apiAuthPrefix = "/api/auth"
  * The default redirect path after logging in.
  */
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard"
+
+/**
+ * Where COMMUNITY users go after login (they can't reach /dashboard).
+ */
+export const COMMUNITY_LOGIN_REDIRECT = "/marketplace"
+
+/**
+ * Path prefixes (locale-stripped) that COMMUNITY users may access while
+ * authenticated. Everything else is staff-only.
+ */
+export const communityAllowedPrefixes = [
+  "/marketplace",
+  "/track/",
+  "/settings/profile",
+  "/settings/security",
+]

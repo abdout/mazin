@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 .env*.local
 .playwright-mcp/
+tests/e2e/.auth/
+tmp/playwright-report/
+tmp/playwright-output/
+tmp/playwright-results.json

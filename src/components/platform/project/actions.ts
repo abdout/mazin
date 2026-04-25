@@ -108,11 +108,12 @@ export async function createProject(data: ProjectFormValues | null) {
 export async function getProjects() {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return { success: false, error: 'Unauthorized' };
     }
 
     const projects = await db.project.findMany({
+      where: { userId: session.user.id },
       orderBy: {
         createdAt: 'desc',
       },
@@ -135,12 +136,12 @@ export async function getProjects() {
 export async function getProject(id: string) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       throw new Error('Unauthorized');
     }
 
-    const project = await db.project.findUnique({
-      where: { id },
+    const project = await db.project.findFirst({
+      where: { id, userId: session.user.id },
       include: {
         tasks: {
           orderBy: { createdAt: 'asc' },
@@ -175,12 +176,20 @@ export async function getProject(id: string) {
 export async function updateProject(id: string, data: Partial<ProjectFormValues> | null) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       throw new Error('Unauthorized');
     }
 
     if (!data) {
       return { success: false, error: 'No data provided' };
+    }
+
+    const existing = await db.project.findFirst({
+      where: { id, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { success: false, error: 'Project not found' };
     }
 
     const projectData: Record<string, unknown> = {};
@@ -215,8 +224,16 @@ export async function updateProject(id: string, data: Partial<ProjectFormValues>
 export async function deleteProject(id: string) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       throw new Error('Unauthorized');
+    }
+
+    const existing = await db.project.findFirst({
+      where: { id, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { success: false, error: 'Project not found' };
     }
 
     await db.project.delete({

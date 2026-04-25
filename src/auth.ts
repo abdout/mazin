@@ -6,7 +6,7 @@ import { getTwoFactorConfirmationByUserId } from "@/components/auth/verification
 import { getAccountByUserId } from "@/components/auth/account"
 import { db } from "@/lib/db"
 import authConfig from "@/auth.config"
-import type { UserRole } from "@prisma/client"
+import type { UserRole, UserType } from "@prisma/client"
 
 // Force Node.js runtime for auth operations
 export const runtime = 'nodejs'
@@ -14,12 +14,13 @@ export const runtime = 'nodejs'
 // Helper to ensure we have a valid URL
 function getBaseUrl() {
   try {
-    if (process.env.NEXTAUTH_URL) {
-      const url = process.env.NEXTAUTH_URL
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        return `https://${url}`
+    // Auth.js v5 prefers AUTH_URL; keep NEXTAUTH_URL as a fallback for older envs.
+    const raw = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL
+    if (raw) {
+      if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+        return `https://${raw}`
       }
-      return url
+      return raw
     }
 
     if (process.env.VERCEL_URL) {
@@ -49,7 +50,26 @@ const nextAuth = NextAuth({
           data: { emailVerified: new Date() }
         })
       }
-    }
+    },
+    async signIn({ user, account }) {
+      // Append-only audit trail. Failures swallowed inside logAudit.
+      const { logAudit } = await import("@/lib/audit")
+      await logAudit({
+        action: "LOGIN",
+        actor: user.id && user.email ? { userId: user.id, email: user.email } : null,
+        metadata: { provider: account?.provider ?? "credentials" },
+      })
+    },
+    async signOut(message) {
+      const { logAudit } = await import("@/lib/audit")
+      const token = "token" in message ? message.token : null
+      await logAudit({
+        action: "LOGOUT",
+        actor: token?.sub && token.email
+          ? { userId: token.sub, email: token.email as string }
+          : null,
+      })
+    },
   },
   callbacks: {
     async signIn({ user, account }) {
@@ -128,6 +148,10 @@ const nextAuth = NextAuth({
         session.user.role = token.role as UserRole;
       }
 
+      if (token.type && session.user) {
+        session.user.type = token.type as UserType;
+      }
+
       if (session.user) {
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
         session.user.name = token.name as string | null | undefined;
@@ -150,6 +174,7 @@ const nextAuth = NextAuth({
       token.name = existingUser.name;
       token.email = existingUser.email;
       token.role = existingUser.role;
+      token.type = existingUser.type;
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 
       return token;

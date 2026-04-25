@@ -21,9 +21,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
+
 import type { Dictionary, Locale } from "@/components/internationalization"
 
 import { ExpenseReceipt } from "./types"
+import { deleteReceipt, retryReceiptExtraction } from "./actions"
 
 interface GetColumnsOptions {
   dictionary: Dictionary
@@ -136,8 +139,10 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
               </DropdownMenuItem>
               {receipt.status === "error" && (
                 <DropdownMenuItem
-                  onClick={() => {
-                    // TODO: Handle retry - call retryReceiptExtraction
+                  onClick={async () => {
+                    const result = await retryReceiptExtraction(receipt.id)
+                    if (result.success) toast.success(f?.retryExtraction ?? "Retry queued")
+                    else toast.error(result.error ?? "Retry failed")
                   }}
                 >
                   <RefreshCw className="me-2 h-4 w-4" />
@@ -147,8 +152,10 @@ export function getColumns({ dictionary, locale }: GetColumnsOptions): ColumnDef
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive"
-                onClick={() => {
-                  // TODO: Handle delete - call deleteReceipt
+                onClick={async () => {
+                  const result = await deleteReceipt(receipt.id)
+                  if (result.success) toast.success(dictionary.common.delete ?? "Deleted")
+                  else toast.error(result.error ?? "Delete failed")
                 }}
               >
                 <Trash2 className="me-2 h-4 w-4" />

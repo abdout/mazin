@@ -414,6 +414,100 @@ export interface Dictionary {
     dark: string
     system: string
     toggleTheme: string
+    subtitle?: string
+    organization?: string
+    security?: string
+    team?: string
+    integrations?: string
+    notifications?: string
+    tabs?: {
+      profile: string
+      organization: string
+      security: string
+      team: string
+      integrations: string
+      notifications: string
+    }
+    profileTab?: {
+      title: string
+      description: string
+      nameLabel: string
+      namePlaceholder: string
+      emailLabel: string
+      emailHelp: string
+      phoneLabel: string
+      phonePlaceholder: string
+      imageLabel: string
+      imagePlaceholder: string
+      save: string
+      saving: string
+      saved: string
+      errorInvalid: string
+      errorSave: string
+    }
+    organizationTab?: {
+      title: string
+      description: string
+      companyInfo: string
+      companyNameLabel: string
+      companyNameArLabel: string
+      taxIdLabel: string
+      emailLabel: string
+      phoneLabel: string
+      websiteLabel: string
+      address: string
+      address1Label: string
+      address2Label: string
+      cityLabel: string
+      stateLabel: string
+      countryLabel: string
+      postalCodeLabel: string
+      banking: string
+      bankNameLabel: string
+      bankBranchLabel: string
+      accountNameLabel: string
+      accountNumberLabel: string
+      ibanLabel: string
+      swiftCodeLabel: string
+      invoiceDefaults: string
+      invoicePrefixLabel: string
+      defaultCurrencyLabel: string
+      defaultTaxRateLabel: string
+      defaultPaymentTermsLabel: string
+      save: string
+      saving: string
+      saved: string
+      errorSave: string
+    }
+    securityTab?: {
+      title: string
+      description: string
+      twoFactorTitle: string
+      twoFactorStatusEnabled: string
+      twoFactorStatusDisabled: string
+      passwordTitle: string
+      passwordDescription: string
+      sessionsTitle: string
+      sessionsDescription: string
+      comingSoon: string
+    }
+    teamTab?: {
+      title: string
+      description: string
+      empty: string
+    }
+    integrationsTab?: {
+      title: string
+      description: string
+      whatsapp: string
+      whatsappDescription: string
+      resend: string
+      resendDescription: string
+      oauth: string
+      oauthDescription: string
+      statusConfigured: string
+      statusNotConfigured: string
+    }
   }
   users: {
     title: string

@@ -87,7 +87,15 @@ export const LoginForm = ({
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+        {/* method="POST" and action="#" guard against a pre-hydration click
+            submitting credentials as GET query params in the URL. Once React
+            hydrates, form.handleSubmit's preventDefault takes over. */}
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          method="POST"
+          action="#"
+          className="grid gap-4"
+        >
           {showTwoFactor && (
             <FormField
               control={form.control}

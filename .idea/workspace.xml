@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8e5941f-570a-4529-a754-326d0000dc25" name="Changes" comment="" />
+    <list default="true" id="d8e5941f-570a-4529-a754-326d0000dc25" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/__tests__/setup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/__tests__/setup.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/auth/join/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/join/form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/auth/login/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/login/form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/auth/password/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/password/form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/auth/reset/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/reset/form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/db.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/db.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/middleware.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -99,6 +111,8 @@
       <workItem from="1766654479244" duration="125121000" />
       <workItem from="1770378635950" duration="3746000" />
       <workItem from="1771657424536" duration="7450000" />
+      <workItem from="1776633598625" duration="26474000" />
+      <workItem from="1776841473206" duration="7432000" />
     </task>
     <servers />
   </component>

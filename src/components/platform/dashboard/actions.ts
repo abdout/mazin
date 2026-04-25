@@ -117,12 +117,12 @@ export async function getUpcomingData(role: UserRole): Promise<UpcomingData> {
 async function getAdminUpcoming(userId?: string): Promise<UpcomingData> {
   const [totalShipments, pendingDeclarations, totalRevenue] = await Promise.all(
     [
-      db.shipment.count(),
+      db.shipment.count({ where: { userId } }),
       db.customsDeclaration.count({
-        where: { status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] } },
+        where: { userId, status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] } },
       }),
       db.invoice.aggregate({
-        where: { status: "PAID" },
+        where: { userId, status: "PAID" },
         _sum: { total: true },
       }),
     ]
@@ -149,10 +149,11 @@ async function getManagerUpcoming(userId?: string): Promise<UpcomingData> {
   const [assignedDeclarations, completedThisMonth, pendingApproval] =
     await Promise.all([
       db.customsDeclaration.count({
-        where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
+        where: { userId, status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
       }),
       db.customsDeclaration.count({
         where: {
+          userId,
           status: "APPROVED",
           approvedAt: {
             gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -160,7 +161,7 @@ async function getManagerUpcoming(userId?: string): Promise<UpcomingData> {
         },
       }),
       db.customsDeclaration.count({
-        where: { status: "UNDER_REVIEW" },
+        where: { userId, status: "UNDER_REVIEW" },
       }),
     ])
 
@@ -299,6 +300,7 @@ export async function getFinancialChartData(): Promise<FinancialChartData> {
   if (!session?.user?.id) {
     return { revenueData: [], expenseData: [], profitData: [], labels: [] }
   }
+  const userId = session.user.id
 
   const now = new Date()
 
@@ -333,7 +335,8 @@ export async function getFinancialChartData(): Promise<FinancialChartData> {
         to_char(date_trunc('month', "paidAt"), 'YYYY-MM') AS bucket,
         SUM("total") AS total
       FROM "Invoice"
-      WHERE "status" = 'PAID'
+      WHERE "userId" = ${userId}
+        AND "status" = 'PAID'
         AND "paidAt" >= ${rangeStart}
         AND "paidAt" <  ${rangeEnd}
       GROUP BY bucket
@@ -343,7 +346,8 @@ export async function getFinancialChartData(): Promise<FinancialChartData> {
         to_char(date_trunc('month', "expenseDate"), 'YYYY-MM') AS bucket,
         SUM("amount") AS total
       FROM "Expense"
-      WHERE "status" IN ('APPROVED', 'PAID')
+      WHERE "userId" = ${userId}
+        AND "status" IN ('APPROVED', 'PAID')
         AND "expenseDate" >= ${rangeStart}
         AND "expenseDate" <  ${rangeEnd}
       GROUP BY bucket
@@ -375,6 +379,7 @@ export async function getCashFlowData(): Promise<CashFlowData> {
   if (!session?.user?.id) {
     return { inflowData: [], outflowData: [], balanceData: [] }
   }
+  const userId = session.user.id
 
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -385,6 +390,7 @@ export async function getCashFlowData(): Promise<CashFlowData> {
     // Cash inflow = paid invoices this month
     db.invoice.aggregate({
       where: {
+        userId,
         status: "PAID",
         paidAt: { gte: monthStart, lte: monthEnd },
       },
@@ -393,6 +399,7 @@ export async function getCashFlowData(): Promise<CashFlowData> {
     // Cash outflow = real expenses this month
     db.expense.aggregate({
       where: {
+        userId,
         status: { in: ["APPROVED", "PAID"] },
         expenseDate: { gte: monthStart, lte: monthEnd },
       },
@@ -400,7 +407,7 @@ export async function getCashFlowData(): Promise<CashFlowData> {
     }),
     // Balance from bank accounts
     db.bankAccount.aggregate({
-      where: { isActive: true },
+      where: { userId, isActive: true },
       _sum: { currentBalance: true },
     }),
   ])
@@ -424,11 +431,13 @@ export async function getExpenseCategories(): Promise<ExpenseCategory[]> {
   if (!session?.user?.id) {
     return []
   }
+  const userId = session.user.id
 
   const grouped = await db.expense.groupBy({
     by: ["categoryId"],
     _sum: { amount: true },
     where: {
+      userId,
       status: { in: ["APPROVED", "PAID"] },
       categoryId: { not: null },
     },
@@ -537,6 +546,7 @@ export async function getTrendingStatsData(): Promise<TrendingStatsData> {
       completionRate: { value: 0, change: 0, changeType: "positive" },
     }
   }
+  const userId = session.user.id
 
   const now = new Date()
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -546,37 +556,38 @@ export async function getTrendingStatsData(): Promise<TrendingStatsData> {
   // Current month data
   const [currentShipments, currentRevenue, currentPending, currentCompleted] = await Promise.all([
     db.shipment.count({
-      where: { createdAt: { gte: thisMonth } },
+      where: { userId, createdAt: { gte: thisMonth } },
     }),
     db.invoice.aggregate({
-      where: { status: "PAID", paidAt: { gte: thisMonth } },
+      where: { userId, status: "PAID", paidAt: { gte: thisMonth } },
       _sum: { total: true },
     }),
     db.customsDeclaration.count({
-      where: { status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] } },
+      where: { userId, status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] } },
     }),
     db.customsDeclaration.count({
-      where: { status: "APPROVED", approvedAt: { gte: thisMonth } },
+      where: { userId, status: "APPROVED", approvedAt: { gte: thisMonth } },
     }),
   ])
 
   // Last month data for comparison
   const [lastShipments, lastRevenue, lastPending, lastCompleted] = await Promise.all([
     db.shipment.count({
-      where: { createdAt: { gte: lastMonth, lte: lastMonthEnd } },
+      where: { userId, createdAt: { gte: lastMonth, lte: lastMonthEnd } },
     }),
     db.invoice.aggregate({
-      where: { status: "PAID", paidAt: { gte: lastMonth, lte: lastMonthEnd } },
+      where: { userId, status: "PAID", paidAt: { gte: lastMonth, lte: lastMonthEnd } },
       _sum: { total: true },
     }),
     db.customsDeclaration.count({
       where: {
+        userId,
         status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] },
         createdAt: { lte: lastMonthEnd }
       },
     }),
     db.customsDeclaration.count({
-      where: { status: "APPROVED", approvedAt: { gte: lastMonth, lte: lastMonthEnd } },
+      where: { userId, status: "APPROVED", approvedAt: { gte: lastMonth, lte: lastMonthEnd } },
     }),
   ])
 
@@ -596,7 +607,7 @@ export async function getTrendingStatsData(): Promise<TrendingStatsData> {
 
   // Total declarations for completion rate
   const totalDeclarations = await db.customsDeclaration.count({
-    where: { createdAt: { gte: thisMonth } },
+    where: { userId, createdAt: { gte: thisMonth } },
   })
   const completionRate = totalDeclarations > 0
     ? Math.round((currentCompleted / totalDeclarations) * 100)

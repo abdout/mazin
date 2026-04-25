@@ -8,6 +8,11 @@ enum UserRole {
   VIEWER
 }
 
+enum UserType {
+  STAFF     // ABDOUT GROUP employees — full platform access gated by UserRole
+  COMMUNITY // Public marketplace participants — ownership-scoped to their own rows
+}
+
 model User {
   id                    String                 @id @default(cuid())
   email                 String                 @unique
@@ -16,7 +21,10 @@ model User {
   password              String?
   image                 String?
   phone                 String?                // Phone number for notifications
-  role                  UserRole               @default(CLERK)
+  // Default STAFF to keep existing (pre-migration) users on the operations side.
+  // Public signups override this to COMMUNITY in the register action.
+  type                  UserType               @default(STAFF)
+  role                  UserRole               @default(CLERK) // Only meaningful when type == STAFF
   isTwoFactorEnabled    Boolean                @default(false)
 
   accounts              Account[]

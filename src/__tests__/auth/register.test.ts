@@ -134,6 +134,8 @@ describe("register (join action)", () => {
         name: "New User",
         email: "new@test.com",
         password: "hashed-password",
+        type: "COMMUNITY",
+        role: "VIEWER",
       },
     })
   })

@@ -12,19 +12,22 @@ import type { UserRole } from "@prisma/client"
 /**
  * Finance modules that can have permissions
  */
-export type FinanceModule =
-  | "invoice"
-  | "receipt"
-  | "banking"
-  | "fees"
-  | "salary"
-  | "payroll"
-  | "timesheet"
-  | "wallet"
-  | "budget"
-  | "expenses"
-  | "accounts"
-  | "reports"
+export const FINANCE_MODULES = [
+  "invoice",
+  "receipt",
+  "banking",
+  "fees",
+  "salary",
+  "payroll",
+  "timesheet",
+  "wallet",
+  "budget",
+  "expenses",
+  "accounts",
+  "reports",
+] as const
+
+export type FinanceModule = (typeof FINANCE_MODULES)[number]
 
 /**
  * Actions that can be performed on finance modules

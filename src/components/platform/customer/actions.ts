@@ -92,6 +92,16 @@ export async function updateClient(id: string, formData: ClientFormData) {
 
   const validated = clientSchema.parse(formData)
 
+  // Ownership probe — without this, any authenticated user could update
+  // another user's client row just by knowing the id.
+  const existing = await db.client.findFirst({
+    where: { id, userId: session.user.id },
+    select: { id: true },
+  })
+  if (!existing) {
+    throw new Error("Client not found")
+  }
+
   const client = await db.client.update({
     where: { id },
     data: {

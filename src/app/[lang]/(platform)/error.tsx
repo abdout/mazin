@@ -1,5 +1,7 @@
 "use client"
 
+import * as Sentry from "@sentry/nextjs"
+import { useEffect } from "react"
 import { useParams } from "next/navigation"
 
 const messages = {
@@ -24,6 +26,10 @@ export default function PlatformError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    Sentry.captureException(error)
+  }, [error])
+
   const params = useParams<{ lang: string }>()
   const lang = params?.lang === "en" ? "en" : "ar"
   const t = messages[lang]

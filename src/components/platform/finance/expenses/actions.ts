@@ -18,24 +18,24 @@ type ActionResult<T = void> = {
 
 // Validation schemas
 const createExpenseSchema = z.object({
-  categoryId: z.string().optional(),
+  categoryId: z.string().optional().nullable(),
   amount: z.number().positive("Amount must be positive"),
-  description: z.string().min(1, "Description is required"),
-  vendor: z.string().optional(),
-  expenseDate: z.date().optional(),
-  receiptUrl: z.string().optional(),
-  receiptNumber: z.string().optional(),
-  notes: z.string().optional(),
-  shipmentId: z.string().optional(),
-  bankAccountId: z.string().optional(),
+  description: z.string().min(1, "Description is required").max(500),
+  vendor: z.string().max(255).optional().nullable(),
+  expenseDate: z.coerce.date().optional(),
+  receiptUrl: z.string().url().max(2048).optional().or(z.literal("")),
+  receiptNumber: z.string().max(120).optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
+  shipmentId: z.string().optional().nullable(),
+  bankAccountId: z.string().optional().nullable(),
 })
 
 const createCategorySchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  nameAr: z.string().optional(),
-  code: z.string().min(1, "Code is required"),
-  description: z.string().optional(),
-  monthlyBudget: z.number().optional(),
+  name: z.string().min(1, "Name is required").max(120),
+  nameAr: z.string().max(120).optional().nullable(),
+  code: z.string().min(1, "Code is required").max(32),
+  description: z.string().max(500).optional().nullable(),
+  monthlyBudget: z.number().min(0).max(100_000_000).optional().nullable(),
 })
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>
@@ -45,7 +45,7 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 function generateExpenseNumber(): string {
   const date = new Date()
   const dateStr = date.toISOString().slice(0, 10).replace(/-/g, "")
-  const random = Math.random().toString(36).substring(2, 5).toUpperCase()
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase()
   return `EXP-${dateStr}-${random}`
 }
 
@@ -53,6 +53,7 @@ function generateExpenseNumber(): string {
 // EXPENSE CATEGORY MANAGEMENT
 // ============================================
 
+// Returns both global categories (userId=null) and the caller's own categories.
 export async function getExpenseCategories(): Promise<ActionResult<unknown[]>> {
   try {
     const session = await auth()
@@ -61,7 +62,10 @@ export async function getExpenseCategories(): Promise<ActionResult<unknown[]>> {
     }
 
     const categories = await db.expenseCategory.findMany({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        OR: [{ userId: null }, { userId: session.user.id }],
+      },
       orderBy: { name: "asc" },
     })
 
@@ -95,11 +99,12 @@ export async function createExpenseCategory(
     const category = await db.expenseCategory.create({
       data: {
         name: validated.name,
-        nameAr: validated.nameAr,
+        nameAr: validated.nameAr ?? undefined,
         code: validated.code,
-        description: validated.description,
-        monthlyBudget: validated.monthlyBudget,
+        description: validated.description ?? undefined,
+        monthlyBudget: validated.monthlyBudget ?? undefined,
         isActive: true,
+        userId: session.user.id,
       },
     })
 
@@ -147,7 +152,7 @@ export async function getExpenses(params?: {
     const pageSize = params?.pageSize || 20
     const skip = (page - 1) * pageSize
 
-    const where: Record<string, unknown> = {}
+    const where: Record<string, unknown> = { userId: session.user.id }
 
     if (params?.status) where.status = params.status
     if (params?.categoryId) where.categoryId = params.categoryId
@@ -176,18 +181,10 @@ export async function getExpenses(params?: {
             },
           },
           submittedByUser: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
+            select: { id: true, name: true, email: true },
           },
           approvedByUser: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
+            select: { id: true, name: true, email: true },
           },
         },
         orderBy: { createdAt: "desc" },
@@ -203,6 +200,7 @@ export async function getExpenses(params?: {
         data: expenses.map((e) => ({
           ...e,
           amount: Number(e.amount),
+          totalAmount: Number(e.totalAmount),
         })),
         total,
         page,
@@ -226,8 +224,8 @@ export async function getExpense(expenseId: string): Promise<ActionResult<unknow
       return { success: false, error: "Unauthorized" }
     }
 
-    const expense = await db.expense.findUnique({
-      where: { id: expenseId },
+    const expense = await db.expense.findFirst({
+      where: { id: expenseId, userId: session.user.id },
       include: {
         category: true,
         shipment: {
@@ -237,16 +235,10 @@ export async function getExpense(expenseId: string): Promise<ActionResult<unknow
             description: true,
           },
         },
-        submittedByUser: {
-          select: { id: true, name: true, email: true },
-        },
-        approvedByUser: {
-          select: { id: true, name: true, email: true },
-        },
+        submittedByUser: { select: { id: true, name: true, email: true } },
+        approvedByUser: { select: { id: true, name: true, email: true } },
         transaction: true,
-        bankAccount: {
-          select: { id: true, accountName: true, bankName: true },
-        },
+        bankAccount: { select: { id: true, accountName: true, bankName: true } },
       },
     })
 
@@ -281,21 +273,36 @@ export async function createExpense(
 
     const validated = createExpenseSchema.parse(input)
 
+    // Ownership: if the expense references a shipment, confirm it belongs to
+    // the caller. Preventing cross-tenant writes that bypass the tenant filter
+    // through FK linkage.
+    if (validated.shipmentId) {
+      const shipment = await db.shipment.findFirst({
+        where: { id: validated.shipmentId, userId: session.user.id },
+        select: { id: true },
+      })
+      if (!shipment) {
+        return { success: false, error: "Shipment not found" }
+      }
+    }
+
     const expense = await db.expense.create({
       data: {
         expenseNumber: generateExpenseNumber(),
         amount: validated.amount,
         totalAmount: validated.amount,
         description: validated.description,
-        vendor: validated.vendor,
+        vendor: validated.vendor ?? undefined,
         expenseDate: validated.expenseDate || new Date(),
-        receiptUrl: validated.receiptUrl,
-        receiptNumber: validated.receiptNumber,
-        notes: validated.notes,
-        categoryId: validated.categoryId,
-        shipmentId: validated.shipmentId,
-        bankAccountId: validated.bankAccountId,
+        receiptUrl: validated.receiptUrl || undefined,
+        receiptNumber: validated.receiptNumber ?? undefined,
+        notes: validated.notes ?? undefined,
+        categoryId: validated.categoryId ?? undefined,
+        shipmentId: validated.shipmentId ?? undefined,
+        bankAccountId: validated.bankAccountId ?? undefined,
         submittedById: session.user.id,
+        submittedAt: new Date(),
+        userId: session.user.id,
         status: "PENDING",
       },
     })
@@ -325,21 +332,37 @@ export async function updateExpense(
       return { success: false, error: "Unauthorized" }
     }
 
-    const expense = await db.expense.findUnique({
-      where: { id: expenseId },
+    const expense = await db.expense.findFirst({
+      where: { id: expenseId, userId: session.user.id },
+      select: { id: true, status: true },
     })
 
     if (!expense) {
       return { success: false, error: "Expense not found" }
     }
 
-    if (expense.status !== "PENDING") {
+    if (expense.status !== "PENDING" && expense.status !== "DRAFT") {
       return { success: false, error: "Only pending expenses can be edited" }
     }
 
+    // Whitelist editable fields — strip unknowns so the client can't rebind
+    // `userId` / `status` / `submittedById`.
+    const editable: Record<string, unknown> = {}
+    if (input.amount !== undefined) {
+      editable.amount = input.amount
+      editable.totalAmount = input.amount
+    }
+    if (input.description !== undefined) editable.description = input.description
+    if (input.vendor !== undefined) editable.vendor = input.vendor ?? null
+    if (input.expenseDate !== undefined) editable.expenseDate = input.expenseDate
+    if (input.receiptUrl !== undefined) editable.receiptUrl = input.receiptUrl || null
+    if (input.receiptNumber !== undefined) editable.receiptNumber = input.receiptNumber ?? null
+    if (input.notes !== undefined) editable.notes = input.notes ?? null
+    if (input.categoryId !== undefined) editable.categoryId = input.categoryId ?? null
+
     await db.expense.update({
       where: { id: expenseId },
-      data: input,
+      data: editable,
     })
 
     revalidatePath("/finance/expenses")
@@ -361,8 +384,9 @@ export async function deleteExpense(expenseId: string): Promise<ActionResult> {
       return { success: false, error: "Unauthorized" }
     }
 
-    const expense = await db.expense.findUnique({
-      where: { id: expenseId },
+    const expense = await db.expense.findFirst({
+      where: { id: expenseId, userId: session.user.id },
+      select: { id: true, status: true },
     })
 
     if (!expense) {
@@ -373,9 +397,7 @@ export async function deleteExpense(expenseId: string): Promise<ActionResult> {
       return { success: false, error: "Paid expenses cannot be deleted" }
     }
 
-    await db.expense.delete({
-      where: { id: expenseId },
-    })
+    await db.expense.delete({ where: { id: expenseId } })
 
     revalidatePath("/finance/expenses")
 
@@ -400,8 +422,9 @@ export async function approveExpense(expenseId: string): Promise<ActionResult> {
       return { success: false, error: "Unauthorized" }
     }
 
-    const expense = await db.expense.findUnique({
-      where: { id: expenseId },
+    const expense = await db.expense.findFirst({
+      where: { id: expenseId, userId: session.user.id },
+      select: { id: true, status: true },
     })
 
     if (!expense) {
@@ -443,8 +466,9 @@ export async function rejectExpense(
       return { success: false, error: "Unauthorized" }
     }
 
-    const expense = await db.expense.findUnique({
-      where: { id: expenseId },
+    const expense = await db.expense.findFirst({
+      where: { id: expenseId, userId: session.user.id },
+      select: { id: true, status: true },
     })
 
     if (!expense) {
@@ -491,8 +515,15 @@ export async function markExpenseAsPaid(
       return { success: false, error: "Unauthorized" }
     }
 
-    const expense = await db.expense.findUnique({
-      where: { id: expenseId },
+    const expense = await db.expense.findFirst({
+      where: { id: expenseId, userId: session.user.id },
+      select: {
+        id: true,
+        status: true,
+        amount: true,
+        description: true,
+        expenseNumber: true,
+      },
     })
 
     if (!expense) {
@@ -509,6 +540,7 @@ export async function markExpenseAsPaid(
         userId: session.user.id,
         isActive: true,
       },
+      select: { id: true, currentBalance: true },
     })
 
     if (!bankAccount) {
@@ -520,7 +552,6 @@ export async function markExpenseAsPaid(
     const newBalance = currentBalance - amount
 
     await db.$transaction(async (tx) => {
-      // Create bank transaction
       const transaction = await tx.bankTransaction.create({
         data: {
           transactionRef: `EXP-${expense.expenseNumber}`,
@@ -536,7 +567,6 @@ export async function markExpenseAsPaid(
         },
       })
 
-      // Update expense
       await tx.expense.update({
         where: { id: expenseId },
         data: {
@@ -547,7 +577,6 @@ export async function markExpenseAsPaid(
         },
       })
 
-      // Update bank account balance
       await tx.bankAccount.update({
         where: { id: bankAccountId },
         data: { currentBalance: newBalance },
@@ -589,15 +618,16 @@ export async function getExpenseSummary(params?: {
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
     }
+    const userId = session.user.id
 
-    const dateFilter: Record<string, unknown> = {}
+    const tenant: Record<string, unknown> = { userId }
     if (params?.startDate || params?.endDate) {
-      dateFilter.expenseDate = {}
+      tenant.expenseDate = {}
       if (params.startDate) {
-        (dateFilter.expenseDate as Record<string, Date>).gte = params.startDate
+        (tenant.expenseDate as Record<string, Date>).gte = params.startDate
       }
       if (params.endDate) {
-        (dateFilter.expenseDate as Record<string, Date>).lte = params.endDate
+        (tenant.expenseDate as Record<string, Date>).lte = params.endDate
       }
     }
 
@@ -611,37 +641,36 @@ export async function getExpenseSummary(params?: {
       paidAmount,
       byCategory,
     ] = await Promise.all([
-      db.expense.count({ where: dateFilter }),
-      db.expense.count({ where: { ...dateFilter, status: "PENDING" } }),
-      db.expense.count({ where: { ...dateFilter, status: "APPROVED" } }),
-      db.expense.count({ where: { ...dateFilter, status: "PAID" } }),
+      db.expense.count({ where: tenant }),
+      db.expense.count({ where: { ...tenant, status: "PENDING" } }),
+      db.expense.count({ where: { ...tenant, status: "APPROVED" } }),
+      db.expense.count({ where: { ...tenant, status: "PAID" } }),
       db.expense.aggregate({
-        where: { ...dateFilter, status: "PENDING" },
+        where: { ...tenant, status: "PENDING" },
         _sum: { amount: true },
       }),
       db.expense.aggregate({
-        where: { ...dateFilter, status: "APPROVED" },
+        where: { ...tenant, status: "APPROVED" },
         _sum: { amount: true },
       }),
       db.expense.aggregate({
-        where: { ...dateFilter, status: "PAID" },
+        where: { ...tenant, status: "PAID" },
         _sum: { amount: true },
       }),
       db.expense.groupBy({
         by: ["categoryId"],
-        where: dateFilter,
+        where: tenant,
         _sum: { amount: true },
       }),
     ])
 
-    // Get category names
     const categoryIds = byCategory
       .map((c) => c.categoryId)
       .filter((id): id is string => id !== null)
 
     const categories = await db.expenseCategory.findMany({
       where: { id: { in: categoryIds } },
-      select: { id: true, name: true },
+      select: { id: true, name: true, nameAr: true },
     })
 
     const categoryMap = new Map(categories.map((c) => [c.id, c.name]))
@@ -682,12 +711,10 @@ export async function getExpensesByShipment(
     }
 
     const expenses = await db.expense.findMany({
-      where: { shipmentId },
+      where: { shipmentId, userId: session.user.id },
       include: {
         category: true,
-        submittedByUser: {
-          select: { id: true, name: true },
-        },
+        submittedByUser: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: "desc" },
     })

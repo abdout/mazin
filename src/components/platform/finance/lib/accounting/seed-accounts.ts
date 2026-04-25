@@ -117,10 +117,36 @@ const standardAccounts: AccountSeedData[] = [
 ]
 
 /**
- * Seed chart of accounts for a company (stubbed)
+ * Seed chart of accounts for a user. Mazin is single-tenant but the COA is
+ * scoped to the User who owns it (Prisma `userId` FK). The `companyId` param
+ * is kept for signature compatibility and treated as the userId to seed for.
  */
 export async function seedChartOfAccounts(companyId: string): Promise<void> {
-  // TODO: Implement seeding with Prisma
+  const { db } = await import("@/lib/db")
+  for (const acc of standardAccounts) {
+    await db.chartOfAccount.upsert({
+      where: { userId_code: { userId: companyId, code: acc.code } },
+      update: {
+        name: acc.name,
+        nameAr: acc.nameAr,
+        accountType: acc.type,
+        description: acc.description,
+        isActive: acc.isActive,
+        normalBalance: getNormalBalance(acc.type),
+      },
+      create: {
+        userId: companyId,
+        code: acc.code,
+        name: acc.name,
+        nameAr: acc.nameAr,
+        accountType: acc.type,
+        description: acc.description,
+        isActive: acc.isActive,
+        normalBalance: getNormalBalance(acc.type),
+        isSystem: true,
+      },
+    })
+  }
 }
 
 /**

@@ -64,7 +64,12 @@ export const RegisterForm = ({
         </CardContent>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              method="POST"
+              action="#"
+              className="grid gap-6"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-border" />
                 <span className="text-base text-muted-foreground">or continue with</span>

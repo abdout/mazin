@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BeatLoader } from "react-spinners";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -24,29 +24,25 @@ export const NewVerificationForm = ({
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const onSubmit = useCallback(() => {
-    if (success || error) return;
-
+  useEffect(() => {
     if (!token) {
       setError("Missing token!");
       return;
     }
-
+    let cancelled = false;
     newVerification(token)
       .then((data) => {
+        if (cancelled) return;
         setSuccess(data.success);
         setError(data.error);
       })
       .catch(() => {
-        setError("Something went wrong!");
+        if (!cancelled) setError("Something went wrong!");
       });
-  }, [token, success, error]);
-
-  useEffect(() => {
-    if (token) {
-      onSubmit();
-    }
-  }, [token, onSubmit]);
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   return (
     <div className={cn("flex flex-col gap-6 w-full", className)} {...props}>

@@ -1,7 +1,9 @@
 /**
- * Accounting Integration Actions - Stubbed Implementation
+ * Accounting Integration Actions — intentionally unimplemented.
  *
- * TODO: Implement with Prisma when accounting models are added
+ * Double-entry bookkeeping is planned but not yet backed by Prisma models.
+ * Each exported action fails with NOT_IMPLEMENTED so the UI cannot claim a
+ * journal entry was posted when nothing happened.
  */
 
 "use server"
@@ -13,100 +15,72 @@ import type { PostingResult } from "./types"
 
 const log = logger.forModule("accounting")
 
-/**
- * Initialize accounting system for company
- */
-export async function initializeAccounting(companyId: string): Promise<{
+const NOT_IMPLEMENTED_ERROR = "Accounting module is not yet implemented"
+
+async function requireAuthOrUnauthorized(): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await auth()
+  if (!session?.user?.id) return { ok: false, error: "Unauthorized" }
+  return { ok: true }
+}
+
+function notImplementedPosting(op: string): PostingResult {
+  log.warn("Accounting action invoked but not implemented", { op })
+  return { success: false, errors: [NOT_IMPLEMENTED_ERROR] }
+}
+
+function notImplementedResult<T extends Record<string, unknown>>(
+  op: string,
+  extra: T = {} as T,
+): { success: false; error: string } & T {
+  log.warn("Accounting action invoked but not implemented", { op })
+  return { success: false, error: NOT_IMPLEMENTED_ERROR, ...extra }
+}
+
+export async function initializeAccounting(_companyId: string): Promise<{
   success: boolean
   accountsCreated?: number
   fiscalYearId?: string
   error?: string
 }> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized" }
-    }
-
-    return {
-      success: true,
-      accountsCreated: 0,
-      fiscalYearId: "stub-fiscal-year-id",
-    }
-  } catch (error) {
-    log.error("Failed to initialize accounting", error as Error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, error: guard.error }
+  return notImplementedResult("initializeAccounting")
 }
 
-/**
- * Post fee payment to accounting
- */
 export async function postFeePayment(
-  companyId: string,
-  paymentData: {
+  _companyId: string,
+  _paymentData: {
     paymentId: string
     clientId: string
     amount: number
     paymentMethod: string
     paymentDate: Date
     feeType?: string
-  }
+  },
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId: "stub-journal-entry-id" }
-  } catch (error) {
-    log.error("Failed to post fee payment", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("postFeePayment")
 }
 
-/**
- * Post fee assignment to accounting
- */
 export async function postFeeAssignment(
-  companyId: string,
-  assignmentData: {
+  _companyId: string,
+  _assignmentData: {
     assignmentId: string
     clientId: string
     amount: number
     feeType: string
     assignedDate: Date
-  }
+  },
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId: "stub-journal-entry-id" }
-  } catch (error) {
-    log.error("Failed to post fee assignment", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("postFeeAssignment")
 }
 
-/**
- * Post salary payment to accounting
- */
 export async function postSalaryPayment(
-  companyId: string,
-  paymentData: {
+  _companyId: string,
+  _paymentData: {
     slipId: string
     employeeId: string
     grossSalary: number
@@ -114,220 +88,97 @@ export async function postSalaryPayment(
     socialSecurityAmount: number
     netSalary: number
     paymentDate: Date
-  }
+  },
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId: "stub-journal-entry-id" }
-  } catch (error) {
-    log.error("Failed to post salary payment", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("postSalaryPayment")
 }
 
-/**
- * Post expense payment to accounting
- */
 export async function postExpensePayment(
-  companyId: string,
-  expenseData: {
+  _companyId: string,
+  _expenseData: {
     expenseId: string
     categoryName: string
     amount: number
     paymentDate: Date
     description: string
-  }
+  },
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId: "stub-journal-entry-id" }
-  } catch (error) {
-    log.error("Failed to post expense payment", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("postExpensePayment")
 }
 
-/**
- * Post invoice payment to accounting
- */
 export async function postInvoicePayment(
-  companyId: string,
-  invoiceData: {
+  _companyId: string,
+  _invoiceData: {
     invoiceId: string
     amount: number
     paymentDate: Date
     invoiceNumber: string
-  }
+  },
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId: "stub-journal-entry-id" }
-  } catch (error) {
-    log.error("Failed to post invoice payment", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("postInvoicePayment")
 }
 
-/**
- * Post wallet top-up to accounting
- */
 export async function postWalletTopup(
-  companyId: string,
-  topupData: {
+  _companyId: string,
+  _topupData: {
     transactionId: string
     amount: number
     topupDate: Date
-  }
+  },
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId: "stub-journal-entry-id" }
-  } catch (error) {
-    log.error("Failed to post wallet top-up", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("postWalletTopup")
 }
 
-/**
- * Post an unposted journal entry
- */
 export async function postJournalEntryAction(
-  journalEntryId: string
+  _journalEntryId: string,
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId }
-  } catch (error) {
-    log.error("Failed to post journal entry", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("postJournalEntryAction")
 }
 
-/**
- * Reverse a journal entry
- */
 export async function reverseJournalEntryAction(
-  journalEntryId: string,
-  reason: string
+  _journalEntryId: string,
+  _reason: string,
 ): Promise<PostingResult> {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, errors: ["Unauthorized"] }
-    }
-
-    return { success: true, journalEntryId: `reversed-${journalEntryId}` }
-  } catch (error) {
-    log.error("Failed to reverse journal entry", error as Error)
-    return {
-      success: false,
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, errors: [guard.error] }
+  return notImplementedPosting("reverseJournalEntryAction")
 }
 
-/**
- * Get chart of accounts for a company
- */
-export async function getChartOfAccounts(companyId: string) {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized" }
-    }
-
-    return { success: true, accounts: [] }
-  } catch (error) {
-    log.error("Failed to fetch chart of accounts", error as Error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
-  }
+export async function getChartOfAccounts(_companyId: string) {
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, error: guard.error }
+  return notImplementedResult("getChartOfAccounts", { accounts: [] as const })
 }
 
-/**
- * Get journal entries for a company
- */
 export async function getJournalEntries(
-  companyId: string,
-  options?: {
+  _companyId: string,
+  _options?: {
     fiscalYearId?: string
     sourceModule?: string
     isPosted?: boolean
     limit?: number
-  }
+  },
 ) {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized" }
-    }
-
-    return { success: true, entries: [] }
-  } catch (error) {
-    log.error("Failed to fetch journal entries", error as Error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, error: guard.error }
+  return notImplementedResult("getJournalEntries", { entries: [] as const })
 }
 
-/**
- * Get account balances for a company
- */
 export async function getAccountBalances(
-  companyId: string,
-  fiscalYearId?: string
+  _companyId: string,
+  _fiscalYearId?: string,
 ) {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return { success: false, error: "Unauthorized" }
-    }
-
-    return { success: true, balances: [] }
-  } catch (error) {
-    log.error("Failed to fetch account balances", error as Error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
-  }
+  const guard = await requireAuthOrUnauthorized()
+  if (!guard.ok) return { success: false, error: guard.error }
+  return notImplementedResult("getAccountBalances", { balances: [] as const })
 }

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
-import { TaskFormValues } from './validation';
+import { TaskFormValues, taskFormSchema } from './validation';
 import { auth } from '@/auth';
 import { TaskStatus, TaskPriority } from '@prisma/client';
 import { logger } from '@/lib/logger';
@@ -68,11 +68,12 @@ export async function createTask(data: TaskFormValues) {
 export async function getTasks() {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return { error: 'Not authenticated' };
     }
 
     const tasks = await db.task.findMany({
+      where: { userId: session.user.id },
       orderBy: {
         createdAt: 'desc',
       },
@@ -114,12 +115,12 @@ export async function getTasks() {
 export async function getTask(id: string) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return { error: 'Not authenticated' };
     }
 
-    const task = await db.task.findUnique({
-      where: { id },
+    const task = await db.task.findFirst({
+      where: { id, userId: session.user.id },
     });
 
     if (!task) {
@@ -161,12 +162,19 @@ export async function getTask(id: string) {
 export async function updateTask(id: string, data: Partial<TaskFormValues>) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return { error: 'Not authenticated' };
     }
 
-    const existingTask = await db.task.findUnique({
-      where: { id },
+    const parsed = taskFormSchema.partial().safeParse(data);
+    if (!parsed.success) {
+      return { error: 'Invalid task data' };
+    }
+    const validated = parsed.data;
+
+    const existingTask = await db.task.findFirst({
+      where: { id, userId: session.user.id },
+      select: { id: true },
     });
 
     if (!existingTask) {
@@ -175,16 +183,16 @@ export async function updateTask(id: string, data: Partial<TaskFormValues>) {
 
     const updateData: Record<string, unknown> = {};
 
-    if (data.task !== undefined) updateData.task = data.task;
-    if (data.project !== undefined) updateData.project = data.project;
-    if (data.status !== undefined) updateData.status = mapStatus(data.status);
-    if (data.priority !== undefined) updateData.priority = mapPriority(data.priority);
-    if (data.desc !== undefined) updateData.desc = data.desc;
-    if (data.label !== undefined) updateData.label = data.label;
-    if (data.duration !== undefined) updateData.duration = data.duration;
-    if (data.assignedTo !== undefined) updateData.assignedTo = data.assignedTo;
-    if (data.date !== undefined) updateData.date = data.date;
-    if (data.hours !== undefined) updateData.hours = data.hours;
+    if (validated.task !== undefined) updateData.task = validated.task;
+    if (validated.project !== undefined) updateData.project = validated.project;
+    if (validated.status !== undefined) updateData.status = mapStatus(validated.status);
+    if (validated.priority !== undefined) updateData.priority = mapPriority(validated.priority);
+    if (validated.desc !== undefined) updateData.desc = validated.desc;
+    if (validated.label !== undefined) updateData.label = validated.label;
+    if (validated.duration !== undefined) updateData.duration = validated.duration;
+    if (validated.assignedTo !== undefined) updateData.assignedTo = validated.assignedTo;
+    if (validated.date !== undefined) updateData.date = validated.date;
+    if (validated.hours !== undefined) updateData.hours = validated.hours;
 
     const updatedTask = await db.task.update({
       where: { id },
@@ -220,12 +228,13 @@ export async function updateTask(id: string, data: Partial<TaskFormValues>) {
 export async function deleteTask(id: string) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return { error: 'Not authenticated' };
     }
 
-    const taskToDelete = await db.task.findUnique({
-      where: { id },
+    const taskToDelete = await db.task.findFirst({
+      where: { id, userId: session.user.id },
+      select: { id: true },
     });
 
     if (!taskToDelete) {
@@ -264,10 +273,11 @@ export async function generateTasksFromProject(projectId: string) {
     if (!session?.user?.id) {
       return { error: 'Not authenticated' };
     }
+    const userId = session.user.id;
 
-    // Get project with activities
-    const project = await db.project.findUnique({
-      where: { id: projectId },
+    // Tenant-scoped: only the project's owner can (re)generate its tasks.
+    const project = await db.project.findFirst({
+      where: { id: projectId, userId },
     });
 
     if (!project) {
@@ -280,16 +290,6 @@ export async function generateTasksFromProject(projectId: string) {
     if (activities.length === 0) {
       return { success: true, message: 'No activities to generate tasks from' };
     }
-
-    // Delete existing auto-generated tasks for this project
-    await db.task.deleteMany({
-      where: {
-        linkedActivity: {
-          path: ['projectId'],
-          equals: projectId,
-        },
-      },
-    });
 
     // Group activities by shipmentType-stage-substage (or system-category-subcategory for legacy)
     const groupedActivities = new Map<string, {
@@ -340,15 +340,25 @@ export async function generateTasksFromProject(projectId: string) {
         substage: group.substage,
         task: group.tasks.join(', '),
       },
-      userId: session.user.id!,
+      userId,
     }));
 
     if (tasksToCreate.length === 0) {
       return { success: true, message: 'No tasks to create after grouping' };
     }
 
-    const result = await db.task.createMany({
-      data: tasksToCreate,
+    // Atomic: if createMany throws, the old tasks are preserved.
+    const result = await db.$transaction(async (tx) => {
+      await tx.task.deleteMany({
+        where: {
+          userId,
+          linkedActivity: {
+            path: ['projectId'],
+            equals: projectId,
+          },
+        },
+      });
+      return tx.task.createMany({ data: tasksToCreate });
     });
 
     revalidatePath('/task');
@@ -372,6 +382,7 @@ export async function syncProjectsWithTasks() {
     if (!session?.user?.id) {
       return { error: 'Not authenticated' };
     }
+    const userId = session.user.id;
 
     const BATCH_SIZE = 10;
     const results: Array<{
@@ -387,6 +398,7 @@ export async function syncProjectsWithTasks() {
 
     while (true) {
       const projects = await db.project.findMany({
+        where: { userId },
         take: BATCH_SIZE,
         ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
         orderBy: { id: 'asc' },
@@ -445,15 +457,30 @@ export async function syncProjectsWithTasks() {
   }
 }
 
-// Get team members from the User table
+// Get team members — scoped to users that appear in the caller's project.team
+// arrays, plus the caller themselves. Prevents enumerating every user in the DB.
 export async function getTeamMembers() {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return { error: "Not authenticated" };
+    }
+    const userId = session.user.id;
+
+    const projects = await db.project.findMany({
+      where: { userId },
+      select: { team: true, teamLead: true },
+    });
+
+    const memberIds = new Set<string>();
+    memberIds.add(userId);
+    for (const p of projects) {
+      if (p.teamLead) memberIds.add(p.teamLead);
+      for (const m of p.team ?? []) memberIds.add(m);
     }
 
     const users = await db.user.findMany({
+      where: { id: { in: Array.from(memberIds) } },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     });
@@ -462,7 +489,8 @@ export async function getTeamMembers() {
       success: true,
       members: users.map((u) => ({ id: u.id, name: u.name ?? "Unknown" })),
     };
-  } catch {
+  } catch (err) {
+    log.error("Failed to fetch team members", err as Error);
     return { error: "Failed to fetch team members" };
   }
 }
@@ -471,12 +499,12 @@ export async function getTeamMembers() {
 export async function getTasksByProject(projectId: string) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.user?.id) {
       return { error: 'Not authenticated' };
     }
 
     const tasks = await db.task.findMany({
-      where: { projectId },
+      where: { projectId, userId: session.user.id },
       orderBy: { createdAt: 'desc' },
     });
 

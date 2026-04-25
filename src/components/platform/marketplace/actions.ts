@@ -1,10 +1,12 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/db';
 import { auth } from '@/auth';
 import { logger } from '@/lib/logger';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
 const log = logger.forModule('marketplace');
 import type { VendorStatus, ServiceRequestStatus } from '@prisma/client';
@@ -12,15 +14,28 @@ import {
   vendorRegistrationSchema,
   vendorApprovalSchema,
   serviceListingSchema,
+  serviceListingUpdateSchema,
   serviceRequestSchema,
   contactViewSchema,
   type VendorRegistrationData,
   type VendorApprovalData,
   type ServiceListingData,
+  type ServiceListingUpdateData,
   type ServiceRequestData,
   type ContactViewData,
 } from './validation';
 import type { ServiceFilters, VendorFilters, RequestFilters } from './types';
+
+// Public marketplace abuse limits: vendor signup is once-a-vendor so tight;
+// service requests are more frequent so looser. Swap to Upstash pre-GA.
+const VENDOR_SIGNUP_LIMIT = 5;
+const VENDOR_SIGNUP_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const SERVICE_REQUEST_LIMIT = 10;
+const SERVICE_REQUEST_WINDOW_MS = 60 * 60 * 1000;
+
+async function currentIp(): Promise<string> {
+  return getClientIp(await headers());
+}
 
 // ============================================
 // PAGINATION DEFAULTS
@@ -75,6 +90,16 @@ export async function getServiceCategories() {
 
 export async function registerVendor(data: VendorRegistrationData) {
   try {
+    const { limited } = rateLimit(
+      'vendor-signup',
+      await currentIp(),
+      VENDOR_SIGNUP_LIMIT,
+      VENDOR_SIGNUP_WINDOW_MS,
+    );
+    if (limited) {
+      return { success: false, error: 'Too many registration attempts. Please try again later.' };
+    }
+
     const validated = vendorRegistrationSchema.parse(data);
 
     // Check for existing vendor with same email (use generic error to prevent enumeration)
@@ -326,11 +351,18 @@ export async function createServiceListing(data: ServiceListingData) {
   }
 }
 
-export async function updateServiceListing(id: string, data: Partial<ServiceListingData>) {
+export async function updateServiceListing(id: string, data: ServiceListingUpdateData) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return { success: false, error: 'Not authenticated' };
+    }
+
+    // Whitelist-parse to reject extra fields (e.g., vendorId) that could
+    // rebind ownership. `.partial()` lets callers send any subset.
+    const parsed = serviceListingUpdateSchema.safeParse(data);
+    if (!parsed.success) {
+      return { success: false, error: 'Invalid listing data' };
     }
 
     const existing = await db.serviceListing.findUnique({
@@ -346,9 +378,13 @@ export async function updateServiceListing(id: string, data: Partial<ServiceList
       return { success: false, error: 'Not authorized to update this listing' };
     }
 
+    // Cast through Prisma's unchecked-update shape. `parsed.data` is already
+    // whitelisted by serviceListingUpdateSchema so no rebinding field (vendorId,
+    // id, createdAt) can slip through — this cast only crosses the Prisma
+    // generic disambiguation between checked/unchecked update inputs.
     const listing = await db.serviceListing.update({
       where: { id },
-      data: data as Parameters<typeof db.serviceListing.update>[0]["data"],
+      data: parsed.data as Parameters<typeof db.serviceListing.update>[0]['data'],
       include: { category: true },
     });
 
@@ -504,6 +540,16 @@ export async function getService(id: string) {
 
 export async function createServiceRequest(data: ServiceRequestData) {
   try {
+    const { limited } = rateLimit(
+      'service-request',
+      await currentIp(),
+      SERVICE_REQUEST_LIMIT,
+      SERVICE_REQUEST_WINDOW_MS,
+    );
+    if (limited) {
+      return { success: false, error: 'Too many requests. Please try again later.' };
+    }
+
     const validated = serviceRequestSchema.parse(data);
 
     // Validate quantity is positive
@@ -566,7 +612,28 @@ export async function createServiceRequest(data: ServiceRequestData) {
 
 export async function recordContactView(data: ContactViewData) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
     const validated = contactViewSchema.parse(data);
+
+    // Only the requester or the vendor-owner of this request can record a
+    // contact view. Previously any authenticated-or-not caller could flip
+    // status to CONTACTED by enumerating ids.
+    const existing = await db.serviceRequest.findFirst({
+      where: {
+        id: validated.requestId,
+        OR: [
+          { requesterId: session.user.id },
+          { vendor: { userId: session.user.id } },
+        ],
+      },
+    });
+    if (!existing) {
+      return { success: false, error: 'Request not found' };
+    }
 
     const request = await db.serviceRequest.update({
       where: { id: validated.requestId },

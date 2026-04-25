@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { db } from '@/lib/db';
 import { createNotification } from '@/lib/services/notification';
 import { logger } from '@/lib/logger';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 const log = logger.forModule('api.cron-demurrage');
+
+// Sentry Crons — alert if this job doesn't run on schedule.
+// See: https://docs.sentry.io/platforms/javascript/guides/nextjs/crons/
+const CRON_MONITOR_SLUG = 'cron-demurrage-daily';
+const CRON_SCHEDULE = { type: 'crontab' as const, value: '0 6 * * *' };
 
 function verifySecret(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -24,6 +33,11 @@ export async function GET(request: NextRequest) {
   if (!verifySecret(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const checkInId = Sentry.captureCheckIn(
+    { monitorSlug: CRON_MONITOR_SLUG, status: 'in_progress' },
+    { schedule: CRON_SCHEDULE, checkinMargin: 5, maxRuntime: 10 }
+  );
 
   try {
     const shipments = await db.shipment.findMany({
@@ -120,6 +134,8 @@ export async function GET(request: NextRequest) {
       alertsSent,
     });
 
+    Sentry.captureCheckIn({ checkInId, monitorSlug: CRON_MONITOR_SLUG, status: 'ok' });
+
     return NextResponse.json({
       success: true,
       shipmentsChecked: shipments.length,
@@ -127,6 +143,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     log.error('Demurrage cron failed', error as Error);
+    Sentry.captureCheckIn({ checkInId, monitorSlug: CRON_MONITOR_SLUG, status: 'error' });
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         success: false,

@@ -1,24 +1,20 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 import { i18n, type Locale } from '@/components/internationalization/config'
-import { apiAuthPrefix, authRoutes, publicRoutes, publicRoutePrefixes, DEFAULT_LOGIN_REDIRECT } from '@/routes'
+import {
+  apiAuthPrefix,
+  authRoutes,
+  publicRoutes,
+  publicRoutePrefixes,
+  communityAllowedPrefixes,
+  DEFAULT_LOGIN_REDIRECT,
+  COMMUNITY_LOGIN_REDIRECT,
+} from '@/routes'
+import { getClientIp, rateLimit } from '@/lib/rate-limit'
 
-// Simple in-memory rate limiter for auth endpoints (Edge-compatible)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
-const RATE_LIMIT_WINDOW_MS = 60_000 // 1 minute
-const RATE_LIMIT_MAX = 10 // 10 requests per minute per IP
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-
-  if (!entry || now > entry.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS })
-    return false
-  }
-
-  entry.count++
-  return entry.count > RATE_LIMIT_MAX
-}
+// 20 credential-bearing submissions per minute per IP.
+const AUTH_RATE_LIMIT_MAX = 20
+const AUTH_RATE_LIMIT_WINDOW_MS = 60_000
 
 function getLocale(request: NextRequest): string {
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
@@ -26,7 +22,6 @@ function getLocale(request: NextRequest): string {
     return cookieLocale
   }
 
-  // Simple Accept-Language parsing for Edge runtime
   const acceptLanguage = request.headers.get('accept-language') ?? ''
   const preferredLocale = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase()
 
@@ -37,44 +32,84 @@ function getLocale(request: NextRequest): string {
   return i18n.defaultLocale
 }
 
+/**
+ * Verify the Auth.js v5 session JWT.
+ *
+ * When `AUTH_JWT_VERIFY=lax` (or `AUTH_SECRET` is missing), falls back to
+ * cookie-presence — matches the legacy behavior so the flag flip is
+ * reversible without redeploy. Default is strict verification.
+ */
+/**
+ * Decode the session JWT. Skipped entirely in lax mode or when no secret is
+ * configured — in those cases we can't trust payload fields like `type`, so
+ * community-guard + post-login routing fall back to staff-default behaviour.
+ */
+async function getSessionToken(request: NextRequest) {
+  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET
+  const mode = process.env.AUTH_JWT_VERIFY ?? 'strict'
+  if (mode === 'lax' || !secret) return null
+  return getToken({
+    req: request,
+    secret,
+    salt: process.env.NODE_ENV === 'production'
+      ? '__Secure-authjs.session-token'
+      : 'authjs.session-token',
+  })
+}
+
+async function isAuthenticated(request: NextRequest): Promise<boolean> {
+  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET
+  const mode = process.env.AUTH_JWT_VERIFY ?? 'strict'
+
+  if (mode === 'lax' || !secret) {
+    return (
+      !!request.cookies.get('authjs.session-token')?.value ||
+      !!request.cookies.get('__Secure-authjs.session-token')?.value
+    )
+  }
+
+  const token = await getSessionToken(request)
+  return !!token
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Check for auth session token (JWT)
-  const sessionToken = request.cookies.get('authjs.session-token')?.value
-    || request.cookies.get('__Secure-authjs.session-token')?.value
-  const isLoggedIn = !!sessionToken
+  const isLoggedIn = await isAuthenticated(request)
 
-  // Extract locale from pathname
   const localeMatch = pathname.match(/^\/(ar|en)/)
   const locale = localeMatch ? localeMatch[1] : null
   const pathnameWithoutLocale = locale ? pathname.replace(`/${locale}`, '') || '/' : pathname
 
-  // Check if the route is API auth
   const isApiAuthRoute = pathname.startsWith(apiAuthPrefix)
 
-  // Check route types (without locale prefix)
   const isPublicRoute = publicRoutes.includes(pathnameWithoutLocale) ||
     publicRoutePrefixes.some(prefix => pathname.startsWith(prefix))
   const isAuthRoute = authRoutes.includes(pathnameWithoutLocale)
 
-  // Rate limit auth endpoints
-  if (isAuthRoute || isApiAuthRoute) {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
-    if (isRateLimited(ip)) {
+  // Rate limit credential-bearing POSTs on auth endpoints. GETs and session
+  // polls are free so Auth.js's SessionProvider doesn't trip the limiter.
+  if (request.method === 'POST' && (isAuthRoute || isApiAuthRoute)) {
+    const ip = getClientIp(request.headers)
+    const { limited } = rateLimit('auth', ip, AUTH_RATE_LIMIT_MAX, AUTH_RATE_LIMIT_WINDOW_MS)
+    if (limited) {
       return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
+        { error: 'Too many requests. Please try again later.' },
         { status: 429 }
       )
     }
   }
 
-  // Allow API auth routes
   if (isApiAuthRoute) {
     return NextResponse.next()
   }
 
-  // Handle locale redirect
+  // All /api/* routes are locale-free — skip locale redirection and guards.
+  // Cron, invoice PDF, statement PDF, health endpoints live under /api.
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
+  }
+
   const pathnameHasLocale = i18n.locales.some(
     (loc) => pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`
   )
@@ -93,15 +128,32 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Redirect logged in users away from auth routes
   if (isAuthRoute && isLoggedIn) {
-    return NextResponse.redirect(new URL(`/${locale || i18n.defaultLocale}${DEFAULT_LOGIN_REDIRECT}`, request.nextUrl))
+    const token = await getSessionToken(request).catch(() => null)
+    const redirectPath = token?.type === 'COMMUNITY'
+      ? COMMUNITY_LOGIN_REDIRECT
+      : DEFAULT_LOGIN_REDIRECT
+    return NextResponse.redirect(new URL(`/${locale || i18n.defaultLocale}${redirectPath}`, request.nextUrl))
   }
 
-  // Protect non-public routes
   if (!isLoggedIn && !isPublicRoute && !isAuthRoute) {
     const callbackUrl = encodeURIComponent(pathname)
     return NextResponse.redirect(new URL(`/${locale || i18n.defaultLocale}/login?callbackUrl=${callbackUrl}`, request.nextUrl))
+  }
+
+  // Community users cannot access staff surfaces. Staff users can access everything.
+  if (isLoggedIn && !isPublicRoute && !isAuthRoute) {
+    const token = await getSessionToken(request).catch(() => null)
+    if (token?.type === 'COMMUNITY') {
+      const allowed = communityAllowedPrefixes.some(prefix =>
+        pathnameWithoutLocale === prefix || pathnameWithoutLocale.startsWith(`${prefix}/`)
+      )
+      if (!allowed) {
+        return NextResponse.redirect(
+          new URL(`/${locale || i18n.defaultLocale}${COMMUNITY_LOGIN_REDIRECT}`, request.nextUrl)
+        )
+      }
+    }
   }
 
   return NextResponse.next()

@@ -182,10 +182,11 @@ export function buildPaginationResult<TData>(
 // ============================================================================
 
 /**
- * Example: Complete query builder for features to use as reference
- * Features should create their own version in their actions.ts file
+ * Reusable table query builder. Features pass in their tenant-scoping clause
+ * via `baseWhere` rather than a hardcoded `schoolId` — Mazin is single-tenant
+ * with per-user ownership, so callers typically pass `{ userId }`.
  */
-export async function exampleFetchTableData<TData, TModel>(params: {
+export async function fetchTableData<TData>(params: {
   // Pagination
   page?: number
   perPage?: number
@@ -196,8 +197,8 @@ export async function exampleFetchTableData<TData, TModel>(params: {
   sorting?: SortingInput
   // Filtering
   filters?: FiltersInput
-  // Tenant scoping (CRITICAL for multi-tenant)
-  schoolId: string
+  // Tenant / ownership scoping — always applied to the where clause.
+  baseWhere?: Record<string, unknown>
   // Prisma client methods
   findMany: (args: {
     where?: unknown
@@ -215,27 +216,19 @@ export async function exampleFetchTableData<TData, TModel>(params: {
     paginationType = "pages",
     sorting,
     filters,
-    schoolId,
+    baseWhere,
     findMany,
     count,
   } = params
 
-  // 1. Build pagination params
   const paginationParams =
     paginationType === "seeMore"
       ? getSeeMorePaginationParams(loadedCount, batchSize)
       : getPagePaginationParams(page, perPage)
 
-  // 2. Build base where clause (ALWAYS include schoolId)
-  const baseWhere = { schoolId }
-
-  // 3. Build complete where clause with filters
   const where = buildPrismaWhere(filters, baseWhere)
-
-  // 4. Build orderBy clause
   const orderBy = buildPrismaOrderBy(sorting)
 
-  // 5. Fetch data and count
   const [data, total] = await Promise.all([
     findMany({
       where,
@@ -246,34 +239,27 @@ export async function exampleFetchTableData<TData, TModel>(params: {
     count({ where }),
   ])
 
-  // 6. Return standardized result
   return buildPaginationResult(data, total, paginationParams)
 }
 
 /**
- * Usage example in a feature's actions.ts:
+ * Usage example:
  *
- * "use server";
+ * "use server"
+ * import { auth } from "@/auth"
+ * import { db } from "@/lib/db"
+ * import { fetchTableData } from "@/components/table/actions"
  *
- * import { auth } from "@/auth";
- * import { db } from "@/lib/db";
- * import { exampleFetchTableData } from "@/components/table/actions";
+ * export async function fetchInvoices(searchParams: { page?: number }) {
+ *   const session = await auth()
+ *   const userId = session?.user?.id
+ *   if (!userId) throw new Error("Unauthorized")
  *
- * export async function fetchStudents(searchParams: {
- *   page?: number;
- *   perPage?: number;
- *   sort?: string;
- * }) {
- *   const session = await auth();
- *   const schoolId = session?.user?.schoolId;
- *
- *   if (!schoolId) throw new Error("No school context");
- *
- *   return exampleFetchTableData({
+ *   return fetchTableData({
  *     ...searchParams,
- *     schoolId,
- *     findMany: (args) => db.student.findMany(args),
- *     count: (args) => db.student.count(args),
- *   });
+ *     baseWhere: { userId },
+ *     findMany: (args) => db.invoice.findMany(args),
+ *     count:    (args) => db.invoice.count(args),
+ *   })
  * }
  */

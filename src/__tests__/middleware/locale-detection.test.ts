@@ -130,3 +130,31 @@ describe("locale detection logic", () => {
     expect(getLocale("zz", "xx-XX")).toBe("ar")
   })
 })
+
+// ---------------------------------------------------------------------------
+// API route bypass — regression guard for the /api locale-redirect bug.
+// Middleware used to redirect /api/cron/reminders → /ar/api/cron/reminders,
+// breaking Vercel cron and PDF endpoints. Every /api/* path must be skipped.
+// ---------------------------------------------------------------------------
+describe("api route bypass", () => {
+  // Mirror the check used in middleware.ts line 109.
+  function isApiRoute(pathname: string): boolean {
+    return pathname.startsWith("/api/")
+  }
+
+  it.each([
+    "/api/cron/reminders",
+    "/api/cron/demurrage",
+    "/api/health",
+    "/api/invoice/123/pdf",
+    "/api/statement/123/pdf",
+    "/api/auth/callback/google",
+  ])("bypasses locale redirect for %s", (pathname) => {
+    expect(isApiRoute(pathname)).toBe(true)
+  })
+
+  it("does not bypass for page routes that only contain /api/ elsewhere", () => {
+    expect(isApiRoute("/dashboard/api/tokens")).toBe(false)
+    expect(isApiRoute("/ar/api-docs")).toBe(false)
+  })
+})
