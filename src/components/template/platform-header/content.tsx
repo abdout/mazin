@@ -22,6 +22,7 @@ import { useBreadcrumbs } from "@/hooks/use-breadcrumbs"
 import { platformNav, type Role } from "@/components/template/platform-sidebar/config"
 import { usePageHeading } from "@/components/platform/context/page-heading-context"
 import { NotificationBellIcon } from "@/components/platform/notifications/bell-icon"
+import { ReportIssue } from "@/components/report-issue"
 
 interface PlatformHeaderProps {
   dictionary: Dictionary
@@ -95,6 +96,7 @@ export default function PlatformHeader({
                     <Search className="size-5" />
                     <span className="sr-only">{dictionary.common.search}</span>
                   </Button>
+                  <ReportIssue variant="icon" />
                   <LanguageSwitcher variant="icon" className="size-10 [&>svg]:size-5" />
                   <ModeSwitcher className="size-10 [&>svg]:size-5" />
                   <UserButton dictionary={dictionary} className="size-10 [&_.size-4]:size-5" />
@@ -155,6 +157,7 @@ export default function PlatformHeader({
             <span className="sr-only">{dictionary.common.search}</span>
           </Button>
           <NotificationBellIcon dictionary={dictionary} locale={locale} />
+          <ReportIssue variant="icon" />
           <LanguageSwitcher variant="icon" />
           <ModeSwitcher />
           <UserButton dictionary={dictionary} />

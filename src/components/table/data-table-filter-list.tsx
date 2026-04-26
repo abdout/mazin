@@ -764,7 +764,7 @@ function onFilterInputRender<TData>({
               variant="outline"
               size="sm"
               className={cn(
-                "w-full justify-start rounded text-left font-normal",
+                "w-full justify-start rounded text-start font-normal",
                 !filter.value && "text-muted-foreground"
               )}
             >

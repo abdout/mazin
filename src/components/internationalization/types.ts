@@ -238,6 +238,26 @@ export interface Dictionary {
     createSuccess: string
     updateSuccess: string
     deleteSuccess: string
+    new?: {
+      title: string
+      subtitle: string
+    }
+    detail?: {
+      parties: string
+      cargo: string
+      dates: string
+      shipper: string
+      consignee: string
+      client: string
+      vessel: string
+      container: string
+      weight: string
+      quantity: string
+      arrival: string
+      departure: string
+      freeDays: string
+      clearanceStages: string
+    }
   }
   customs: {
     title: string
@@ -1258,6 +1278,8 @@ export interface Dictionary {
     changeRole?: string
     deactivate?: string
     activate?: string
+    deleteHint?: string
+    statusHint?: string
     nav?: {
       all?: string
       active?: string
@@ -1801,5 +1823,18 @@ export interface Dictionary {
     goHome: string
     goDashboard: string
     searchPlaceholder: string
+  }
+  notifications?: {
+    title: string
+    page?: Record<string, string>
+    types?: Record<string, string>
+    channels?: Record<string, string>
+    priorities?: Record<string, string>
+    filters?: Record<string, string>
+    actions?: Record<string, string>
+    bulk?: Record<string, string>
+    empty?: Record<string, string>
+    a11y?: Record<string, string>
+    messages?: Record<string, string>
   }
 }

@@ -3,20 +3,12 @@
 import * as Sentry from "@sentry/nextjs"
 import { useEffect } from "react"
 import { useParams } from "next/navigation"
+import enDict from "@/components/internationalization/en.json"
+import arDict from "@/components/internationalization/ar.json"
 
 const messages = {
-  ar: {
-    title: "حدث خطأ ما",
-    description: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
-    retry: "حاول مرة أخرى",
-    goDashboard: "الذهاب للوحة التحكم",
-  },
-  en: {
-    title: "Something went wrong",
-    description: "An unexpected error occurred. Please try again.",
-    retry: "Try Again",
-    goDashboard: "Go to Dashboard",
-  },
+  ar: arDict.errorPage,
+  en: enDict.errorPage,
 } as const
 
 export default function PlatformError({

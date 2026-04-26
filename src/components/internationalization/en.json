@@ -225,7 +225,27 @@
     },
     "createSuccess": "Shipment created successfully",
     "updateSuccess": "Shipment updated successfully",
-    "deleteSuccess": "Shipment deleted successfully"
+    "deleteSuccess": "Shipment deleted successfully",
+    "new": {
+      "title": "New shipment",
+      "subtitle": "Register a new import or export shipment."
+    },
+    "detail": {
+      "parties": "Parties",
+      "cargo": "Cargo",
+      "dates": "Dates",
+      "shipper": "Shipper",
+      "consignee": "Consignee",
+      "client": "Client",
+      "vessel": "Vessel",
+      "container": "Container",
+      "weight": "Weight",
+      "quantity": "Quantity",
+      "arrival": "Arrival",
+      "departure": "Departure",
+      "freeDays": "Free days",
+      "clearanceStages": "Clearance stages"
+    }
   },
   "customs": {
     "title": "Customs Declarations",
@@ -1697,6 +1717,8 @@
     "changeRole": "Change Role",
     "deactivate": "Deactivate",
     "activate": "Activate",
+    "deleteHint": "Use Settings → Team to revoke a member",
+    "statusHint": "Status reflects session activity; revoke via Settings → Team",
     "nav": {
       "all": "All",
       "active": "Active",
