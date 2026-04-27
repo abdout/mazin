@@ -142,6 +142,15 @@
     "newShipment": "شحنة جديدة",
     "newDeclaration": "بيان جمركي جديد",
     "newInvoice": "فاتورة جديدة",
+    "demurrageAlerts": {
+      "title": "تنبيهات الأرضيات",
+      "statusDemurrage": "أرضيات",
+      "statusWarning": "تحذير",
+      "daysOverdue": "متأخر {days} يوم",
+      "daysOverdueAr": "متأخر {days} يوم",
+      "daysLeft": "{days} يوم متبقي",
+      "daysLeftAr": "{days} يوم متبقي"
+    },
     "trendingUp": "ارتفاع هذا الشهر",
     "trendingDown": "انخفاض في هذه الفترة",
     "completionRate": "معدل الإنجاز",
@@ -1426,7 +1435,19 @@
       "result": "النتيجة",
       "formula": "المعادلة",
       "formulaTitle": "صيغة الحساب",
-      "formulaText": "الإجمالي = (قيمة CIF × نسبة الرسوم) + (قيمة CIF + الرسوم) × نسبة ضريبة القيمة المضافة"
+      "formulaText": "الإجمالي = (قيمة CIF × نسبة الرسوم) + (قيمة CIF + الرسوم) × نسبة ضريبة القيمة المضافة",
+      "subtitle": "احسب الرسوم الجمركية وضريبة القيمة المضافة لهذه الشحنة",
+      "selectHsCode": "الرجاء اختيار رمز HS",
+      "cifMustBePositive": "قيمة CIF يجب أن تكون موجبة",
+      "cifInputPlaceholder": "أدخل قيمة CIF",
+      "hsHelper": "ابحث برمز HS أو الوصف (مثال: 8471 أو لاب توب)",
+      "currency": "العملة",
+      "calculating": "جارٍ الحساب…",
+      "pickToSee": "اختر رمز HS وأدخل القيمة CIF لرؤية الرسوم",
+      "exciseLabel": "ضريبة الإنتاج",
+      "effectiveRate": "النسبة الفعلية",
+      "exchangeRateLabel": "سعر الصرف",
+      "calculationFailed": "فشل الحساب"
     },
     "docs": {
       "title": "المستندات",
@@ -2780,6 +2801,7 @@
     "retry": "حاول مرة أخرى",
     "goHome": "الذهاب للصفحة الرئيسية",
     "goDashboard": "الذهاب للوحة التحكم",
+    "backToLogin": "العودة لتسجيل الدخول",
     "globalTitle": "خطأ في التطبيق",
     "globalDescription": "حدث خطأ حرج. يرجى تحديث الصفحة.",
     "refresh": "تحديث الصفحة"

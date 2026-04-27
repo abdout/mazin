@@ -153,6 +153,15 @@ export interface Dictionary {
     completionRate?: string
     clients?: string
     shipment?: string
+    demurrageAlerts: {
+      title: string
+      statusDemurrage: string
+      statusWarning: string
+      daysOverdue: string
+      daysOverdueAr: string
+      daysLeft: string
+      daysLeftAr: string
+    }
     charts?: {
       cashFlow?: {
         title?: string
@@ -1012,6 +1021,18 @@ export interface Dictionary {
       formula?: string
       formulaTitle?: string
       formulaText?: string
+      subtitle?: string
+      selectHsCode?: string
+      cifMustBePositive?: string
+      cifInputPlaceholder?: string
+      hsHelper?: string
+      currency?: string
+      calculating?: string
+      pickToSee?: string
+      exciseLabel?: string
+      effectiveRate?: string
+      exchangeRateLabel?: string
+      calculationFailed?: string
     }
     docs?: {
       title?: string
@@ -1813,6 +1834,7 @@ export interface Dictionary {
     retry: string
     goHome: string
     goDashboard: string
+    backToLogin?: string
     globalTitle: string
     globalDescription: string
     refresh: string
