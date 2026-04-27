@@ -13,8 +13,9 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>
 }): Promise<Metadata> {
   const { lang } = await params
+  const dict = await getDictionary(lang as Locale)
   return {
-    title: lang === "ar" ? "الإشعارات" : "Notifications",
+    title: dict.notifications?.title ?? "Notifications",
   }
 }
 

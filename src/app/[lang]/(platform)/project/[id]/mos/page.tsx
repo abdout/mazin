@@ -15,7 +15,6 @@ interface PageProps {
 export default async function MOS({ params }: PageProps) {
   const resolvedParams = await params
   const locale = resolvedParams.lang as Locale
-  const isArabic = locale === "ar"
   const dict = await getDictionary(locale)
 
   // Fetch project data using server action
@@ -31,13 +30,10 @@ export default async function MOS({ params }: PageProps) {
 
   const project = result.project
   const fallbackTitle = dict.project?.shipmentFallback ?? "Shipment"
-  const pageTitle =
-    dict.project?.mos?.title ?? (isArabic ? "إجراءات التخليص" : "CLEARANCE PROCEDURES")
+  const pageTitle = dict.project?.mos?.title ?? "Clearance Procedures"
   const pageDescription =
     dict.project?.mos?.description ??
-    (isArabic
-      ? "إجراءات التشغيل الموحدة للتخليص الجمركي"
-      : "Standard Operating Procedures for Custom Clearance")
+    "Standard Operating Procedures for Custom Clearance"
 
   return (
     <div className="flex flex-col gap-8 mb-10">

@@ -5,6 +5,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
+    "send": "Send",
+    "download": "Download",
+    "approve": "Approve",
     "create": "Create",
     "search": "Search",
     "filter": "Filter",
@@ -147,6 +150,15 @@
     "completionRate": "Completion Rate",
     "clients": "Clients",
     "shipment": "Shipment",
+    "demurrageAlerts": {
+      "title": "Demurrage Alerts",
+      "statusDemurrage": "Demurrage",
+      "statusWarning": "Warning",
+      "daysOverdue": "{days}d overdue",
+      "daysOverdueAr": "متأخر {days} يوم",
+      "daysLeft": "{days}d left",
+      "daysLeftAr": "{days} يوم متبقي"
+    },
     "charts": {
       "cashFlow": {
         "title": "Cash Flow",
@@ -225,7 +237,27 @@
     },
     "createSuccess": "Shipment created successfully",
     "updateSuccess": "Shipment updated successfully",
-    "deleteSuccess": "Shipment deleted successfully"
+    "deleteSuccess": "Shipment deleted successfully",
+    "new": {
+      "title": "New shipment",
+      "subtitle": "Register a new import or export shipment."
+    },
+    "detail": {
+      "parties": "Parties",
+      "cargo": "Cargo",
+      "dates": "Dates",
+      "shipper": "Shipper",
+      "consignee": "Consignee",
+      "client": "Client",
+      "vessel": "Vessel",
+      "container": "Container",
+      "weight": "Weight",
+      "quantity": "Quantity",
+      "arrival": "Arrival",
+      "departure": "Departure",
+      "freeDays": "Free days",
+      "clearanceStages": "Clearance stages"
+    }
   },
   "customs": {
     "title": "Customs Declarations",
@@ -1406,7 +1438,19 @@
       "result": "Result",
       "formula": "Formula",
       "formulaTitle": "Calculation Formula",
-      "formulaText": "Total = (CIF Value × Duty Rate) + (CIF Value + Duty) × VAT Rate"
+      "formulaText": "Total = (CIF Value × Duty Rate) + (CIF Value + Duty) × VAT Rate",
+      "subtitle": "Calculate customs duties and VAT for this shipment",
+      "selectHsCode": "Please select an HS code",
+      "cifMustBePositive": "CIF value must be positive",
+      "cifInputPlaceholder": "Enter CIF value",
+      "hsHelper": "Search by HS code or description (e.g. 8471 or laptop)",
+      "currency": "Currency",
+      "calculating": "Calculating…",
+      "pickToSee": "Pick an HS code and enter a CIF value to see the breakdown",
+      "exciseLabel": "Excise",
+      "effectiveRate": "Effective Rate",
+      "exchangeRateLabel": "Exchange Rate",
+      "calculationFailed": "Calculation failed"
     },
     "docs": {
       "title": "Documents",
@@ -1697,6 +1741,8 @@
     "changeRole": "Change Role",
     "deactivate": "Deactivate",
     "activate": "Activate",
+    "deleteHint": "Use Settings → Team to revoke a member",
+    "statusHint": "Status reflects session activity; revoke via Settings → Team",
     "nav": {
       "all": "All",
       "active": "Active",
@@ -2758,6 +2804,7 @@
     "retry": "Try Again",
     "goHome": "Go to Homepage",
     "goDashboard": "Go to Dashboard",
+    "backToLogin": "Back to Login",
     "globalTitle": "Application Error",
     "globalDescription": "A critical error occurred. Please refresh the page.",
     "refresh": "Refresh Page"

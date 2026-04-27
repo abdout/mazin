@@ -3,27 +3,10 @@
 import * as Sentry from "@sentry/nextjs"
 import { useEffect } from "react"
 import { useParams } from "next/navigation"
+import enDict from "@/components/internationalization/en.json"
+import arDict from "@/components/internationalization/ar.json"
 
 type CtaKind = "home" | "dashboard" | "login"
-
-const messages = {
-  ar: {
-    title: "حدث خطأ ما",
-    description: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
-    retry: "حاول مرة أخرى",
-    home: "الذهاب للصفحة الرئيسية",
-    dashboard: "الذهاب للوحة التحكم",
-    login: "العودة لتسجيل الدخول",
-  },
-  en: {
-    title: "Something went wrong",
-    description: "An unexpected error occurred. Please try again.",
-    retry: "Try Again",
-    home: "Go to Homepage",
-    dashboard: "Go to Dashboard",
-    login: "Back to Login",
-  },
-} as const
 
 export function PageErrorBoundary({
   error,
@@ -40,13 +23,16 @@ export function PageErrorBoundary({
 
   const params = useParams<{ lang: string }>()
   const lang = params?.lang === "en" ? "en" : "ar"
-  const t = messages[lang]
+  const t = (lang === "ar" ? arDict : enDict).errorPage
 
   const target =
     cta === "home" ? `/${lang}` :
     cta === "login" ? `/${lang}/login` :
     `/${lang}/dashboard`
-  const ctaLabel = t[cta]
+  const ctaLabel =
+    cta === "home" ? t.goHome :
+    cta === "login" ? t.backToLogin :
+    t.goDashboard
 
   return (
     <div className="flex min-h-[50vh] items-center justify-center p-4">

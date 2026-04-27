@@ -4,6 +4,7 @@ import { type Locale, getDir } from "@/components/internationalization/config"
 import { TrackingSearchForm } from "./tracking-search-form"
 import { LanguageToggle } from "@/components/template/site-header/language-toggle"
 import { ModeToggle } from "@/components/atom/mode-toggle"
+import { ReportIssue } from "@/components/report-issue"
 import { IconTruck, IconShip, IconMapPin } from "@tabler/icons-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -88,6 +89,7 @@ export default async function TrackingEntryPage({ params }: TrackingPageProps) {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <ReportIssue variant="icon" />
             <LanguageToggle />
             <ModeToggle />
           </div>
