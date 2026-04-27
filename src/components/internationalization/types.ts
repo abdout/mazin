@@ -8,6 +8,9 @@ export interface Dictionary {
     cancel: string
     delete: string
     edit: string
+    send?: string
+    download?: string
+    approve?: string
     create: string
     search: string
     filter: string
