@@ -81,17 +81,25 @@ describe("auth actions", () => {
       expect(result).toEqual({ error: "Invalid emaiL!" })
     })
 
-    it("returns error when email not registered", async () => {
+    // Anti-enumeration: the action returns the same generic success message
+    // whether or not the email is registered, and never sends an email for
+    // unregistered addresses. See `src/components/auth/reset/action.ts`.
+    const GENERIC_RESET_SUCCESS =
+      "If an account exists for that email, a reset link is on the way."
+
+    it("returns generic success when email is not registered (no enumeration)", async () => {
       vi.mocked(db.user.findUnique).mockResolvedValue(null)
       const result = await reset({ email: "u@x.com" })
-      expect(result).toEqual({ error: "Email not found!" })
+      expect(result).toEqual({ success: GENERIC_RESET_SUCCESS })
+      expect(sendPasswordResetEmail).not.toHaveBeenCalled()
     })
 
-    it("generates token and sends reset email on success", async () => {
+    it("generates token and sends reset email when email is registered", async () => {
       vi.mocked(db.user.findUnique).mockResolvedValue({ id: "u1" } as any)
       const result = await reset({ email: "u@x.com" })
       expect(sendPasswordResetEmail).toHaveBeenCalledWith("u@x.com", "r-tok")
-      expect(result).toEqual({ success: "Reset email sent!" })
+      // Same generic copy as the unregistered branch — that's the point.
+      expect(result).toEqual({ success: GENERIC_RESET_SUCCESS })
     })
   })
 

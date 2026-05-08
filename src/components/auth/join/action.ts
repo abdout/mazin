@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 
 import { sendVerificationEmail } from "@/components/auth/mail";
 import { generateVerificationToken } from "@/components/auth/tokens";
+import { checkAuthRateLimit } from "@/components/auth/rate-limit";
 import { RegisterSchema } from "../validation";
 import { getUserByEmail } from "../user";
 
@@ -18,6 +19,12 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   }
 
   const { email, password, name } = validatedFields.data;
+
+  // Per-IP rate limit — prevents signup floods filling the DB. We pass `null`
+  // for the email axis because a fresh registration shouldn't punish unrelated
+  // users who happen to share an email guess.
+  const rl = await checkAuthRateLimit("register", null);
+  if (rl.limited) return { error: rl.error };
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await getUserByEmail(email);

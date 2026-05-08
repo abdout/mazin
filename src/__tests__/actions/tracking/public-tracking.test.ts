@@ -5,6 +5,10 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }))
 vi.mock("@/lib/services/notification", () => ({
   notifyShipmentMilestone: vi.fn().mockResolvedValue(undefined),
 }))
+// `next/headers` and `@/lib/rate-limit` are mocked in the global test setup
+// (`src/__tests__/setup.ts`). The default mock allows everything; tests below
+// flip it via `vi.mocked(rateLimit).mockResolvedValueOnce` to exercise the
+// throttled branch.
 vi.mock("@/lib/tracking", () => ({
   STAGE_ORDER: [
     "PRE_ARRIVAL_DOCS",
@@ -31,11 +35,18 @@ vi.mock("@/lib/tracking", () => ({
 
 import { db } from "@/lib/db"
 import { getPublicTracking, getPublicTrackingLink } from "@/actions/tracking"
+import { rateLimit } from "@/lib/rate-limit"
 import { makeShipment, makeTrackingStage } from "@/__tests__/helpers/factories"
 
 describe("getPublicTracking", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Default: rate limiter allows the request. Tests flip this when needed.
+    vi.mocked(rateLimit).mockResolvedValue({
+      limited: false,
+      remaining: 30,
+      resetAt: Date.now() + 5 * 60_000,
+    })
   })
 
   it("finds shipment by trackingNumber", async () => {
@@ -55,8 +66,10 @@ describe("getPublicTracking", () => {
         trackingStages: { orderBy: { createdAt: "asc" } },
       },
     })
-    expect(result).toBeTruthy()
-    expect(result!.trackingNumber).toBe("TRK-ABC123")
+    expect(result.status).toBe("ok")
+    if (result.status === "ok") {
+      expect(result.data.trackingNumber).toBe("TRK-ABC123")
+    }
   })
 
   it("falls back to trackingSlug when trackingNumber not found", async () => {
@@ -80,16 +93,16 @@ describe("getPublicTracking", () => {
         trackingStages: { orderBy: { createdAt: "asc" } },
       },
     })
-    expect(result).toBeTruthy()
+    expect(result.status).toBe("ok")
   })
 
-  it("returns null when identifier matches neither trackingNumber nor trackingSlug", async () => {
+  it("returns not-found when identifier matches neither trackingNumber nor trackingSlug", async () => {
     vi.mocked(db.shipment.findUnique).mockResolvedValue(null)
     vi.mocked(db.shipment.findFirst).mockResolvedValue(null)
 
     const result = await getPublicTracking("NONEXISTENT")
 
-    expect(result).toBeNull()
+    expect(result.status).toBe("not-found")
   })
 
   it("does not query by slug if trackingNumber lookup succeeds", async () => {
@@ -101,6 +114,23 @@ describe("getPublicTracking", () => {
 
     await getPublicTracking("TRK-FOUND")
 
+    expect(db.shipment.findFirst).not.toHaveBeenCalled()
+  })
+
+  it("returns rate-limited without hitting the database when throttled", async () => {
+    vi.mocked(rateLimit).mockResolvedValueOnce({
+      limited: true,
+      remaining: 0,
+      resetAt: Date.now() + 60_000,
+    })
+
+    const result = await getPublicTracking("TRK-ABC123")
+
+    expect(result.status).toBe("rate-limited")
+    if (result.status === "rate-limited") {
+      expect(result.retryAfterSec).toBeGreaterThan(0)
+    }
+    expect(db.shipment.findUnique).not.toHaveBeenCalled()
     expect(db.shipment.findFirst).not.toHaveBeenCalled()
   })
 })

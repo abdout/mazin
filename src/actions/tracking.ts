@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db"
 import { auth } from "@/auth"
+import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import type { TrackingStageType, TrackingStageStatus } from "@prisma/client"
@@ -13,6 +14,22 @@ import {
   toPublicTrackingData,
 } from "@/lib/tracking"
 import { notifyShipmentMilestone, type ShipmentMilestone } from "@/lib/services/notification"
+import { getClientIp, rateLimit } from "@/lib/rate-limit"
+import { logger } from "@/lib/logger"
+
+const trackingLog = logger.forModule("tracking.public")
+
+// Public tracking is unauthenticated; without a throttle, an attacker can
+// enumerate all tracking numbers. 30 lookups per 5 minutes per IP is generous
+// for legitimate refresh-the-page traffic.
+const PUBLIC_TRACKING_LIMIT = 30
+const PUBLIC_TRACKING_WINDOW_MS = 5 * 60_000
+
+/** Sentinel returned by `getPublicTracking` when the IP is throttled. */
+export type PublicTrackingResult =
+  | { status: "ok"; data: ReturnType<typeof toPublicTrackingData> }
+  | { status: "rate-limited"; retryAfterSec: number }
+  | { status: "not-found" }
 
 // Map each of the 11 tracking stages to a client-visible milestone so the
 // notification dispatcher fires on every transition, not just a handful.
@@ -50,37 +67,47 @@ function fireStageNotification(
 // ============================================
 
 /**
- * Get public tracking data by tracking number or slug (no auth required)
- * Returns sanitized data safe for public display
+ * Get public tracking data by tracking number or slug (no auth required).
+ * Rate-limited per-IP so the endpoint can't be used to enumerate all
+ * tracking numbers.
+ *
+ * Returns a discriminated `PublicTrackingResult`:
+ *  - `{ status: "ok", data }`         — found, sanitized for public display
+ *  - `{ status: "not-found" }`        — no match
+ *  - `{ status: "rate-limited", … }`  — caller should render 429 + Retry-After
  */
-export async function getPublicTracking(identifier: string) {
-  // Try to find by tracking number first (TRK-XXXXXX format)
+export async function getPublicTracking(identifier: string): Promise<PublicTrackingResult> {
+  const ip = getClientIp(await headers())
+  const rl = await rateLimit(
+    "public-tracking",
+    ip,
+    PUBLIC_TRACKING_LIMIT,
+    PUBLIC_TRACKING_WINDOW_MS,
+  )
+  if (rl.limited) {
+    trackingLog.warn("Public tracking rate-limited", { ip })
+    const retryAfterSec = Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000))
+    return { status: "rate-limited", retryAfterSec }
+  }
+
+  // Try by tracking number first (TRK-XXXXXX), fall through to slug.
   let shipment = await db.shipment.findUnique({
     where: { trackingNumber: identifier },
-    include: {
-      trackingStages: {
-        orderBy: { createdAt: "asc" },
-      },
-    },
+    include: { trackingStages: { orderBy: { createdAt: "asc" } } },
   })
 
-  // If not found, try by tracking slug (URL-safe short code)
   if (!shipment) {
     shipment = await db.shipment.findFirst({
       where: { trackingSlug: identifier },
-      include: {
-        trackingStages: {
-          orderBy: { createdAt: "asc" },
-        },
-      },
+      include: { trackingStages: { orderBy: { createdAt: "asc" } } },
     })
   }
 
   if (!shipment) {
-    return null
+    return { status: "not-found" }
   }
 
-  return toPublicTrackingData(shipment)
+  return { status: "ok", data: toPublicTrackingData(shipment) }
 }
 
 /**

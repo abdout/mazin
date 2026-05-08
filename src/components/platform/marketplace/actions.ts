@@ -90,7 +90,7 @@ export async function getServiceCategories() {
 
 export async function registerVendor(data: VendorRegistrationData) {
   try {
-    const { limited } = rateLimit(
+    const { limited } = await rateLimit(
       'vendor-signup',
       await currentIp(),
       VENDOR_SIGNUP_LIMIT,
@@ -540,7 +540,7 @@ export async function getService(id: string) {
 
 export async function createServiceRequest(data: ServiceRequestData) {
   try {
-    const { limited } = rateLimit(
+    const { limited } = await rateLimit(
       'service-request',
       await currentIp(),
       SERVICE_REQUEST_LIMIT,

@@ -18,6 +18,31 @@ vi.mock("next/navigation", () => ({
   notFound: vi.fn(),
 }))
 
+// Mock next/headers — used by the rate limiter (and any action that calls it).
+// Tests that need a specific IP can override this per-test with vi.mocked().
+vi.mock("next/headers", () => ({
+  headers: vi.fn().mockResolvedValue({
+    get: () => null,
+  }),
+  cookies: vi.fn().mockResolvedValue({
+    get: () => undefined,
+    set: vi.fn(),
+    delete: vi.fn(),
+  }),
+}))
+
+// Mock @/lib/rate-limit — auth/marketplace/tracking actions go through this.
+// Default: allow everything. Per-test override possible via vi.mocked.
+vi.mock("@/lib/rate-limit", () => ({
+  rateLimit: vi.fn().mockResolvedValue({
+    limited: false,
+    remaining: 999,
+    resetAt: Date.now() + 60_000,
+  }),
+  getClientIp: vi.fn().mockReturnValue("test-ip"),
+  __resetRateLimits: vi.fn(),
+}))
+
 // Mock next-auth/react
 vi.mock("next-auth/react", () => ({
   useSession: () => ({
