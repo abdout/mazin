@@ -19,13 +19,18 @@ export default {
         }
       },
       profile(profile) {
+        // Public OAuth signups must NEVER auto-grant staff privileges.
+        // Anyone with a Google account would otherwise become a CLERK on
+        // first sign-in (audit P0 #1). Staff promotion happens only via
+        // `acceptInvite` (`src/components/platform/settings/team/actions.ts`).
         return {
           id: profile.sub,
           name: profile.name,
           email: profile.email,
           image: profile.picture,
           emailVerified: new Date(),
-          role: "CLERK" as const,
+          type: "COMMUNITY" as const,
+          role: "VIEWER" as const,
           isTwoFactorEnabled: false,
         };
       },
@@ -49,13 +54,15 @@ export default {
         url: "https://graph.facebook.com/me?fields=id,name,email,picture.width(250).height(250)"
       },
       profile(profile) {
+        // See Google block above — same rationale (audit P0 #1).
         return {
           id: profile.id,
           name: profile.name || "Facebook User",
           email: profile.email || `${profile.id}@facebook.com`,
           image: profile.picture?.data?.url || null,
           emailVerified: new Date(),
-          role: "CLERK" as const,
+          type: "COMMUNITY" as const,
+          role: "VIEWER" as const,
           isTwoFactorEnabled: false,
         };
       },

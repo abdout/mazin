@@ -32,26 +32,24 @@ export function CustomerTable({ data, dictionary, locale }: CustomerTableProps) 
 
   const handleDelete = (id: string) => {
     startTransition(async () => {
-      try {
-        await deleteClient(id)
+      // Server action no longer throws — returns a structured result so we
+      // can show the user-facing copy without leaking Prisma error strings.
+      const result = await deleteClient(id)
+      if (result.success) {
         toast.success(dictionary.common?.success ?? "")
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : dictionary.common?.error ?? ""
-        )
+      } else {
+        toast.error(result.error || dictionary.common?.error || "")
       }
     })
   }
 
   const handleToggleStatus = (id: string) => {
     startTransition(async () => {
-      try {
-        await toggleClientStatus(id)
+      const result = await toggleClientStatus(id)
+      if (result.success) {
         toast.success(dictionary.common?.success ?? "")
-      } catch (error) {
-        toast.error(dictionary.common?.error ?? "")
+      } else {
+        toast.error(result.error || dictionary.common?.error || "")
       }
     })
   }

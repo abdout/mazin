@@ -97,9 +97,20 @@ export async function getQuickLookData(): Promise<QuickLookData> {
 // UPCOMING DATA (ROLE-BASED)
 // ============================================================================
 
-export async function getUpcomingData(role: UserRole): Promise<UpcomingData> {
+/**
+ * Returns role-tailored "what's next" panel data.
+ *
+ * The role used to be a *parameter* — clients passed it in, and this action
+ * trusted it. That was an IDOR (audit P0 #3): any authed user could pass
+ * `"ADMIN"` and see admin-only counters. Now the role is resolved server-side
+ * from the session, full stop.
+ */
+export async function getUpcomingData(): Promise<UpcomingData> {
   const session = await auth()
   const userId = session?.user?.id
+  // Trust the session, not the caller. Default to VIEWER for unauthed (which
+  // shouldn't happen because middleware redirects, but defense in depth).
+  const role = (session?.user?.role as UserRole | undefined) ?? "VIEWER"
 
   switch (role) {
     case "ADMIN":

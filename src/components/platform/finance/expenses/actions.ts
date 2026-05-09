@@ -6,6 +6,7 @@ import { auth } from "@/auth"
 import { ExpenseStatus } from "@prisma/client"
 import { z } from "zod"
 import { logger } from "@/lib/logger"
+import { userCan } from "@/lib/authorization"
 
 const log = logger.forModule("expenses")
 
@@ -60,6 +61,9 @@ export async function getExpenseCategories(): Promise<ActionResult<unknown[]>> {
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
     }
+    if (!userCan(session.user, "read", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
+    }
 
     const categories = await db.expenseCategory.findMany({
       where: {
@@ -80,7 +84,7 @@ export async function getExpenseCategories(): Promise<ActionResult<unknown[]>> {
     log.error("Error fetching categories", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch categories",
+      error: "Failed to fetch categories",
     }
   }
 }
@@ -92,6 +96,9 @@ export async function createExpenseCategory(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "create", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const validated = createCategorySchema.parse(input)
@@ -118,7 +125,7 @@ export async function createExpenseCategory(
     }
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create category",
+      error: "Failed to create category",
     }
   }
 }
@@ -146,6 +153,9 @@ export async function getExpenses(params?: {
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const page = params?.page || 1
@@ -212,7 +222,7 @@ export async function getExpenses(params?: {
     log.error("Error fetching expenses", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch expenses",
+      error: "Failed to fetch expenses",
     }
   }
 }
@@ -222,6 +232,9 @@ export async function getExpense(expenseId: string): Promise<ActionResult<unknow
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const expense = await db.expense.findFirst({
@@ -257,7 +270,7 @@ export async function getExpense(expenseId: string): Promise<ActionResult<unknow
     log.error("Error fetching expense", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch expense",
+      error: "Failed to fetch expense",
     }
   }
 }
@@ -269,6 +282,9 @@ export async function createExpense(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "create", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const validated = createExpenseSchema.parse(input)
@@ -317,7 +333,7 @@ export async function createExpense(
     }
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create expense",
+      error: "Failed to create expense",
     }
   }
 }
@@ -330,6 +346,9 @@ export async function updateExpense(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "update", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const expense = await db.expense.findFirst({
@@ -372,7 +391,7 @@ export async function updateExpense(
     log.error("Error updating expense", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update expense",
+      error: "Failed to update expense",
     }
   }
 }
@@ -382,6 +401,9 @@ export async function deleteExpense(expenseId: string): Promise<ActionResult> {
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "delete", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const expense = await db.expense.findFirst({
@@ -406,7 +428,7 @@ export async function deleteExpense(expenseId: string): Promise<ActionResult> {
     log.error("Error deleting expense", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete expense",
+      error: "Failed to delete expense",
     }
   }
 }
@@ -420,6 +442,9 @@ export async function approveExpense(expenseId: string): Promise<ActionResult> {
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "approve", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const expense = await db.expense.findFirst({
@@ -451,7 +476,7 @@ export async function approveExpense(expenseId: string): Promise<ActionResult> {
     log.error("Error approving expense", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to approve expense",
+      error: "Failed to approve expense",
     }
   }
 }
@@ -464,6 +489,9 @@ export async function rejectExpense(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "approve", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const expense = await db.expense.findFirst({
@@ -496,7 +524,7 @@ export async function rejectExpense(
     log.error("Error rejecting expense", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to reject expense",
+      error: "Failed to reject expense",
     }
   }
 }
@@ -513,6 +541,9 @@ export async function markExpenseAsPaid(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "approve", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const expense = await db.expense.findFirst({
@@ -591,7 +622,7 @@ export async function markExpenseAsPaid(
     log.error("Error marking expense as paid", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to process payment",
+      error: "Failed to process payment",
     }
   }
 }
@@ -617,6 +648,9 @@ export async function getExpenseSummary(params?: {
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
     const userId = session.user.id
 
@@ -696,7 +730,7 @@ export async function getExpenseSummary(params?: {
     log.error("Error fetching expense summary", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch summary",
+      error: "Failed to fetch summary",
     }
   }
 }
@@ -708,6 +742,9 @@ export async function getExpensesByShipment(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "expense")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const expenses = await db.expense.findMany({
@@ -730,7 +767,7 @@ export async function getExpensesByShipment(
     log.error("Error fetching shipment expenses", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch expenses",
+      error: "Failed to fetch expenses",
     }
   }
 }

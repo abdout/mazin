@@ -73,11 +73,15 @@ describe("customer actions — tenant isolation", () => {
     })
   })
 
+  // Mutations now return `{ success: true, data } | { success: false, error, code }`
+  // instead of throwing. The tests below were previously asserting `rejects.toThrow`;
+  // they are updated to assert the structured result so the new contract is
+  // visible to readers and any future drift breaks the test, not the UI.
+
   describe("createClient", () => {
     it("rejects invalid input (missing companyName)", async () => {
-      await expect(
-        createClient(validInput({ companyName: "" }) as any)
-      ).rejects.toThrow()
+      const result = await createClient(validInput({ companyName: "" }) as any)
+      expect(result).toMatchObject({ success: false })
       expect(db.client.create).not.toHaveBeenCalled()
     })
 
@@ -95,16 +99,22 @@ describe("customer actions — tenant isolation", () => {
       const call = vi.mocked(db.client.create).mock.calls[0]?.[0] as any
       expect(call.data.email).toBeNull()
     })
+
+    it("blocks VIEWER from creating clients (audit P1 #17)", async () => {
+      vi.mocked(auth).mockResolvedValueOnce(
+        makeSession({ user: { id: USER_A, role: "VIEWER" } }) as any,
+      )
+      const result = await createClient(validInput() as any)
+      expect(result).toMatchObject({ success: false, code: "FORBIDDEN" })
+      expect(db.client.create).not.toHaveBeenCalled()
+    })
   })
 
   describe("updateClient", () => {
     it("refuses to update a client owned by another user (ownership probe)", async () => {
-      // Regression: previously updateClient called update() without checking
-      // ownership. Now it must findFirst first and reject when null.
       vi.mocked(db.client.findFirst).mockResolvedValueOnce(null as any)
-      await expect(
-        updateClient(CLIENT_ID, validInput() as any)
-      ).rejects.toThrow("Client not found")
+      const result = await updateClient(CLIENT_ID, validInput() as any)
+      expect(result).toMatchObject({ success: false, code: "NOT_FOUND" })
       expect(db.client.update).not.toHaveBeenCalled()
     })
 
@@ -117,12 +127,22 @@ describe("customer actions — tenant isolation", () => {
       const updateCall = vi.mocked(db.client.update).mock.calls[0]?.[0] as any
       expect(updateCall.data.companyName).toBe("Renamed")
     })
+
+    it("blocks VIEWER from updating clients", async () => {
+      vi.mocked(auth).mockResolvedValueOnce(
+        makeSession({ user: { id: USER_A, role: "VIEWER" } }) as any,
+      )
+      const result = await updateClient(CLIENT_ID, validInput() as any)
+      expect(result).toMatchObject({ success: false, code: "FORBIDDEN" })
+      expect(db.client.update).not.toHaveBeenCalled()
+    })
   })
 
   describe("deleteClient", () => {
     it("refuses cross-tenant deletion", async () => {
       vi.mocked(db.client.findFirst).mockResolvedValueOnce(null as any)
-      await expect(deleteClient(CLIENT_ID)).rejects.toThrow("Client not found")
+      const result = await deleteClient(CLIENT_ID)
+      expect(result).toMatchObject({ success: false, code: "NOT_FOUND" })
       expect(db.client.delete).not.toHaveBeenCalled()
     })
 
@@ -131,9 +151,8 @@ describe("customer actions — tenant isolation", () => {
         id: CLIENT_ID,
         invoices: [{ id: "inv-1" }],
       } as any)
-      await expect(deleteClient(CLIENT_ID)).rejects.toThrow(
-        "Cannot delete client with existing invoices"
-      )
+      const result = await deleteClient(CLIENT_ID)
+      expect(result).toMatchObject({ success: false, code: "VALIDATION" })
       expect(db.client.delete).not.toHaveBeenCalled()
     })
 
@@ -143,17 +162,26 @@ describe("customer actions — tenant isolation", () => {
         invoices: [],
       } as any)
       vi.mocked(db.client.delete).mockResolvedValueOnce({ id: CLIENT_ID } as any)
-      await deleteClient(CLIENT_ID)
+      const result = await deleteClient(CLIENT_ID)
+      expect(result).toMatchObject({ success: true })
       expect(db.client.delete).toHaveBeenCalled()
+    })
+
+    it("blocks CLERK from deleting clients (delete needs MANAGER+)", async () => {
+      vi.mocked(auth).mockResolvedValueOnce(
+        makeSession({ user: { id: USER_A, role: "CLERK" } }) as any,
+      )
+      const result = await deleteClient(CLIENT_ID)
+      expect(result).toMatchObject({ success: false, code: "FORBIDDEN" })
+      expect(db.client.delete).not.toHaveBeenCalled()
     })
   })
 
   describe("toggleClientStatus", () => {
     it("refuses cross-tenant toggle", async () => {
       vi.mocked(db.client.findFirst).mockResolvedValueOnce(null as any)
-      await expect(toggleClientStatus(CLIENT_ID)).rejects.toThrow(
-        "Client not found"
-      )
+      const result = await toggleClientStatus(CLIENT_ID)
+      expect(result).toMatchObject({ success: false, code: "NOT_FOUND" })
       expect(db.client.update).not.toHaveBeenCalled()
     })
 

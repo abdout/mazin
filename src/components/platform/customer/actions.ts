@@ -1,9 +1,14 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { requireStaff } from "@/lib/auth-context"
+import { requireCan } from "@/lib/authorization"
+import { safeActionError } from "@/lib/action-error"
+import { logger } from "@/lib/logger"
+
+const log = logger.forModule("customer.actions")
 
 const clientSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
@@ -30,15 +35,17 @@ const clientSchema = z.object({
 
 export type ClientFormData = z.input<typeof clientSchema>
 
+// All staff (ADMIN/MANAGER/CLERK/VIEWER) may read; only CLERK+ may write.
+// VIEWER attempts to mutate now throw `ForbiddenError` rather than silently
+// succeeding (audit P0 #17 / P1 customer authz).
+
 export async function getClients(filters?: { isActive?: boolean }) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
+  const ctx = await requireStaff()
+  requireCan(ctx, "read", "client")
 
   return db.client.findMany({
     where: {
-      userId: session.user.id,
+      userId: ctx.userId,
       ...(filters?.isActive !== undefined && { isActive: filters.isActive }),
     },
     include: {
@@ -51,13 +58,11 @@ export async function getClients(filters?: { isActive?: boolean }) {
 }
 
 export async function getClient(id: string) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
-  }
+  const ctx = await requireStaff()
+  requireCan(ctx, "read", "client")
 
   return db.client.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId: ctx.userId },
     include: {
       invoices: true,
     },
@@ -65,102 +70,112 @@ export async function getClient(id: string) {
 }
 
 export async function createClient(formData: ClientFormData) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+  try {
+    const ctx = await requireStaff()
+    requireCan(ctx, "create", "client")
+
+    const validated = clientSchema.parse(formData)
+
+    const client = await db.client.create({
+      data: {
+        ...validated,
+        email: validated.email || null,
+        userId: ctx.userId,
+      },
+    })
+
+    revalidatePath("/customer")
+    return { success: true as const, data: client }
+  } catch (err) {
+    return safeActionError(err, log, "Failed to create client.")
   }
-
-  const validated = clientSchema.parse(formData)
-
-  const client = await db.client.create({
-    data: {
-      ...validated,
-      email: validated.email || null,
-      userId: session.user.id,
-    },
-  })
-
-  revalidatePath("/customer")
-  return client
 }
 
 export async function updateClient(id: string, formData: ClientFormData) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+  try {
+    const ctx = await requireStaff()
+    requireCan(ctx, "update", "client")
+
+    const validated = clientSchema.parse(formData)
+
+    // Ownership probe — without this, any authenticated user could update
+    // another user's client row just by knowing the id.
+    const existing = await db.client.findFirst({
+      where: { id, userId: ctx.userId },
+      select: { id: true },
+    })
+    if (!existing) {
+      return { success: false as const, error: "Client not found.", code: "NOT_FOUND" as const }
+    }
+
+    const client = await db.client.update({
+      where: { id },
+      data: {
+        ...validated,
+        email: validated.email || null,
+      },
+    })
+
+    revalidatePath("/customer")
+    revalidatePath(`/customer/${id}`)
+    return { success: true as const, data: client }
+  } catch (err) {
+    return safeActionError(err, log, "Failed to update client.")
   }
-
-  const validated = clientSchema.parse(formData)
-
-  // Ownership probe — without this, any authenticated user could update
-  // another user's client row just by knowing the id.
-  const existing = await db.client.findFirst({
-    where: { id, userId: session.user.id },
-    select: { id: true },
-  })
-  if (!existing) {
-    throw new Error("Client not found")
-  }
-
-  const client = await db.client.update({
-    where: { id },
-    data: {
-      ...validated,
-      email: validated.email || null,
-    },
-  })
-
-  revalidatePath("/customer")
-  revalidatePath(`/customer/${id}`)
-  return client
 }
 
 export async function deleteClient(id: string) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+  try {
+    const ctx = await requireStaff()
+    requireCan(ctx, "delete", "client")
+
+    const client = await db.client.findFirst({
+      where: { id, userId: ctx.userId },
+      include: { invoices: { select: { id: true } } },
+    })
+
+    if (!client) {
+      return { success: false as const, error: "Client not found.", code: "NOT_FOUND" as const }
+    }
+
+    if (client.invoices.length > 0) {
+      return {
+        success: false as const,
+        error: "Cannot delete a client with existing invoices.",
+        code: "VALIDATION" as const,
+      }
+    }
+
+    await db.client.delete({ where: { id } })
+
+    revalidatePath("/customer")
+    return { success: true as const }
+  } catch (err) {
+    return safeActionError(err, log, "Failed to delete client.")
   }
-
-  // Check if client has invoices
-  const client = await db.client.findFirst({
-    where: { id, userId: session.user.id },
-    include: { invoices: { select: { id: true } } },
-  })
-
-  if (!client) {
-    throw new Error("Client not found")
-  }
-
-  if (client.invoices.length > 0) {
-    throw new Error("Cannot delete client with existing invoices")
-  }
-
-  await db.client.delete({
-    where: { id },
-  })
-
-  revalidatePath("/customer")
 }
 
 export async function toggleClientStatus(id: string) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized")
+  try {
+    const ctx = await requireStaff()
+    requireCan(ctx, "update", "client")
+
+    const client = await db.client.findFirst({
+      where: { id, userId: ctx.userId },
+    })
+
+    if (!client) {
+      return { success: false as const, error: "Client not found.", code: "NOT_FOUND" as const }
+    }
+
+    const updated = await db.client.update({
+      where: { id },
+      data: { isActive: !client.isActive },
+    })
+
+    revalidatePath("/customer")
+    return { success: true as const, data: updated }
+  } catch (err) {
+    return safeActionError(err, log, "Failed to update client status.")
   }
-
-  const client = await db.client.findFirst({
-    where: { id, userId: session.user.id },
-  })
-
-  if (!client) {
-    throw new Error("Client not found")
-  }
-
-  const updated = await db.client.update({
-    where: { id },
-    data: { isActive: !client.isActive },
-  })
-
-  revalidatePath("/customer")
-  return updated
 }

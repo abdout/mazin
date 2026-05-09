@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { logger } from "@/lib/logger"
+import { userCan } from "@/lib/authorization"
 
 import {
   createBankAccountSchema,
@@ -22,6 +23,17 @@ type ActionResult<T = void> = {
   data?: T
   error?: string
 }
+
+// Bank-account mutations are admin/manager only. CLERK and below can read
+// (via `listBankAccounts`) but not create/update/delete. Audit P0 #5.
+//
+// Function rather than const so we get a fresh `ActionResult<T>` for each
+// caller's expected payload — a `const FORBIDDEN: ActionResult` defaults to
+// `<void>` and breaks return-type inference for callers that expect data.
+function forbidden<T = void>(): ActionResult<T> {
+  return { success: false, error: "You don't have permission to do this." }
+}
+const GENERIC_FAIL = "Something went wrong. Please try again."
 
 function serialize(row: {
   id: string
@@ -85,7 +97,7 @@ export async function listBankAccounts(): Promise<ActionResult<BankAccountDTO[]>
     log.error("Failed to list bank accounts", err as Error)
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Failed to load accounts",
+      error: GENERIC_FAIL,
     }
   }
 }
@@ -118,7 +130,7 @@ export async function getBankAccountStats(): Promise<ActionResult<BankAccountSta
     log.error("Failed to get bank account stats", err as Error)
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Failed to load stats",
+      error: GENERIC_FAIL,
     }
   }
 }
@@ -129,6 +141,7 @@ export async function createBankAccount(
   try {
     const session = await auth()
     if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+    if (!userCan(session.user, "create", "account")) return forbidden()
     const userId = session.user.id
 
     const parsed = createBankAccountSchema.safeParse(raw)
@@ -177,10 +190,7 @@ export async function createBankAccount(
     return { success: true, data: { id: result.id } }
   } catch (err) {
     log.error("Failed to create bank account", err as Error)
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Failed to create account",
-    }
+    return { success: false, error: GENERIC_FAIL }
   }
 }
 
@@ -191,6 +201,7 @@ export async function updateBankAccount(
   try {
     const session = await auth()
     if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+    if (!userCan(session.user, "update", "account")) return forbidden()
     const userId = session.user.id
 
     const existing = await db.bankAccount.findFirst({
@@ -242,10 +253,7 @@ export async function updateBankAccount(
     return { success: true }
   } catch (err) {
     log.error("Failed to update bank account", err as Error)
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Failed to update account",
-    }
+    return { success: false, error: GENERIC_FAIL }
   }
 }
 
@@ -257,6 +265,7 @@ export async function deleteBankAccount(id: string): Promise<ActionResult> {
   try {
     const session = await auth()
     if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+    if (!userCan(session.user, "delete", "account")) return forbidden()
     const userId = session.user.id
 
     const existing = await db.bankAccount.findFirst({
@@ -283,9 +292,6 @@ export async function deleteBankAccount(id: string): Promise<ActionResult> {
     return { success: true }
   } catch (err) {
     log.error("Failed to delete bank account", err as Error)
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Failed to delete account",
-    }
+    return { success: false, error: GENERIC_FAIL }
   }
 }

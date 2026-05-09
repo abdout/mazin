@@ -1,6 +1,5 @@
 import { getDictionary } from "@/components/internationalization/dictionaries"
 import type { Locale } from "@/components/internationalization"
-import { auth } from "@/auth"
 import { AdminDashboardClient } from "@/components/platform/dashboard/admin-client"
 import DemurrageAlerts from "@/components/platform/dashboard/demurrage-alerts"
 import {
@@ -13,7 +12,6 @@ import {
   getRecentTransactions,
 } from "@/components/platform/dashboard/actions"
 import { getWeatherData } from "@/components/platform/dashboard/weather-actions"
-import type { UserRole } from "@prisma/client"
 
 export default async function DashboardPage({
   params,
@@ -23,12 +21,9 @@ export default async function DashboardPage({
   const { lang: langParam } = await params
   const lang = langParam as Locale
   const dict = await getDictionary(lang)
-  const session = await auth()
 
-  // Get user role, default to VIEWER
-  const userRole = (session?.user?.role as UserRole) || "VIEWER"
-
-  // Fetch all data using server actions in parallel
+  // `getUpcomingData` resolves the role from the session itself — we don't
+  // pass it in. Trusting the client to declare its role was an IDOR.
   const [
     quickLookData,
     upcomingData,
@@ -40,7 +35,7 @@ export default async function DashboardPage({
     recentTransactions,
   ] = await Promise.all([
     getQuickLookData(),
-    getUpcomingData(userRole),
+    getUpcomingData(),
     getFinancialChartData(),
     getCashFlowData(),
     getExpenseCategories(),
