@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { logger } from "@/lib/logger"
+import { userCan } from "@/lib/authorization"
 
 import type { ActionResult } from "./types"
 import {
@@ -22,6 +23,9 @@ function fail(error: string, issues?: Record<string, string[]>): ActionResult<ne
   return { ok: false, error, ...(issues ? { issues } : {}) }
 }
 
+// Wallet ops are CLERK+ (audit P0 #5 / P1 #17). VIEWER and COMMUNITY are
+// blocked by the role matrix. Generic copy on block — no detail leak.
+
 /**
  * Idempotently get-or-create a wallet for a client owned by the caller.
  * Safe to call from an invoice-approval flow before drawdown.
@@ -32,6 +36,7 @@ export async function getOrCreateWallet(
   try {
     const session = await auth()
     if (!session?.user?.id) return fail("UNAUTHENTICATED")
+    if (!userCan(session.user, "create", "wallet")) return fail("FORBIDDEN")
     const userId = session.user.id
 
     const parsed = createWalletSchema.safeParse(raw)
@@ -73,7 +78,7 @@ export async function getOrCreateWallet(
     }
   } catch (err) {
     log.error("Failed to get/create wallet", err as Error)
-    return fail(err instanceof Error ? err.message : "UNKNOWN_ERROR")
+    return fail("UNKNOWN_ERROR")
   }
 }
 
@@ -88,6 +93,7 @@ export async function depositToWallet(
   try {
     const session = await auth()
     if (!session?.user?.id) return fail("UNAUTHENTICATED")
+    if (!userCan(session.user, "update", "wallet")) return fail("FORBIDDEN")
     const userId = session.user.id
 
     const parsed = depositSchema.safeParse(raw)
@@ -141,7 +147,7 @@ export async function depositToWallet(
     }
   } catch (err) {
     log.error("Failed to deposit to wallet", err as Error)
-    return fail(err instanceof Error ? err.message : "UNKNOWN_ERROR")
+    return fail("UNKNOWN_ERROR")
   }
 }
 
@@ -156,6 +162,7 @@ export async function drawdownFromWallet(
   try {
     const session = await auth()
     if (!session?.user?.id) return fail("UNAUTHENTICATED")
+    if (!userCan(session.user, "update", "wallet")) return fail("FORBIDDEN")
     const userId = session.user.id
 
     const parsed = drawdownSchema.safeParse(raw)
@@ -224,6 +231,6 @@ export async function drawdownFromWallet(
     }
   } catch (err) {
     log.error("Failed to drawdown wallet", err as Error)
-    return fail(err instanceof Error ? err.message : "UNKNOWN_ERROR")
+    return fail("UNKNOWN_ERROR")
   }
 }

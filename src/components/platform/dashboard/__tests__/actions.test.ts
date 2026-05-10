@@ -143,11 +143,14 @@ describe("dashboard actions — tenant scoping", () => {
     })
   })
 
-  describe("getUpcomingData (role dispatch)", () => {
+  describe("getUpcomingData (role dispatched server-side)", () => {
     it("ADMIN path scopes totals to the session user, not global", async () => {
-      const res = await getUpcomingData("ADMIN")
+      // Role now comes from the session — there is no caller-supplied role.
+      vi.mocked(auth).mockResolvedValue(
+        makeSession({ user: { id: USER_A, role: "ADMIN", name: "A", email: "a@t" } }) as any,
+      )
+      const res = await getUpcomingData()
       expect(res).toBeDefined()
-      // The admin flow invokes db.shipment.count and db.invoice.aggregate.
       const shipCall = vi.mocked(db.shipment.count).mock.calls[0]?.[0] as any
       const invCall = vi.mocked(db.invoice.aggregate).mock.calls[0]?.[0] as any
       expect(shipCall.where.userId).toBe(USER_A)
@@ -155,10 +158,28 @@ describe("dashboard actions — tenant scoping", () => {
     })
 
     it("CLERK path keeps its own-declarations filter", async () => {
-      const res = await getUpcomingData("CLERK")
+      vi.mocked(auth).mockResolvedValue(
+        makeSession({ user: { id: USER_A, role: "CLERK", name: "A", email: "a@t" } }) as any,
+      )
+      const res = await getUpcomingData()
       expect(res).toBeDefined()
       const customsCalls = vi.mocked(db.customsDeclaration.count).mock.calls as any[]
-      // Every clerk query uses userId (explicitly filtered to self already).
+      for (const [args] of customsCalls) {
+        expect(args.where.userId).toBe(USER_A)
+      }
+    })
+
+    it("ignores any role hint from the caller — only the session matters", async () => {
+      // This is the IDOR regression test for audit P0 #3. A CLERK session
+      // calling the action gets the CLERK branch, period.
+      vi.mocked(auth).mockResolvedValue(
+        makeSession({ user: { id: USER_A, role: "CLERK", name: "A", email: "a@t" } }) as any,
+      )
+      // @ts-expect-error — the function intentionally takes no args now;
+      // this verifies that even an inadvertent extra arg has no effect.
+      await getUpcomingData("ADMIN")
+      const customsCalls = vi.mocked(db.customsDeclaration.count).mock.calls as any[]
+      // CLERK-branch fingerprint: scopes by userId (admin branch wouldn't here)
       for (const [args] of customsCalls) {
         expect(args.where.userId).toBe(USER_A)
       }

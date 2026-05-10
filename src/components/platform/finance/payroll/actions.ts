@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { logger } from "@/lib/logger"
+import { userCan } from "@/lib/authorization"
 
 const log = logger.forModule("payroll")
 import { PayrollRunStatus, PayrollItemStatus, EmployeeStatus } from "@prisma/client"
@@ -90,6 +91,9 @@ export async function getEmployees(
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
     }
+    if (!userCan(session.user, "read", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
+    }
 
     const employees = await db.employee.findMany({
       where: status ? { status } : undefined,
@@ -108,7 +112,7 @@ export async function getEmployees(
     log.error("Error fetching employees", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch employees",
+      error: "Failed to fetch employees",
     }
   }
 }
@@ -118,6 +122,9 @@ export async function getEmployee(employeeId: string): Promise<ActionResult<unkn
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const employee = await db.employee.findUnique({
@@ -155,7 +162,7 @@ export async function getEmployee(employeeId: string): Promise<ActionResult<unkn
     log.error("Error fetching employee", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch employee",
+      error: "Failed to fetch employee",
     }
   }
 }
@@ -167,6 +174,9 @@ export async function createEmployee(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "create", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const validated = createEmployeeSchema.parse(input)
@@ -213,7 +223,7 @@ export async function createEmployee(
     }
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create employee",
+      error: "Failed to create employee",
     }
   }
 }
@@ -226,6 +236,9 @@ export async function updateEmployee(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "update", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const { basicSalary, ...employeeData } = input
@@ -272,7 +285,7 @@ export async function updateEmployee(
     log.error("Error updating employee", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update employee",
+      error: "Failed to update employee",
     }
   }
 }
@@ -288,6 +301,9 @@ export async function getPayrollRuns(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const runs = await db.payrollRun.findMany({
@@ -320,7 +336,7 @@ export async function getPayrollRuns(
     log.error("Error fetching payroll runs", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch payroll runs",
+      error: "Failed to fetch payroll runs",
     }
   }
 }
@@ -330,6 +346,9 @@ export async function getPayrollRun(runId: string): Promise<ActionResult<unknown
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const run = await db.payrollRun.findUnique({
@@ -390,7 +409,7 @@ export async function getPayrollRun(runId: string): Promise<ActionResult<unknown
     log.error("Error fetching payroll run", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch payroll run",
+      error: "Failed to fetch payroll run",
     }
   }
 }
@@ -402,6 +421,9 @@ export async function createPayrollRun(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "create", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const validated = createPayrollRunSchema.parse(input)
@@ -538,7 +560,7 @@ export async function createPayrollRun(
     }
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create payroll run",
+      error: "Failed to create payroll run",
     }
   }
 }
@@ -554,6 +576,9 @@ export async function approvePayroll(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "approve", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const run = await db.payrollRun.findUnique({
@@ -590,7 +615,7 @@ export async function approvePayroll(
     log.error("Error approving payroll", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to approve payroll",
+      error: "Failed to approve payroll",
     }
   }
 }
@@ -603,6 +628,9 @@ export async function cancelPayroll(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "approve", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const run = await db.payrollRun.findUnique({
@@ -636,7 +664,7 @@ export async function cancelPayroll(
     log.error("Error cancelling payroll", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to cancel payroll",
+      error: "Failed to cancel payroll",
     }
   }
 }
@@ -652,6 +680,9 @@ export async function processPayments(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "approve", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const run = await db.payrollRun.findUnique({
@@ -756,7 +787,7 @@ export async function processPayments(
     log.error("Error processing payments", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to process payments",
+      error: "Failed to process payments",
     }
   }
 }
@@ -770,6 +801,9 @@ export async function getSalarySlip(slipId: string): Promise<ActionResult<unknow
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const slip = await db.payrollItem.findUnique({
@@ -804,7 +838,7 @@ export async function getSalarySlip(slipId: string): Promise<ActionResult<unknow
     log.error("Error fetching salary slip", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch salary slip",
+      error: "Failed to fetch salary slip",
     }
   }
 }
@@ -817,6 +851,9 @@ export async function getEmployeeSalarySlips(
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const slips = await db.payrollItem.findMany({
@@ -849,7 +886,7 @@ export async function getEmployeeSalarySlips(
     log.error("Error fetching employee slips", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch salary slips",
+      error: "Failed to fetch salary slips",
     }
   }
 }
@@ -872,6 +909,9 @@ export async function getPayrollSummary(): Promise<ActionResult<{
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "read", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const currentYear = new Date().getFullYear()
@@ -919,7 +959,7 @@ export async function getPayrollSummary(): Promise<ActionResult<{
     log.error("Error fetching payroll summary", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch summary",
+      error: "Failed to fetch summary",
     }
   }
 }
@@ -929,6 +969,9 @@ export async function deletePayrollRun(runId: string): Promise<ActionResult> {
     const session = await auth()
     if (!session?.user?.id) {
       return { success: false, error: "Unauthorized" }
+    }
+    if (!userCan(session.user, "delete", "payroll")) {
+      return { success: false, error: "You don't have permission to do this." }
     }
 
     const run = await db.payrollRun.findUnique({
@@ -960,7 +1003,7 @@ export async function deletePayrollRun(runId: string): Promise<ActionResult> {
     log.error("Error deleting payroll run", error as Error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete payroll run",
+      error: "Failed to delete payroll run",
     }
   }
 }

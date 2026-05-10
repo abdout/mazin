@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { logger } from "@/lib/logger"
+import { userCan } from "@/lib/authorization"
 
 const log = logger.forModule("budget")
 
@@ -89,6 +90,9 @@ export async function getBudgets(filters?: {
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
   }
+  if (!userCan(session.user, "read", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
+  }
 
   try {
     const where: Record<string, unknown> = { userId: session.user.id }
@@ -137,6 +141,9 @@ export async function getBudget(
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "read", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -194,6 +201,9 @@ export async function getActiveBudget(): Promise<BudgetActionResult<BudgetWithIt
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "read", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -276,6 +286,9 @@ export async function createBudget(params: {
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
   }
+  if (!userCan(session.user, "create", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
+  }
 
   try {
     // Calculate total allocated from items
@@ -349,6 +362,9 @@ export async function updateBudget(
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
   }
+  if (!userCan(session.user, "update", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
+  }
 
   try {
     const existing = await db.budget.findFirst({
@@ -405,6 +421,9 @@ export async function deleteBudget(budgetId: string): Promise<BudgetActionResult
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
   }
+  if (!userCan(session.user, "delete", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
+  }
 
   try {
     const existing = await db.budget.findFirst({
@@ -446,6 +465,9 @@ export async function createBudgetAllocation(params: {
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "create", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -520,6 +542,9 @@ export async function updateBudgetAllocation(
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "update", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -604,6 +629,9 @@ export async function deleteBudgetAllocation(
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
   }
+  if (!userCan(session.user, "delete", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
+  }
 
   try {
     const existing = await db.budgetItem.findFirst({
@@ -654,6 +682,9 @@ export async function submitBudgetForApproval(
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "approve", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -711,6 +742,9 @@ export async function approveBudget(budgetId: string): Promise<BudgetActionResul
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
   }
+  if (!userCan(session.user, "approve", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
+  }
 
   try {
     const budget = await db.budget.findFirst({
@@ -765,6 +799,9 @@ export async function activateBudget(budgetId: string): Promise<BudgetActionResu
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "approve", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -827,6 +864,9 @@ export async function closeBudget(budgetId: string): Promise<BudgetActionResult>
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
   }
+  if (!userCan(session.user, "approve", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
+  }
 
   try {
     const budget = await db.budget.findFirst({
@@ -882,6 +922,9 @@ export async function recordBudgetSpending(params: {
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "update", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -964,6 +1007,9 @@ export async function getBudgetDashboardStats(): Promise<BudgetActionResult<Budg
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "read", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
@@ -1056,6 +1102,9 @@ export async function compareBudgets(params: {
   const session = await auth()
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" }
+  }
+  if (!userCan(session.user, "read", "budget")) {
+    return { success: false, error: "You don't have permission to do this." }
   }
 
   try {
