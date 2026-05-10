@@ -23,11 +23,21 @@ export function makeUser(overrides = {}) {
   }
 }
 
-export function makeSession(overrides = {}) {
+export function makeSession(overrides: Record<string, unknown> = {}) {
+  // Default to STAFF/ADMIN so existing tests pass `requireStaff()` checks.
+  // Tests that need a community or non-staff user should pass `user.type`.
+  const user = (overrides.user as Record<string, unknown> | undefined) ?? {}
   return {
-    user: { id: "test-user-id", name: "Test User", email: "test@test.com", role: "ADMIN" },
-    expires: new Date(Date.now() + 86400000).toISOString(),
     ...overrides,
+    user: {
+      id: "test-user-id",
+      name: "Test User",
+      email: "test@test.com",
+      type: "STAFF" as const,
+      role: "ADMIN" as const,
+      ...user,
+    },
+    expires: new Date(Date.now() + 86400000).toISOString(),
   }
 }
 
