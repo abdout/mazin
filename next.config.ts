@@ -4,14 +4,15 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.simpleicons.org",
-      },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "cdn.simpleicons.org" },
+      // S3 buckets in any region (we accept the full host pattern instead of
+      // hardcoding a single bucket so deployments can swap buckets without code).
+      { protocol: "https", hostname: "*.s3.amazonaws.com" },
+      { protocol: "https", hostname: "*.s3.*.amazonaws.com" },
+      // CloudFront distribution — wildcarded to accept any cf domain provisioned
+      // by Mazin's account. The CSP `img-src` further restricts this in prod.
+      { protocol: "https", hostname: "*.cloudfront.net" },
     ],
   },
   async headers() {
@@ -45,9 +46,9 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://images.unsplash.com https://cdn.simpleicons.org",
+              "img-src 'self' data: blob: https://images.unsplash.com https://cdn.simpleicons.org https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com https://*.cloudfront.net",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.neon.tech https://*.vercel.app https://*.sentry.io",
+              "connect-src 'self' https://*.neon.tech https://*.vercel.app https://*.sentry.io https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com https://*.cloudfront.net",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

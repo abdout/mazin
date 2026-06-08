@@ -8,6 +8,9 @@ export interface Dictionary {
     cancel: string
     delete: string
     edit: string
+    send?: string
+    download?: string
+    approve?: string
     create: string
     search: string
     filter: string
@@ -153,6 +156,15 @@ export interface Dictionary {
     completionRate?: string
     clients?: string
     shipment?: string
+    demurrageAlerts: {
+      title: string
+      statusDemurrage: string
+      statusWarning: string
+      daysOverdue: string
+      daysOverdueAr: string
+      daysLeft: string
+      daysLeftAr: string
+    }
     charts?: {
       cashFlow?: {
         title?: string
@@ -238,6 +250,26 @@ export interface Dictionary {
     createSuccess: string
     updateSuccess: string
     deleteSuccess: string
+    new?: {
+      title: string
+      subtitle: string
+    }
+    detail?: {
+      parties: string
+      cargo: string
+      dates: string
+      shipper: string
+      consignee: string
+      client: string
+      vessel: string
+      container: string
+      weight: string
+      quantity: string
+      arrival: string
+      departure: string
+      freeDays: string
+      clearanceStages: string
+    }
   }
   customs: {
     title: string
@@ -992,6 +1024,18 @@ export interface Dictionary {
       formula?: string
       formulaTitle?: string
       formulaText?: string
+      subtitle?: string
+      selectHsCode?: string
+      cifMustBePositive?: string
+      cifInputPlaceholder?: string
+      hsHelper?: string
+      currency?: string
+      calculating?: string
+      pickToSee?: string
+      exciseLabel?: string
+      effectiveRate?: string
+      exchangeRateLabel?: string
+      calculationFailed?: string
     }
     docs?: {
       title?: string
@@ -1258,6 +1302,8 @@ export interface Dictionary {
     changeRole?: string
     deactivate?: string
     activate?: string
+    deleteHint?: string
+    statusHint?: string
     nav?: {
       all?: string
       active?: string
@@ -1791,6 +1837,7 @@ export interface Dictionary {
     retry: string
     goHome: string
     goDashboard: string
+    backToLogin?: string
     globalTitle: string
     globalDescription: string
     refresh: string
@@ -1801,5 +1848,18 @@ export interface Dictionary {
     goHome: string
     goDashboard: string
     searchPlaceholder: string
+  }
+  notifications?: {
+    title: string
+    page?: Record<string, string>
+    types?: Record<string, string>
+    channels?: Record<string, string>
+    priorities?: Record<string, string>
+    filters?: Record<string, string>
+    actions?: Record<string, string>
+    bulk?: Record<string, string>
+    empty?: Record<string, string>
+    a11y?: Record<string, string>
+    messages?: Record<string, string>
   }
 }

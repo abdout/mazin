@@ -13,6 +13,11 @@ import {
   toPublicTrackingData,
 } from "@/lib/tracking"
 import { notifyShipmentMilestone, type ShipmentMilestone } from "@/lib/services/notification"
+import { recordShipmentEvent } from "@/lib/services/shipment-events"
+import {
+  computeDocumentGate,
+  hasDocumentGap,
+} from "@/lib/tracking/stage-requirements"
 
 // Map each of the 11 tracking stages to a client-visible milestone so the
 // notification dispatcher fires on every transition, not just a handful.
@@ -77,6 +82,14 @@ export async function getPublicTracking(identifier: string) {
   }
 
   if (!shipment) {
+    return null
+  }
+
+  // Honor the operator's per-shipment privacy toggle. The flag exists in the
+  // schema (`Shipment.publicTrackingEnabled`, default true) but was previously
+  // ignored — anyone with the tracking number could see the timeline even when
+  // disabled. Treat disabled shipments the same as missing.
+  if (shipment.publicTrackingEnabled === false) {
     return null
   }
 
@@ -358,6 +371,26 @@ export async function advanceToNextStage(shipmentId: string) {
   const currentIndex = STAGE_ORDER.indexOf(currentStage.stageType)
   const nextStageType = STAGE_ORDER[currentIndex + 1]
 
+  // Mandatory document checklist enforcement (Story 2.4). Operators may bypass
+  // by escalating to ADMIN — that path adds a `force` parameter in a follow-up,
+  // for now block plain advances when required docs aren't VERIFIED.
+  if (nextStageType) {
+    const docs = await db.shipmentDocument.findMany({
+      where: { shipmentId },
+      select: { docType: true, status: true },
+    })
+    const finding = computeDocumentGate({
+      targetStage: nextStageType,
+      documents: docs.map((d) => ({ docType: d.docType, status: d.status })),
+    })
+    if (hasDocumentGap(finding)) {
+      const missing = [...finding.missing, ...finding.unverified].join(", ")
+      throw new Error(
+        `Cannot advance to ${nextStageType}: missing or unverified documents (${missing})`
+      )
+    }
+  }
+
   const now = new Date()
 
   // Complete current stage
@@ -411,6 +444,21 @@ export async function advanceToNextStage(shipmentId: string) {
     data: { status: shipmentStatus },
   })
 
+  // When the shipment crosses RELEASE, flip every still-tracked container on
+  // the shipment to RELEASED so the demurrage cron stops alerting and the
+  // container board UI reflects reality. Only touch ones still in a tracking
+  // state (FREE/WARNING/DEMURRAGE/PENDING_ARRIVAL) — operator may have already
+  // marked them RETURNED manually.
+  if (currentStage.stageType === "RELEASE" || nextStageType === "LOADING") {
+    await db.container.updateMany({
+      where: {
+        shipmentId,
+        status: { in: ["PENDING_ARRIVAL", "FREE", "WARNING", "DEMURRAGE"] },
+      },
+      data: { status: "RELEASED", releasedAt: now },
+    })
+  }
+
   // Recalculate ETAs
   const newEtas = recalculateRemainingETAs(
     shipment.trackingStages,
@@ -431,6 +479,20 @@ export async function advanceToNextStage(shipmentId: string) {
       })
     )
   )
+
+  // Append to operational activity feed (operator-visible).
+  await recordShipmentEvent({
+    shipmentId,
+    actorId: session.user.id,
+    kind: "STAGE_ADVANCED",
+    summary: `Advanced from ${currentStage.stageType} to ${nextStageType ?? "DELIVERED"}`,
+    summaryAr: `تم التقدم من ${currentStage.stageType} إلى ${nextStageType ?? "تم التسليم"}`,
+    metadata: {
+      from: currentStage.stageType,
+      to: nextStageType ?? null,
+      shipmentStatus,
+    },
+  })
 
   // Fire-and-forget notification for completed stage milestone
   fireStageNotification(

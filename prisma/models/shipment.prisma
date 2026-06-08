@@ -55,6 +55,7 @@ model Shipment {
   imForms        IMForm[]
   payments       ShipmentPayment[]
   documents      ShipmentDocument[]
+  events         ShipmentEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -135,4 +136,60 @@ enum TrackingStageStatus {
   IN_PROGRESS
   COMPLETED
   SKIPPED
+}
+
+// ============================================
+// Shipment Event (operational activity feed)
+// ============================================
+//
+// `AuditLog` is the security-grade record (who-changed-what for compliance).
+// `ShipmentEvent` is the operator-facing activity feed: a single chronological
+// stream of "what happened on this shipment" for the cockpit and the per-shipment
+// timeline. Records are written from server actions (tracking advance, doc upload,
+// payment recorded, OCR extracted, compliance finding…) and are user-readable.
+model ShipmentEvent {
+  id         String  @id @default(cuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  // Actor: usually the staff user who triggered the change. NULL for system events
+  // (cron-driven status flips, automated stage advances).
+  actorId String?
+  actor   User?  @relation("ShipmentEventActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  kind        ShipmentEventKind
+  // Bilingual one-line summary suitable for direct rendering in the activity feed.
+  summary     String   @db.Text
+  summaryAr   String?  @db.Text
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([shipmentId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([kind, createdAt])
+  @@map("shipment_events")
+}
+
+enum ShipmentEventKind {
+  CREATED
+  STAGE_ADVANCED
+  STAGE_SKIPPED
+  STATUS_CHANGED
+  DOCUMENT_UPLOADED
+  DOCUMENT_VERIFIED
+  DOCUMENT_REJECTED
+  PAYMENT_RECORDED
+  PAYMENT_CONFIRMED
+  CUSTOMS_DECLARATION_FILED
+  ACD_GENERATED
+  IM_FORM_LINKED
+  CONTAINER_ADDED
+  CONTAINER_RELEASED
+  INVOICE_ISSUED
+  INVOICE_PAID
+  COMPLIANCE_FINDING
+  TASK_CREATED
+  TASK_COMPLETED
+  NOTE_ADDED
+  OTHER
 }

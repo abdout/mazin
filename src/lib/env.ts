@@ -77,6 +77,22 @@ const serverSchema = z.object({
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
   WHATSAPP_ACCESS_TOKEN: z.string().optional(),
 
+  // Object storage (S3 + CloudFront). Required as a group when uploads are
+  // enabled; the storage helpers throw a clear error if any is missing at
+  // call time, so deployments without uploads (e.g. local dev) keep booting.
+  AWS_REGION: z.string().optional(),
+  AWS_ACCESS_KEY_ID: z.string().optional(),
+  AWS_SECRET_ACCESS_KEY: z.string().optional(),
+  AWS_S3_BUCKET: z.string().optional(),
+  // CloudFront distribution domain, e.g. `dXXX.cloudfront.net`. Optional —
+  // missing means we serve raw S3 URLs (fine for dev, bad for prod).
+  CLOUDFRONT_DOMAIN: z.string().optional(),
+  // Only needed for cache invalidation on overwrite.
+  CLOUDFRONT_DISTRIBUTION_ID: z.string().optional(),
+  // Only needed for signed URLs (private invoices, POD photos).
+  CLOUDFRONT_KEY_PAIR_ID: z.string().optional(),
+  CLOUDFRONT_PRIVATE_KEY: z.string().optional(),
+
   // Sentry (server)
   SENTRY_AUTH_TOKEN: z.string().optional(),
   SENTRY_DSN: z.string().url().optional(),
@@ -139,6 +155,15 @@ const rawEnv = {
 
   WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
   WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN,
+
+  AWS_REGION: process.env.AWS_REGION,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
+  CLOUDFRONT_DOMAIN: process.env.CLOUDFRONT_DOMAIN,
+  CLOUDFRONT_DISTRIBUTION_ID: process.env.CLOUDFRONT_DISTRIBUTION_ID,
+  CLOUDFRONT_KEY_PAIR_ID: process.env.CLOUDFRONT_KEY_PAIR_ID,
+  CLOUDFRONT_PRIVATE_KEY: process.env.CLOUDFRONT_PRIVATE_KEY,
 
   SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
   SENTRY_DSN: process.env.SENTRY_DSN,

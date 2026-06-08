@@ -3,6 +3,7 @@ import type { Locale } from "@/components/internationalization"
 import PageHeading from "@/components/atom/page-heading"
 import { PageNav, type PageNavItem } from "@/components/atom/page-nav"
 import { TeamPageClient } from "@/components/platform/team"
+import { listTeamMembers } from "@/components/platform/team/actions"
 
 export default async function TeamPage({
   params,
@@ -11,7 +12,10 @@ export default async function TeamPage({
 }) {
   const { lang } = await params
   const locale = lang as Locale
-  const dict = await getDictionary(locale)
+  const [dict, members] = await Promise.all([
+    getDictionary(locale),
+    listTeamMembers(),
+  ])
 
   const navItems: PageNavItem[] = [
     { name: dict.team?.nav?.all || "All", href: `/${locale}/team` },
@@ -29,7 +33,7 @@ export default async function TeamPage({
         <PageNav pages={navItems} className="mt-4" />
       </div>
       <div className="px-4 lg:px-6">
-        <TeamPageClient dictionary={dict} locale={locale} />
+        <TeamPageClient dictionary={dict} locale={locale} initialMembers={members} />
       </div>
     </div>
   )

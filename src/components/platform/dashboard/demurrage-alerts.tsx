@@ -3,14 +3,18 @@ import Link from "next/link"
 import { Icon } from "@iconify/react"
 import { getDemurrageAlerts } from "./actions"
 import type { Locale } from "@/components/internationalization"
+import { getDictionary } from "@/components/internationalization/dictionaries"
 
 interface DemurrageAlertsProps {
   locale: Locale
 }
 
 export default async function DemurrageAlerts({ locale }: DemurrageAlertsProps) {
-  const alerts = await getDemurrageAlerts()
-  const isArabic = locale === "ar"
+  const [alerts, dict] = await Promise.all([
+    getDemurrageAlerts(),
+    getDictionary(locale),
+  ])
+  const t = dict.dashboard.demurrageAlerts
 
   if (alerts.length === 0) return null
 
@@ -22,9 +26,7 @@ export default async function DemurrageAlerts({ locale }: DemurrageAlertsProps) 
           width={20}
           className="text-red-500"
         />
-        <h3 className="font-semibold">
-          {isArabic ? "تنبيهات الأرضيات" : "Demurrage Alerts"}
-        </h3>
+        <h3 className="font-semibold">{t.title}</h3>
         <span className="ms-auto text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400">
           {alerts.length}
         </span>
@@ -53,28 +55,18 @@ export default async function DemurrageAlerts({ locale }: DemurrageAlertsProps) 
                     : "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900"
                 }`}
               >
-                {alert.status === "DEMURRAGE"
-                  ? isArabic
-                    ? "أرضيات"
-                    : "Demurrage"
-                  : isArabic
-                    ? "تحذير"
-                    : "Warning"}
+                {alert.status === "DEMURRAGE" ? t.statusDemurrage : t.statusWarning}
               </span>
             </div>
 
             <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
               {alert.daysRemaining < 0 ? (
                 <span className="text-red-600 dark:text-red-400 font-medium">
-                  {isArabic
-                    ? `متأخر ${Math.abs(alert.daysRemaining)} يوم`
-                    : `${Math.abs(alert.daysRemaining)}d overdue`}
+                  {t.daysOverdue.replace("{days}", String(Math.abs(alert.daysRemaining)))}
                 </span>
               ) : (
                 <span className="text-amber-600 dark:text-amber-400">
-                  {isArabic
-                    ? `${alert.daysRemaining} يوم متبقي`
-                    : `${alert.daysRemaining}d left`}
+                  {t.daysLeft.replace("{days}", String(alert.daysRemaining))}
                 </span>
               )}
               {alert.accruedAmount > 0 && (

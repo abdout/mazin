@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { runAllReminderJobs } from '@/lib/jobs/task-reminders';
+import { withJobLock } from '@/lib/jobs/lock';
 import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
@@ -55,13 +56,24 @@ export async function GET(request: NextRequest) {
   );
 
   try {
-    const results = await runAllReminderJobs();
+    const lock = await withJobLock({
+      jobName: CRON_MONITOR_SLUG,
+      bucket: 'day',
+      run: () => runAllReminderJobs(),
+    });
 
     Sentry.captureCheckIn({ checkInId, monitorSlug: CRON_MONITOR_SLUG, status: 'ok' });
 
+    if (lock.status === 'skipped') {
+      return NextResponse.json({ success: true, skipped: true, reason: 'already_ran_today' });
+    }
+    if (lock.status === 'failed') {
+      throw new Error(lock.error ?? 'reminder job failed');
+    }
+
     return NextResponse.json({
       success: true,
-      ...results,
+      ...(lock.result ?? {}),
     });
   } catch (error) {
     log.error('Cron job failed', error as Error);

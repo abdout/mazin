@@ -1,4 +1,7 @@
-export type TeamMemberRole = "ADMIN" | "MANAGER" | "MEMBER" | "VIEWER"
+// Role enum mirrors the `UserRole` Prisma enum exactly so changes flow from the
+// schema (auth.prisma) instead of drifting in the UI layer. Older code used
+// "MEMBER" — that is now `CLERK`.
+export type TeamMemberRole = "ADMIN" | "MANAGER" | "CLERK" | "VIEWER"
 
 export type TeamMemberStatus = "ACTIVE" | "INACTIVE" | "PENDING"
 
@@ -12,12 +15,14 @@ export interface TeamMember {
   avatar?: string
   joinedAt: Date
   lastActive?: Date
+  /** Tasks open + completed over the last 7 days, used for load display. */
+  load?: { open: number; done7d: number }
 }
 
 export const roleOptions = [
   { value: "ADMIN", label: "Admin" },
   { value: "MANAGER", label: "Manager" },
-  { value: "MEMBER", label: "Member" },
+  { value: "CLERK", label: "Clerk" },
   { value: "VIEWER", label: "Viewer" },
 ] as const
 

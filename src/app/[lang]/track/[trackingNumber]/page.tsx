@@ -6,6 +6,7 @@ import { getPublicTracking } from "@/actions/tracking"
 import { TrackingHeader, TrackingTimeline } from "@/components/platform/tracking"
 import { LanguageToggle } from "@/components/template/site-header/language-toggle"
 import { ModeToggle } from "@/components/atom/mode-toggle"
+import { ReportIssue } from "@/components/report-issue"
 import { Chatbot } from "@/components/chatbot"
 import Link from "next/link"
 import Image from "next/image"
@@ -108,6 +109,7 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
             >
               {dict.tracking.trackButton}
             </Link>
+            <ReportIssue variant="icon" />
             <LanguageToggle />
             <ModeToggle />
           </div>

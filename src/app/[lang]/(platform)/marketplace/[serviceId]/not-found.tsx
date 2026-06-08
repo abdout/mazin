@@ -33,18 +33,14 @@ export default async function ServiceNotFound() {
                 <Package className="h-8 w-8 text-muted-foreground" />
               </div>
             </div>
-            <CardTitle>
-              {t?.serviceNotFound?.title ?? (locale === "ar" ? "الخدمة غير موجودة" : "Service Not Found")}
-            </CardTitle>
-            <CardDescription>
-              {t?.serviceNotFound?.description ?? (locale === "ar" ? "الخدمة التي تبحث عنها غير متوفرة أو تم إزالتها." : "The service you're looking for doesn't exist or is no longer available.")}
-            </CardDescription>
+            <CardTitle>{t?.serviceNotFound?.title}</CardTitle>
+            <CardDescription>{t?.serviceNotFound?.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
               <Link href={`/${locale}/marketplace`}>
                 <ArrowLeft className="h-4 w-4 me-2" />
-                {t?.serviceNotFound?.back ?? (locale === "ar" ? "العودة للسوق" : "Back to Marketplace")}
+                {t?.serviceNotFound?.back}
               </Link>
             </Button>
           </CardContent>

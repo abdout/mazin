@@ -24,7 +24,7 @@ export async function PendingInvites() {
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Expires</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="text-end">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -37,7 +37,7 @@ export async function PendingInvites() {
               <TableCell className="text-xs text-muted-foreground">
                 {new Date(inv.expiresAt).toLocaleDateString()}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-end">
                 <RevokeInviteButton inviteId={inv.id} />
               </TableCell>
             </TableRow>

@@ -815,6 +815,25 @@ export async function generateStatementOfAccount(
     orderBy: { createdAt: "asc" },
   })
 
+  // Get client-side payments in the period. Each ShipmentPayment with payee=
+  // CLEARING_AGENT (the agent fee Mazin charges) and status in PAID/CONFIRMED
+  // counts as a credit against the client's balance. Pass-through payments to
+  // other payees (CUSTOMS, SEA_PORTS, …) belong to the cost side, not the
+  // statement of account.
+  const payments = await db.shipmentPayment.findMany({
+    where: {
+      shipment: { clientId: validated.clientId, userId },
+      payee: "CLEARING_AGENT",
+      status: { in: ["PAID", "CONFIRMED"] },
+      paidDate: {
+        gte: validated.periodStart,
+        lte: validated.periodEnd,
+      },
+    },
+    orderBy: { paidDate: "asc" },
+    include: { shipment: { select: { shipmentNumber: true } } },
+  })
+
   // Build statement entries
   let runningBalance = validated.openingBalance
   const entries: Array<{
@@ -829,21 +848,52 @@ export async function generateStatementOfAccount(
     sortOrder: number
   }> = []
 
-  // Add invoice entries (debits)
-  invoices.forEach((invoice, index) => {
-    const amount = Number(invoice.total)
-    runningBalance += amount
-    entries.push({
-      entryDate: invoice.createdAt,
-      reference: invoice.invoiceNumber,
-      description: `Invoice ${invoice.invoiceNumber}`,
-      descriptionAr: `فاتورة رقم ${invoice.invoiceNumber}`,
-      debit: amount,
-      credit: 0,
-      balance: runningBalance,
-      invoiceId: invoice.id,
-      sortOrder: index,
-    })
+  // Combine into a single chronological stream, then walk it so the running
+  // balance reflects real time-of-event ordering instead of "all debits then all
+  // credits" (which produced a fictional mid-period peak).
+  type Row =
+    | { kind: "INVOICE"; date: Date; invoice: (typeof invoices)[number] }
+    | { kind: "PAYMENT"; date: Date; payment: (typeof payments)[number] }
+
+  const stream: Row[] = [
+    ...invoices.map((invoice) => ({ kind: "INVOICE" as const, date: invoice.createdAt, invoice })),
+    ...payments.map((payment) => ({
+      kind: "PAYMENT" as const,
+      date: payment.paidDate ?? payment.createdAt,
+      payment,
+    })),
+  ].sort((a, b) => a.date.getTime() - b.date.getTime())
+
+  stream.forEach((row, index) => {
+    if (row.kind === "INVOICE") {
+      const amount = Number(row.invoice.total)
+      runningBalance += amount
+      entries.push({
+        entryDate: row.invoice.createdAt,
+        reference: row.invoice.invoiceNumber,
+        description: `Invoice ${row.invoice.invoiceNumber}`,
+        descriptionAr: `فاتورة رقم ${row.invoice.invoiceNumber}`,
+        debit: amount,
+        credit: 0,
+        balance: runningBalance,
+        invoiceId: row.invoice.id,
+        sortOrder: index,
+      })
+    } else {
+      const amount = Number(row.payment.amount)
+      runningBalance -= amount
+      const ref = row.payment.referenceNo || row.payment.receiptNo || row.payment.id
+      entries.push({
+        entryDate: row.date,
+        reference: ref,
+        description: `Payment received (${row.payment.shipment?.shipmentNumber ?? ""}) ${ref}`.trim(),
+        descriptionAr: `دفعة واردة (${row.payment.shipment?.shipmentNumber ?? ""}) ${ref}`.trim(),
+        debit: 0,
+        credit: amount,
+        balance: runningBalance,
+        sortOrder: index,
+      })
+    }
   })
 
   // Calculate totals

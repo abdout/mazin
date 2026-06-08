@@ -9,13 +9,39 @@ import { logger } from '@/lib/logger';
 
 const log = logger.forModule('notification.whatsapp');
 
+// Templates pre-approved on Meta Business. Names here MUST match exactly the
+// strings registered in WhatsApp Business Manager — adding a value here without
+// approval will fail at send time. Eleven shipment-stage templates cover the
+// full tracking lifecycle (Story 8.1).
 export type WhatsAppTemplate =
+  // Generic operational
   | 'task_assigned'
   | 'task_reminder'
   | 'payment_request'
   | 'shipment_update'
   | 'shipment_released'
-  | 'shipment_delivered';
+  | 'shipment_delivered'
+  // 11-stage shipment lifecycle
+  | 'shipment_pre_arrival'
+  | 'shipment_arrived'
+  | 'shipment_declaration_filed'
+  | 'shipment_duty_paid'
+  | 'shipment_inspection_pending'
+  | 'shipment_inspection_passed'
+  | 'shipment_port_fees_paid'
+  | 'shipment_quality_passed'
+  | 'shipment_loading'
+  | 'shipment_in_transit'
+  | 'shipment_out_for_delivery'
+  // Compliance + collections + auth
+  | 'client_otp'
+  | 'im_expiring'
+  | 'acd_due'
+  | 'invoice_sent'
+  | 'invoice_overdue'
+  | 'eta_shifted'
+  | 'lead_received'
+  | 'dispatch_request';
 
 interface SendMessageParams {
   to: string;

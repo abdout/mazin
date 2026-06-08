@@ -20,6 +20,9 @@ interface CreateNotificationInput {
   shipmentId?: string;
   invoiceId?: string;
   metadata?: Record<string, unknown>;
+  /** Stable key for cron-driven inserts. Same key collides on the @unique constraint
+   *  and skips duplicate sends. Build via `notificationDedupKey` from `lib/jobs/lock`. */
+  dedupKey?: string;
 }
 
 interface NotificationResult {
@@ -40,23 +43,40 @@ export async function createNotification(
   const channels = input.channels || ['IN_APP'];
   const results: NotificationResult['channels'] = [];
 
-  // Create in-app notification record
-  const notification = await db.notification.create({
-    data: {
-      type: input.type,
-      title: input.title,
-      message: input.message,
-      channel: channels[0] ?? 'IN_APP', // Primary channel
-      status: 'PENDING',
-      userId: input.userId,
-      clientId: input.clientId,
-      projectId: input.projectId,
-      taskId: input.taskId,
-      shipmentId: input.shipmentId,
-      invoiceId: input.invoiceId,
-      metadata: input.metadata ? JSON.parse(JSON.stringify(input.metadata)) : undefined,
-    },
-  });
+  // Create in-app notification record. When a dedupKey is supplied and a row with that
+  // key already exists (cron retry), Prisma throws P2002 — we treat that as a benign
+  // skip and return the existing notification id.
+  let notification;
+  try {
+    notification = await db.notification.create({
+      data: {
+        type: input.type,
+        title: input.title,
+        message: input.message,
+        channel: channels[0] ?? 'IN_APP', // Primary channel
+        status: 'PENDING',
+        userId: input.userId,
+        clientId: input.clientId,
+        projectId: input.projectId,
+        taskId: input.taskId,
+        shipmentId: input.shipmentId,
+        invoiceId: input.invoiceId,
+        dedupKey: input.dedupKey,
+        metadata: input.metadata ? JSON.parse(JSON.stringify(input.metadata)) : undefined,
+      },
+    });
+  } catch (err: unknown) {
+    if ((err as { code?: string }).code === 'P2002' && input.dedupKey) {
+      const existing = await db.notification.findUnique({ where: { dedupKey: input.dedupKey } });
+      if (existing) {
+        return {
+          id: existing.id,
+          channels: channels.map((channel) => ({ channel, status: 'sent' as const })),
+        };
+      }
+    }
+    throw err;
+  }
 
   // Process each channel
   for (const channel of channels) {
@@ -165,17 +185,28 @@ async function sendWhatsAppNotification(
   message: string,
   metadata?: Record<string, unknown>
 ): Promise<{ success: boolean; error?: string }> {
-  // Map notification type to WhatsApp template
+  // Map notification type to WhatsApp template. The template ↔ type mapping
+  // here is one-to-one for the most common cases; for finer-grained shipment
+  // stage messaging, callers can override by setting `metadata.template`.
+  const explicitTemplate = metadata?.template as WhatsAppTemplate | undefined
   const templateMap: Partial<Record<NotificationType, WhatsAppTemplate>> = {
     TASK_ASSIGNED: 'task_assigned',
     TASK_DUE_SOON: 'task_reminder',
+    TASK_OVERDUE: 'task_reminder',
     PAYMENT_REQUEST: 'payment_request',
-    SHIPMENT_ARRIVAL: 'shipment_update',
+    PAYMENT_OVERDUE: 'invoice_overdue',
+    PAYMENT_RECEIVED: 'shipment_update',
+    SHIPMENT_CREATED: 'shipment_pre_arrival',
+    SHIPMENT_ARRIVAL: 'shipment_arrived',
+    SHIPMENT_CLEARED: 'shipment_duty_paid',
     SHIPMENT_RELEASED: 'shipment_released',
     SHIPMENT_DELIVERED: 'shipment_delivered',
+    STAGE_ATTENTION_NEEDED: 'shipment_update',
+    STAGE_COMPLETED: 'shipment_update',
+    SYSTEM_ALERT: 'shipment_update',
   };
 
-  const template = templateMap[type];
+  const template = explicitTemplate ?? templateMap[type];
   if (!template) {
     // Send as plain message if no template
     return sendWhatsAppMessage({

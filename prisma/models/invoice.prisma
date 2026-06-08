@@ -121,6 +121,7 @@ model Invoice {
   stageInvoices    StageInvoice[]
   notifications    Notification[]
   statementEntries StatementEntry[]
+  customsPayments  CustomsPayment[] @relation("CustomsPaymentsForInvoice")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

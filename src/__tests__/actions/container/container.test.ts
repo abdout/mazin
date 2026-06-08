@@ -28,23 +28,23 @@ describe("container actions", () => {
     it("rejects when unauthenticated", async () => {
       vi.mocked(auth).mockResolvedValue(null as any)
       await expect(
-        createContainer({ shipmentId, containerNumber: "ABCD1234567", size: "TWENTY_FT" } as any)
+        createContainer({ shipmentId, containerNumber: "ABCD1234560", size: "TWENTY_FT" } as any)
       ).rejects.toThrow("Unauthorized")
     })
 
     it("rejects when shipment missing", async () => {
       vi.mocked(db.shipment.findFirst).mockResolvedValue(null)
       await expect(
-        createContainer({ shipmentId, containerNumber: "ABCD1234567" } as any)
+        createContainer({ shipmentId, containerNumber: "ABCD1234560" } as any)
       ).rejects.toThrow("Shipment not found")
     })
 
     it("sets PENDING_ARRIVAL when arrivalDate is missing", async () => {
-      const created = { id: "c-1", containerNumber: "ABCD1234567", status: "PENDING_ARRIVAL" }
+      const created = { id: "c-1", containerNumber: "ABCD1234560", status: "PENDING_ARRIVAL" }
       vi.mocked((db.container as any).create).mockResolvedValue(created as any)
       const result = await createContainer({
         shipmentId,
-        containerNumber: "ABCD1234567",
+        containerNumber: "ABCD1234560",
       } as any)
       const callArg = vi.mocked((db.container as any).create).mock.calls[0]![0] as any
       expect(callArg.data.status).toBe("PENDING_ARRIVAL")
@@ -58,7 +58,7 @@ describe("container actions", () => {
       arrival.setDate(arrival.getDate() - 30) // 30 days ago
       await createContainer({
         shipmentId,
-        containerNumber: "ABCD1234567",
+        containerNumber: "ABCD1234560",
         arrivalDate: arrival.toISOString(),
         freeTimeDays: 14,
       } as any)
@@ -73,7 +73,7 @@ describe("container actions", () => {
       arrival.setDate(arrival.getDate() - 12) // 12 days ago, 14 free days → 2 remaining
       await createContainer({
         shipmentId,
-        containerNumber: "ABCD1234567",
+        containerNumber: "ABCD1234560",
         arrivalDate: arrival.toISOString(),
         freeTimeDays: 14,
       } as any)
@@ -87,7 +87,7 @@ describe("container actions", () => {
       arrival.setDate(arrival.getDate() - 2)
       await createContainer({
         shipmentId,
-        containerNumber: "ABCD1234567",
+        containerNumber: "ABCD1234560",
         arrivalDate: arrival.toISOString(),
         freeTimeDays: 14,
       } as any)

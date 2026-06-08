@@ -92,6 +92,11 @@ model Notification {
   whatsappMessageId String?
   whatsappMessage   WhatsAppMessage? @relation(fields: [whatsappMessageId], references: [id])
 
+  // Dedup key for per-message idempotency (e.g. "im-expiry:cuid:2026-04-25:WHATSAPP").
+  // When set, inserts collide on conflict; NULL keys (for ad-hoc notifications) are
+  // treated as distinct by Postgres so they remain unaffected.
+  dedupKey String? @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

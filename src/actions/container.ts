@@ -5,10 +5,15 @@ import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import type { ContainerSize, ContainerStatus } from "@prisma/client"
+import { validateContainerNumber } from "@/lib/validation/customs-refs"
 
 const createContainerSchema = z.object({
   shipmentId: z.string(),
-  containerNumber: z.string().min(4),
+  // ISO 6346 enforced — letter prefix + 7 digits with valid check digit.
+  containerNumber: z
+    .string()
+    .min(4)
+    .refine(validateContainerNumber, "Invalid ISO 6346 container number (check digit mismatch)"),
   size: z.enum(["TWENTY_FT", "FORTY_FT", "FORTY_FT_HC", "FORTY_FIVE_FT", "OTHER"]).default("TWENTY_FT"),
   sealNumber: z.string().optional(),
   shippingLine: z.string().optional(),

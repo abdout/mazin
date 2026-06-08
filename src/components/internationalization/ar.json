@@ -5,6 +5,9 @@
     "cancel": "إلغاء",
     "delete": "حذف",
     "edit": "تعديل",
+    "send": "إرسال",
+    "download": "تنزيل",
+    "approve": "موافقة",
     "create": "إنشاء",
     "search": "بحث",
     "filter": "تصفية",
@@ -142,6 +145,15 @@
     "newShipment": "شحنة جديدة",
     "newDeclaration": "بيان جمركي جديد",
     "newInvoice": "فاتورة جديدة",
+    "demurrageAlerts": {
+      "title": "تنبيهات الأرضيات",
+      "statusDemurrage": "أرضيات",
+      "statusWarning": "تحذير",
+      "daysOverdue": "متأخر {days} يوم",
+      "daysOverdueAr": "متأخر {days} يوم",
+      "daysLeft": "{days} يوم متبقي",
+      "daysLeftAr": "{days} يوم متبقي"
+    },
     "trendingUp": "ارتفاع هذا الشهر",
     "trendingDown": "انخفاض في هذه الفترة",
     "completionRate": "معدل الإنجاز",
@@ -225,7 +237,27 @@
     },
     "createSuccess": "تم إنشاء الشحنة بنجاح",
     "updateSuccess": "تم تحديث الشحنة بنجاح",
-    "deleteSuccess": "تم حذف الشحنة بنجاح"
+    "deleteSuccess": "تم حذف الشحنة بنجاح",
+    "new": {
+      "title": "شحنة جديدة",
+      "subtitle": "سجّل شحنة استيراد أو تصدير جديدة."
+    },
+    "detail": {
+      "parties": "الأطراف",
+      "cargo": "البضاعة",
+      "dates": "التواريخ",
+      "shipper": "الشاحن",
+      "consignee": "المرسل إليه",
+      "client": "العميل",
+      "vessel": "السفينة",
+      "container": "الحاوية",
+      "weight": "الوزن",
+      "quantity": "الكمية",
+      "arrival": "الوصول",
+      "departure": "المغادرة",
+      "freeDays": "الأيام المجانية",
+      "clearanceStages": "مراحل التخليص"
+    }
   },
   "customs": {
     "title": "البيانات الجمركية",
@@ -1406,7 +1438,19 @@
       "result": "النتيجة",
       "formula": "المعادلة",
       "formulaTitle": "صيغة الحساب",
-      "formulaText": "الإجمالي = (قيمة CIF × نسبة الرسوم) + (قيمة CIF + الرسوم) × نسبة ضريبة القيمة المضافة"
+      "formulaText": "الإجمالي = (قيمة CIF × نسبة الرسوم) + (قيمة CIF + الرسوم) × نسبة ضريبة القيمة المضافة",
+      "subtitle": "احسب الرسوم الجمركية وضريبة القيمة المضافة لهذه الشحنة",
+      "selectHsCode": "الرجاء اختيار رمز HS",
+      "cifMustBePositive": "قيمة CIF يجب أن تكون موجبة",
+      "cifInputPlaceholder": "أدخل قيمة CIF",
+      "hsHelper": "ابحث برمز HS أو الوصف (مثال: 8471 أو لاب توب)",
+      "currency": "العملة",
+      "calculating": "جارٍ الحساب…",
+      "pickToSee": "اختر رمز HS وأدخل القيمة CIF لرؤية الرسوم",
+      "exciseLabel": "ضريبة الإنتاج",
+      "effectiveRate": "النسبة الفعلية",
+      "exchangeRateLabel": "سعر الصرف",
+      "calculationFailed": "فشل الحساب"
     },
     "docs": {
       "title": "المستندات",
@@ -1697,6 +1741,8 @@
     "changeRole": "تغيير الدور",
     "deactivate": "إلغاء التنشيط",
     "activate": "تنشيط",
+    "deleteHint": "استخدم الإعدادات → الفريق لإلغاء عضو",
+    "statusHint": "تعكس الحالة نشاط الجلسة؛ يتم الإلغاء من الإعدادات → الفريق",
     "nav": {
       "all": "الكل",
       "active": "نشط",
@@ -2758,6 +2804,7 @@
     "retry": "حاول مرة أخرى",
     "goHome": "الذهاب للصفحة الرئيسية",
     "goDashboard": "الذهاب للوحة التحكم",
+    "backToLogin": "العودة لتسجيل الدخول",
     "globalTitle": "خطأ في التطبيق",
     "globalDescription": "حدث خطأ حرج. يرجى تحديث الصفحة.",
     "refresh": "تحديث الصفحة"

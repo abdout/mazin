@@ -15,7 +15,6 @@ interface PageProps {
 export default async function ITP({ params }: PageProps) {
   const resolvedParams = await params
   const locale = resolvedParams.lang as Locale
-  const isArabic = locale === "ar"
   const dict = await getDictionary(locale)
 
   // Fetch project data using server action
@@ -31,8 +30,7 @@ export default async function ITP({ params }: PageProps) {
 
   const project = result.project
   const fallbackTitle = dict.project?.shipmentFallback ?? "Shipment"
-  const checklistTitle =
-    dict.project?.itp?.title ?? (isArabic ? "قائمة المستندات" : "DOCUMENT CHECKLIST")
+  const checklistTitle = dict.project?.itp?.title ?? "Document Checklist"
 
   return (
     <div className="flex flex-col gap-8 mb-10">

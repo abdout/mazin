@@ -2,14 +2,15 @@ import React from 'react';
 import { getProject } from '@/components/platform/project/actions';
 import PlanClient from './plan-client';
 
-interface Params {
-  id: string;
+interface PageProps {
+  params: Promise<{ id: string; lang: string }>;
 }
 
-const Plan = async ({ params }: { params: Params }) => {
-  const response = await getProject(params.id);
+const Plan = async ({ params }: PageProps) => {
+  const { id } = await params;
+  const response = await getProject(id);
   const project = response.success ? response.project : null;
-  
+
   return <PlanClient project={project} />;
 };
 
