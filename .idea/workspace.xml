@@ -5,17 +5,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d8e5941f-570a-4529-a754-326d0000dc25" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/models/auth.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/models/auth.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/models/finance.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/models/finance.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/models/invoice.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/models/invoice.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/models/notification.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/models/notification.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/models/operations.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/models/operations.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/models/shipment.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/models/shipment.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/__tests__/actions/container/container.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/__tests__/actions/container/container.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/__tests__/actions/invoice/statement-of-account.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/__tests__/actions/invoice/statement-of-account.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/__tests__/actions/tracking/advance-stage.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/__tests__/actions/tracking/advance-stage.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/__tests__/actions/tracking/public-tracking.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/__tests__/actions/tracking/public-tracking.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/__tests__/jobs/task-reminders.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/__tests__/jobs/task-reminders.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/__tests__/setup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/__tests__/setup.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/auth/join/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/join/form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/auth/login/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/login/form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/auth/password/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/password/form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/auth/reset/form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/reset/form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/db.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/db.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/middleware.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/actions/container.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/actions/container.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/actions/im-form.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/actions/im-form.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/actions/invoice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/actions/invoice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/actions/shipment-document.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/actions/shipment-document.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/actions/shipment-payment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/actions/shipment-payment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/actions/tracking.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/actions/tracking.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[lang]/(platform)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[lang]/(platform)/dashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[lang]/(platform)/project/[id]/duty/duty-calculator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[lang]/(platform)/project/[id]/duty/duty-calculator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[lang]/(platform)/team/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[lang]/(platform)/team/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/cron/demurrage/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/cron/demurrage/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/cron/reminders/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/cron/reminders/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/internationalization/ar.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/internationalization/ar.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/internationalization/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/internationalization/en.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/internationalization/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/internationalization/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/platform/shipments/validation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform/shipments/validation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/platform/team/columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform/team/columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/platform/team/team-page-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform/team/team-page-client.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/platform/team/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform/team/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/env.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/env.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/jobs/task-reminders.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/jobs/task-reminders.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/services/notification/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/services/notification/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/services/notification/whatsapp.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/services/notification/whatsapp.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,6 +139,7 @@
       <workItem from="1771657424536" duration="7450000" />
       <workItem from="1776633598625" duration="26474000" />
       <workItem from="1776841473206" duration="7432000" />
+      <workItem from="1776965316895" duration="41827000" />
     </task>
     <servers />
   </component>

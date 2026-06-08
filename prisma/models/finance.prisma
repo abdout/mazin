@@ -1250,6 +1250,12 @@ model CustomsPayment {
   declarationId String
   declaration   CustomsDeclaration   @relation(fields: [declarationId], references: [id])
 
+  // Optional link to the client invoice that re-bills this customs payment.
+  // When set, the agent's clearance invoice surfaces this payment as a pass-through
+  // line item — used by the profit-margin KPI and by line-item traceability.
+  invoiceId String?
+  invoice   Invoice? @relation("CustomsPaymentsForInvoice", fields: [invoiceId], references: [id])
+
   // Payment tracking
   transactionId String?              @unique
   transaction   BankTransaction?     @relation("CustomsPaymentTransaction", fields: [transactionId], references: [id])
@@ -1262,6 +1268,7 @@ model CustomsPayment {
   updatedAt DateTime @updatedAt
 
   @@index([declarationId])
+  @@index([invoiceId])
   @@index([paymentType])
   @@index([status])
   @@index([paymentDate])

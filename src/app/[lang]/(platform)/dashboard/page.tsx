@@ -3,6 +3,8 @@ import type { Locale } from "@/components/internationalization"
 import { auth } from "@/auth"
 import { AdminDashboardClient } from "@/components/platform/dashboard/admin-client"
 import DemurrageAlerts from "@/components/platform/dashboard/demurrage-alerts"
+import CompliancePanel from "@/components/platform/dashboard/compliance-panel"
+import TodayCockpit from "@/components/platform/dashboard/today-cockpit"
 import {
   getQuickLookData,
   getUpcomingData,
@@ -51,7 +53,11 @@ export default async function DashboardPage({
 
   return (
     <>
-      <DemurrageAlerts locale={lang} />
+      <TodayCockpit locale={lang} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <DemurrageAlerts locale={lang} />
+        <CompliancePanel locale={lang} />
+      </div>
       <AdminDashboardClient
         dictionary={dict}
         locale={lang}

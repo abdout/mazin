@@ -103,6 +103,17 @@ describe("getPublicTracking", () => {
 
     expect(db.shipment.findFirst).not.toHaveBeenCalled()
   })
+
+  it("returns null when publicTrackingEnabled is false (operator opted out)", async () => {
+    const shipment = {
+      ...makeShipment({ trackingNumber: "TRK-PRIVATE", publicTrackingEnabled: false }),
+      trackingStages: [],
+    }
+    vi.mocked(db.shipment.findUnique).mockResolvedValue(shipment as any)
+
+    const result = await getPublicTracking("TRK-PRIVATE")
+    expect(result).toBeNull()
+  })
 })
 
 describe("getPublicTrackingLink", () => {

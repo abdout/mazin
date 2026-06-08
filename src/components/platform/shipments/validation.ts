@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { validateContainerNumber } from "@/lib/validation/customs-refs"
 
 export const shipmentIntakeSchema = z.object({
   // Cargo
@@ -6,7 +7,14 @@ export const shipmentIntakeSchema = z.object({
   description: z.string().min(1, "Description is required"),
   weight: z.coerce.number().positive().optional(),
   quantity: z.coerce.number().int().positive().optional(),
-  containerNumber: z.string().optional(),
+  // ISO 6346 check-digit-validated. Empty string allowed (optional field on intake).
+  containerNumber: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || validateContainerNumber(v),
+      "Invalid ISO 6346 container number (check digit mismatch)"
+    ),
   vesselName: z.string().optional(),
 
   // Parties

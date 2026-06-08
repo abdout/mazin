@@ -277,3 +277,66 @@ enum DocumentCheckStatus {
   REJECTED
   EXPIRED
 }
+
+// Idempotency record for cron / scheduled jobs.
+// Insert-on-conflict on (jobName, scheduledFor) lets a re-fired cron short-circuit
+// instead of double-running. Cleanup cron purges rows older than 90 days.
+model JobRun {
+  id           String       @id @default(cuid())
+  jobName      String
+  scheduledFor DateTime
+  startedAt    DateTime     @default(now())
+  completedAt  DateTime?
+  status       JobRunStatus @default(RUNNING)
+  error        String?      @db.Text
+  metadata     Json?
+
+  @@unique([jobName, scheduledFor])
+  @@index([jobName, startedAt])
+  @@index([status])
+  @@map("job_runs")
+}
+
+enum JobRunStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+// Object-storage record. One row per uploaded file in S3 (delivered via CloudFront).
+// The actual blob lives in S3; this row is the index — what was uploaded, by whom,
+// for what purpose. FK references from `ShipmentDocument`, `ProofOfDelivery`, etc.
+// optionally point to `FileRecord.id` so we can clean orphans.
+model FileRecord {
+  id          String   @id @default(cuid())
+  // Canonical S3 key — `{uploaderId}/{folder}/{nanoid}.{ext}`.
+  s3Key       String   @unique
+  // Public URL (CloudFront if configured, else raw S3).
+  url         String
+  contentType String
+  size        Int
+  // SHA-256 of the bytes — used to dedupe uploads of identical files.
+  sha256      String?
+  // Logical kind (drives the folder + MIME allowlist), e.g. "shipment-document".
+  kind        String
+  uploadedById String
+  uploadedBy   User    @relation(fields: [uploadedById], references: [id])
+  // `private` files require signed CloudFront URLs; `public` are served unsigned.
+  access      FileAccess @default(public)
+  // Original filename for display + downloads (S3 key is anonymized).
+  originalName String?
+  metadata    Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uploadedById, createdAt])
+  @@index([kind, createdAt])
+  @@map("file_records")
+}
+
+enum FileAccess {
+  public
+  private
+}

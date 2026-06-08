@@ -5,6 +5,7 @@ import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import type { PaymentPayee, ShipmentPaymentStatus, TrackingStageType } from "@prisma/client"
+import { recordShipmentEvent } from "@/lib/services/shipment-events"
 
 const createPaymentSchema = z.object({
   shipmentId: z.string(),
@@ -93,6 +94,21 @@ export async function createShipmentPayment(
       status,
       shipmentId: validated.shipmentId,
       userId: session.user.id,
+    },
+  })
+
+  await recordShipmentEvent({
+    shipmentId: validated.shipmentId,
+    actorId: session.user.id,
+    kind: "PAYMENT_RECORDED",
+    summary: `Payment to ${validated.payee} (${validated.payeeName ?? "—"}): ${validated.amount} ${validated.currency}`,
+    summaryAr: `دفعة إلى ${validated.payee} (${validated.payeeName ?? "—"}): ${validated.amount} ${validated.currency}`,
+    metadata: {
+      paymentId: payment.id,
+      payee: validated.payee,
+      amount: validated.amount,
+      currency: validated.currency,
+      method: validated.method,
     },
   })
 
@@ -223,6 +239,15 @@ export async function markPaymentConfirmed(paymentId: string, receiptNo?: string
       receiptNo: receiptNo ?? payment.receiptNo,
       paidDate: payment.paidDate ?? new Date(),
     },
+  })
+
+  await recordShipmentEvent({
+    shipmentId: payment.shipmentId,
+    actorId: session.user.id,
+    kind: "PAYMENT_CONFIRMED",
+    summary: `Payment confirmed (${payment.payee}, ${payment.amount} ${payment.currency})`,
+    summaryAr: `تم تأكيد الدفعة (${payment.payee}, ${payment.amount} ${payment.currency})`,
+    metadata: { paymentId, receiptNo: receiptNo ?? payment.receiptNo },
   })
 
   revalidatePath(`/project`)

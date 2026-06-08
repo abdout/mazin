@@ -44,7 +44,7 @@ const statusConfig: Record<TeamMemberStatus, { icon: typeof UserCheck; className
 const roleConfig: Record<TeamMemberRole, { className: string }> = {
   ADMIN: { className: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300" },
   MANAGER: { className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" },
-  MEMBER: { className: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300" },
+  CLERK: { className: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300" },
   VIEWER: { className: "bg-gray-50 text-gray-600 dark:bg-gray-900 dark:text-gray-400" },
 }
 

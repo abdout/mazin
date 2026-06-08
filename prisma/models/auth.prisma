@@ -79,6 +79,12 @@ model User {
   vendor          Vendor?
   serviceRequests ServiceRequest[]
 
+  // Activity feed (operator-facing)
+  shipmentEvents  ShipmentEvent[] @relation("ShipmentEventActor")
+
+  // Object storage uploads
+  fileRecords     FileRecord[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -5,6 +5,8 @@ import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import type { ShipmentDocumentType, DocumentCheckStatus } from "@prisma/client"
+import { uploadFile } from "@/lib/storage/upload"
+import { recordShipmentEvent } from "@/lib/services/shipment-events"
 
 const DOCUMENT_TYPES = [
   "BILL_OF_LADING",
@@ -133,6 +135,79 @@ export async function upsertShipmentDocument(
 
   revalidatePath(`/project`)
   return doc
+}
+
+/**
+ * Upload a file to S3 + record the `ShipmentDocument` row in one step.
+ *
+ * The browser/server contract: client posts FormData with `file` (Blob),
+ * `shipmentId` and `docType`. We delegate the actual S3 PUT to `uploadFile`
+ * (which validates MIME + size and dedupes by SHA-256), then upsert the
+ * checklist row, then append a `ShipmentEvent` so the activity feed reflects
+ * the upload immediately.
+ */
+export async function uploadShipmentDocument(formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  const file = formData.get("file")
+  const shipmentId = formData.get("shipmentId") as string | null
+  const docType = formData.get("docType") as string | null
+  const documentNo = (formData.get("documentNo") as string | null) ?? undefined
+  if (!(file instanceof File)) throw new Error("Missing file")
+  if (!shipmentId || !docType) throw new Error("Missing shipmentId or docType")
+
+  const validatedDocType = upsertDocumentSchema.shape.docType.parse(docType)
+
+  const shipment = await db.shipment.findFirst({
+    where: { id: shipmentId, userId: session.user.id },
+    select: { id: true },
+  })
+  if (!shipment) throw new Error("Shipment not found")
+
+  const upload = await uploadFile(file, {
+    kind: "shipment-document",
+    originalName: file.name,
+    metadata: {
+      shipmentId,
+      docType: validatedDocType,
+    },
+  })
+
+  const doc = await db.shipmentDocument.upsert({
+    where: {
+      shipmentId_docType: { shipmentId, docType: validatedDocType as ShipmentDocumentType },
+    },
+    update: {
+      status: "UPLOADED",
+      documentNo,
+      fileUrl: upload.url,
+      fileName: file.name,
+      fileSize: file.size,
+    },
+    create: {
+      shipmentId,
+      docType: validatedDocType as ShipmentDocumentType,
+      status: "UPLOADED",
+      documentNo,
+      fileUrl: upload.url,
+      fileName: file.name,
+      fileSize: file.size,
+      userId: session.user.id,
+    },
+  })
+
+  await recordShipmentEvent({
+    shipmentId,
+    actorId: session.user.id,
+    kind: "DOCUMENT_UPLOADED",
+    summary: `Uploaded ${validatedDocType}: ${file.name}`,
+    summaryAr: `تم تحميل ${validatedDocType}: ${file.name}`,
+    metadata: { documentId: doc.id, fileId: upload.fileId, sha256: upload.sha256 },
+  })
+
+  revalidatePath(`/project/${shipmentId}/docs`)
+  return { document: doc, file: upload }
 }
 
 export async function verifyDocument(documentId: string) {

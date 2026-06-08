@@ -38,6 +38,12 @@ describe("advanceToNextStage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(auth).mockResolvedValue(session as any)
+    // Document checklist gate is now enforced — by default, no docs returned
+    // means the gate has nothing to gate against (only CUSTOMS_DECLARATION,
+    // RELEASE require docs, and these tests advance through VESSEL_ARRIVAL etc).
+    vi.mocked(db.shipmentDocument.findMany).mockResolvedValue([] as never)
+    vi.mocked(db.container.updateMany).mockResolvedValue({ count: 0 } as never)
+    vi.mocked(db.shipmentEvent.create).mockResolvedValue({} as never)
   })
 
   it("throws Unauthorized when no session", async () => {
@@ -75,6 +81,15 @@ describe("advanceToNextStage", () => {
     } as any)
     vi.mocked(db.trackingStage.update).mockResolvedValue({} as never)
     vi.mocked(db.shipment.update).mockResolvedValue({} as never)
+    // CUSTOMS_DECLARATION is gated on a verified document checklist; seed all
+    // mandatory docs as VERIFIED so the gate passes for this advance test.
+    vi.mocked(db.shipmentDocument.findMany).mockResolvedValue([
+      { docType: "BILL_OF_LADING", status: "VERIFIED" },
+      { docType: "COMMERCIAL_INVOICE", status: "VERIFIED" },
+      { docType: "PACKING_LIST", status: "VERIFIED" },
+      { docType: "IM_FORM", status: "VERIFIED" },
+      { docType: "ACD_CERTIFICATE", status: "VERIFIED" },
+    ] as never)
 
     const result = await advanceToNextStage(shipmentId)
 

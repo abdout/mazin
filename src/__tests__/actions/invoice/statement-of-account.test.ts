@@ -26,6 +26,10 @@ describe("generateStatementOfAccount", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(auth).mockResolvedValue(session as any)
+    // generateStatementOfAccount now also reads CLEARING_AGENT payments to
+    // build the credit side of the ledger. Default to none unless the test
+    // explicitly seeds payments.
+    vi.mocked(db.shipmentPayment.findMany).mockResolvedValue([] as never)
   })
 
   it("throws Unauthorized when no session", async () => {
@@ -138,6 +142,54 @@ describe("generateStatementOfAccount", () => {
 
     const entries = (createCall.data.entries as { create: Array<Record<string, unknown>> }).create
     expect(entries[0]!.balance).toBe(3500)
+  })
+
+  it("treats CLEARING_AGENT payments as credits and lowers the running balance", async () => {
+    vi.mocked(db.client.findFirst).mockResolvedValue(makeClient({ id: "client-1" }) as any)
+
+    const inv1 = makeInvoice({
+      id: "i1",
+      total: 10000,
+      invoiceNumber: "1/26",
+      createdAt: new Date("2026-01-10"),
+    })
+    vi.mocked(db.invoice.findMany).mockResolvedValue([inv1] as any)
+    vi.mocked(db.shipmentPayment.findMany).mockResolvedValue([
+      {
+        id: "p1",
+        amount: 4000,
+        currency: "SDG",
+        paidDate: new Date("2026-01-20"),
+        createdAt: new Date("2026-01-20"),
+        referenceNo: "BANK-XX",
+        receiptNo: null,
+        payee: "CLEARING_AGENT",
+        status: "PAID",
+        shipment: { shipmentNumber: "SHP-001" },
+      },
+    ] as never)
+    vi.mocked(db.statementOfAccount.count).mockResolvedValue(0)
+    vi.mocked(db.statementOfAccount.create).mockResolvedValue({
+      id: "soa-1",
+      statementNumber: "SOA-2026/001",
+      entries: [],
+      client: makeClient(),
+    } as any)
+
+    await generateStatementOfAccount(validFormData)
+
+    const createCall = vi.mocked(db.statementOfAccount.create).mock.calls[0]![0] as {
+      data: Record<string, unknown>
+    }
+    expect(createCall.data.totalDebits).toBe(10000)
+    expect(createCall.data.totalCredits).toBe(4000)
+    expect(createCall.data.closingBalance).toBe(6000)
+
+    const entries = (createCall.data.entries as { create: Array<Record<string, unknown>> }).create
+    expect(entries).toHaveLength(2)
+    expect(entries[0]!.balance).toBe(10000) // after invoice
+    expect(entries[1]!.balance).toBe(6000) // after payment
+    expect(entries[1]!.credit).toBe(4000)
   })
 
   it("calls revalidatePath after creation", async () => {

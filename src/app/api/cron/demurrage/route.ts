@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { db } from '@/lib/db';
 import { createNotification } from '@/lib/services/notification';
+import { withJobLock, notificationDedupKey } from '@/lib/jobs/lock';
 import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
@@ -40,7 +41,11 @@ export async function GET(request: NextRequest) {
   );
 
   try {
-    const shipments = await db.shipment.findMany({
+    const lock = await withJobLock({
+      jobName: CRON_MONITOR_SLUG,
+      bucket: 'day',
+      run: async () => {
+        const shipments = await db.shipment.findMany({
       where: {
         demurrageStartDate: { not: null },
         status: { not: 'DELIVERED' },
@@ -114,6 +119,10 @@ export async function GET(request: NextRequest) {
           userId: shipment.userId,
           clientId: shipment.clientId ?? undefined,
           shipmentId: shipment.id,
+          dedupKey: notificationDedupKey({
+            kind: `demurrage:${threshold.type}`,
+            resourceId: shipment.id,
+          }),
           metadata: {
             alertType: 'demurrage',
             urgency: threshold.type,
@@ -129,17 +138,27 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    log.info('Demurrage cron completed', {
-      shipmentsChecked: shipments.length,
-      alertsSent,
+        log.info('Demurrage cron completed', {
+          shipmentsChecked: shipments.length,
+          alertsSent,
+        });
+
+        return { shipmentsChecked: shipments.length, alertsSent };
+      },
     });
 
     Sentry.captureCheckIn({ checkInId, monitorSlug: CRON_MONITOR_SLUG, status: 'ok' });
 
+    if (lock.status === 'skipped') {
+      return NextResponse.json({ success: true, skipped: true, reason: 'already_ran_today' });
+    }
+    if (lock.status === 'failed') {
+      throw new Error(lock.error ?? 'demurrage job failed');
+    }
+
     return NextResponse.json({
       success: true,
-      shipmentsChecked: shipments.length,
-      alertsSent,
+      ...(lock.result ?? {}),
     });
   } catch (error) {
     log.error('Demurrage cron failed', error as Error);

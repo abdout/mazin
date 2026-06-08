@@ -144,6 +144,15 @@ const db = {
   serviceListing: createModelMock(),
   serviceRequest: createModelMock(),
 
+  // --- Operations: cron idempotency ---
+  jobRun: createModelMock(),
+
+  // --- Activity feed ---
+  shipmentEvent: createModelMock(),
+
+  // --- Object storage records ---
+  fileRecord: createModelMock(),
+
   // --- Client-level utilities ---
   $transaction: vi.fn((arg: unknown) => {
     if (typeof arg === "function") {

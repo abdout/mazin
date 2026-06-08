@@ -4,10 +4,16 @@ import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { validateIMNumber } from "@/lib/validation/customs-refs"
 
 const createIMFormSchema = z.object({
   shipmentId: z.string(),
-  imNumber: z.string().min(1),
+  // Bank-issued import form number. The regex is permissive (banks vary) but
+  // catches structurally-broken values before they hit the DB.
+  imNumber: z
+    .string()
+    .min(1)
+    .refine(validateIMNumber, "Invalid IM Form number format"),
   bankName: z.string().min(1),
   bankBranch: z.string().optional(),
   bankContactPerson: z.string().optional(),
