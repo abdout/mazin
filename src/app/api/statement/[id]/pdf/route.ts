@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
-import { renderToBuffer } from "@react-pdf/renderer"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { StatementPdf } from "@/components/platform/invoice/statement-pdf"
 import type { Locale } from "@/components/internationalization"
+import { rateLimit } from "@/lib/rate-limit"
+import { renderPdfWithTimeout, PdfTimeoutError } from "@/lib/pdf-render"
 import { logger } from "@/lib/logger"
 
 const log = logger.forModule("api.statement-pdf")
+
+// See invoice PDF route — same headroom rationale.
+export const maxDuration = 30
+
+const PDF_LIMIT = 10
+const PDF_WINDOW_MS = 5 * 60_000
 
 export async function GET(
   request: NextRequest,
@@ -16,6 +23,17 @@ export async function GET(
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Shared `pdf-export` bucket with the invoice route — see comment there.
+    const rl = await rateLimit("pdf-export", session.user.id, PDF_LIMIT, PDF_WINDOW_MS)
+    if (rl.limited) {
+      log.warn("PDF rate limit hit", { userId: session.user.id, route: "statement" })
+      const retryAfterSec = Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000))
+      return NextResponse.json(
+        { error: "Too many PDF exports. Please wait a moment and try again." },
+        { status: 429, headers: { "Retry-After": String(retryAfterSec) } },
+      )
     }
 
     const { id } = await params
@@ -37,7 +55,7 @@ export async function GET(
       where: { userId: session.user.id },
     })
 
-    const pdfBuffer = await renderToBuffer(
+    const pdfBuffer = await renderPdfWithTimeout(
       StatementPdf({ statement, settings: settings ?? undefined, locale })
     )
 
@@ -48,6 +66,13 @@ export async function GET(
       },
     })
   } catch (error) {
+    if (error instanceof PdfTimeoutError) {
+      log.error("Statement PDF render timed out", error, { timeoutMs: error.timeoutMs })
+      return NextResponse.json(
+        { error: "PDF generation timed out. Please try again." },
+        { status: 504 },
+      )
+    }
     log.error("Statement PDF generation error", error as Error)
     return NextResponse.json(
       { error: "Failed to generate PDF" },

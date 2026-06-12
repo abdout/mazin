@@ -4,6 +4,7 @@ import * as z from "zod";
 import { AuthError } from "next-auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { LoginSchema } from "@/components/auth/validation";
+import { checkAuthRateLimit } from "@/components/auth/rate-limit";
 import { getUserByEmail } from "@/components/auth/user";
 import { getTwoFactorTokenByEmail } from "@/components/auth/verification/2f-token";
 import { sendTwoFactorTokenEmail, sendVerificationEmail } from "@/components/auth/mail";
@@ -27,6 +28,11 @@ export const login = async (
   }
 
   const { email, password, code } = validatedFields.data;
+
+  // Per-email + per-IP rate limit. Returns a generic message on block to
+  // avoid leaking whether the email is registered.
+  const rl = await checkAuthRateLimit("login", email);
+  if (rl.limited) return { error: rl.error };
 
   const existingUser = await getUserByEmail(email);
 

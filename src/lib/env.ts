@@ -73,6 +73,15 @@ const serverSchema = z.object({
   // Cron
   CRON_SECRET: z.string().optional(),
 
+  // Upstash Redis — backs the production rate limiter (`src/lib/rate-limit.ts`).
+  // Required in production; in dev the limiter falls back to an in-memory Map.
+  UPSTASH_REDIS_REST_URL: isProduction
+    ? z.string().url("UPSTASH_REDIS_REST_URL is required in production")
+    : z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: isProduction
+    ? z.string().min(1, "UPSTASH_REDIS_REST_TOKEN is required in production")
+    : z.string().optional(),
+
   // WhatsApp (Meta Cloud API)
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
   WHATSAPP_ACCESS_TOKEN: z.string().optional(),
@@ -137,6 +146,9 @@ const rawEnv = {
 
   CRON_SECRET: process.env.CRON_SECRET,
 
+  UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+  UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+
   WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
   WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN,
 
@@ -191,6 +203,7 @@ function parseEnv(): Env {
       ["FACEBOOK_CLIENT_ID", "Facebook OAuth disabled"],
       ["WHATSAPP_ACCESS_TOKEN", "WhatsApp notifications disabled"],
       ["SENTRY_DSN", "Sentry error reporting disabled"],
+      ["UPSTASH_REDIS_REST_URL", "rate limiter falling back to in-memory Map"],
     ]
 
     for (const [key, reason] of optionalChecks) {

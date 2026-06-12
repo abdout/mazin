@@ -47,12 +47,38 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
   const dict = await getDictionary(lang)
   const dir = getDir(lang)
 
-  // Fetch public tracking data
-  const trackingData = await getPublicTracking(trackingNumber)
+  // Fetch public tracking data. The action returns a discriminated union so
+  // we can distinguish "not found" from "rate-limited" from "ok".
+  const trackingResult = await getPublicTracking(trackingNumber)
 
-  if (!trackingData) {
+  if (trackingResult.status === "rate-limited") {
+    // Friendly bilingual message; we can't `notFound()` because that returns
+    // 404 and a scraper would happily keep going. Hardcoded copy here is fine
+    // for now — when the dictionary gets a `tracking.rateLimited` key, swap
+    // back to dict-driven text.
+    const message =
+      lang === "ar"
+        ? "طلبات كثيرة جدًا. الرجاء المحاولة بعد قليل."
+        : "Too many requests. Please try again in a moment."
+    return (
+      <div
+        className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center"
+        dir={dir}
+      >
+        <h1 className="text-4xl font-bold text-foreground">429</h1>
+        <p className="mt-4 max-w-md text-muted-foreground">{message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {`Retry-After: ${trackingResult.retryAfterSec}s`}
+        </p>
+      </div>
+    )
+  }
+
+  if (trackingResult.status === "not-found") {
     notFound()
   }
+
+  const trackingData = trackingResult.data
 
   // Convert stages to TrackingStage format for timeline
   const stages = trackingData.stages.map((stage) => ({

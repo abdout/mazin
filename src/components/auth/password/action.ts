@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 
 
 import { db } from "@/lib/db";
+import { checkAuthRateLimit } from "@/components/auth/rate-limit";
 import { NewPasswordSchema } from "../validation";
 import { getPasswordResetTokenByToken } from "./token";
 import { getUserByEmail } from "../user";
@@ -24,6 +25,11 @@ export const newPassword = async (
   }
 
   const { password } = validatedFields.data;
+
+  // Per-IP rate limit. The email isn't known until the token is resolved, so
+  // we throttle by IP only at this stage.
+  const rl = await checkAuthRateLimit("new-password", null);
+  if (rl.limited) return { error: rl.error };
 
   const existingToken = await getPasswordResetTokenByToken(token);
 

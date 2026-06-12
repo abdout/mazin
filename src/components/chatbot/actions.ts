@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
 import {
   buildSystemPrompt,
   type MazinChatbotContext,
@@ -17,53 +18,40 @@ import {
 const log = logger.forModule('chatbot');
 
 const MAX_MESSAGES = 20;
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_AUTH = 10;
-const RATE_LIMIT_MAX_ANON = 5;
+const PER_MINUTE_WINDOW_MS = 60_000;
+const PER_MINUTE_AUTH = 10;
+const PER_MINUTE_ANON = 5;
 const DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
-const DAILY_LIMIT_AUTH = 100;
-const DAILY_LIMIT_ANON = 30;
-
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const dailyLimitMap = new Map<string, { count: number; resetAt: number }>();
+const DAILY_AUTH = 100;
+const DAILY_ANON = 30;
 
 async function getRequesterId(userId?: string): Promise<{ id: string; isAuthed: boolean }> {
   if (userId) return { id: `u:${userId}`, isAuthed: true };
-  const h = await headers();
-  const ip =
-    h.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    h.get('x-real-ip') ??
-    'anon';
+  const ip = getClientIp(await headers());
   return { id: `ip:${ip}`, isAuthed: false };
 }
 
-function checkRateLimit(
+/**
+ * Two-axis rate limit: per-minute burst + daily budget. Both axes go through
+ * the shared Upstash limiter so caps survive serverless cold starts.
+ */
+async function checkRateLimit(
   id: string,
-  isAuthed: boolean
-): { allowed: boolean; error?: string } {
-  const now = Date.now();
-  const perMinute = isAuthed ? RATE_LIMIT_MAX_AUTH : RATE_LIMIT_MAX_ANON;
-  const perDay = isAuthed ? DAILY_LIMIT_AUTH : DAILY_LIMIT_ANON;
+  isAuthed: boolean,
+): Promise<{ allowed: boolean; error?: string }> {
+  const perMinute = isAuthed ? PER_MINUTE_AUTH : PER_MINUTE_ANON;
+  const perDay = isAuthed ? DAILY_AUTH : DAILY_ANON;
 
-  const daily = dailyLimitMap.get(id);
-  if (daily && now < daily.resetAt && daily.count >= perDay) {
+  // Daily axis first — cheaper to hit Redis once and bail than to consume the
+  // burst budget for a user who's already over their daily cap.
+  const daily = await rateLimit('chatbot-daily', id, perDay, DAILY_WINDOW_MS);
+  if (daily.limited) {
     return { allowed: false, error: 'Daily message limit reached. Please try again tomorrow.' };
   }
 
-  const entry = rateLimitMap.get(id);
-  if (entry && now < entry.resetAt) {
-    if (entry.count >= perMinute) {
-      return { allowed: false, error: 'Too many messages. Please wait a moment.' };
-    }
-    entry.count++;
-  } else {
-    rateLimitMap.set(id, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-  }
-
-  if (daily && now < daily.resetAt) {
-    daily.count++;
-  } else {
-    dailyLimitMap.set(id, { count: 1, resetAt: now + DAILY_WINDOW_MS });
+  const burst = await rateLimit('chatbot-burst', id, perMinute, PER_MINUTE_WINDOW_MS);
+  if (burst.limited) {
+    return { allowed: false, error: 'Too many messages. Please wait a moment.' };
   }
 
   return { allowed: true };
@@ -204,7 +192,7 @@ export async function sendMessage(input: SendMessageInput) {
   const session = await auth();
   const { id: requesterId, isAuthed } = await getRequesterId(session?.user?.id);
 
-  const rate = checkRateLimit(requesterId, isAuthed);
+  const rate = await checkRateLimit(requesterId, isAuthed);
   if (!rate.allowed) {
     return { success: false, error: rate.error };
   }

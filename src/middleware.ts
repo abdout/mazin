@@ -11,8 +11,13 @@ import {
   COMMUNITY_LOGIN_REDIRECT,
 } from '@/routes'
 import { getClientIp, rateLimit } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
-// 20 credential-bearing submissions per minute per IP.
+const log = logger.forModule('middleware')
+
+// 20 credential-bearing submissions per minute per IP. Per-action and per-email
+// buckets live inside the auth server actions so a single attacker IP rotation
+// can't bypass them.
 const AUTH_RATE_LIMIT_MAX = 20
 const AUTH_RATE_LIMIT_WINDOW_MS = 60_000
 
@@ -91,11 +96,21 @@ export async function middleware(request: NextRequest) {
   // polls are free so Auth.js's SessionProvider doesn't trip the limiter.
   if (request.method === 'POST' && (isAuthRoute || isApiAuthRoute)) {
     const ip = getClientIp(request.headers)
-    const { limited } = rateLimit('auth', ip, AUTH_RATE_LIMIT_MAX, AUTH_RATE_LIMIT_WINDOW_MS)
+    const { limited, resetAt } = await rateLimit(
+      'auth',
+      ip,
+      AUTH_RATE_LIMIT_MAX,
+      AUTH_RATE_LIMIT_WINDOW_MS,
+    )
     if (limited) {
+      log.warn('Rate limit hit', { route: pathname, ip, bucket: 'auth' })
+      const retryAfterSec = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000))
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
-        { status: 429 }
+        {
+          status: 429,
+          headers: { 'Retry-After': String(retryAfterSec) },
+        },
       )
     }
   }
