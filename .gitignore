@@ -45,3 +45,7 @@ tests/e2e/.auth/
 tmp/playwright-report/
 tmp/playwright-output/
 tmp/playwright-results.json
+
+# cloudflare
+.wrangler/
+.cf-deploy-stamp

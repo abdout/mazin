@@ -1,0 +1,7 @@
+{
+  "_note": "From vercel.json crons. Keyed by cron expression (UTC) → route paths called inside the container with the CRON_SECRET bearer.",
+  "schedules": {
+    "0 6 * * *": ["/api/cron/demurrage"],
+    "0 8 * * *": ["/api/cron/reminders"]
+  }
+}

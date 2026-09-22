@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  // Cloudflare Containers (scripts/deploy-cloudflare.sh) runs the standalone server.
+  output: process.env.CF_CONTAINER ? "standalone" : undefined,
   images: {
     remotePatterns: [
       {
