@@ -1,0 +1,27 @@
+diff --git a/dist/shims/server.js b/dist/shims/server.js
+index 7b88516b1ec7e56024bf90d949932785ab90cbb7..c4b50cee42a78d7e4a821ac3be69a1ee87982ce6 100644
+--- a/dist/shims/server.js
++++ b/dist/shims/server.js
+@@ -54,9 +54,11 @@ var NextRequest = class extends Request {
+ 	_cookies;
+ 	constructor(input, init) {
+ 		validateURL(typeof input !== "string" && "url" in input ? input.url : String(input));
+-		const { nextConfig: _nextConfig, ...requestInit } = init ?? {};
++		const _initIsRequest = init instanceof Request;
++		const { nextConfig: _nextConfig, ...requestInit } = _initIsRequest ? {} : (init ?? {});
++		const _init = _initIsRequest ? init : requestInit;
+ 		if (input instanceof Request) {
+-			super(input, requestInit);
++			super(input, _init);
+ 			const cfDescriptor = Reflect.getOwnPropertyDescriptor(input, "cf");
+ 			if (cfDescriptor) Object.defineProperty(this, "cf", cfDescriptor);
+ 			else {
+@@ -67,7 +69,7 @@ var NextRequest = class extends Request {
+ 					configurable: true
+ 				});
+ 			}
+-		} else super(input, requestInit);
++		} else super(input, _init);
+ 		const url = typeof input === "string" ? new URL(input, "http://localhost") : input instanceof URL ? input : new URL(input.url, "http://localhost");
+ 		const i18n = _nextConfig?.i18n ? {
+ 			locales: [..._nextConfig.i18n.locales],

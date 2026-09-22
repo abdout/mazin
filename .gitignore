@@ -49,3 +49,5 @@ tmp/playwright-results.json
 # cloudflare
 .wrangler/
 .cf-deploy-stamp
+/dist/
+.vinext/

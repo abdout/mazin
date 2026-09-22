@@ -1,35 +1,24 @@
 {
-  // mazin (abdoutgroup.com) on Cloudflare Containers — the kun / hogwarts / mkan lane.
-  // A thin Worker forwards every request to one container running the Next standalone server.
+  // mazin (abdoutgroup.com) on the containerless $0 lane: vinext → one Worker with
+  // Static Assets. No container, no Workers Cache, no KV cache, no Cloudflare Images.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "mazin",
-  "main": "cf/worker.js",
+  "main": "cf/vinext-worker.js",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "observability": { "enabled": true },
+  "assets": { "directory": "dist/client", "not_found_handling": "none", "binding": "ASSETS" },
   "vars": {
-    // next-auth builds redirects from the request URL, which the standalone server reports
-    // as 0.0.0.0:3000; AUTH_URL pins the real origin.
     "AUTH_URL": "https://abdoutgroup.com",
     "AUTH_TRUST_HOST": "true"
   },
-  "containers": [
-    {
-      "class_name": "MazinContainer",
-      "image": "./Dockerfile.cf",
-      "max_instances": 1,
-      // basic = ¼ vCPU / 1 GiB. Bump to standard-1 if /api/health reports rss near the limit.
-      "instance_type": "basic"
-    }
+  // v1 created the container's Durable Object; v2 retires it with the container lane.
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["MazinContainer"] },
+    { "tag": "v2", "deleted_classes": ["MazinContainer"] }
   ],
-  "durable_objects": {
-    "bindings": [{ "name": "MAZIN", "class_name": "MazinContainer" }]
-  },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MazinContainer"] }],
-  // vercel.json's crons, verbatim (UTC). New triggers can take ~19 h to start firing.
   "triggers": { "crons": ["0 6 * * *", "0 8 * * *"] },
-  // custom_domain: Cloudflare owns the DNS record for each hostname.
   "routes": [
     { "pattern": "abdoutgroup.com", "custom_domain": true },
     { "pattern": "www.abdoutgroup.com", "custom_domain": true }
